@@ -1,4 +1,5 @@
 import {mayPromote} from '../src/capabilities.js';
+import {PLATFORM_SITEMAPS} from '../platform/seo.js';
 import {verificationHead,notFound} from './growth-build.mjs';
 // Sitemap index + per-area sitemaps with hreflang and real lastmod (tools/sitemaps.mjs, tools/lastmod.mjs).
 import {sitemapFiles,allPagesSitemap,SITEMAP_INDEX} from './sitemaps.mjs';import {lastmodResolver,pageHashes} from './lastmod.mjs';
@@ -20,16 +21,19 @@ import {POLICY_ROUTES,policyContent,policies} from '../src/policies.js';
 import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigationData} from '../src/seo.js';
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
+import {withBeacon} from './traffic-build.mjs';
 import {STUDIO_PATH,studioPage} from './studio-build.mjs';
+import {ADMIN_HEADERS,isAdminSource} from './admin-build.mjs';
 import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths,resolveLink} from './game-landing-build.mjs';
 import {gameHead} from './game-seo-build.mjs';
 import {sfxPage} from './sfx-build.mjs';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
+import {AUDIO_LAB_PATH,audioLabPage} from './audio-lab-build.mjs';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
 // /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
-export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator'].map(r=>`${l}/${r}`)])];
+export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',AUDIO_LAB_PATH].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Cloudflare Email Address Obfuscation (on for the nerulio.com zone) rewrites anything shaped like
  * an address at the edge: "hero@2x.json" was served as "[email protected]" with a /cdn-cgi link that 404s.
@@ -59,6 +63,7 @@ export function entry(html,route='',siteURL='',config={}){
  if(parts.path==='game/sfx-generator')return sfxPage({locale,base,siteURL});
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
  if(parts.path===STUDIO_PATH)return studioPage({locale,base,config});
+ if(parts.path===AUDIO_LAB_PATH)return audioLabPage({locale,base,siteURL,preview:config.preview});
  // Game routes the Studio covers, game keyword landings and /game/: dark landing pages that open the Studio.
  const game=gamePageFor(parts.path);
  if(game){
@@ -103,7 +108,7 @@ export function entry(html,route='',siteURL='',config={}){
 function head(route,locale,siteURL,config){return `<meta name="site-url" content="${escape(siteURL)}">${config.preview?'<meta name="robots" content="noindex,nofollow">':!mayPromote(intentFor(route))?'<meta data-quality-robots name="robots" content="noindex,follow">':''}`+seoLinks(route,locale,siteURL)+verificationHead(config)+serviceMeta(config)+(config.webAnalytics?'<meta name="web-analytics" content="cloudflare">':'')+adHead(config);}
 function policyEntry(route,locale,base,siteURL,config){
  const title=labels[locale][route]+' · '+BRAND.name,description=policies[locale][route][0][1];
- return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service,!!config.webAnalytics)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
+ return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service,!!config.webAnalytics,!!config.traffic)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
 }
 /** Every indexable page URL in one urlset: home, game pages, guides, then the file tools (tests,
  * IndexNow). The published sitemap.xml is an index of per-area sitemaps (tools/sitemaps.mjs). */
@@ -122,16 +127,17 @@ export async function build(options={}){
   console.log(`Built redirect-only site → ${config.redirectTo}`);
   return;
  }
- for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
+ // src/admin is the owner-only admin app: published as dist/admin only in admin builds (tools/admin-build.mjs).
+ for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true,filter:p=>!isAdminSource(p)});
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),faviconSVG());
  for(const f of ['favicon.ico','apple-touch-icon.png'])await cp(path.join(ROOT,'assets/brand',f),path.join(dist,f));
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
- for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(withIcons(entry(html,route,siteURL,config))));}
+ for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(withBeacon(withIcons(entry(html,route,siteURL,config)),config)));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
  const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));
- for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod})))await writeFile(path.join(dist,file),xml);
+ for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod,dynamic:config.platform?PLATFORM_SITEMAPS:[]})))await writeFile(path.join(dist,file),xml);
  if(config.indexNowKey)await writeFile(path.join(dist,config.indexNowKey+'.txt'),config.indexNowKey);
  // The commit this build is made from (Cloudflare Pages / GitHub Actions), so tools/live-check.mjs can
  // wait until production serves this build before it checks it.
@@ -143,7 +149,7 @@ export async function build(options={}){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
   await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/build.txt','/styles.css','/experience.css','/content.css','/favicon.svg','/favicon.ico','/apple-touch-icon.png','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']},null,2));
  }
- if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS);}
+ if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS+(config.platform?ADMIN_HEADERS:''));}
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))await build();

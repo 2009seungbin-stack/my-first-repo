@@ -7,6 +7,15 @@ export const TOOLS = Object.freeze({
     "limit": ["플랫폼 심사는 보장하지 않습니다. 게임 화면과 이미지 안의 문구는 직접 검토하세요.", "Platform approval is not guaranteed. Review genuine gameplay and any text already in your art.", "ストア審査の通過は保証しません。実際のゲーム画面と画像内の文言を確認してください。"],
     "next": ["compress", "crop"]
   },
+  "pixel-avatar-maker": {
+    "path": "game/pixel-avatar-maker",
+    "category": "game",
+    "icon": "pixel",
+    "title": ["픽셀 아바타 만들기","Pixel Avatar Maker","ピクセルアバター作成"],
+    "description": ["오리지널 CC0 파츠로 캐릭터를 조합하고 픽셀 PNG·GIF·공유 카드를 기기에서 만드세요.","Compose original CC0 character parts and export exact-pixel PNG, GIF and a share card on your device.","オリジナルCC0パーツを組み合わせ、正確なピクセルPNG・GIF・共有カードを端末上で作成。"],
+    "limit": ["설정 링크에는 이미지가 없으며, SNS 링크의 미리보기는 공통 카드입니다.","Settings links contain no image; social link previews use a generic card.","設定リンクに画像は含まれず、SNSのリンクプレビューは共通カードです。"],
+    "next": ["pixel-lab","sprite-sheet-maker","palette-swap"]
+  },
   "refiner": {
     "path": "game-asset-pixelizer",
     "category": "game",
@@ -889,6 +898,15 @@ export const TOOLS = Object.freeze({
       "ui-lab",
       "ui-scale-preview"
     ]
+  },
+  "webtoon-manga-toolkit": {
+    "path": "image/webtoon-manga-toolkit",
+    "category": "image",
+    "icon": "crop",
+    "title": ["웹툰·만화 제작 도구", "Webtoon & Manga Toolkit", "Webtoon・漫画制作ツール"],
+    "description": ["내 원고를 순서대로 합치거나 플랫폼 근거를 보며 분할해 ZIP으로 저장하세요. 파일은 이 기기에서 처리합니다.", "Join your artwork in order or split it with source-scoped platform targets, then save a checked ZIP. Files stay on this device.", "原稿を順番に結合し、出典の範囲を示す目標で分割して検証済みZIPに保存。ファイルは端末内で処理します。"],
+    "limit": ["분할선은 대사·컷의 안전을 판단하지 않습니다. 플랫폼 업로드 수락은 미검증이며 WEBTOON 용량은 보수적 출력 목표입니다.", "Cut lines cannot judge dialogue or panel safety. Platform acceptance is unverified; WEBTOON byte budgets are conservative export targets.", "分割線はせりふやコマの安全性を判定しません。投稿先の受理は未検証で、WEBTOONの容量は保守的な出力目標です。"],
+    "next": ["crop", "compress", "image"]
   },
   "ui-scale-preview": {
     "path": "game/ui-scale-preview",

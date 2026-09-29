@@ -4,7 +4,8 @@ import {ApiError,json,errorResponse,readJSON,readBody,cookie} from './http.js';
 import {hmacHex,sign,unsign} from './crypto.js';
 import {resolveContext,HUMAN_COOKIE} from './identity.js';
 import {usageFor,authorizeJob,networkUsage,cleanupStatements,resetAt,graceTokens,readGraceToken,bumpEvent} from './usage.js';
-import {startLogin,finishLogin,logout} from './auth-google.js';
+import {startLogin,finishLogin,logout,signInMethods,unlinkIdentity} from './oauth/flow.js';
+import {configuredProviders} from './oauth/providers.js';
 import {verifyTurnstile} from './turnstile.js';
 import {billingProvider} from './billing/index.js';
 import {applyBillingEvent} from './billing/webhook.js';
@@ -94,6 +95,8 @@ async function me(request,ctx,cfg,db,now){
   ...(ctx.user?{user:{name:ctx.user.display_name||'',email:ctx.user.email||''},subscription:ctx.subscription}:{}),
   ...(grace?{grace}:{}),
   billing:{mode:cfg.billing.mode,yearly:!!cfg.billing.prices.year},
+  // Sign-in buttons to show (configured providers only, in display order).
+  providers:configuredProviders(cfg),
   turnstileSiteKey:cfg.turnstile.siteKey&&cfg.turnstile.secret?cfg.turnstile.siteKey:''
  };
 }
@@ -229,7 +232,8 @@ async function adminStats(ctx,cfg,db,now){
  if(!u||!cfg.adminSubjects.includes(u.provider_subject)||u.provider!=='google'||now-Number(u.session_created)>12*3600e3)throw new ApiError('NOT_FOUND');
  const day=quotaDay(now),since=now-864e5;
  const [users,pro,usage,jobs,events,flags,refusals,sharing,pastDue]=await db.batch([
-  db.prepare('SELECT COUNT(*) n FROM users'),
+  // System accounts (the Radar bot that authors platform news posts) are not people.
+  db.prepare("SELECT COUNT(*) n FROM users WHERE provider<>'system'"),
   db.prepare(`SELECT COUNT(DISTINCT user_id) n FROM subscriptions WHERE plan='pro' AND disputed_at IS NULL AND ((status IN ('active','trialing','canceled') AND current_period_end>?1) OR (status='past_due' AND past_due_since>?2))`).bind(now,now-cfg.pastDueGraceDays*864e5),
   db.prepare(`SELECT COALESCE(SUM(CASE WHEN subject_id LIKE ?2 THEN 0 ELSE used END),0) n,COALESCE(SUM(CASE WHEN subject_id LIKE ?2 THEN used ELSE 0 END),0) studio FROM daily_usage WHERE day=?1 AND subject_id NOT LIKE 'n:%' AND subject_id NOT LIKE 'w:%'`).bind(day,'%'+STUDIO_SUBJECT_SUFFIX),
   db.prepare('SELECT COALESCE(SUM(allowed=0),0) denied,COUNT(*) total FROM job_authorizations WHERE created_at>=?1').bind(Date.parse(day)),
@@ -246,6 +250,7 @@ async function adminStats(ctx,cfg,db,now){
 }
 const ROUTES={
  'GET /health':1,'GET /me':1,'GET /usage':1,'POST /jobs/authorize':1,'POST /jobs/reconcile':1,'GET /auth/google/start':1,'GET /auth/google/callback':1,
+ 'GET /auth/github/start':1,'GET /auth/github/callback':1,'GET /auth/discord/start':1,'GET /auth/discord/callback':1,'GET /auth/identities':1,'POST /auth/unlink':1,
  'POST /auth/logout':1,'POST /billing/checkout':1,'POST /billing/portal':1,'POST /billing/webhook':1,'GET /admin/stats':1,'POST /admin/cleanup':1
 };
 export async function handleApi(request,env={},ctx=null,deps={}){
@@ -261,7 +266,7 @@ export async function handleApi(request,env={},ctx=null,deps={}){
   const cfg=runtimeConfig(env),now=deps.now(),db=env.DB;
   if(key==='GET /health'){
    let database=false;if(db)try{database=(await db.prepare('SELECT 1 AS ok').first())?.ok===1;}catch{}
-   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,google:!!(cfg.google.clientId&&cfg.google.clientSecret),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),tickets:!!cfg.ticketKey,
+   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,google:!!(cfg.google.clientId&&cfg.google.clientSecret),github:!!(cfg.oauth.github.clientId&&cfg.oauth.github.clientSecret),discord:!!(cfg.oauth.discord.clientId&&cfg.oauth.discord.clientSecret),providers:configuredProviders(cfg),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),tickets:!!cfg.ticketKey,
     ...(cfg.environmentOverrideRefused?{warning:'NERULIO_ENV=development is ignored on this build'}:{})});
   }
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
@@ -278,11 +283,21 @@ export async function handleApi(request,env={},ctx=null,deps={}){
    }
    case 'POST /jobs/authorize':return done(await authorize(request,context,cfg,env,now,deps));
    case 'POST /jobs/reconcile':return done(await reconcile(request,context,cfg,env,now,deps));
-   case 'GET /auth/google/start':{
+   case 'GET /auth/google/start':case 'GET /auth/github/start':case 'GET /auth/discord/start':{
     await rateLimit(request,context,env,deps,cfg,now,'signin',await networkSubjects(clientIP(request),cfg.secret,now));
-    return await startLogin(context,cfg,now);
+    return await startLogin(context,cfg,now,/** @type {any} */(route.split('/')[2]));
    }
-   case 'GET /auth/google/callback':return await finishLogin(context,cfg,db,now,deps.fetch);
+   case 'GET /auth/google/callback':case 'GET /auth/github/callback':case 'GET /auth/discord/callback':
+    return await finishLogin(context,cfg,db,now,/** @type {any} */(route.split('/')[2]),{fetch:deps.fetch,acceptLanguage:request.headers.get('accept-language')});
+   case 'GET /auth/identities':{
+    if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+    return done({providers:configuredProviders(cfg),...await signInMethods(db,context.user,now)});
+   }
+   case 'POST /auth/unlink':{
+    if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+    const body=fields(await readJSON(request,256),['provider']);
+    return done({providers:configuredProviders(cfg),...await unlinkIdentity(db,context.user,body.provider,now)});
+   }
    case 'POST /auth/logout':context.setCookies.push(await logout(context,db,now));return done({loggedIn:false});
    case 'POST /billing/checkout':return done(await checkout(request,context,cfg,env,deps,now));
    case 'POST /billing/portal':return done(await portal(context,cfg,db,env,deps));

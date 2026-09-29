@@ -1,0 +1,15 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "hardware",
+ "sources": [
+  {
+   "id": "src:estimate-llm-vram-fit-v1",
+   "kind": "ESTIMATE_METHOD",
+   "title": "Nerulio LLM VRAM fit estimate (method v1)",
+   "publisher": "Nerulio",
+   "retrieved": "2026-09-28",
+   "note": "Estimate, not a measurement. Weights = total parameters × bits-per-weight ÷ 8, using a bits-per-weight range per quantization: low = the block size of the preset's default ggml tensor type (llama.cpp ggml-common.h, llama-quant.cpp), high = the whole-file bits/weight llama.cpp measured for that preset on Llama-3.1-8B (tools/quantize/README.md). MoE models count all parameters. KV cache (when the model config is known) = 2 × layers × KV heads × head dimension × context × sequences × bytes per cache element (f16 = 2 bytes by default); for sliding-window, hybrid or MLA attention this is an upper bound. Runtime overhead is a Nerulio assumption: 0.5–1.0 GiB plus 0–5 % of the weights. Verdict: \"does not fit\" when even the low total exceeds VRAM, \"tight\" when the high total exceeds 90 % of VRAM, otherwise \"fits\". Speed is not estimated."
+  }
+ ],
+ "entities": []
+}

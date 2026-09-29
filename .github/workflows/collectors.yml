@@ -1,0 +1,100 @@
+name: Nerulio 2.0 collectors
+# Official feeds → ingest pipeline → D1 (REST API). Off until the owner sets the repository variable
+# PLATFORM_COLLECTORS=on and the secrets CF_ACCOUNT_ID, CF_D1_DATABASE_ID, CF_API_TOKEN
+# (a token with D1 edit permission on that one database). See NERULIO_2_MIGRATION_PLAN.md §5.
+# One job per adapter (tools/platform/collector-plan.mjs): a slow collector cannot time out the others.
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # status pages: the "지금 장애?" panels trust data for 2 hours
+    - cron: '17 */6 * * *'   # releases, Steam news/store, prices, schedules
+  workflow_dispatch:
+    inputs:
+      adapters:
+        description: 'Comma-separated adapter ids (empty = all)'
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: collectors-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
+jobs:
+  plan:
+    if: ${{ vars.PLATFORM_COLLECTORS == 'on' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      adapters: ${{ steps.plan.outputs.adapters }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: plan
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          INPUT_ADAPTERS: ${{ github.event.inputs.adapters }}
+        run: |
+          set --
+          if [ -n "$INPUT_ADAPTERS" ]; then set -- --adapters "$INPUT_ADAPTERS"
+          elif [ -n "$SCHEDULE" ]; then set -- --schedule "$SCHEDULE"; fi
+          echo "adapters=$(node tools/platform/collector-plan.mjs "$@")" >> "$GITHUB_OUTPUT"
+  collect:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        adapter: ${{ fromJSON(needs.plan.outputs.adapters) }}
+    name: collect (${{ matrix.adapter }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run ${{ matrix.adapter }} into D1
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: node tools/platform/collect.mjs --adapters "${{ matrix.adapter }}" --d1
+  fx:
+    # ECB reference rate for ≈ ₩, with the 6-hourly and manual runs.
+    needs: plan
+    if: ${{ github.event.schedule != '*/30 * * * *' && !github.event.inputs.adapters }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reference rate for ≈ ₩ (ECB)
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: node tools/platform/fx.mjs --d1
+  notify:
+    # Push to the admin app (server/platform/admin.js): a failed run → "collector_failed"; every
+    # 30-minute run → "tick" (D1 usage vs the device's thresholds, stale status collectors, incidents,
+    # digests). Each alert is sent once. Skipped silently until the variable NOTIFY_URL and the secret
+    # NOTIFY_TOKEN (same value as the Pages secret) are set. See docs/CLOUDFLARE.md "관리 앱".
+    needs: [plan, collect, fx]
+    if: ${{ always() && needs.plan.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Notify the admin app
+        env:
+          NOTIFY_URL: ${{ vars.NOTIFY_URL }}
+          NOTIFY_TOKEN: ${{ secrets.NOTIFY_TOKEN }}
+          FAILED: ${{ contains(needs.*.result, 'failure') }}
+          SCHEDULE: ${{ github.event.schedule }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$NOTIFY_URL" ] || [ -z "$NOTIFY_TOKEN" ]; then echo 'NOTIFY_URL / NOTIFY_TOKEN not set: skipped'; exit 0; fi
+          post() { curl -sS -m 30 -o /dev/null -w "notify $1: HTTP %{http_code}\n" -X POST "${NOTIFY_URL%/}/api/v2/admin/notify" -H "authorization: Bearer $NOTIFY_TOKEN" -H 'content-type: application/json' --data "$2" || true; }
+          if [ "$FAILED" = 'true' ]; then post collector_failed "{\"kind\":\"collector_failed\",\"payload\":{\"runUrl\":\"$RUN_URL\"}}"; fi
+          if [ "$SCHEDULE" = '*/30 * * * *' ]; then post tick '{"kind":"tick"}'; fi

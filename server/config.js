@@ -1,6 +1,7 @@
 import BUILD from './build-info.js';
 import {freeDailyLimit,freeStudioLimit,freeAnonStudioLimit} from '../src/quota.js';
 import {parsePrivateJwk} from './tickets.js';
+import {providerCredentials} from './oauth/providers.js';
 /** Runtime configuration. Plain settings are Pages environment variables; credentials are
  * Pages secrets. Nothing here is ever sent to the browser except explicitly public fields. */
 export const SESSION_TTL_MS=30*864e5;
@@ -52,6 +53,7 @@ export function runtimeConfig(env={},build=BUILD){
  // Anonymous Studio exports per network per day (all anonymous identities together). Past it,
  // clearing cookies / incognito no longer yields more: the next export asks for a free sign-in.
  const anonNetworkStudio=between(env.ANON_NETWORK_STUDIO_EXPORTS,Math.max(freeAnonStudio*10,1),0,1e6);
+ const oauth=providerCredentials(env);
  return Object.freeze({
   anonNetworkStudio,anonWideStudio:anonNetworkStudio*4,
   // ECDSA P-256 key that signs permissions (server/tickets.js); null = unsigned answers.
@@ -61,7 +63,11 @@ export function runtimeConfig(env={},build=BUILD){
   environment,environmentOverrideRefused:devRequested&&environment!=='development',siteOrigin,freeDailyJobs,freeDailyStudio,freeAnonStudio,
   configured:!!env.DB&&secret.length>=32,
   secret,
-  google:{clientId:env.GOOGLE_OAUTH_CLIENT_ID||'',clientSecret:env.GOOGLE_OAUTH_CLIENT_SECRET||''},
+  // Sign-in providers (server/oauth/): each is offered only with both its client id (variable) and secret.
+  oauth,google:oauth.google,
+  // Development E2E only: provider endpoints are called on this origin (a local mock). Ignored on every
+  // Pages build and outside NERULIO_ENV=development, so a stray variable cannot redirect real sign-ins.
+  oauthTestOrigin:environment==='development'&&/^http:\/\/(127\.0\.0\.1|localhost):\d{2,5}$/.test(String(env.OAUTH_TEST_ORIGIN||''))?String(env.OAUTH_TEST_ORIGIN):'',
   turnstile:{siteKey:env.TURNSTILE_SITE_KEY||'',secret:env.TURNSTILE_SECRET_KEY||''},
   anonNetworkSoftLimit:networkSoftLimit,networkSoftLimit,networkHardLimit,networkWideLimit,
   // Signed offline allowance per identity per day (docs/MONETIZATION-SECURITY.md §3a).

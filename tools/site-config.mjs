@@ -37,6 +37,17 @@ export function configuration(env=process.env){
  if(!['','on','off'].includes(env.CF_WEB_ANALYTICS||''))throw Error('CF_WEB_ANALYTICS must be on or off');
  const webAnalytics=env.CF_WEB_ANALYTICS==='on'&&!preview;
  const service=env.SERVICE_API==='on';
+ // Nerulio 2.0 channel/community pages are server-rendered by the same Worker from D1 (NERULIO_2_ARCHITECTURE.md D5).
+ if(!['','on','off'].includes(env.PLATFORM||''))throw Error('PLATFORM must be on or off');
+ const platform=env.PLATFORM==='on';
+ // Visitor/bot statistics (server/traffic.js) ship with the platform Worker: the beacon on every page,
+ // robots.txt and sitemaps through the Worker. TRAFFIC_HTML (default on in those builds; the account is on
+ // Workers Paid) also routes all HTML through it so bots on static pages are counted — one Worker request per
+ // HTML request (docs/CLOUDFLARE.md). TRAFFIC_HTML=off keeps static pages off the Worker.
+ if(!['','on','off'].includes(env.TRAFFIC_HTML||''))throw Error('TRAFFIC_HTML must be on or off');
+ const traffic=platform,trafficHtml=traffic&&env.TRAFFIC_HTML!=='off';
+ if(env.TRAFFIC_HTML==='on'&&!traffic)throw Error('TRAFFIC_HTML=on needs SERVICE_API=on and PLATFORM=on');
+ if(platform&&!service)throw Error('PLATFORM=on needs SERVICE_API=on (the pages are rendered by the service Worker)');
  // Pro is sold monthly and yearly. PRO_PRICE_MONTHLY_AMOUNT (alias PRO_PRICE_AMOUNT) and
  // PRO_PRICE_YEARLY_AMOUNT are display prices in PRO_PRICE_CURRENCY; what is charged is the provider
  // price each is paired with (BILLING_PRICE_ID / BILLING_PRICE_ID_YEARLY). The yearly saving is
@@ -61,7 +72,7 @@ export function configuration(env=process.env){
  // Public half of the key that signs service answers (tools/ticket-keys.mjs). Not a secret.
  const ticketPublicKey=env.TICKET_PUBLIC_KEY||'';
  if(ticketPublicKey&&!/^[A-Za-z0-9_-]{87}$/.test(ticketPublicKey))throw Error('TICKET_PUBLIC_KEY must be the value printed by node tools/ticket-keys.mjs');
- return {siteURL,preview,pagesBuild,ticketPublicKey,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics};
+ return {siteURL,preview,pagesBuild,ticketPublicKey,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics,platform,traffic,trafficHtml};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';

@@ -95,11 +95,11 @@ export async function adsAllowed(){
  return status==='unconfigured'||(status==='ready'&&me?.ads===true);
 }
 // ------------------------------------------------------------------ sign-in (free, new tab)
-/** The Google sign-in URL. It opens in a NEW tab so the page (and the Studio project in memory)
- * is never navigated away; the account page tells this tab when sign-in finished. */
+/** The sign-in chooser: the account page, which lists the configured providers (Google, GitHub,
+ * Discord). It opens in a NEW tab so the page (and the Studio project in memory) is never navigated
+ * away; the account page tells this tab when sign-in finished. */
 export function signInURL(from=''){
- const back=`/${locale()}/account/${from?`?from=${encodeURIComponent(from)}`:''}`;
- return API+`auth/google/start?return=${encodeURIComponent(back)}`;
+ return new URL(`${locale()}/account/`,document.baseURI).pathname+(from?`?from=${encodeURIComponent(from)}`:'');
 }
 export function openSignIn(from=''){
  signInPending=true;track('login_started',{from});

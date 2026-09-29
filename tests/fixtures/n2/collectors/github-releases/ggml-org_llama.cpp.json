@@ -1,0 +1,42 @@
+[
+ {
+  "tag_name": "b11229",
+  "name": "b11229",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-09-28T12:43:28Z",
+  "html_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b11229"
+ },
+ {
+  "tag_name": "b11228",
+  "name": "b11228",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-09-28T11:06:50Z",
+  "html_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b11228"
+ },
+ {
+  "tag_name": "b11227",
+  "name": "b11227",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-09-28T09:29:57Z",
+  "html_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b11227"
+ },
+ {
+  "tag_name": "b11226",
+  "name": "b11226",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-09-28T08:45:12Z",
+  "html_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b11226"
+ },
+ {
+  "tag_name": "b11225",
+  "name": "b11225",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-09-28T08:11:09Z",
+  "html_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b11225"
+ }
+]

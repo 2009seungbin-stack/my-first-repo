@@ -1,0 +1,1202 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-events-gstar-info",
+   "kind": "OFFICIAL",
+   "url": "https://www.gstar.or.kr/gstar/gstar_info.do",
+   "title": "G-STAR 전시개요 — 국제게임전시회 지스타 2026",
+   "publisher": "지스타조직위원회 (G-STAR official site)",
+   "retrieved": "2026-09-28",
+   "note": "Schedule table: 대한민국 게임대상 11.18; BTC 전시 11.19–11.22; BTB 전시 11.19–11.21; G-CON 11.19–11.20."
+  },
+  {
+   "id": "src:sc-events-agf-korea-overview",
+   "kind": "OFFICIAL",
+   "url": "https://www.agfkorea.com/event?idx=1",
+   "title": "행사정보 — Anime x Game Festival 2026",
+   "publisher": "AGF 2026 조직위원회 (AGF Korea official site)",
+   "retrieved": "2026-09-28",
+   "note": "Ticket, collab-café, stage and exhibitor pages all read 'Coming soon' on the retrieval date."
+  },
+  {
+   "id": "src:sc-events-illustar-api",
+   "kind": "OFFICIAL",
+   "url": "https://illustar.net/",
+   "title": "ILLUSTAR FES — 일러스타 페스 (official site; event list)",
+   "publisher": "스타라이크 주식회사 (Starlike Inc.)",
+   "retrieved": "2026-09-28",
+   "note": "The site renders client-side; event data read from the site's own API (api.illustar.net/v1/event/list and /v1/main/ongoingBoothInfo). Operator name from the site footer."
+  },
+  {
+   "id": "src:sc-events-comicw-337",
+   "kind": "OFFICIAL",
+   "url": "https://comicw.net/c/404",
+   "title": "코믹월드 337 울산 — 서브컬쳐 행사일정",
+   "publisher": "(주)코믹월드 (Comic World official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-comicw-338",
+   "kind": "OFFICIAL",
+   "url": "https://comicw.net/c/408",
+   "title": "코믹월드 338 수원 — 서브컬쳐 행사일정",
+   "publisher": "(주)코믹월드 (Comic World official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-comicw-339",
+   "kind": "OFFICIAL",
+   "url": "https://comicw.net/c/416",
+   "title": "코믹월드 339 일산 — 서브컬쳐 행사일정",
+   "publisher": "(주)코믹월드 (Comic World official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-comicw-winter",
+   "kind": "OFFICIAL",
+   "url": "https://comicw.net/c/421",
+   "title": "코믹월드 WINTER 2026 — 서브컬쳐 행사일정",
+   "publisher": "(주)코믹월드 (Comic World official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-comiket-top",
+   "kind": "OFFICIAL",
+   "url": "https://www.comiket.co.jp/",
+   "title": "コミックマーケット公式サイト",
+   "publisher": "コミックマーケット準備会",
+   "retrieved": "2026-09-28",
+   "note": "States コミックマーケット109 at 東京ビッグサイト, 2026-12-29 to 12-31 (3 days)."
+  },
+  {
+   "id": "src:sc-events-animejapan-about",
+   "kind": "OFFICIAL",
+   "url": "https://www.anime-japan.jp/about/",
+   "title": "開催概要 — AnimeJapan 2027",
+   "publisher": "一般社団法人アニメジャパン",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-jumpfesta",
+   "kind": "OFFICIAL",
+   "url": "https://www.jumpfesta.com/",
+   "title": "ジャンプフェスタ2027 公式サイト",
+   "publisher": "集英社",
+   "retrieved": "2026-09-28",
+   "note": "Site opened 2026-09-28."
+  },
+  {
+   "id": "src:sc-events-jumpshop-seoul-3-x",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/smg_comic/status/2102563599663456370",
+   "title": "기간한정 JUMP SHOP in SEOUL <제3탄> 설문조사",
+   "publisher": "서울미디어코믹스(서울문화사) 해외만화팀 official X (@smg_comic)",
+   "retrieved": "2026-09-28",
+   "note": "Posted 2026-09-23; read in a browser and via X oEmbed."
+  },
+  {
+   "id": "src:sc-events-aniplus-collabo-list",
+   "kind": "OFFICIAL",
+   "url": "https://shop.aniplustv.com/offline-shop/collabo-cafe",
+   "title": "콜라보 카페 — ANIPLUS SHOP (애니플러스샵)",
+   "publisher": "주식회사 애니플러스 (ANIPLUS INC.)",
+   "note": "Dates read from the shop page's own collab-café data (api.aniplustv.com:3060/api/v2/offline-collabo). The page states collab cafés run at 애니플러스 서울 합정점 and 부산 서면점.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-aniplus-home",
+   "kind": "OFFICIAL",
+   "url": "https://www.aniplustv.com/",
+   "title": "애니플러스 — 메인 배너",
+   "publisher": "주식회사 애니플러스 (ANIPLUS INC.)",
+   "note": "Home banners: 「hololive FLOW GLOW X ANIPLUS」 콜라보 카페 9월 17일 오픈; 우마무스메 프리티 더비 콜라보 카페 8월 20일 오픈; 【최애의 아이】 콜라보 카페 8월 13일 오픈.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-chiikawa-info",
+   "kind": "OFFICIAL",
+   "url": "https://chiikawa-info.jp/",
+   "title": "ちいかわインフォ — ちいかわ公式総合情報サイト",
+   "publisher": "スパイラルキュート (Spiral Cute)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-events-chiikawa-movie",
+   "kind": "OFFICIAL",
+   "url": "https://chiikawa.toho-movie.jp/",
+   "title": "『映画ちいかわ 人魚の島のひみつ』公式サイト",
+   "publisher": "東宝 / 2026「映画ちいかわ」製作委員会",
+   "note": "Staff/cast credits: original story & screenplay ナガノ, director 及川啓, animation production サイピク, distribution 東宝.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-a-kobis-20261807",
+   "kind": "OFFICIAL",
+   "url": "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovieDtl.do?code=20261807",
+   "title": "극장판 치이카와: 인어 섬의 비밀 - KOBIS 영화정보",
+   "publisher": "Korean Film Council (KOBIS)",
+   "retrieved": "2026-09-29",
+   "note": "Korean theatrical release 2026-09-30; distributor CJ ENM, importer 대원미디어"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-40822",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40822",
+   "title": "치이카와 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40822/ (casts/production fields)"
+  }
+ ],
+ "entities": [
+  {
+   "id": "event:g-star-2026",
+   "type": "event",
+   "slug": "g-star-2026",
+   "names": {
+    "en": "G-STAR 2026",
+    "ko": "지스타 2026"
+   },
+   "aliases": [
+    "G-STAR",
+    "지스타",
+    "국제게임전시회 지스타 2026"
+   ],
+   "description": {
+    "en": "G-STAR is Korea's international game exhibition held at BEXCO in Busan; the 2026 edition runs from 18 to 22 November with consumer (BTC) and business (BTB) halls and the G-CON conference.",
+    "ko": "지스타는 부산 벡스코에서 열리는 국제게임전시회로, 2026년 행사는 11월 18일부터 22일까지 BTC·BTB 전시와 G-CON 컨퍼런스로 진행된다."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.gstar.or.kr/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "한국게임산업협회 (Korea Association of Game Industry); managed by 지스타조직위원회 and 부산정보산업진흥원",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-gstar-info"
+    },
+    {
+     "p": "venue",
+     "v": "BEXCO, Busan (online: 지스타 TV)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-gstar-info"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.gstar.or.kr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-gstar-info"
+    },
+    {
+     "p": "status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-gstar-info"
+    }
+   ]
+  },
+  {
+   "id": "event:agf-korea-2026",
+   "type": "event",
+   "slug": "agf-korea-2026",
+   "names": {
+    "en": "Anime X Game Festival 2026 (AGF Korea 2026)",
+    "ko": "AGF 2026 (애니메이션 X 게임 페스티벌)"
+   },
+   "aliases": [
+    "AGF Korea 2026",
+    "AGF 2026",
+    "AGF KOREA",
+    "Anime X Game Festival 2026"
+   ],
+   "description": {
+    "en": "AGF Korea is an anime and game fan convention at KINTEX in Goyang; the 2026 edition is scheduled for 4–6 December and is organised by a committee of Aniplus, Daewon Media, Sony Music Solutions and D&C Media.",
+    "ko": "AGF는 고양 킨텍스에서 열리는 애니메이션·게임 행사로, 2026년 행사는 12월 4~6일에 애니플러스·대원미디어·소니뮤직솔루션즈·디앤씨미디어가 참여한 조직위원회 주최로 열린다."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.agfkorea.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "AGF 2026 조직위원회 (ANIPLUS, Daewon Media, Sony Music Solutions, D&C Media)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-agf-korea-overview"
+    },
+    {
+     "p": "venue",
+     "v": "KINTEX Exhibition Center 1, Halls 1–5 (Goyang)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-agf-korea-overview"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.agfkorea.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-agf-korea-overview"
+    },
+    {
+     "p": "status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-agf-korea-overview"
+    }
+   ]
+  },
+  {
+   "id": "event:illustar-fes-14-2026",
+   "type": "event",
+   "slug": "illustar-fes-14-2026",
+   "names": {
+    "en": "ILLUSTAR FES 14",
+    "ko": "일러스타 페스 14"
+   },
+   "aliases": [
+    "일러스타 페스",
+    "ILLUSTAR FES",
+    "일페"
+   ],
+   "description": {
+    "en": "ILLUSTAR FES is a Korean subculture and doujin event run by Starlike Inc.; its 14th edition is held at KINTEX Exhibition Center 1 on 10–11 October 2026.",
+    "ko": "일러스타 페스는 스타라이크 주식회사가 운영하는 서브컬처·동인 행사로, 14회 행사는 2026년 10월 10~11일 킨텍스 제1전시장에서 열린다."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://illustar.net/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "스타라이크 주식회사 (Starlike Inc.)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-illustar-api"
+    },
+    {
+     "p": "venue",
+     "v": "KINTEX Exhibition Center 1, Halls 4–5 (Goyang)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-illustar-api"
+    },
+    {
+     "p": "homepage",
+     "v": "https://illustar.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-illustar-api"
+    }
+   ]
+  },
+  {
+   "id": "event:comic-world-2026",
+   "type": "event",
+   "slug": "comic-world-2026",
+   "names": {
+    "en": "Comic World 2026 (event series)",
+    "ko": "코믹월드 2026"
+   },
+   "aliases": [
+    "코믹월드",
+    "서울코믹월드",
+    "서코",
+    "Comic World"
+   ],
+   "description": {
+    "en": "Comic World is a long-running Korean doujin and cosplay convention series run by Comic World Co., held several times a year in Ilsan, Suwon, Busan, Ulsan and other cities.",
+    "ko": "코믹월드는 (주)코믹월드가 운영하는 동인·코스프레 행사 시리즈로, 일산·수원·부산·울산 등지에서 연중 여러 차례 열린다."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://comicw.net/"
+    },
+    {
+     "label": "Official site (legacy domain)",
+     "url": "https://comicw.co.kr/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "(주)코믹월드 (Comic World Co., Ltd.)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-comicw-winter"
+    },
+    {
+     "p": "homepage",
+     "v": "https://comicw.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-comicw-winter"
+    }
+   ]
+  },
+  {
+   "id": "event:comic-market-109-2026",
+   "type": "event",
+   "slug": "comic-market-109-2026",
+   "names": {
+    "en": "Comic Market 109 (C109)",
+    "ja": "コミックマーケット109",
+    "ko": "코믹 마켓 109"
+   },
+   "aliases": [
+    "C109",
+    "Comiket 109",
+    "コミケ109"
+   ],
+   "description": {
+    "en": "Comic Market is Japan's largest doujinshi fair, run by the Comic Market Preparations Committee; the 109th edition is held at Tokyo Big Sight on 29–31 December 2026.",
+    "ko": "코믹마켓은 코믹마켓 준비회가 운영하는 일본 최대 동인지 즉매회로, 109회는 2026년 12월 29~31일 도쿄 빅사이트에서 열린다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.comiket.co.jp/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "コミックマーケット準備会 (Comic Market Preparations Committee)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-comiket-top"
+    },
+    {
+     "p": "venue",
+     "v": "Tokyo Big Sight (東京ビッグサイト)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-comiket-top"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.comiket.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-comiket-top"
+    }
+   ]
+  },
+  {
+   "id": "event:animejapan-2027",
+   "type": "event",
+   "slug": "animejapan-2027",
+   "names": {
+    "en": "AnimeJapan 2027",
+    "ja": "AnimeJapan 2027"
+   },
+   "aliases": [
+    "AJ2027",
+    "アニメジャパン2027"
+   ],
+   "description": {
+    "en": "AnimeJapan is a large anime trade and fan fair; the 2027 edition moves from Tokyo to Intex Osaka, its first Osaka edition, with public days on 27–28 March 2027 and business days on 26–27 March.",
+    "ko": "애니메재팬은 대형 애니메이션 전시회로, 2027년 행사는 처음으로 오사카 인텍스 오사카에서 열리며 일반 공개일은 2027년 3월 27~28일, 비즈니스 데이는 3월 26~27일이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.anime-japan.jp/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "一般社団法人アニメジャパン (AnimeJapan); secretariat: Sony Music Solutions Inc.",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-animejapan-about"
+    },
+    {
+     "p": "venue",
+     "v": "Intex Osaka (public days: Halls 2–6AB; business days: Hall 1)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-animejapan-about"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.anime-japan.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-animejapan-about"
+    }
+   ]
+  },
+  {
+   "id": "event:jump-festa-2027",
+   "type": "event",
+   "slug": "jump-festa-2027",
+   "names": {
+    "en": "Jump Festa 2027",
+    "ja": "ジャンプフェスタ2027"
+   },
+   "aliases": [
+    "JF2027",
+    "JUMP FESTA 2027",
+    "점프 페스타 2027"
+   ],
+   "description": {
+    "en": "Jump Festa is Shueisha's annual event for its Jump-branded magazines; Jump Festa 2027 takes place at Makuhari Messe on 19–20 December 2026 with free, application- or invitation-based entry.",
+    "ko": "점프 페스타는 슈에이샤가 점프 계열 잡지를 위해 매년 여는 행사로, 점프 페스타 2027은 2026년 12월 19~20일 마쿠하리 멧세에서 사전 응모·초대제 무료 입장으로 열린다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.jumpfesta.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "集英社 (Shueisha) — Weekly Shonen Jump, Shonen Jump+, V Jump, Jump SQ., Saikyo Jump",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-jumpfesta"
+    },
+    {
+     "p": "venue",
+     "v": "Makuhari Messe International Exhibition Halls 1–9 and 11 (Chiba)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-jumpfesta"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.jumpfesta.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-jumpfesta"
+    }
+   ]
+  },
+  {
+   "id": "collaboration:jump-shop-in-seoul-3",
+   "type": "collaboration",
+   "slug": "jump-shop-in-seoul-3",
+   "names": {
+    "en": "JUMP SHOP in SEOUL (3rd pop-up)",
+    "ko": "기간한정 JUMP SHOP in SEOUL <제3탄>"
+   },
+   "aliases": [
+    "점프샵 서울 3탄",
+    "JUMP SHOP in SEOUL"
+   ],
+   "description": {
+    "en": "A limited-time JUMP SHOP pop-up in Seoul announced by Seoul Media Comics, running at Shinsegae Gangnam from 23 September to 6 October 2026.",
+    "ko": "서울미디어코믹스가 공지한 기간한정 점프샵 팝업으로, 2026년 9월 23일부터 10월 6일까지 신세계백화점 강남점에서 열린다."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Announcement (Seoul Media Comics X)",
+     "url": "https://x.com/smg_comic/status/2102563599663456370"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "서울미디어코믹스 (Seoul Media Comics)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-jumpshop-seoul-3-x"
+    },
+    {
+     "p": "venue",
+     "v": "신세계백화점 강남점 센트럴 1F 오픈 스테이지 (Shinsegae Gangnam, Seoul)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-jumpshop-seoul-3-x"
+    },
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-jumpshop-seoul-3-x"
+    }
+   ]
+  },
+  {
+   "id": "collaboration:uma-musume-x-aniplus-cafe-2026",
+   "type": "collaboration",
+   "slug": "uma-musume-x-aniplus-cafe-2026",
+   "names": {
+    "en": "Uma Musume Pretty Derby × Aniplus collab café",
+    "ko": "우마무스메 프리티 더비 애니플러스 콜라보 카페"
+   },
+   "description": {
+    "en": "A limited-time collaboration café run by Aniplus at its Seoul Hapjeong and Busan Seomyeon shops, from 2026-08-20 to 2026-10-04.",
+    "ko": "애니플러스가 서울 합정점·부산 서면점에서 2026-08-20부터 2026-10-04까지 운영하는 기간 한정 콜라보 카페."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Aniplus Shop collab café page",
+     "url": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=113"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "애니플러스 (ANIPLUS INC.)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "venue",
+     "v": "애니플러스 서울 합정점 · 부산 서면점 (Aniplus Seoul Hapjeong / Busan Seomyeon)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "homepage",
+     "v": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=113",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    }
+   ],
+   "relations": [
+    {
+     "p": "collab_with",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-events-aniplus-collabo-list"
+    }
+   ]
+  },
+  {
+   "id": "collaboration:oshi-no-ko-s3-x-aniplus-cafe-2026",
+   "type": "collaboration",
+   "slug": "oshi-no-ko-s3-x-aniplus-cafe-2026",
+   "names": {
+    "en": "[Oshi no Ko] Season 3 × Aniplus collab café",
+    "ko": "【최애의 아이】 3기 애니플러스 콜라보 카페"
+   },
+   "description": {
+    "en": "A limited-time collaboration café run by Aniplus at its Seoul Hapjeong and Busan Seomyeon shops, from 2026-08-13 to 2026-09-13.",
+    "ko": "애니플러스가 서울 합정점·부산 서면점에서 2026-08-13부터 2026-09-13까지 운영하는 기간 한정 콜라보 카페."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Aniplus Shop collab café page",
+     "url": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=112"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "애니플러스 (ANIPLUS INC.)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "venue",
+     "v": "애니플러스 서울 합정점 · 부산 서면점 (Aniplus Seoul Hapjeong / Busan Seomyeon)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "homepage",
+     "v": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=112",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "status",
+     "v": "retired",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    }
+   ],
+   "relations": [
+    {
+     "p": "collab_with",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-events-aniplus-collabo-list"
+    }
+   ]
+  },
+  {
+   "id": "collaboration:hololive-flow-glow-x-aniplus-cafe-2026",
+   "type": "collaboration",
+   "slug": "hololive-flow-glow-x-aniplus-cafe-2026",
+   "names": {
+    "en": "hololive FLOW GLOW × Aniplus collab café",
+    "ko": "hololive FLOW GLOW X ANIPLUS 콜라보 카페"
+   },
+   "description": {
+    "en": "A limited-time collaboration café run by Aniplus at its Seoul Hapjeong and Busan Seomyeon shops, from 2026-09-17 to 2026-11-01.",
+    "ko": "애니플러스가 서울 합정점·부산 서면점에서 2026-09-17부터 2026-11-01까지 운영하는 기간 한정 콜라보 카페."
+   },
+   "regions": [
+    "KR"
+   ],
+   "official_urls": [
+    {
+     "label": "Aniplus Shop collab café page",
+     "url": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=114"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "애니플러스 (ANIPLUS INC.)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "venue",
+     "v": "애니플러스 서울 합정점 · 부산 서면점 (Aniplus Seoul Hapjeong / Busan Seomyeon)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "homepage",
+     "v": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=114",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    },
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-aniplus-collabo-list"
+    }
+   ]
+  },
+  {
+   "id": "franchise:chiikawa",
+   "type": "franchise",
+   "slug": "chiikawa",
+   "names": {
+    "en": "Chiikawa",
+    "ja": "ちいかわ",
+    "ko": "치이카와"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-kobis-20261807"
+   },
+   "aliases": [
+    "ちいかわ",
+    "치이카와",
+    "먼작귀",
+    "なんか小さくてかわいいやつ",
+    "먼가 작고 귀여운 녀석"
+   ],
+   "aliases_src": {
+    "먼가 작고 귀여운 녀석": "src:ko-sub-a-dwci-comics"
+   },
+   "description": {
+    "en": "Chiikawa is a manga series by illustrator Nagano that began as posts on X; it has a TV anime inside Fuji TV's Mezamashi TV since April 2022 and a theatrical film released in Japan in July 2026.",
+    "ko": "치이카와는 일러스트레이터 나가노가 X에 연재하며 시작한 만화로, 2022년 4월부터 후지TV '메자마시 TV' 안에서 TV 애니메이션이 방송되고 있으며 2026년 7월 일본에서 극장판이 개봉했다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Official info site (JP)",
+     "url": "https://chiikawa-info.jp/"
+    },
+    {
+     "label": "TV anime (JP)",
+     "url": "https://www.anime-chiikawa.jp/"
+    },
+    {
+     "label": "Film (JP)",
+     "url": "https://chiikawa.toho-movie.jp/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://chiikawa-info.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-info"
+    },
+    {
+     "p": "origin_media",
+     "v": "Web manga (posted on X)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-movie",
+     "note": "The film site describes it as a manga by illustrator Nagano that originated on X."
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:nagano",
+     "src": "src:sc-events-chiikawa-movie"
+    }
+   ]
+  },
+  {
+   "id": "creator:nagano",
+   "type": "creator",
+   "slug": "nagano",
+   "names": {
+    "en": "Nagano",
+    "ja": "ナガノ",
+    "ko": "나가노"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dwci-comics"
+   },
+   "aliases": [
+    "ナガノ",
+    "나가노"
+   ],
+   "description": {
+    "en": "Japanese illustrator and manga artist, creator of Chiikawa; credited with the original story and screenplay of the 2026 Chiikawa film.",
+    "ko": "일본의 일러스트레이터·만화가로 '치이카와'의 원작자이며, 2026년 극장판의 원작·각본을 맡았다."
+   }
+  },
+  {
+   "id": "work:chiikawa-tv",
+   "type": "work",
+   "slug": "chiikawa-tv",
+   "names": {
+    "en": "Chiikawa (TV anime)",
+    "ja": "ちいかわ",
+    "ko": "치이카와"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40822"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-info"
+    },
+    {
+     "p": "release_date",
+     "v": "2022-04-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-info",
+     "region": "JP",
+     "note": "Airs within Fuji TV's めざましテレビ."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.anime-chiikawa.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-info"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chiikawa",
+     "src": "src:sc-events-chiikawa-info"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:nagano",
+     "src": "src:sc-events-chiikawa-movie"
+    }
+   ]
+  },
+  {
+   "id": "work:chiikawa-film-2026",
+   "type": "work",
+   "slug": "chiikawa-film-2026",
+   "names": {
+    "en": "Chiikawa the Movie: The Secret of Mermaid Island",
+    "ja": "映画ちいかわ 人魚の島のひみつ",
+    "ko": "극장판 치이카와: 인어 섬의 비밀"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-kobis-20261807"
+   },
+   "aliases": [
+    "映画ちいかわ",
+    "극장판 치이카와"
+   ],
+   "description": {
+    "en": "The first Chiikawa theatrical film, written by Nagano, directed by Kei Oikawa, animated by Cypic and distributed in Japan by Toho.",
+    "ko": "나가노 원작·각본, 오이카와 케이 감독, 사이픽 제작, 도호 배급의 첫 치이카와 극장판."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-movie"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-07-24",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-info",
+     "region": "JP"
+    },
+    {
+     "p": "homepage",
+     "v": "https://chiikawa.toho-movie.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-events-chiikawa-movie"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chiikawa",
+     "src": "src:sc-events-chiikawa-movie"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:nagano",
+     "src": "src:sc-events-chiikawa-movie"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "kind": "event",
+   "title": {
+    "en": "G-STAR 2026",
+    "ko": "지스타 2026"
+   },
+   "starts": "2026-11-18",
+   "ends": "2026-11-22",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "BEXCO, Busan",
+   "url": "https://www.gstar.or.kr/gstar/gstar_info.do",
+   "entities": [
+    "event:g-star-2026"
+   ],
+   "entity": "event:g-star-2026",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-gstar-info",
+   "note": "Korea Game Awards on 11-18; consumer (BTC) exhibition 11-19 to 11-22; BTB 11-19 to 11-21; G-CON 11-19 to 11-20."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Anime X Game Festival 2026 (AGF Korea)",
+    "ko": "AGF 2026 애니메이션 X 게임 페스티벌"
+   },
+   "starts": "2026-12-04",
+   "ends": "2026-12-06",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "KINTEX Exhibition Center 1, Halls 1–5, Goyang",
+   "url": "https://www.agfkorea.com/event?idx=1",
+   "entities": [
+    "event:agf-korea-2026"
+   ],
+   "entity": "event:agf-korea-2026",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-agf-korea-overview",
+   "note": "09:30–18:00 each day. Tickets, stage line-up and collab cafés: 'coming soon' as of 2026-09-28."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "ILLUSTAR FES 14",
+    "ko": "일러스타 페스 14"
+   },
+   "starts": "2026-10-10",
+   "ends": "2026-10-11",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "KINTEX Exhibition Center 1, Halls 4–5, Goyang",
+   "url": "https://illustar.net/",
+   "entities": [
+    "event:illustar-fes-14-2026"
+   ],
+   "entity": "event:illustar-fes-14-2026",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-illustar-api",
+   "note": "10:00–17:00 per the organizer's event data."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Comic World 337 Ulsan",
+    "ko": "코믹월드 337 울산"
+   },
+   "starts": "2026-10-03",
+   "ends": "2026-10-04",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "UECO (울산 유에코), Ulsan",
+   "url": "https://comicw.net/c/404",
+   "entities": [
+    "event:comic-world-2026"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-comicw-337",
+   "note": "11:00–16:30."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Comic World 338 Suwon",
+    "ko": "코믹월드 338 수원"
+   },
+   "starts": "2026-10-24",
+   "ends": "2026-10-25",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "Suwon Messe (수원메쎄), Suwon",
+   "url": "https://comicw.net/c/408",
+   "entities": [
+    "event:comic-world-2026"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-comicw-338",
+   "note": "11:00–16:30."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Comic World 339 Ilsan",
+    "ko": "코믹월드 339 일산"
+   },
+   "starts": "2026-11-07",
+   "ends": "2026-11-08",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "KINTEX Exhibition Center 1, Goyang",
+   "url": "https://comicw.net/c/416",
+   "entities": [
+    "event:comic-world-2026"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-comicw-339"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Comic World WINTER 2026",
+    "ko": "코믹월드 WINTER 2026"
+   },
+   "starts": "2026-12-12",
+   "ends": "2026-12-13",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "KINTEX Exhibition Center 1, Goyang",
+   "url": "https://comicw.net/c/421",
+   "entities": [
+    "event:comic-world-2026"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-comicw-winter"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Comic Market 109 (C109)",
+    "ko": "코믹마켓 109",
+    "ja": "コミックマーケット109"
+   },
+   "starts": "2026-12-29",
+   "ends": "2026-12-31",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Tokyo Big Sight",
+   "url": "https://www.comiket.co.jp/",
+   "entities": [
+    "event:comic-market-109-2026"
+   ],
+   "entity": "event:comic-market-109-2026",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-comiket-top",
+   "note": "The December 2026 Comiket is C109 (C108 was held in August 2026), not C107."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "AnimeJapan 2027 (public days)",
+    "ko": "애니메재팬 2027 (일반 공개일)",
+    "ja": "AnimeJapan 2027 パブリックデイ"
+   },
+   "starts": "2027-03-27",
+   "ends": "2027-03-28",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Intex Osaka, Halls 2–6AB",
+   "url": "https://www.anime-japan.jp/about/",
+   "entities": [
+    "event:animejapan-2027"
+   ],
+   "entity": "event:animejapan-2027",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-animejapan-about",
+   "note": "Business days 2027-03-26 to 03-27 in Hall 1. First Osaka edition."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Jump Festa 2027",
+    "ko": "점프 페스타 2027",
+    "ja": "ジャンプフェスタ2027"
+   },
+   "starts": "2026-12-19",
+   "ends": "2026-12-20",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Makuhari Messe, Chiba",
+   "url": "https://www.jumpfesta.com/",
+   "entities": [
+    "event:jump-festa-2027"
+   ],
+   "entity": "event:jump-festa-2027",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-jumpfesta",
+   "note": "09:00–17:00; free entry by prior application or invitation via the Jump NAVI app."
+  },
+  {
+   "kind": "popup",
+   "title": {
+    "en": "JUMP SHOP in SEOUL (3rd pop-up) at Shinsegae Gangnam",
+    "ko": "기간한정 JUMP SHOP in SEOUL <제3탄> 신세계백화점 강남점"
+   },
+   "starts": "2026-09-23",
+   "ends": "2026-10-06",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "Shinsegae Department Store Gangnam, Central 1F Open Stage, Seoul",
+   "url": "https://x.com/smg_comic/status/2102563599663456370",
+   "entities": [
+    "collaboration:jump-shop-in-seoul-3"
+   ],
+   "entity": "collaboration:jump-shop-in-seoul-3",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-jumpshop-seoul-3-x",
+   "note": "10:00–21:00."
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "Uma Musume Pretty Derby × Aniplus collab café",
+    "ko": "우마무스메 프리티 더비 애니플러스 콜라보 카페"
+   },
+   "starts": "2026-08-20",
+   "ends": "2026-10-04",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "Aniplus Seoul Hapjeong / Busan Seomyeon",
+   "url": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=113",
+   "entities": [
+    "collaboration:uma-musume-x-aniplus-cafe-2026",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "collaboration:uma-musume-x-aniplus-cafe-2026",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-aniplus-collabo-list",
+   "note": "Copyright line on the listing: © Cygames, Inc."
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "[Oshi no Ko] Season 3 × Aniplus collab café",
+    "ko": "【최애의 아이】 3기 애니플러스 콜라보 카페"
+   },
+   "starts": "2026-08-13",
+   "ends": "2026-09-13",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "KR",
+   "location": "Aniplus Seoul Hapjeong / Busan Seomyeon",
+   "url": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=112",
+   "entities": [
+    "collaboration:oshi-no-ko-s3-x-aniplus-cafe-2026",
+    "franchise:oshi-no-ko"
+   ],
+   "entity": "collaboration:oshi-no-ko-s3-x-aniplus-cafe-2026",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-aniplus-collabo-list",
+   "note": "Listed as 【최애의 아이】 3기."
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "hololive FLOW GLOW × Aniplus collab café",
+    "ko": "hololive FLOW GLOW X ANIPLUS 콜라보 카페"
+   },
+   "starts": "2026-09-17",
+   "ends": "2026-11-01",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "Aniplus Seoul Hapjeong / Busan Seomyeon",
+   "url": "https://shop.aniplustv.com/offline-shop/collabo-cafe?collaboId=114",
+   "entities": [
+    "collaboration:hololive-flow-glow-x-aniplus-cafe-2026"
+   ],
+   "entity": "collaboration:hololive-flow-glow-x-aniplus-cafe-2026",
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-aniplus-collabo-list",
+   "note": "hololive FLOW GLOW is a hololive DEV_IS unit (© Cover). No hololive franchise entity defined (fewer than 3 official franchise-level facts gathered)."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Chiikawa the Movie: The Secret of Mermaid Island — Japan release",
+    "ko": "극장판 치이카와: 인어 섬의 비밀 일본 개봉",
+    "ja": "映画ちいかわ 人魚の島のひみつ 公開"
+   },
+   "starts": "2026-07-24",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://chiikawa.toho-movie.jp/",
+   "entities": [
+    "work:chiikawa-film-2026",
+    "franchise:chiikawa"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-events-chiikawa-info"
+  }
+ ]
+}

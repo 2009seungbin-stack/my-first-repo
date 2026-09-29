@@ -1,6 +1,7 @@
 import {entitlement,load,apiPath,current} from './entitlement.js';
 import {text} from './service-content.js';
 import {track} from './analytics.js';
+import {buttonsHTML} from './signin-brands.js';
 /** /pricing/ — static plan comparison; the Pro action depends on /me. Checkout goes to the
  * provider; Pro starts only after the provider's signed webhook reaches the Worker. */
 const locale=document.documentElement.lang,t=(k,v)=>text(locale,k,v);
@@ -12,13 +13,14 @@ function render(){
  if(status!=='ready'||!me){action.innerHTML=note(status==='offline'?'serviceDown':'purchasesClosed');return;}
  if(me.plan==='pro'){action.innerHTML=`${note('youArePro')}<a class="secondary" href="${locale}/account/">${esc(t('account'))}</a>`;return;}
  if(me.billing.mode==='off'){action.innerHTML=note('purchasesClosed');return;}
- if(!me.loggedIn){action.innerHTML=`<a class="primary" data-signin href="${esc(apiPath(`auth/google/start?return=${encodeURIComponent(`/${locale}/pricing/`)}`))}">${esc(t('signInToUpgrade'))}</a>`;return;}
+ // Signed out: one branded button per configured provider (Google, GitHub, Discord), back to this page.
+ if(!me.loggedIn){const ids=Array.isArray(me.providers)?me.providers:[];action.innerHTML=ids.length?`<p class="plan-note" data-signin>${esc(t('signInToUpgrade'))}</p>${buttonsHTML(ids,locale,`/${locale}/pricing/`,{api:apiPath('')})}`:note('signInUnavailable');return;}
  // Monthly always; yearly when the Worker has a yearly price (BILLING_PRICE_ID_YEARLY).
  const yearly=me.billing.yearly?`<button type="button" class="secondary" data-checkout="year">${esc(t('upgradeYearly'))}</button>`:'';
  action.innerHTML=`<button type="button" class="primary" data-checkout="month">${esc(t(yearly?'upgradeMonthly':'upgrade'))}</button>${yearly}<p class="plan-note" data-checkout-status role="status"></p>`;
 }
 action.addEventListener('click',async event=>{
- if(event.target.closest('[data-signin]')){track('login_started');return;}
+ if(event.target.closest('[data-provider]')){track('login_started');return;}
  const button=event.target.closest('[data-checkout]');if(!button)return;
  const all=[...action.querySelectorAll('[data-checkout]')];for(const b of all)b.disabled=true;const out=action.querySelector('[data-checkout-status]');
  try{

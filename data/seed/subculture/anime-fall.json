@@ -1,0 +1,5189 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-anime-fall-kusuriya-s3",
+   "kind": "OFFICIAL",
+   "url": "https://kusuriyanohitorigoto.jp/season3/",
+   "title": "TV anime The Apothecary Diaries Season 3",
+   "publisher": "The Apothecary Diaries production committee (TOHO)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-kusuriya-s3-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://kusuriyanohitorigoto.jp/season3/staffcast/",
+   "title": "Season 3 Staff & Cast",
+   "publisher": "The Apothecary Diaries production committee (TOHO)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-kusuriya-s3-news",
+   "kind": "OFFICIAL",
+   "url": "https://kusuriyanohitorigoto.jp/news/2623/",
+   "title": "TVアニメ第3期 2026年10月2日（金）から放送開始！ KV＆PVが解禁",
+   "publisher": "The Apothecary Diaries production committee (TOHO)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-kusuriya-s3-preview",
+   "kind": "OFFICIAL",
+   "url": "https://kusuriyanohitorigoto.jp/news/2644/",
+   "title": "TVアニメ第３期 舞台挨拶付き先行上映会＆全国10会場でのライブビューイングの実施が決定！",
+   "publisher": "The Apothecary Diaries production committee (TOHO)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-kusuriya-film-news",
+   "kind": "OFFICIAL",
+   "url": "https://kusuriyanohitorigoto.jp/news/2520/",
+   "title": "『劇場版 薬屋のひとりごと 亡妃の秘宝』2026年12月11日(金)公開決定！",
+   "publisher": "The Apothecary Diaries production committee (TOHO)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-kusuriya-film-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://kusuriyanohitorigoto.jp/movie/staffcast/",
+   "title": "劇場版 薬屋のひとりごと 亡妃の秘宝 Staff/Cast",
+   "publisher": "Film The Apothecary Diaries production committee",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-kusuriya-netflix-kr",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/81712068",
+   "title": "약사의 혼잣말 | 넷플릭스",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Netflix Korea title page; lists 2 seasons as of retrieval."
+  },
+  {
+   "id": "src:sc-anime-fall-kusuriya-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42741",
+   "title": "약사의 혼잣말 시즌 2",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page."
+  },
+  {
+   "id": "src:sc-anime-fall-bclover-top",
+   "kind": "OFFICIAL",
+   "url": "https://bclover.jp/",
+   "title": "TVアニメ「ブラッククローバー」2nd Season公式サイト",
+   "publisher": "Black Clover anime (Studio Pierrot / TV Tokyo)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-bclover-onair",
+   "kind": "OFFICIAL",
+   "url": "https://bclover.jp/onair/",
+   "title": "ON AIR & STREAMING",
+   "publisher": "Black Clover anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-bclover-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://bclover.jp/staffcast/",
+   "title": "STAFF & CAST",
+   "publisher": "Black Clover anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-bclover-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/37945",
+   "title": "(자막) 블랙 클로버 1기",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page."
+  },
+  {
+   "id": "src:sc-anime-fall-bclover-netflix-kr",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/80238012",
+   "title": "블랙 클로버 | 넷플릭스",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Netflix Korea title page for the first TV series."
+  },
+  {
+   "id": "src:sc-anime-fall-aonohako-top",
+   "kind": "OFFICIAL",
+   "url": "https://aonohako-anime.com/",
+   "title": "TVアニメ『アオのハコ』公式サイト",
+   "publisher": "Blue Box anime official site (TMS / TBS)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-aonohako-s2-onair",
+   "kind": "OFFICIAL",
+   "url": "https://aonohako-anime.com/news/detail_260826_1.html",
+   "title": "Season2のメインビジュアル＆メインPVが解禁！",
+   "publisher": "Blue Box anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-aonohako-s2-streaming",
+   "kind": "OFFICIAL",
+   "url": "https://aonohako-anime.com/news/detail_260826_3.html",
+   "title": "各配信プラットフォーム先が決定！",
+   "publisher": "Blue Box anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-aonohako-s2-premiere",
+   "kind": "OFFICIAL",
+   "url": "https://aonohako-anime.com/news/detail_260803_1.html",
+   "title": "TVアニメ『アオのハコ』Season2ワールドプレミア開催決定！",
+   "publisher": "Blue Box anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-aonohako-netflix-kr",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/81663323",
+   "title": "푸른 상자 | 넷플릭스",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Netflix Korea title page; shows the tagline \"일요일에 새로운 에피소드 공개 예정\" (new episodes on Sundays) as of retrieval."
+  },
+  {
+   "id": "src:sc-anime-fall-jojo-sbr-top",
+   "kind": "OFFICIAL",
+   "url": "https://jojo-portal.com/anime/sbr/",
+   "title": "アニメ『スティール・ボール・ラン ジョジョの奇妙な冒険』公式サイト",
+   "publisher": "JoJo official portal (LUCKY LAND COMMUNICATIONS / Shueisha)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-jojo-sbr-2nd-3rd",
+   "kind": "OFFICIAL",
+   "url": "https://jojo-portal.com/news/anime/598/",
+   "title": "アニメ『スティール・ボール・ラン ジョジョの奇妙な冒険』 新情報解禁!!",
+   "publisher": "JoJo official portal",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-jojo-sbr-netflix-kr",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/82116553",
+   "title": "스틸 볼 런: 죠죠의 기묘한 모험 | 넷플릭스",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Netflix Korea title page; tagline \"매주 금요일 새로운 에피소드 공개\" as of retrieval."
+  },
+  {
+   "id": "src:sc-anime-fall-jojo-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/38918",
+   "title": "죠죠의 기묘한 모험 시즌 4: 황금의 바람",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page."
+  },
+  {
+   "id": "src:sc-anime-fall-dbs-beerus-top",
+   "kind": "OFFICIAL",
+   "url": "https://dragonball-super.com/",
+   "title": "アニメ『ドラゴンボール超 ビルス』公式サイト",
+   "publisher": "Dragon Ball Super: Beerus official site (Toei Animation)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-dbs-beerus-en",
+   "kind": "OFFICIAL",
+   "url": "https://dragonball-super.com/en/",
+   "title": "Anime \"Dragon Ball Super: Beerus\" Official Website",
+   "publisher": "Dragon Ball Super: Beerus official site (Toei Animation)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-toei-animation-top",
+   "kind": "OFFICIAL",
+   "url": "https://www.toei-anim.co.jp/",
+   "title": "東映アニメーション",
+   "publisher": "Toei Animation",
+   "retrieved": "2026-09-28",
+   "note": "Corporate site lists Dragon Ball Super: Beerus among its works."
+  },
+  {
+   "id": "src:sc-anime-fall-dbs-beerus-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47483",
+   "title": "(자막) 드래곤볼 슈퍼: 비루스",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page. Marked as an upcoming release for 2026 Q4."
+  },
+  {
+   "id": "src:sc-anime-fall-dragon-ball-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/16216",
+   "title": "드래곤볼",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page."
+  },
+  {
+   "id": "src:sc-anime-fall-tokyo-revengers-onair",
+   "kind": "OFFICIAL",
+   "url": "https://tokyo-revengers-anime.com/onair/",
+   "title": "ON AIR",
+   "publisher": "TV anime Tokyo Revengers official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-tokyo-revengers-staff",
+   "kind": "OFFICIAL",
+   "url": "https://tokyo-revengers-anime.com/staff/",
+   "title": "STAFF",
+   "publisher": "TV anime Tokyo Revengers official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-tokyo-revengers-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41688",
+   "title": "도쿄 리벤저스: 천축편",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page."
+  },
+  {
+   "id": "src:sc-anime-fall-ranma-onair",
+   "kind": "OFFICIAL",
+   "url": "https://ranma-pr.com/onair/",
+   "title": "放送・配信情報",
+   "publisher": "TV anime Ranma1/2 official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-ranma-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://ranma-pr.com/staffcast/",
+   "title": "スタッフ&キャスト",
+   "publisher": "TV anime Ranma1/2 official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-ranma-netflix-kr",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/81171925",
+   "title": "란마1/2 | 넷플릭스",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Netflix Korea title page; tagline \"일요일에 새로운 에피소드 공개 예정\" as of retrieval."
+  },
+  {
+   "id": "src:sc-anime-fall-edgerunners2-en",
+   "kind": "OFFICIAL",
+   "url": "https://www.cyberpunk.net/en/edgerunners2",
+   "title": "Cyberpunk: Edgerunners 2 Official Site",
+   "publisher": "CD PROJEKT RED",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-edgerunners2-ko",
+   "kind": "OFFICIAL",
+   "url": "https://www.cyberpunk.net/ko/edgerunners2",
+   "title": "사이버펑크: 엣지러너 2 공식 사이트",
+   "publisher": "CD PROJEKT RED",
+   "retrieved": "2026-09-28",
+   "note": "Korean-language official page."
+  },
+  {
+   "id": "src:sc-anime-fall-edgerunners2-ja",
+   "kind": "OFFICIAL",
+   "url": "https://www.cyberpunk.net/ja/edgerunners2",
+   "title": "サイバーパンク: エッジランナーズ2 公式サイト",
+   "publisher": "CD PROJEKT RED",
+   "retrieved": "2026-09-28",
+   "note": "Japanese-language official page."
+  },
+  {
+   "id": "src:sc-anime-fall-aoashi-top",
+   "kind": "OFFICIAL",
+   "url": "https://aoashi-pr.com/",
+   "title": "TVアニメ『アオアシ Season2』公式サイト",
+   "publisher": "Aoashi Season2 production committee",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-aoashi-onair",
+   "kind": "OFFICIAL",
+   "url": "https://aoashi-pr.com/onair",
+   "title": "放送・配信情報",
+   "publisher": "Aoashi Season2 official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-aoashi-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40802",
+   "title": "아오아시",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page."
+  },
+  {
+   "id": "src:sc-anime-fall-yozakura-top",
+   "kind": "OFFICIAL",
+   "url": "https://mission-yozakura-family.com/",
+   "title": "TVアニメ『夜桜さんちの大作戦』公式サイト",
+   "publisher": "Mission: Yozakura Family production committee / MBS",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-yozakura-s2-cour2",
+   "kind": "OFFICIAL",
+   "url": "https://mission-yozakura-family.com/news/index02700000.html",
+   "title": "第2期 第2クールの放送・配信情報を公開！",
+   "publisher": "Mission: Yozakura Family official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-yozakura-laftel",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47468",
+   "title": "요자쿠라 일가의 대작전 2기 part 2",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page. Marked as an upcoming release for 2026 Q4, Tuesdays."
+  },
+  {
+   "id": "src:sc-anime-fall-yozakura-laftel-s2",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/45460",
+   "title": "요자쿠라 일가의 대작전 2기",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page. Lists Animax (애니맥스) as the simulcast channel."
+  },
+  {
+   "id": "src:sc-anime-fall-bleach-top",
+   "kind": "OFFICIAL",
+   "url": "https://bleach-anime.com/",
+   "title": "TVアニメ『BLEACH 千年血戦篇』公式サイト",
+   "publisher": "BLEACH anime (Aniplex / TV Tokyo / Pierrot)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-bleach-onair",
+   "kind": "OFFICIAL",
+   "url": "https://bleach-anime.com/onair/",
+   "title": "ONAIR 放送情報",
+   "publisher": "BLEACH anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-bleach-ep49-50",
+   "kind": "OFFICIAL",
+   "url": "https://bleach-anime.com/news/?id=71195",
+   "title": "TVアニメ『BLEACH 千年血戦篇-禍進譚-』第49話および第50話の放送・配信日時につきまして",
+   "publisher": "BLEACH anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-bleach-fes",
+   "kind": "OFFICIAL",
+   "url": "https://bleach-anime.com/news/?id=71319",
+   "title": "TVアニメ完結記念イベント『BLEACH FES.』開催決定！",
+   "publisher": "BLEACH anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-bleach-laftel-sub",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/46165",
+   "title": "(자막) 블리치-천년혈전 편 : 화진담",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page. Notice: episodes 9-10 scheduled for 2026-09-27 are on hold due to circumstances in Japan; new date undecided."
+  },
+  {
+   "id": "src:sc-anime-fall-bleach-laftel-dub",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47352",
+   "title": "(더빙) 블리치-천년혈전 편 : 화진담",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Read via the item data Laftel serves for this page. Korean dub edition, Saturdays."
+  },
+  {
+   "id": "src:sc-anime-fall-va-aoi-yuki",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/yuki-aoi.html",
+   "title": "Talent profile",
+   "publisher": "株式会社青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-takeo-otsuka",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=28",
+   "title": "Talent profile",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-reina-ueda",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/actor_search/index.php/item?id=162",
+   "title": "Talent profile",
+   "publisher": "株式会社81プロデュース",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-gakuto-kajiwara",
+   "kind": "OFFICIAL",
+   "url": "https://haikyo.co.jp/profile/profile.php?ActorID=12813",
+   "title": "Talent profile",
+   "publisher": "俳協（東京俳優生活協同組合）(Haikyo)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-nobunaga-shimazaki",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/shimazaki-nobunaga.html",
+   "title": "Talent profile",
+   "publisher": "株式会社青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-junichi-suwabe",
+   "kind": "OFFICIAL",
+   "url": "https://haikyo.co.jp/profile/profile.php?ActorID=11470",
+   "title": "Talent profile",
+   "publisher": "俳協（東京俳優生活協同組合）(Haikyo)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-shoya-chiba",
+   "kind": "OFFICIAL",
+   "url": "https://www.toysfactory.co.jp/artist/shoyachiba",
+   "title": "Talent profile",
+   "publisher": "トイズファクトリー",
+   "retrieved": "2026-09-28",
+   "note": "Listed in the company's affiliated artists as a voice actor."
+  },
+  {
+   "id": "src:sc-anime-fall-va-akari-kito",
+   "kind": "OFFICIAL",
+   "url": "https://www.raccoon-dog.co.jp/talent/r09-kitou.html",
+   "title": "Talent profile",
+   "publisher": "ラクーンドッグ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-shogo-sakata",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/sakata-shogo.html",
+   "title": "Talent profile",
+   "publisher": "株式会社青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-yohei-azakami",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/azakami-yohei.html",
+   "title": "Talent profile",
+   "publisher": "株式会社青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-kaito-ishikawa",
+   "kind": "OFFICIAL",
+   "url": "https://stay-luck.com/talent/ishikawa-kaito/",
+   "title": "Talent profile",
+   "publisher": "ステイラック",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-masako-nozawa",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/nozawa-masako.html",
+   "title": "Talent profile",
+   "publisher": "株式会社青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-koichi-yamadera",
+   "kind": "OFFICIAL",
+   "url": "https://across-ent.com/voice_actor/detail.html?id=101",
+   "title": "Talent profile",
+   "publisher": "アクロスエンタテインメント",
+   "retrieved": "2026-09-28",
+   "note": "Profile content loads via the agency site's own data feed (talentview id 101)."
+  },
+  {
+   "id": "src:sc-anime-fall-va-yuki-shin",
+   "kind": "OFFICIAL",
+   "url": "https://www.kenproduction.co.jp/talent/147",
+   "title": "Talent profile",
+   "publisher": "賢プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-yu-hayashi",
+   "kind": "OFFICIAL",
+   "url": "https://www.kenproduction.co.jp/talent/58",
+   "title": "Talent profile",
+   "publisher": "賢プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-masaya-fukunishi",
+   "kind": "OFFICIAL",
+   "url": "https://www.kenproduction.co.jp/talent/182",
+   "title": "Talent profile",
+   "publisher": "賢プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-kappei-yamaguchi",
+   "kind": "OFFICIAL",
+   "url": "https://go-coo.com/#ta_kappei_yamaguchi",
+   "title": "Talent profile",
+   "publisher": "有限会社悟空",
+   "retrieved": "2026-09-28",
+   "note": "Listed under 所属タレント on the agency home page."
+  },
+  {
+   "id": "src:sc-anime-fall-va-noriko-hidaka",
+   "kind": "OFFICIAL",
+   "url": "https://bigmount.amebaownd.com/pages/6898788/page_202304010026",
+   "title": "Talent profile",
+   "publisher": "有限会社ビッグ・マウント",
+   "retrieved": "2026-09-28",
+   "note": "Agency page states it handles the actor's management."
+  },
+  {
+   "id": "src:sc-anime-fall-va-kentaro-tone",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=67",
+   "title": "Talent profile",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-koki-uchiyama",
+   "kind": "OFFICIAL",
+   "url": "https://profile.himawari.net/view/1559",
+   "title": "Talent profile",
+   "publisher": "劇団ひまわり",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-koki-osuzu",
+   "kind": "OFFICIAL",
+   "url": "https://www.vims.co.jp/talent/340/",
+   "title": "Talent profile",
+   "publisher": "VIMS -ヴィムス-",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-yuichiro-umehara",
+   "kind": "OFFICIAL",
+   "url": "https://www.artsvision.co.jp/talent/14239/",
+   "title": "Talent profile",
+   "publisher": "株式会社アーツビジョン",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-shunsuke-takeuchi",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/actor_search/index.php/item?id=71",
+   "title": "Talent profile",
+   "publisher": "株式会社81プロデュース",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-reiji-kawashima",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/kawashima-reiji.html",
+   "title": "Talent profile",
+   "publisher": "株式会社青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-kaede-hondo",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=78",
+   "title": "Talent profile",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-katsuyuki-konishi",
+   "kind": "OFFICIAL",
+   "url": "https://www.kenproduction.co.jp/talent/32",
+   "title": "Talent profile",
+   "publisher": "賢プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-masakazu-morita",
+   "kind": "OFFICIAL",
+   "url": "https://stay-luck.com/talent/morita-masakazu/",
+   "title": "Talent profile",
+   "publisher": "ステイラック",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-va-fumiko-orikasa",
+   "kind": "OFFICIAL",
+   "url": "https://www.atomicmonkey.jp/talent/orikasafumiko",
+   "title": "Talent profile",
+   "publisher": "株式会社アトミックモンキー",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-toei-animation",
+   "kind": "OFFICIAL",
+   "url": "https://www.toei-anim.co.jp/",
+   "title": "Toei Animation official website",
+   "publisher": "Toei Animation",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-mappa",
+   "kind": "OFFICIAL",
+   "url": "https://www.mappa.co.jp/",
+   "title": "MAPPA official website",
+   "publisher": "MAPPA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-tms-entertainment",
+   "kind": "OFFICIAL",
+   "url": "https://www.tms-e.co.jp/",
+   "title": "TMS Entertainment official website",
+   "publisher": "TMS Entertainment",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-anilist-ids",
+   "kind": "FEED",
+   "url": "https://anilist.co/",
+   "title": "AniList — media ids for tracked works",
+   "publisher": "AniList (third-party community database)",
+   "retrieved": "2026-09-28",
+   "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
+  },
+  {
+   "id": "src:sc-anime-fall-profile-olm",
+   "kind": "OFFICIAL",
+   "url": "https://www.olm.co.jp/",
+   "title": "OLM Group | オー・エル・エム グループ",
+   "publisher": "OLM Group",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-toho-animation-studio",
+   "kind": "OFFICIAL",
+   "url": "https://www.ta-studio.co.jp/",
+   "title": "株式会社TOHO animation STUDIO",
+   "publisher": "株式会社TOHO animation STUDIO",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-electric-circus",
+   "kind": "OFFICIAL",
+   "url": "https://e-circus.co.jp/",
+   "title": "株式会社エレクトリックサーカス",
+   "publisher": "ELECTRIC CIRCUS Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-david-production",
+   "kind": "OFFICIAL",
+   "url": "https://davidproduction.jp/",
+   "title": "株式会社デイヴィッドプロダクション",
+   "publisher": "David Production Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-liden-films",
+   "kind": "OFFICIAL",
+   "url": "https://lidenfilms.jp/",
+   "title": "LIDENFILMS - 株式会社ライデンフィルム",
+   "publisher": "株式会社ライデンフィルム",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-trigger",
+   "kind": "OFFICIAL",
+   "url": "https://www.st-trigger.co.jp/",
+   "title": "株式会社トリガー | ANIMATION STUDIO TRIGGER Inc.",
+   "publisher": "TRIGGER Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-masaya-fukunishi",
+   "kind": "OFFICIAL",
+   "url": "https://www.kenproduction.co.jp/talent/182",
+   "title": "賢プロダクション [Kenproduction] 声優事務所・タレント事務所・声優プロダクション",
+   "publisher": "賢プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-37945",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/37945",
+   "title": "(자막) 블랙 클로버 1기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/37945/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-47483",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47483",
+   "title": "(자막) 드래곤볼 슈퍼: 비루스 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/47483/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-40260",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40260",
+   "title": "도쿄 리벤저스 part 1 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40260/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-23202",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/23202",
+   "title": "킬라킬 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/23202/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-39393",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/39393",
+   "title": "(자막) 닥터스톤 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/39393/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-a-haksan-127899",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/127899",
+   "title": "약사의 혼잣말 (코믹) 16권 - 학산문화사",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "data via https://www.haksanpub.co.kr/pubapi/product/view?seq=127899"
+  },
+  {
+   "id": "src:ko-sub-a-dwci-comics",
+   "kind": "OFFICIAL",
+   "url": "https://www.dwci.co.kr/front/comics/boyList",
+   "title": "대원씨아이 출판만화 (소년) 목록",
+   "publisher": "대원씨아이 (Daewon C.I.)",
+   "retrieved": "2026-09-29",
+   "note": "catalogue rows served by https://www.dwci.co.kr/front/comics/boyListAjax?iPage=N (Title/Writer/Artist fields); book rows: 블랙 클로버 37권 (2026-04-30), 아오아시 19권 (2026-09-15), 요자쿠라 일가의 대작전 29권 (2026-09-15), 샌드 랜드 -SAND LAND- 완전판 (2024-04-15), 먼작귀(먼가 작고 귀여운 녀석-치이카와) 5권 (2024-02-29)"
+  },
+  {
+   "id": "src:ko-sub-a-munhak-author-2729",
+   "kind": "OFFICIAL",
+   "url": "https://munhak.com/bookAndAuthor/authors/detail/2729",
+   "title": "아라키 히로히코 - 문학동네 저자",
+   "publisher": "문학동네 (Munhakdongne; Korean publisher of JoJo's Bizarre Adventure incl. Steel Ball Run)",
+   "retrieved": "2026-09-29",
+   "note": "data via POST https://munhak.com/api/v1/o/bookAndAuthor/authors/detail {\"id\":2729}"
+  },
+  {
+   "id": "src:ko-sub-a-haksan-108399",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/108399",
+   "title": "도쿄 리벤저스 31권 - 학산문화사",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "data via https://www.haksanpub.co.kr/pubapi/product/view?seq=108399"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-42741",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42741",
+   "title": "약사의 혼잣말 시즌 2 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42741/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-42644",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42644",
+   "title": "(자막) 나 혼자만 레벨업 -ARISE FROM THE SHADOW- - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42644/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-cyberpunk-edgerunners2",
+   "kind": "OFFICIAL",
+   "url": "https://www.cyberpunk.net/ko/edgerunners2",
+   "title": "사이버펑크: 엣지러너 2 공식 사이트",
+   "publisher": "CD PROJEKT RED (official Korean-language site)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-38921",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/38921",
+   "title": "청춘 돼지는 바니걸 선배의 꿈을 꾸지 않는다 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/38921/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-42047",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42047",
+   "title": "(자막) 괴수 8호 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42047/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-40460",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40460",
+   "title": "(자막) 이누야샤 1기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40460/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-16197",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/16197",
+   "title": "신세기 에반게리온 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/16197/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-14943",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/14943",
+   "title": "이웃집 토토로 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/14943/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-41369",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41369",
+   "title": "푸른 오케스트라 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/41369/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-40838",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40838",
+   "title": "러브 올 플레이 part 1 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40838/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-47468",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47468",
+   "title": "요자쿠라 일가의 대작전 2기 part 2 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/47468/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-46165",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/46165",
+   "title": "(자막) 블리치-천년혈전 편 : 화진담 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/46165/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-nfkr-yt-apothecary-s3",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=xIfW_vUbn_M",
+   "title": "약사의 혼잣말 시즌 3 | 공식 예고편 | 넷플릭스",
+   "publisher": "Netflix Korea 넷플릭스 코리아 (official YouTube channel @NetflixKorea)",
+   "retrieved": "2026-09-29",
+   "note": "title verified via YouTube oEmbed (author_name \"Netflix Korea 넷플릭스 코리아\")"
+  },
+  {
+   "id": "src:ko-sub-a-seoji-9791168761940",
+   "kind": "OFFICIAL",
+   "url": "https://seoji.nl.go.kr/landingPage?isbn=9791168761940",
+   "title": "[종이책] 푸른 상자 - ISBN 979-11-6876-194-0",
+   "publisher": "National Library of Korea ISBN/CIP registry (publisher-registered record; 발행처 (주)학산문화사)",
+   "retrieved": "2026-09-29",
+   "note": "author credit as registered by the Korean licensed publisher Haksan; Haksan's own product page credits the author in Latin (\"Kouji Miura\")"
+  },
+  {
+   "id": "src:ko-sub-a-seoji-9791136729897",
+   "kind": "OFFICIAL",
+   "url": "https://seoji.nl.go.kr/landingPage?isbn=979-11-367-2989-7",
+   "title": "[종이책] 란마1/2 18 - 애장판 - ISBN 979-11-367-2989-7",
+   "publisher": "National Library of Korea ISBN/CIP registry (publisher-registered record; 발행처 서울미디어코믹스)",
+   "retrieved": "2026-09-29",
+   "note": "author credit as registered by the Korean licensed publisher Seoul Media Comics"
+  },
+  {
+   "id": "src:ko-sub-a-nfkr-yt-blue-box-s2",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=Y1ARaGNqpWA",
+   "title": "푸른 상자 시즌 2 | 공식 티저 예고편 | 넷플릭스",
+   "publisher": "Netflix Korea 넷플릭스 코리아 (official YouTube channel @NetflixKorea)",
+   "retrieved": "2026-09-29",
+   "note": "description links https://www.netflix.com/title/82715728 (\"《푸른 상자》 시즌 2, 넷플릭스에서 10월 공개\")"
+  },
+  {
+   "id": "src:ko-sub-a-haksan-117518",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/117518",
+   "title": "푸른 상자 1권 - 학산문화사",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "data via https://www.haksanpub.co.kr/pubapi/product/view?seq=117518 (description field)"
+  },
+  {
+   "id": "src:ko-sub-a-haksan-117536",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/117536",
+   "title": "푸른 상자 3권 - 학산문화사",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "data via https://www.haksanpub.co.kr/pubapi/product/view?seq=117536 (description field)"
+  },
+  {
+   "id": "src:ko-sub-a-dpkr-yt-tokyo-revengers-santen",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=hfQtvtkkx6E",
+   "title": "도쿄 리벤저스: 삼천전쟁편｜공식 예고편｜디즈니+",
+   "publisher": "Disney Plus Korea 디즈니 플러스 코리아 (official YouTube channel @DisneyPlusKR)",
+   "retrieved": "2026-09-29",
+   "note": "title verified via YouTube oEmbed author_name"
+  },
+  {
+   "id": "src:ko-sub-a-dpkr-tokyo-revengers",
+   "kind": "OFFICIAL",
+   "url": "https://www.disneyplus.com/ko-kr/browse/entity-be391742-6617-42ad-b53a-be368ee73335",
+   "title": "도쿄 리벤저스 | 디즈니+",
+   "publisher": "Disney+ Korea",
+   "retrieved": "2026-09-29",
+   "note": "server-rendered Korean title page (synopsis and episode summaries)"
+  },
+  {
+   "id": "src:ko-sub-a-nfkr-yt-ranma-s3",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=9foClh9FhxI",
+   "title": "란마1/2: 시즌 3 | 공식 예고편 | 넷플릭스",
+   "publisher": "Netflix Korea 넷플릭스 코리아 (official YouTube channel @NetflixKorea)",
+   "retrieved": "2026-09-29",
+   "note": "description: \"《란마1/2》 시즌 3, 10월 공개. 오직 넷플릭스에서.\""
+  },
+  {
+   "id": "src:ko-sub-a-nfkr-81171925",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/81171925",
+   "title": "란마1/2, 지금 시청하세요 | 넷플릭스 공식 사이트",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-29",
+   "note": "server-rendered title page (synopsis, 출연진 JSON-LD, 시리즈 특징 tags)"
+  },
+  {
+   "id": "src:ko-sub-a-dpkr-aoashi",
+   "kind": "OFFICIAL",
+   "url": "https://www.disneyplus.com/ko-kr/browse/entity-f94bf091-b30d-43ca-ba1e-548ccb28e19b",
+   "title": "아오아시 | 디즈니+",
+   "publisher": "Disney+ Korea",
+   "retrieved": "2026-09-29",
+   "note": "server-rendered Korean title page (description, 출연진 credits, episode summaries); lists season 1 only"
+  },
+  {
+   "id": "src:ko-sub-a-nfkr-82116553",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/82116553",
+   "title": "스틸 볼 런: 죠죠의 기묘한 모험, 지금 시청하세요 | 넷플릭스 공식 사이트",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-29",
+   "note": "JSON-LD \"actors\" list on the Korean title page (81595018 redirects here)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-40009",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40009",
+   "title": "아쿠다마 드라이브 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40009/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-39864",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/39864",
+   "title": "무효와 로지의 마법률상담사무소 2기 [2025년 판권 만료작] - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/39864/ (casts/production fields); licence expired on Laftel in 2025 but item page/API still live"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-29729",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/29729",
+   "title": "죠죠의 기묘한 모험 시즌 3: 다이아몬드는 부서지지 않는다 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/29729/ (casts/production fields); legacy \"production\" field spells the studio in Hangul while production_companies keeps \"david production\""
+  },
+  {
+   "id": "src:ko-sub-a-haksan-126736",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/126736",
+   "title": "도쿄 리벤저스 캐릭터북3 천축편 - 학산문화사",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "data via https://www.haksanpub.co.kr/pubapi/product/view?seq=126736"
+  },
+  {
+   "id": "src:ko-sub-a-smg-x-apothecary-film",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/HoldingsSmg/status/2072878125797765623",
+   "title": "SMG HOLDINGS - 에스엠지홀딩스 주식회사 on X",
+   "publisher": "SMG HOLDINGS (에스엠지홀딩스, Korean film importer)",
+   "retrieved": "2026-09-29",
+   "note": "post of 2026-07-03 quoting the Japanese official @kusuriya_PR announcement of 『劇場版 薬屋のひとりごと 亡妃の秘宝』; Korean subtitle not yet announced; text via https://cdn.syndication.twimg.com/tweet-result?id=2072878125797765623"
+  }
+ ],
+ "entities": [
+  {
+   "id": "studio_org:olm",
+   "type": "studio_org",
+   "slug": "olm",
+   "names": {
+    "en": "OLM",
+    "ja": "OLM"
+   },
+   "description": {
+    "en": "Japanese animation studio credited with animation production of The Apothecary Diaries Season 3.",
+    "ko": "약사의 혼잣말 3기의 애니메이션 제작을 맡은 일본 애니메이션 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.olm.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-olm"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:toho-animation-studio",
+   "type": "studio_org",
+   "slug": "toho-animation-studio",
+   "names": {
+    "en": "TOHO animation STUDIO",
+    "ja": "TOHO animation STUDIO"
+   },
+   "description": {
+    "en": "Toho-affiliated animation studio credited with the 2026 Apothecary Diaries film.",
+    "ko": "2026년 극장판 약사의 혼잣말의 애니메이션 제작을 맡은 토호 계열 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.ta-studio.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-toho-animation-studio"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:studio-pierrot",
+   "type": "studio_org",
+   "slug": "studio-pierrot",
+   "names": {
+    "en": "Studio Pierrot",
+    "ja": "ぴえろ",
+    "ko": "스튜디오 피에로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-37945"
+   },
+   "aliases": [
+    "Pierrot",
+    "studioぴえろ",
+    "スタジオぴえろ"
+   ],
+   "description": {
+    "en": "Japanese animation studio credited with Black Clover and BLEACH: Thousand-Year Blood War.",
+    "ko": "블랙 클로버와 블리치 천년혈전 편의 애니메이션 제작을 맡은 일본 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://pierrot.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-top",
+     "note": "Linked from the BLEACH anime official site."
+    }
+   ]
+  },
+  {
+   "id": "studio_org:electric-circus",
+   "type": "studio_org",
+   "slug": "electric-circus",
+   "names": {
+    "en": "Electric Circus",
+    "ja": "エレクトリックサーカス"
+   },
+   "description": {
+    "en": "Animation studio credited with Blue Box Season 2.",
+    "ko": "푸른 상자(아오의 하코) 2기의 애니메이션 제작사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://e-circus.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-electric-circus"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:david-production",
+   "type": "studio_org",
+   "slug": "david-production",
+   "names": {
+    "en": "david production",
+    "ja": "david production"
+   },
+   "aliases": [
+    "데이비드 프로덕션"
+   ],
+   "aliases_src": {
+    "데이비드 프로덕션": "src:ko-sub-a-laftel-29729"
+   },
+   "description": {
+    "en": "Studio credited with the Steel Ball Run anime of JoJo's Bizarre Adventure.",
+    "ko": "스틸 볼 런: 죠죠의 기묘한 모험 애니메이션의 제작 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://davidproduction.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-david-production"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:toei-animation",
+   "type": "studio_org",
+   "slug": "toei-animation",
+   "names": {
+    "en": "Toei Animation",
+    "ja": "東映アニメーション",
+    "ko": "토에이 애니메이션"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47483"
+   },
+   "description": {
+    "en": "Japanese animation company behind the Dragon Ball anime, including Dragon Ball Super: Beerus.",
+    "ko": "드래곤볼 슈퍼: 비루스를 포함한 드래곤볼 애니메이션을 만드는 일본 애니메이션 회사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.toei-anim.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-toei-animation-top"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.toei-anim.co.jp/"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:liden-films",
+   "type": "studio_org",
+   "slug": "liden-films",
+   "names": {
+    "en": "LIDENFILMS",
+    "ja": "ライデンフィルム",
+    "ko": "라이덴필름"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40260"
+   },
+   "description": {
+    "en": "Animation studio credited with every Tokyo Revengers TV arc, including the Three Titans War arc.",
+    "ko": "삼천전쟁편을 포함한 도쿄 리벤저스 TV 시리즈 전편의 애니메이션 제작사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://lidenfilms.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-liden-films"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:mappa",
+   "type": "studio_org",
+   "slug": "mappa",
+   "names": {
+    "en": "MAPPA",
+    "ja": "MAPPA"
+   },
+   "description": {
+    "en": "Animation studio credited with production of the 2024 Ranma1/2 TV series.",
+    "ko": "2024년판 란마1/2 TV 시리즈의 제작 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.mappa.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-mappa"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.mappa.co.jp/"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:trigger",
+   "type": "studio_org",
+   "slug": "trigger",
+   "names": {
+    "en": "TRIGGER",
+    "ja": "TRIGGER",
+    "ko": "트리거"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-23202"
+   },
+   "description": {
+    "en": "Japanese animation studio that co-creates Cyberpunk: Edgerunners 2 with CD PROJEKT RED.",
+    "ko": "CD 프로젝트 레드와 함께 사이버펑크: 엣지러너 2를 만드는 일본 애니메이션 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.st-trigger.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-trigger"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:tms-entertainment",
+   "type": "studio_org",
+   "slug": "tms-entertainment",
+   "names": {
+    "en": "TMS Entertainment",
+    "ja": "トムス・エンタテインメント",
+    "ko": "TMS 엔터테인먼트"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-39393"
+   },
+   "description": {
+    "en": "Animation company credited with Aoashi Season 2.",
+    "ko": "아오아시 2기의 애니메이션 제작사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.tms-e.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-tms-entertainment"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.tms-e.co.jp/"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:silver-link",
+   "type": "studio_org",
+   "slug": "silver-link",
+   "names": {
+    "en": "SILVER LINK.",
+    "ja": "SILVER LINK."
+   },
+   "description": {
+    "en": "Animation studio credited with Mission: Yozakura Family seasons 1 and 2.",
+    "ko": "요자쿠라 일가의 대작전 1·2기의 애니메이션 제작사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "http://www.silverlink.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-top",
+     "note": "Linked from the Mission: Yozakura Family official site."
+    }
+   ]
+  },
+  {
+   "id": "creator:natsu-hyuuga",
+   "type": "creator",
+   "slug": "natsu-hyuuga",
+   "names": {
+    "en": "Natsu Hyuuga",
+    "ja": "日向夏",
+    "ko": "휴우가 나츠"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-haksan-127899"
+   },
+   "description": {
+    "en": "Author of the novel series The Apothecary Diaries (Hero Bunko, Imagica Infos).",
+    "ko": "라이트노벨 약사의 혼잣말(히어로 문고, 이매지카 인포스)의 작가."
+   }
+  },
+  {
+   "id": "creator:yuki-tabata",
+   "type": "creator",
+   "slug": "yuki-tabata",
+   "names": {
+    "en": "Yuki Tabata",
+    "ja": "田畠裕基",
+    "ko": "타바타 유키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dwci-comics"
+   },
+   "description": {
+    "en": "Manga artist of Black Clover, serialized in Weekly Shonen Jump and Jump GIGA from February 2015 to May 2026.",
+    "ko": "2015년 2월부터 2026년 5월까지 주간 소년 점프·점프 GIGA에 연재된 블랙 클로버의 작가."
+   }
+  },
+  {
+   "id": "creator:kouji-miura",
+   "type": "creator",
+   "slug": "kouji-miura",
+   "names": {
+    "en": "Kouji Miura",
+    "ja": "三浦糀",
+    "ko": "미우라 코우지"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-seoji-9791168761940"
+   },
+   "description": {
+    "en": "Manga artist of Blue Box, serialized in Weekly Shonen Jump from April 2021 to July 2026.",
+    "ko": "2021년 4월부터 2026년 7월까지 주간 소년 점프에 연재된 푸른 상자(아오의 하코)의 작가."
+   }
+  },
+  {
+   "id": "creator:hirohiko-araki",
+   "type": "creator",
+   "slug": "hirohiko-araki",
+   "names": {
+    "en": "Hirohiko Araki",
+    "ja": "荒木飛呂彦",
+    "ko": "아라키 히로히코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-munhak-author-2729"
+   },
+   "description": {
+    "en": "Creator of JoJo's Bizarre Adventure, including its seventh part Steel Ball Run.",
+    "ko": "7부 스틸 볼 런을 포함한 죠죠의 기묘한 모험의 작가."
+   }
+  },
+  {
+   "id": "creator:akira-toriyama",
+   "type": "creator",
+   "slug": "akira-toriyama",
+   "names": {
+    "en": "Akira Toriyama",
+    "ja": "鳥山明",
+    "ko": "토리야마 아키라"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dwci-comics"
+   },
+   "description": {
+    "en": "Creator of Dragon Ball; credited with the original work, story and character design of Dragon Ball Super.",
+    "ko": "드래곤볼의 작가로, 드래곤볼 슈퍼의 원작·스토리·캐릭터 디자인에 이름이 올라 있다."
+   }
+  },
+  {
+   "id": "creator:ken-wakui",
+   "type": "creator",
+   "slug": "ken-wakui",
+   "names": {
+    "en": "Ken Wakui",
+    "ja": "和久井健",
+    "ko": "켄 와쿠이"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-haksan-108399"
+   },
+   "aliases": [
+    "와쿠이 켄"
+   ],
+   "aliases_src": {
+    "와쿠이 켄": "src:ko-sub-a-haksan-126736"
+   },
+   "description": {
+    "en": "Manga artist of Tokyo Revengers, serialized in Kodansha's Weekly Shonen Magazine from 2017.",
+    "ko": "2017년부터 코단샤 주간 소년 매거진에 연재된 도쿄 리벤저스의 작가."
+   }
+  },
+  {
+   "id": "creator:rumiko-takahashi",
+   "type": "creator",
+   "slug": "rumiko-takahashi",
+   "names": {
+    "en": "Rumiko Takahashi",
+    "ja": "高橋留美子",
+    "ko": "타카하시 루미코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-seoji-9791136729897"
+   },
+   "aliases": [
+    "다카하시 루미코"
+   ],
+   "aliases_src": {
+    "다카하시 루미코": "src:ko-sub-a-nfkr-81171925"
+   },
+   "description": {
+    "en": "Manga artist of Ranma 1/2, published in Shogakukan's Shonen Sunday Comics.",
+    "ko": "쇼가쿠칸 소년 선데이 코믹스로 출간된 란마 1/2의 작가."
+   }
+  },
+  {
+   "id": "creator:yugo-kobayashi",
+   "type": "creator",
+   "slug": "yugo-kobayashi",
+   "names": {
+    "en": "Yugo Kobayashi",
+    "ja": "小林有吾",
+    "ko": "코바야시 유고"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dwci-comics"
+   },
+   "description": {
+    "en": "Manga artist of Aoashi, published in Shogakukan's Big Spirits Comics.",
+    "ko": "쇼가쿠칸 빅 스피리츠 코믹스로 출간된 아오아시의 작가."
+   }
+  },
+  {
+   "id": "creator:hitsuji-gondaira",
+   "type": "creator",
+   "slug": "hitsuji-gondaira",
+   "names": {
+    "en": "Hitsuji Gondaira",
+    "ja": "権平ひつじ",
+    "ko": "곤다이라 히츠지"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dwci-comics"
+   },
+   "description": {
+    "en": "Manga artist of Mission: Yozakura Family (Shueisha Jump Comics).",
+    "ko": "요자쿠라 일가의 대작전(슈에이샤 점프 코믹스)의 작가."
+   }
+  },
+  {
+   "id": "creator:tite-kubo",
+   "type": "creator",
+   "slug": "tite-kubo",
+   "names": {
+    "en": "Tite Kubo",
+    "ja": "久保帯人"
+   },
+   "description": {
+    "en": "Creator of BLEACH, serialized in Weekly Shonen Jump.",
+    "ko": "주간 소년 점프에 연재된 블리치의 작가."
+   }
+  },
+  {
+   "id": "franchise:the-apothecary-diaries",
+   "type": "franchise",
+   "slug": "the-apothecary-diaries",
+   "names": {
+    "en": "The Apothecary Diaries",
+    "ja": "薬屋のひとりごと",
+    "ko": "약사의 혼잣말"
+   },
+   "aliases": [
+    "Kusuriya no Hitorigoto",
+    "薬屋",
+    "약사"
+   ],
+   "description": {
+    "en": "Mystery series set in an imperial rear palace, based on the novels by Natsu Hyuuga; the anime continues with a third TV season from October 2026 and a first theatrical film in December 2026.",
+    "ko": "휴우가 나츠의 소설이 원작인 후궁 배경 미스터리 시리즈로, 애니메이션은 2026년 10월 TV 3기와 2026년 12월 첫 극장판으로 이어진다."
+   },
+   "official_urls": [
+    {
+     "label": "Official portal (JP)",
+     "url": "https://kusuriyanohitorigoto.jp/"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/81712068"
+    },
+    {
+     "label": "Laftel (Season 2)",
+     "url": "https://laftel.net/item/42741"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://kusuriyanohitorigoto.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-s3"
+    },
+    {
+     "p": "origin_media",
+     "v": "Light novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast",
+     "note": "Original work credited as 日向夏（ヒーロー文庫／イマジカインフォス刊）."
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:natsu-hyuuga",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:the-apothecary-diaries-tv-s3",
+   "type": "work",
+   "slug": "the-apothecary-diaries-tv-s3",
+   "names": {
+    "en": "The Apothecary Diaries Season 3",
+    "ja": "薬屋のひとりごと 第3期",
+    "ko": "약사의 혼잣말 시즌 3"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-nfkr-yt-apothecary-s3"
+   },
+   "aliases": [
+    "薬屋のひとりごと 3期",
+    "Kusuriya no Hitorigoto 3rd Season"
+   ],
+   "description": {
+    "en": "Third TV season; Maomao and Jinshi's story widens from the rear palace to the city and a neighbouring country. Animation by OLM.",
+    "ko": "TV 애니메이션 3기로, 무대가 후궁에서 시정과 이웃 나라로 넓어진다. 애니메이션 제작은 OLM."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-s3"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-s3",
+     "note": "Fridays 23:00 on Nippon TV's FRIDAY ANIME NIGHT (フラアニ) slot, 30 stations nationwide."
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-s3"
+    },
+    {
+     "p": "homepage",
+     "v": "https://kusuriyanohitorigoto.jp/season3/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-s3"
+    },
+    {
+     "p": "anilist_id",
+     "v": 195516,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:the-apothecary-diaries",
+     "src": "src:sc-anime-fall-kusuriya-s3"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:olm",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:natsu-hyuuga",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:the-apothecary-diaries-film-2026",
+   "type": "work",
+   "slug": "the-apothecary-diaries-film-2026",
+   "names": {
+    "en": "The Apothecary Diaries the Movie: The Lost Consort's Treasure",
+    "ja": "劇場版 薬屋のひとりごと 亡妃の秘宝"
+   },
+   "aliases": [
+    "亡妃の秘宝",
+    "Kusuriya no Hitorigoto Movie",
+    "극장판 약사의 혼잣말"
+   ],
+   "aliases_src": {
+    "극장판 약사의 혼잣말": "src:ko-sub-a-smg-x-apothecary-film"
+   },
+   "description": {
+    "en": "First theatrical film of the series, in which Maomao and Jinshi travel south to return a late consort's body to her homeland. Animation by TOHO animation STUDIO.",
+    "ko": "시리즈 첫 극장판으로, 마오마오와 진시가 죽은 후궁의 유해를 고향으로 돌려보내기 위해 남쪽 땅으로 떠난다. 애니메이션 제작은 TOHO animation STUDIO."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-film-news"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-12-11",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-film-news",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-film-news"
+    },
+    {
+     "p": "homepage",
+     "v": "https://kusuriyanohitorigoto.jp/movie/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-kusuriya-film-staffcast"
+    },
+    {
+     "p": "anilist_id",
+     "v": 200929,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:the-apothecary-diaries",
+     "src": "src:sc-anime-fall-kusuriya-film-news"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:toho-animation-studio",
+     "src": "src:sc-anime-fall-kusuriya-film-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:natsu-hyuuga",
+     "src": "src:sc-anime-fall-kusuriya-film-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "character:the-apothecary-diaries-maomao",
+   "type": "character",
+   "slug": "the-apothecary-diaries-maomao",
+   "names": {
+    "en": "Maomao",
+    "ja": "猫猫",
+    "ko": "마오 마오"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:the-apothecary-diaries",
+     "src": "src:sc-anime-fall-kusuriya-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:the-apothecary-diaries-tv-s3",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:the-apothecary-diaries-film-2026",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:aoi-yuki",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast",
+     "note": "Japanese voice"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:aoi-yuki",
+     "src": "src:sc-anime-fall-kusuriya-film-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:the-apothecary-diaries-jinshi",
+   "type": "character",
+   "slug": "the-apothecary-diaries-jinshi",
+   "names": {
+    "en": "Jinshi",
+    "ja": "壬氏",
+    "ko": "진시"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:the-apothecary-diaries",
+     "src": "src:sc-anime-fall-kusuriya-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:the-apothecary-diaries-tv-s3",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:the-apothecary-diaries-film-2026",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:takeo-otsuka",
+     "src": "src:sc-anime-fall-kusuriya-s3-staffcast",
+     "note": "Japanese voice"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:takeo-otsuka",
+     "src": "src:sc-anime-fall-kusuriya-film-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:black-clover",
+   "type": "franchise",
+   "slug": "black-clover",
+   "names": {
+    "en": "Black Clover",
+    "ja": "ブラッククローバー",
+    "ko": "블랙 클로버"
+   },
+   "description": {
+    "en": "Fantasy manga by Yuki Tabata about Asta, a boy born without magic; its TV anime returns with a 2nd Season in October 2026.",
+    "ko": "마력이 없는 소년 아스타를 그린 타바타 유키의 판타지 만화로, TV 애니메이션이 2026년 10월 2nd Season으로 돌아온다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://bclover.jp/"
+    },
+    {
+     "label": "Official site (EN)",
+     "url": "https://bclover.jp/en/"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/80238012"
+    },
+    {
+     "label": "Laftel",
+     "url": "https://laftel.net/item/37945"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://bclover.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bclover-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bclover-staffcast",
+     "note": "Credited as 『ブラッククローバー』田畠裕基（集英社ジャンプコミックス刊）."
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:yuki-tabata",
+     "src": "src:sc-anime-fall-bclover-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:black-clover-tv-s2",
+   "type": "work",
+   "slug": "black-clover-tv-s2",
+   "names": {
+    "en": "Black Clover 2nd Season",
+    "ja": "ブラッククローバー 2nd Season"
+   },
+   "aliases": [
+    "ブラクロ 2期",
+    "Black Clover Season 2"
+   ],
+   "description": {
+    "en": "New TV series in which Asta confronts the Spade Kingdom's Dark Triad. Animation by Studio Pierrot.",
+    "ko": "아스타가 스페이드 왕국의 「칠흑의 삼극성(다크 트라이어드)」과 맞서는 새 TV 시리즈. 애니메이션 제작은 스튜디오 피에로."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bclover-top"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bclover-onair",
+     "note": "TV Tokyo network, Saturdays 23:00; BS TV Tokyo from 2026-10-07 24:00."
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bclover-top"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Anime Times",
+      "Lemino",
+      "U-NEXT",
+      "Anime Hodai"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bclover-onair",
+     "region": "JP",
+     "note": "Advance streaming from 2026-10-04 12:00 JST; general streaming on other services from 2026-10-08 12:00."
+    },
+    {
+     "p": "homepage",
+     "v": "https://bclover.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bclover-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 195604,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:black-clover",
+     "src": "src:sc-anime-fall-bclover-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:studio-pierrot",
+     "src": "src:sc-anime-fall-bclover-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:yuki-tabata",
+     "src": "src:sc-anime-fall-bclover-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "character:black-clover-asta",
+   "type": "character",
+   "slug": "black-clover-asta",
+   "names": {
+    "en": "Asta",
+    "ja": "アスタ",
+    "ko": "아스타"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:black-clover",
+     "src": "src:sc-anime-fall-bclover-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:black-clover-tv-s2",
+     "src": "src:sc-anime-fall-bclover-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:gakuto-kajiwara",
+     "src": "src:sc-anime-fall-bclover-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:black-clover-yuno",
+   "type": "character",
+   "slug": "black-clover-yuno",
+   "names": {
+    "en": "Yuno",
+    "ja": "ユノ",
+    "ko": "유노"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:black-clover",
+     "src": "src:sc-anime-fall-bclover-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:black-clover-tv-s2",
+     "src": "src:sc-anime-fall-bclover-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:nobunaga-shimazaki",
+     "src": "src:sc-anime-fall-bclover-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:black-clover-yami-sukehiro",
+   "type": "character",
+   "slug": "black-clover-yami-sukehiro",
+   "names": {
+    "en": "Yami Sukehiro",
+    "ja": "ヤミ・スケヒロ",
+    "ko": "야미 스케히로"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:black-clover",
+     "src": "src:sc-anime-fall-bclover-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:black-clover-tv-s2",
+     "src": "src:sc-anime-fall-bclover-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:junichi-suwabe",
+     "src": "src:sc-anime-fall-bclover-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:blue-box",
+   "type": "franchise",
+   "slug": "blue-box",
+   "names": {
+    "en": "Blue Box",
+    "ja": "アオのハコ",
+    "ko": "푸른 상자"
+   },
+   "aliases": [
+    "Ao no Hako"
+   ],
+   "description": {
+    "en": "Sports romance manga by Kouji Miura about badminton player Taiki Inomata and basketball star Chinatsu Kano, serialized in Weekly Shonen Jump from April 2021 to July 2026.",
+    "ko": "배드민턴부 이노마타 타이키와 농구부 스타 카노 치나츠를 그린 미우라 코지의 스포츠 로맨스 만화로, 2021년 4월부터 2026년 7월까지 주간 소년 점프에 연재되었다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://aonohako-anime.com/"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/81663323"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://aonohako-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:kouji-miura",
+     "src": "src:sc-anime-fall-aonohako-top"
+    }
+   ]
+  },
+  {
+   "id": "work:blue-box-tv-s2",
+   "type": "work",
+   "slug": "blue-box-tv-s2",
+   "names": {
+    "en": "Blue Box Season 2",
+    "ja": "アオのハコ Season2",
+    "ko": "푸른 상자 시즌 2"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-nfkr-yt-blue-box-s2"
+   },
+   "aliases": [
+    "アオのハコ 2期"
+   ],
+   "description": {
+    "en": "Second TV season with animation by Electric Circus; the first season (Telecom Animation Film) aired on TBS from October 2024 to March 2025.",
+    "ko": "일렉트릭 서커스가 제작하는 TV 2기. 1기(텔레콤 애니메이션 필름 제작)는 2024년 10월부터 2025년 3월까지 TBS에서 방송되었다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-s2-onair",
+     "note": "TBS network (28 stations), Sundays 16:30 JST."
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix",
+      "ABEMA",
+      "U-NEXT",
+      "Disney+",
+      "dAnime Store",
+      "Hulu",
+      "Prime Video"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-top",
+     "region": "JP",
+     "note": "Partial list of the Season 2 platforms on the official site; streaming from Sundays 17:00 JST."
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-netflix-kr",
+     "region": "KR",
+     "note": "Korean title 푸른 상자; the page indicates new episodes on Sundays."
+    },
+    {
+     "p": "homepage",
+     "v": "https://aonohako-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 189123,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-box",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:electric-circus",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:kouji-miura",
+     "src": "src:sc-anime-fall-aonohako-top"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-box-taiki",
+   "type": "character",
+   "slug": "blue-box-taiki",
+   "names": {
+    "en": "Taiki Inomata",
+    "ja": "猪股大喜",
+    "ko": "이노마타 타이키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-haksan-117518"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-box",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-box-tv-s2",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:shoya-chiba",
+     "src": "src:sc-anime-fall-aonohako-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-box-chinatsu",
+   "type": "character",
+   "slug": "blue-box-chinatsu",
+   "names": {
+    "en": "Chinatsu Kano",
+    "ja": "鹿野千夏",
+    "ko": "카노 치나츠"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-haksan-117518"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-box",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-box-tv-s2",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:reina-ueda",
+     "src": "src:sc-anime-fall-aonohako-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-box-hina",
+   "type": "character",
+   "slug": "blue-box-hina",
+   "names": {
+    "en": "Hina Chono",
+    "ja": "蝶野雛",
+    "ko": "히나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-haksan-117536"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-box",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-box-tv-s2",
+     "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:akari-kito",
+     "src": "src:sc-anime-fall-aonohako-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:jojos-bizarre-adventure",
+   "type": "franchise",
+   "slug": "jojos-bizarre-adventure",
+   "names": {
+    "en": "JoJo's Bizarre Adventure",
+    "ja": "ジョジョの奇妙な冒険",
+    "ko": "죠죠의 기묘한 모험"
+   },
+   "aliases": [
+    "JoJo",
+    "ジョジョ",
+    "죠죠"
+   ],
+   "description": {
+    "en": "Manga saga by Hirohiko Araki; its seventh part, Steel Ball Run, is being adapted as an anime streamed worldwide on Netflix in 2026.",
+    "ko": "아라키 히로히코의 장편 만화 시리즈로, 7부 스틸 볼 런이 2026년 넷플릭스 전 세계 독점 애니메이션으로 공개되고 있다."
+   },
+   "official_urls": [
+    {
+     "label": "Official portal (JP)",
+     "url": "https://jojo-portal.com/"
+    },
+    {
+     "label": "Laftel",
+     "url": "https://laftel.net/item/38918"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://jojo-portal.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:hirohiko-araki",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    }
+   ]
+  },
+  {
+   "id": "work:jojos-bizarre-adventure-steel-ball-run",
+   "type": "work",
+   "slug": "jojos-bizarre-adventure-steel-ball-run",
+   "names": {
+    "en": "STEEL BALL RUN JoJo's Bizarre Adventure",
+    "ja": "スティール・ボール・ラン ジョジョの奇妙な冒険",
+    "ko": "스틸 볼 런: 죠죠의 기묘한 모험"
+   },
+   "aliases": [
+    "Steel Ball Run",
+    "SBR",
+    "スティール・ボール・ラン"
+   ],
+   "description": {
+    "en": "Anime adaptation of Steel Ball Run, set in an 1890 horse race across North America; streamed on Netflix every Friday as a worldwide exclusive, with the 2nd and 3rd STAGE (11 episodes) from 25 September 2026. Animation by david production.",
+    "ko": "1890년 북미 대륙 횡단 경마 레이스를 그린 스틸 볼 런의 애니메이션. 넷플릭스에서 매주 금요일 전 세계 독점 선공개되며, 2nd·3rd STAGE(11화)는 2026년 9월 25일부터 공개. 제작은 david production."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "ona",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "airing_status",
+     "v": "airing",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-jojo-sbr-top",
+     "region": "GLOBAL",
+     "note": "Worldwide exclusive advance streaming, Fridays."
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-jojo-sbr-netflix-kr",
+     "region": "KR",
+     "note": "Korean title 스틸 볼 런: 죠죠의 기묘한 모험; new episodes every Friday."
+    },
+    {
+     "p": "homepage",
+     "v": "https://jojo-portal.com/anime/sbr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jojos-bizarre-adventure",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:david-production",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:hirohiko-araki",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    }
+   ]
+  },
+  {
+   "id": "character:jojos-bizarre-adventure-johnny",
+   "type": "character",
+   "slug": "jojos-bizarre-adventure-johnny",
+   "names": {
+    "en": "Johnny Joestar",
+    "ja": "ジョニィ・ジョースター",
+    "ko": "죠니 죠스타"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jojos-bizarre-adventure",
+     "src": "src:sc-anime-fall-jojo-sbr-netflix-kr"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jojos-bizarre-adventure-steel-ball-run",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:shogo-sakata",
+     "src": "src:sc-anime-fall-jojo-sbr-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:jojos-bizarre-adventure-gyro",
+   "type": "character",
+   "slug": "jojos-bizarre-adventure-gyro",
+   "names": {
+    "en": "Gyro Zeppeli",
+    "ja": "ジャイロ・ツェペリ",
+    "ko": "자이로 체펠리"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jojos-bizarre-adventure",
+     "src": "src:sc-anime-fall-jojo-sbr-netflix-kr"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jojos-bizarre-adventure-steel-ball-run",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:yohei-azakami",
+     "src": "src:sc-anime-fall-jojo-sbr-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:jojos-bizarre-adventure-diego",
+   "type": "character",
+   "slug": "jojos-bizarre-adventure-diego",
+   "names": {
+    "en": "Diego Brando",
+    "ja": "ディエゴ・ブランドー"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jojos-bizarre-adventure",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jojos-bizarre-adventure-steel-ball-run",
+     "src": "src:sc-anime-fall-jojo-sbr-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kaito-ishikawa",
+     "src": "src:sc-anime-fall-jojo-sbr-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:dragon-ball",
+   "type": "franchise",
+   "slug": "dragon-ball",
+   "names": {
+    "en": "Dragon Ball",
+    "ja": "ドラゴンボール",
+    "ko": "드래곤볼"
+   },
+   "aliases": [
+    "DB",
+    "ドラゴンボール超",
+    "드래곤볼 슈퍼"
+   ],
+   "description": {
+    "en": "Manga by Akira Toriyama and its long-running anime franchise; Dragon Ball Super returns in 2026 as the enhanced re-edit Dragon Ball Super: Beerus.",
+    "ko": "토리야마 아키라의 만화와 장기 애니메이션 프랜차이즈로, 드래곤볼 슈퍼가 2026년 강화 재편집판 드래곤볼 슈퍼: 비루스로 다시 방송된다."
+   },
+   "official_urls": [
+    {
+     "label": "Dragon Ball Super: Beerus (JP)",
+     "url": "https://dragonball-super.com/"
+    },
+    {
+     "label": "Laftel",
+     "url": "https://laftel.net/item/16216"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:akira-toriyama",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    }
+   ]
+  },
+  {
+   "id": "work:dragon-ball-super-beerus",
+   "type": "work",
+   "slug": "dragon-ball-super-beerus",
+   "names": {
+    "en": "Dragon Ball Super: Beerus",
+    "ja": "ドラゴンボール超 ビルス",
+    "ko": "드래곤볼 슈퍼: 비루스"
+   },
+   "aliases": [
+    "DBS Beerus",
+    "ドラゴンボール超"
+   ],
+   "description": {
+    "en": "\"Enhanced\" version of the Dragon Ball Super anime with many new and redrawn cuts and a restructured story, beginning with the God of Destruction Beerus arc.",
+    "ko": "새로 그리거나 추가한 컷과 재구성된 이야기로 만든 드래곤볼 슈퍼의 「엔핸스드」판으로, 파괴신 비루스 편부터 시작한다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-11",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-dbs-beerus-top",
+     "note": "Fuji TV network, Sundays 23:15 JST."
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Prime Video",
+      "U-NEXT"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-dbs-beerus-top",
+     "region": "JP",
+     "note": "Fastest streaming 30 minutes after broadcast (00:15 JST)."
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-dbs-beerus-laftel",
+     "region": "KR",
+     "note": "Listed as an upcoming subtitled release for 2026 Q4."
+    },
+    {
+     "p": "homepage",
+     "v": "https://dragonball-super.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 206814,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dragon-ball",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:toei-animation",
+     "src": "src:sc-anime-fall-toei-animation-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:akira-toriyama",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    }
+   ]
+  },
+  {
+   "id": "character:dragon-ball-goku",
+   "type": "character",
+   "slug": "dragon-ball-goku",
+   "names": {
+    "en": "Son Goku",
+    "ja": "孫悟空",
+    "ko": "손오공"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dragon-ball",
+     "src": "src:sc-anime-fall-dbs-beerus-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:dragon-ball-super-beerus",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:masako-nozawa",
+     "src": "src:sc-anime-fall-dbs-beerus-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:dragon-ball-beerus",
+   "type": "character",
+   "slug": "dragon-ball-beerus",
+   "names": {
+    "en": "Beerus",
+    "ja": "ビルス",
+    "ko": "비루스"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dragon-ball",
+     "src": "src:sc-anime-fall-dbs-beerus-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:dragon-ball-super-beerus",
+     "src": "src:sc-anime-fall-dbs-beerus-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:koichi-yamadera",
+     "src": "src:sc-anime-fall-dbs-beerus-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:tokyo-revengers",
+   "type": "franchise",
+   "slug": "tokyo-revengers",
+   "names": {
+    "en": "Tokyo Revengers",
+    "ja": "東京リベンジャーズ",
+    "ko": "도쿄 리벤저스"
+   },
+   "aliases": [
+    "東京卍リベンジャーズ",
+    "Tokyo Manji Revengers"
+   ],
+   "description": {
+    "en": "Time-leap delinquent drama by Ken Wakui, serialized in Weekly Shonen Magazine from 2017; the TV anime continues with the Three Titans War arc in October 2026.",
+    "ko": "2017년부터 주간 소년 매거진에 연재된 와쿠이 켄의 타임리프 불량배 드라마로, TV 애니메이션이 2026년 10월 삼천전쟁편으로 이어진다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://tokyo-revengers-anime.com/"
+    },
+    {
+     "label": "Laftel",
+     "url": "https://laftel.net/item/41688"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://tokyo-revengers-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff",
+     "note": "Credited as 和久井健「東京卍リベンジャーズ」（講談社「週刊少年マガジン」）."
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:ken-wakui",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    }
+   ]
+  },
+  {
+   "id": "work:tokyo-revengers-santen-sensou",
+   "type": "work",
+   "slug": "tokyo-revengers-santen-sensou",
+   "names": {
+    "en": "Tokyo Revengers: Three Titans War Arc",
+    "ja": "東京リベンジャーズ 三天戦争編",
+    "ko": "도쿄 리벤저스: 삼천전쟁편"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dpkr-yt-tokyo-revengers-santen"
+   },
+   "aliases": [
+    "三天戦争編",
+    "Santen Sensou-hen"
+   ],
+   "description": {
+    "en": "TV arc animated by LIDENFILMS; streamed worldwide (excluding mainland China) exclusively on Disney+.",
+    "ko": "라이덴필름이 제작하는 TV 시리즈로, 디즈니+에서 전 세계(중국 본토 제외) 독점 배급된다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-tokyo-revengers-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-tokyo-revengers-onair",
+     "note": "MBS/TBS, Friday late night 25:23 JST (= Saturday 01:23)."
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-tokyo-revengers-onair"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Disney+"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-tokyo-revengers-onair",
+     "region": "GLOBAL",
+     "note": "Worldwide SVOD exclusive excluding mainland China, weekly Friday late night 26:00 JST from 2026-10-02."
+    },
+    {
+     "p": "homepage",
+     "v": "https://tokyo-revengers-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-tokyo-revengers-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 178083,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:tokyo-revengers",
+     "src": "src:sc-anime-fall-tokyo-revengers-onair"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:liden-films",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:ken-wakui",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    }
+   ]
+  },
+  {
+   "id": "character:tokyo-revengers-takemichi",
+   "type": "character",
+   "slug": "tokyo-revengers-takemichi",
+   "names": {
+    "en": "Takemichi Hanagaki",
+    "ja": "花垣武道",
+    "ko": "하나가키 타케미치"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40260"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:tokyo-revengers",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:tokyo-revengers-santen-sensou",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:yuki-shin",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:tokyo-revengers-mikey",
+   "type": "character",
+   "slug": "tokyo-revengers-mikey",
+   "names": {
+    "en": "Manjiro \"Mikey\" Sano",
+    "ja": "佐野万次郎",
+    "ko": "사노 만지로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dpkr-tokyo-revengers"
+   },
+   "aliases": [
+    "마이키"
+   ],
+   "aliases_src": {
+    "마이키": "src:ko-sub-a-dpkr-tokyo-revengers"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:tokyo-revengers",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:tokyo-revengers-santen-sensou",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:yu-hayashi",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:tokyo-revengers-draken",
+   "type": "character",
+   "slug": "tokyo-revengers-draken",
+   "names": {
+    "en": "Ken \"Draken\" Ryuguji",
+    "ja": "龍宮寺堅",
+    "ko": "드라켄"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dpkr-tokyo-revengers"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:tokyo-revengers",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:tokyo-revengers-santen-sensou",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:masaya-fukunishi",
+     "src": "src:sc-anime-fall-tokyo-revengers-staff",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:ranma-1-2",
+   "type": "franchise",
+   "slug": "ranma-1-2",
+   "names": {
+    "en": "Ranma 1/2",
+    "ja": "らんま1/2",
+    "ko": "란마1/2"
+   },
+   "aliases": [
+    "らんま½",
+    "Ranma½",
+    "란마 1/2"
+   ],
+   "description": {
+    "en": "Martial-arts comedy manga by Rumiko Takahashi; the 2024 TV remake by MAPPA reaches its third season in October 2026.",
+    "ko": "타카하시 루미코의 격투 코미디 만화로, MAPPA가 제작한 2024년판 TV 애니메이션이 2026년 10월 3기를 맞는다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://ranma-pr.com/"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/81171925"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://ranma-pr.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:rumiko-takahashi",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:ranma-1-2-2024-s3",
+   "type": "work",
+   "slug": "ranma-1-2-2024-s3",
+   "names": {
+    "en": "Ranma1/2 (2024) Season 3",
+    "ja": "らんま1/2 第3期",
+    "ko": "란마1/2: 시즌 3"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-nfkr-yt-ranma-s3"
+   },
+   "aliases": [
+    "らんま1/2 3期"
+   ],
+   "description": {
+    "en": "Third season of the 2024 TV series directed by Konosuke Uda, produced by MAPPA and streamed exclusively on Netflix right after broadcast.",
+    "ko": "우다 코노스케 감독, MAPPA 제작의 2024년판 TV 시리즈 3기로, 방송 직후 넷플릭스에서 독점 공개된다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-onair",
+     "note": "Nippon TV, Saturdays 24:55 JST (= Sunday 00:55), then Nippon TV network stations."
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-onair"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-onair",
+     "region": "JP",
+     "note": "独占配信 (exclusive) on Netflix right after broadcast."
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-netflix-kr",
+     "region": "KR",
+     "note": "Korean title 란마1/2; page indicates new episodes on Sundays."
+    },
+    {
+     "p": "homepage",
+     "v": "https://ranma-pr.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-ranma-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209872,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:ranma-1-2",
+     "src": "src:sc-anime-fall-ranma-onair"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:mappa",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:rumiko-takahashi",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "character:ranma-1-2-ranma",
+   "type": "character",
+   "slug": "ranma-1-2-ranma",
+   "names": {
+    "en": "Ranma Saotome",
+    "ja": "早乙女乱馬",
+    "ko": "사오토메 란마"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-nfkr-81171925"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:ranma-1-2",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:ranma-1-2-2024-s3",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kappei-yamaguchi",
+     "src": "src:sc-anime-fall-ranma-staffcast",
+     "note": "Japanese voice"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:megumi-hayashibara",
+     "src": "src:sc-anime-fall-ranma-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:ranma-1-2-akane",
+   "type": "character",
+   "slug": "ranma-1-2-akane",
+   "names": {
+    "en": "Akane Tendo",
+    "ja": "天道あかね",
+    "ko": "텐도 아카네"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-nfkr-81171925"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:ranma-1-2",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:ranma-1-2-2024-s3",
+     "src": "src:sc-anime-fall-ranma-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:noriko-hidaka",
+     "src": "src:sc-anime-fall-ranma-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:cyberpunk",
+   "type": "franchise",
+   "slug": "cyberpunk",
+   "names": {
+    "en": "Cyberpunk",
+    "ko": "사이버펑크"
+   },
+   "aliases": [
+    "Cyberpunk 2077",
+    "Edgerunners"
+   ],
+   "description": {
+    "en": "CD PROJEKT RED's Night City universe of the game Cyberpunk 2077 and the Netflix anime Cyberpunk: Edgerunners.",
+    "ko": "CD 프로젝트 레드의 게임 사이버펑크 2077과 넷플릭스 애니메이션 사이버펑크: 엣지러너로 이어지는 나이트 시티 세계관."
+   },
+   "official_urls": [
+    {
+     "label": "Edgerunners 2 (EN)",
+     "url": "https://www.cyberpunk.net/en/edgerunners2"
+    },
+    {
+     "label": "Edgerunners 2 (KO)",
+     "url": "https://www.cyberpunk.net/ko/edgerunners2"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.cyberpunk.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    }
+   ]
+  },
+  {
+   "id": "work:cyberpunk-edgerunners-2",
+   "type": "work",
+   "slug": "cyberpunk-edgerunners-2",
+   "names": {
+    "en": "Cyberpunk: Edgerunners 2",
+    "ja": "サイバーパンク: エッジランナーズ2",
+    "ko": "사이버펑크: 엣지러너 2"
+   },
+   "aliases": [
+    "Edgerunners 2",
+    "エッジランナーズ2",
+    "엣지러너 2"
+   ],
+   "description": {
+    "en": "Ten-episode standalone anime series by CD PROJEKT RED and TRIGGER, directed by Kai Ikarashi, following washed-up edgerunner Weak and the nomad netrunner D.",
+    "ko": "CD 프로젝트 레드와 TRIGGER가 만든 10부작 독립 애니메이션 시리즈로, 이가라시 카이가 감독하며 몰락한 엣지러너 위크와 노마드 넷러너 D를 그린다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "ona",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-20",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-en",
+     "region": "GLOBAL"
+    },
+    {
+     "p": "episodes",
+     "v": 10,
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-en",
+     "region": "GLOBAL",
+     "note": "Netflix exclusive."
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-ko",
+     "region": "KR",
+     "note": "Korean official page: 2026년 10월 20일 NETFLIX 공개 예정."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.cyberpunk.net/en/edgerunners2",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "anilist_id",
+     "v": 195539,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:cyberpunk",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:trigger",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    }
+   ]
+  },
+  {
+   "id": "character:cyberpunk-weak",
+   "type": "character",
+   "slug": "cyberpunk-weak",
+   "names": {
+    "en": "Weak",
+    "ja": "ウィーク",
+    "ko": "위크"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:cyberpunk",
+     "src": "src:sc-anime-fall-edgerunners2-ko"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:cyberpunk-edgerunners-2",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kentaro-tone",
+     "src": "src:sc-anime-fall-edgerunners2-ja",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:cyberpunk-d",
+   "type": "character",
+   "slug": "cyberpunk-d",
+   "names": {
+    "en": "D",
+    "ja": "D",
+    "ko": "D"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:cyberpunk",
+     "src": "src:sc-anime-fall-edgerunners2-ko"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:cyberpunk-edgerunners-2",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:koki-uchiyama",
+     "src": "src:sc-anime-fall-edgerunners2-ja",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:cyberpunk-talia",
+   "type": "character",
+   "slug": "cyberpunk-talia",
+   "names": {
+    "en": "Talia",
+    "ja": "タリア",
+    "ko": "탈리아"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:cyberpunk",
+     "src": "src:sc-anime-fall-edgerunners2-ko"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:cyberpunk-edgerunners-2",
+     "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:akari-kito",
+     "src": "src:sc-anime-fall-edgerunners2-en",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:aoashi",
+   "type": "franchise",
+   "slug": "aoashi",
+   "names": {
+    "en": "Aoashi",
+    "ja": "アオアシ",
+    "ko": "아오아시"
+   },
+   "description": {
+    "en": "Youth-football manga by Yugo Kobayashi about Ashito Aoi joining the Tokyo City Esperion youth team; Season 2 of the anime covers his promotion to the A team.",
+    "ko": "도쿄 시티 에스페리온 유스팀에 입단한 아오이 아시토를 그린 코바야시 유고의 유소년 축구 만화로, 애니메이션 2기는 A팀 승격 이후를 다룬다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://aoashi-pr.com/"
+    },
+    {
+     "label": "Laftel (Season 1)",
+     "url": "https://laftel.net/item/40802"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://aoashi-pr.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-top",
+     "note": "Credited as 小林有吾「アオアシ」(小学館「ビッグスピリッツコミックス」刊)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:yugo-kobayashi",
+     "src": "src:sc-anime-fall-aoashi-top"
+    }
+   ]
+  },
+  {
+   "id": "work:aoashi-tv-s2",
+   "type": "work",
+   "slug": "aoashi-tv-s2",
+   "names": {
+    "en": "Aoashi Season 2",
+    "ja": "アオアシ Season2"
+   },
+   "aliases": [
+    "アオアシ 2期"
+   ],
+   "description": {
+    "en": "Second TV season (24 episodes, split into two parts) set in the Premier League youth competition; animation by TMS Entertainment.",
+    "ko": "프리미어리그를 무대로 한 TV 2기(전 24화, 분할 방송)로, 애니메이션 제작은 TMS 엔터테인먼트."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-onair",
+     "note": "NHK E-tele, Sundays 17:00 JST; first cour covers episodes 1-12 of 24."
+    },
+    {
+     "p": "episodes",
+     "v": 24,
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-onair"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-onair"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Hulu",
+      "Netflix",
+      "U-NEXT",
+      "Anime Times"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-onair",
+     "region": "JP",
+     "note": "From 2026-10-04, Sundays 23:00 JST; other services from 2026-10-08 19:30."
+    },
+    {
+     "p": "homepage",
+     "v": "https://aoashi-pr.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 191788,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:aoashi",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:tms-entertainment",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:yugo-kobayashi",
+     "src": "src:sc-anime-fall-aoashi-top"
+    }
+   ]
+  },
+  {
+   "id": "character:aoashi-ashito",
+   "type": "character",
+   "slug": "aoashi-ashito",
+   "names": {
+    "en": "Ashito Aoi",
+    "ja": "青井葦人",
+    "ko": "아오이 아시토"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dpkr-aoashi"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:aoashi",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:aoashi-tv-s2",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:koki-osuzu",
+     "src": "src:sc-anime-fall-aoashi-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:aoashi-kuribayashi",
+   "type": "character",
+   "slug": "aoashi-kuribayashi",
+   "names": {
+    "en": "Haruhisa Kuribayashi",
+    "ja": "栗林晴久",
+    "ko": "쿠리바야시"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dpkr-aoashi"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:aoashi",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:aoashi-tv-s2",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:yuichiro-umehara",
+     "src": "src:sc-anime-fall-aoashi-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:aoashi-akutsu",
+   "type": "character",
+   "slug": "aoashi-akutsu",
+   "names": {
+    "en": "Nagisa Akutsu",
+    "ja": "阿久津渚"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:aoashi",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:aoashi-tv-s2",
+     "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:shunsuke-takeuchi",
+     "src": "src:sc-anime-fall-aoashi-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:mission-yozakura-family",
+   "type": "franchise",
+   "slug": "mission-yozakura-family",
+   "names": {
+    "en": "Mission: Yozakura Family",
+    "ja": "夜桜さんちの大作戦",
+    "ko": "요자쿠라 일가의 대작전"
+   },
+   "aliases": [
+    "Yozakura-san Chi no Daisakusen"
+   ],
+   "description": {
+    "en": "Spy-family action comedy manga by Hitsuji Gondaira; the TV anime's second season continues with its second cour in October 2026.",
+    "ko": "곤다이라 히츠지의 스파이 가족 액션 코미디 만화로, TV 애니메이션 2기의 2쿨이 2026년 10월 방송된다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://mission-yozakura-family.com/"
+    },
+    {
+     "label": "Laftel",
+     "url": "https://laftel.net/item/47468"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/81766575"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://mission-yozakura-family.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:hitsuji-gondaira",
+     "src": "src:sc-anime-fall-yozakura-top"
+    }
+   ]
+  },
+  {
+   "id": "work:mission-yozakura-family-tv-s2-part2",
+   "type": "work",
+   "slug": "mission-yozakura-family-tv-s2-part2",
+   "names": {
+    "en": "Mission: Yozakura Family Season 2 (2nd cour)",
+    "ja": "夜桜さんちの大作戦 第2期 第2クール",
+    "ko": "요자쿠라 일가의 대작전 2기 part 2"
+   },
+   "aliases": [
+    "夜桜さんちの大作戦 2期 2クール"
+   ],
+   "description": {
+    "en": "Second cour of the second TV season, animated by SILVER LINK., in which the Yozakura siblings' father Hyaku makes his move.",
+    "ko": "실버 링크 제작 TV 2기의 2쿨로, 요자쿠라 남매의 아버지 햐쿠가 움직이기 시작한다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-s2-cour2"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-11",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-s2-cour2",
+     "note": "MBS/TBS network (28 stations), Sundays 17:00 JST; BS NTV from 10-20, AT-X from 10-21."
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-s2-cour2"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "U-NEXT",
+      "Anime Hodai",
+      "Anime Times"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-s2-cour2",
+     "region": "JP",
+     "note": "Advance streaming from 2026-10-11 17:30; Netflix, Disney+, Prime Video and others from 2026-10-16 17:30."
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-laftel",
+     "region": "KR",
+     "note": "Listed as upcoming for 2026 Q4, Tuesdays."
+    },
+    {
+     "p": "homepage",
+     "v": "https://mission-yozakura-family.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 213657,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:mission-yozakura-family",
+     "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:silver-link",
+     "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:hitsuji-gondaira",
+     "src": "src:sc-anime-fall-yozakura-top"
+    }
+   ]
+  },
+  {
+   "id": "character:mission-yozakura-family-taiyo",
+   "type": "character",
+   "slug": "mission-yozakura-family-taiyo",
+   "names": {
+    "en": "Taiyo Asano",
+    "ja": "朝野太陽",
+    "ko": "아사노 타이요"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:mission-yozakura-family",
+     "src": "src:sc-anime-fall-yozakura-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:mission-yozakura-family-tv-s2-part2",
+     "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:reiji-kawashima",
+     "src": "src:sc-anime-fall-yozakura-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:mission-yozakura-family-mutsumi",
+   "type": "character",
+   "slug": "mission-yozakura-family-mutsumi",
+   "names": {
+    "en": "Mutsumi Yozakura",
+    "ja": "夜桜六美",
+    "ko": "요자쿠라 무츠미"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:mission-yozakura-family",
+     "src": "src:sc-anime-fall-yozakura-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:mission-yozakura-family-tv-s2-part2",
+     "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kaede-hondo",
+     "src": "src:sc-anime-fall-yozakura-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:mission-yozakura-family-kyoichiro",
+   "type": "character",
+   "slug": "mission-yozakura-family-kyoichiro",
+   "names": {
+    "en": "Kyoichiro Yozakura",
+    "ja": "夜桜凶一郎",
+    "ko": "요자쿠라 쿄이치로"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:mission-yozakura-family",
+     "src": "src:sc-anime-fall-yozakura-laftel"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:mission-yozakura-family-tv-s2-part2",
+     "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:katsuyuki-konishi",
+     "src": "src:sc-anime-fall-yozakura-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:bleach",
+   "type": "franchise",
+   "slug": "bleach",
+   "names": {
+    "en": "BLEACH",
+    "ja": "BLEACH",
+    "ko": "블리치"
+   },
+   "aliases": [
+    "ブリーチ"
+   ],
+   "description": {
+    "en": "Soul Reaper action manga by Tite Kubo; the TV anime is concluding with the Thousand-Year Blood War final cour, \"The Calamity\", in 2026.",
+    "ko": "쿠보 타이토의 사신 액션 만화로, TV 애니메이션이 2026년 천년혈전 편 최종 쿨 「화진담」으로 완결을 맞는다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://bleach-anime.com/"
+    },
+    {
+     "label": "Laftel",
+     "url": "https://laftel.net/item/46165"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/80217733"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://bleach-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:tite-kubo",
+     "src": "src:sc-anime-fall-bleach-top"
+    }
+   ]
+  },
+  {
+   "id": "work:bleach-tybw-the-calamity",
+   "type": "work",
+   "slug": "bleach-tybw-the-calamity",
+   "names": {
+    "en": "BLEACH: Thousand-Year Blood War - The Calamity",
+    "ja": "BLEACH 千年血戦篇-禍進譚-",
+    "ko": "블리치-천년혈전 편 : 화진담"
+   },
+   "aliases": [
+    "千年血戦篇 禍進譚",
+    "TYBW The Calamity",
+    "화진담"
+   ],
+   "description": {
+    "en": "Final cour of the Thousand-Year Blood War anime by Studio Pierrot; episodes 49 and 50 were moved to late October 2026 for quality improvements.",
+    "ko": "스튜디오 피에로가 제작한 천년혈전 편 애니메이션의 최종 쿨로, 49·50화는 퀄리티 향상을 이유로 2026년 10월 하순으로 연기되었다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-07-25",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-onair",
+     "note": "TV Tokyo network, Saturdays 23:00 JST."
+    },
+    {
+     "p": "airing_status",
+     "v": "airing",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-onair"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix",
+      "Disney+",
+      "Prime Video",
+      "U-NEXT",
+      "Hulu",
+      "ABEMA",
+      "dAnime Store"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-onair",
+     "region": "JP",
+     "note": "Partial list of SVOD services on the official ON AIR page."
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-laftel-sub",
+     "region": "KR",
+     "note": "Subtitled (Sundays) and Korean-dubbed (Saturdays) editions."
+    },
+    {
+     "p": "homepage",
+     "v": "https://bleach-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-bleach-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 185874,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:bleach",
+     "src": "src:sc-anime-fall-bleach-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:studio-pierrot",
+     "src": "src:sc-anime-fall-bleach-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:tite-kubo",
+     "src": "src:sc-anime-fall-bleach-top"
+    }
+   ]
+  },
+  {
+   "id": "character:bleach-ichigo",
+   "type": "character",
+   "slug": "bleach-ichigo",
+   "names": {
+    "en": "Ichigo Kurosaki",
+    "ja": "黒崎一護",
+    "ko": "쿠로사키 이치고"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:bleach",
+     "src": "src:sc-anime-fall-bleach-laftel-sub"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:bleach-tybw-the-calamity",
+     "src": "src:sc-anime-fall-bleach-laftel-sub"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:masakazu-morita",
+     "src": "src:sc-anime-fall-bleach-fes",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:bleach-rukia",
+   "type": "character",
+   "slug": "bleach-rukia",
+   "names": {
+    "en": "Rukia Kuchiki",
+    "ja": "朽木ルキア",
+    "ko": "쿠치키 루키아"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:bleach",
+     "src": "src:sc-anime-fall-bleach-laftel-sub"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:bleach-tybw-the-calamity",
+     "src": "src:sc-anime-fall-bleach-laftel-sub"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:fumiko-orikasa",
+     "src": "src:sc-anime-fall-bleach-fes",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:aoi-yuki",
+   "type": "voice_actor",
+   "slug": "aoi-yuki",
+   "names": {
+    "en": "Aoi Yuki",
+    "ja": "悠木碧",
+    "ko": "유우키 아오이"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-42741"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/42741"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社青二プロダクション (Aoni Production)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-aoi-yuki"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/yuki-aoi.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-aoi-yuki"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:takeo-otsuka",
+   "type": "voice_actor",
+   "slug": "takeo-otsuka",
+   "names": {
+    "en": "Takeo Otsuka",
+    "ja": "大塚剛央",
+    "ko": "오오츠카 타케오"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-42741"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/42741"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ (I'm Enterprise)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-takeo-otsuka"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=28",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-takeo-otsuka"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:gakuto-kajiwara",
+   "type": "voice_actor",
+   "slug": "gakuto-kajiwara",
+   "names": {
+    "en": "Gakuto Kajiwara",
+    "ja": "梶原岳人",
+    "ko": "카지와라 가쿠토"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-37945"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/37945"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "俳協（東京俳優生活協同組合）(Haikyo)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-gakuto-kajiwara"
+    },
+    {
+     "p": "homepage",
+     "v": "https://haikyo.co.jp/profile/profile.php?ActorID=12813",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-gakuto-kajiwara"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:nobunaga-shimazaki",
+   "type": "voice_actor",
+   "slug": "nobunaga-shimazaki",
+   "names": {
+    "en": "Nobunaga Shimazaki",
+    "ja": "島﨑信長",
+    "ko": "시마자키 노부나가"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-37945"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/37945"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社青二プロダクション (Aoni Production)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-nobunaga-shimazaki"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/shimazaki-nobunaga.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-nobunaga-shimazaki"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:junichi-suwabe",
+   "type": "voice_actor",
+   "slug": "junichi-suwabe",
+   "names": {
+    "en": "Junichi Suwabe",
+    "ja": "諏訪部順一",
+    "ko": "스와베 준이치"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-37945"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/37945"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "俳協（東京俳優生活協同組合）(Haikyo)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-junichi-suwabe"
+    },
+    {
+     "p": "homepage",
+     "v": "https://haikyo.co.jp/profile/profile.php?ActorID=11470",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-junichi-suwabe"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:shoya-chiba",
+   "type": "voice_actor",
+   "slug": "shoya-chiba",
+   "names": {
+    "en": "Shoya Chiba",
+    "ja": "千葉翔也",
+    "ko": "치바 쇼야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-41369"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "トイズファクトリー (TOY'S FACTORY)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-shoya-chiba"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.toysfactory.co.jp/artist/shoyachiba",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-shoya-chiba"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:reina-ueda",
+   "type": "voice_actor",
+   "slug": "reina-ueda",
+   "names": {
+    "en": "Reina Ueda",
+    "ja": "上田麗奈",
+    "ko": "우에다 레이나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-42644"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社81プロデュース (81 Produce)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-reina-ueda"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/actor_search/index.php/item?id=162",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-reina-ueda"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:akari-kito",
+   "type": "voice_actor",
+   "slug": "akari-kito",
+   "names": {
+    "en": "Akari Kito",
+    "ja": "鬼頭明里",
+    "ko": "키토 아카리"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-cyberpunk-edgerunners2"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://www.cyberpunk.net/ko/edgerunners2"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ラクーンドッグ (Raccoon Dog)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-akari-kito"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.raccoon-dog.co.jp/talent/r09-kitou.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-akari-kito"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:shogo-sakata",
+   "type": "voice_actor",
+   "slug": "shogo-sakata",
+   "names": {
+    "en": "Shogo Sakata",
+    "ja": "坂田将吾",
+    "ko": "사카타 쇼고"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-nfkr-82116553"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社青二プロダクション (Aoni Production)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-shogo-sakata"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/sakata-shogo.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-shogo-sakata"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:yohei-azakami",
+   "type": "voice_actor",
+   "slug": "yohei-azakami",
+   "names": {
+    "en": "Yohei Azakami",
+    "ja": "阿座上洋平",
+    "ko": "아자카미 요헤이"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40838"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社青二プロダクション (Aoni Production)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yohei-azakami"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/azakami-yohei.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yohei-azakami"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kaito-ishikawa",
+   "type": "voice_actor",
+   "slug": "kaito-ishikawa",
+   "names": {
+    "en": "Kaito Ishikawa",
+    "ja": "石川界人",
+    "ko": "이시카와 카이토"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-38921"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ステイラック (Stay Luck)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kaito-ishikawa"
+    },
+    {
+     "p": "homepage",
+     "v": "https://stay-luck.com/talent/ishikawa-kaito/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kaito-ishikawa"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:masako-nozawa",
+   "type": "voice_actor",
+   "slug": "masako-nozawa",
+   "names": {
+    "en": "Masako Nozawa",
+    "ja": "野沢雅子",
+    "ko": "노자와 마사코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47483"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/47483"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社青二プロダクション (Aoni Production)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-masako-nozawa"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/nozawa-masako.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-masako-nozawa"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:koichi-yamadera",
+   "type": "voice_actor",
+   "slug": "koichi-yamadera",
+   "names": {
+    "en": "Koichi Yamadera",
+    "ja": "山寺宏一",
+    "ko": "야마데라 코이치"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47483"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/47483"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アクロスエンタテインメント (ACROSS ENTERTAINMENT)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-koichi-yamadera"
+    },
+    {
+     "p": "homepage",
+     "v": "https://across-ent.com/voice_actor/detail.html?id=101",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-koichi-yamadera"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:yuki-shin",
+   "type": "voice_actor",
+   "slug": "yuki-shin",
+   "names": {
+    "en": "Yuki Shin",
+    "ja": "新祐樹",
+    "ko": "신 유우키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40260"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "賢プロダクション (Kenproduction)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yuki-shin"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.kenproduction.co.jp/talent/147",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yuki-shin"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:yu-hayashi",
+   "type": "voice_actor",
+   "slug": "yu-hayashi",
+   "names": {
+    "en": "Yu Hayashi",
+    "ja": "林勇",
+    "ko": "하야시 유우"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-39864"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "賢プロダクション (Kenproduction)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yu-hayashi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.kenproduction.co.jp/talent/58",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yu-hayashi"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:masaya-fukunishi",
+   "type": "voice_actor",
+   "slug": "masaya-fukunishi",
+   "names": {
+    "en": "Masaya Fukunishi",
+    "ja": "福西勝也",
+    "ko": "후쿠니시 마사야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-42047"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "賢プロダクション (Kenproduction)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-masaya-fukunishi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.kenproduction.co.jp/talent/182",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-masaya-fukunishi"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kappei-yamaguchi",
+   "type": "voice_actor",
+   "slug": "kappei-yamaguchi",
+   "names": {
+    "en": "Kappei Yamaguchi",
+    "ja": "山口勝平",
+    "ko": "야마구치 캇페이"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40460"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "有限会社悟空 (Go-coo)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kappei-yamaguchi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://go-coo.com/#ta_kappei_yamaguchi",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kappei-yamaguchi"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:megumi-hayashibara",
+   "type": "voice_actor",
+   "slug": "megumi-hayashibara",
+   "names": {
+    "en": "Megumi Hayashibara",
+    "ja": "林原めぐみ",
+    "ko": "하야시바라 메구미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-16197"
+   }
+  },
+  {
+   "id": "voice_actor:noriko-hidaka",
+   "type": "voice_actor",
+   "slug": "noriko-hidaka",
+   "names": {
+    "en": "Noriko Hidaka",
+    "ja": "日髙のり子",
+    "ko": "히다카 노리코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-14943"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "有限会社ビッグ・マウント (BIG MOUNT)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-noriko-hidaka"
+    },
+    {
+     "p": "homepage",
+     "v": "https://bigmount.amebaownd.com/pages/6898788/page_202304010026",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-noriko-hidaka"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kentaro-tone",
+   "type": "voice_actor",
+   "slug": "kentaro-tone",
+   "names": {
+    "en": "Kentaro Tone",
+    "ja": "利根健太朗",
+    "ko": "토네 켄타로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-cyberpunk-edgerunners2"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://www.cyberpunk.net/ko/edgerunners2"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ (I'm Enterprise)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kentaro-tone"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=67",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kentaro-tone"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:koki-uchiyama",
+   "type": "voice_actor",
+   "slug": "koki-uchiyama",
+   "names": {
+    "en": "Koki Uchiyama",
+    "ja": "内山昂輝",
+    "ko": "우치야마 코우키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-cyberpunk-edgerunners2"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://www.cyberpunk.net/ko/edgerunners2"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "劇団ひまわり (Gekidan Himawari)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-koki-uchiyama"
+    },
+    {
+     "p": "homepage",
+     "v": "https://profile.himawari.net/view/1559",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-koki-uchiyama"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:koki-osuzu",
+   "type": "voice_actor",
+   "slug": "koki-osuzu",
+   "names": {
+    "en": "Koki Osuzu",
+    "ja": "大鈴功起",
+    "ko": "오오스즈 코우키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dpkr-aoashi"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "VIMS -ヴィムス-",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-koki-osuzu"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.vims.co.jp/talent/340/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-koki-osuzu"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:yuichiro-umehara",
+   "type": "voice_actor",
+   "slug": "yuichiro-umehara",
+   "names": {
+    "en": "Yuichiro Umehara",
+    "ja": "梅原裕一郎",
+    "ko": "우메하라 유이치로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40009"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社アーツビジョン (Arts Vision)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yuichiro-umehara"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.artsvision.co.jp/talent/14239/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-yuichiro-umehara"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:shunsuke-takeuchi",
+   "type": "voice_actor",
+   "slug": "shunsuke-takeuchi",
+   "names": {
+    "en": "Shunsuke Takeuchi",
+    "ja": "武内駿輔",
+    "ko": "타케우치 슌스케"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40009"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社81プロデュース (81 Produce)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-shunsuke-takeuchi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/actor_search/index.php/item?id=71",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-shunsuke-takeuchi"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:reiji-kawashima",
+   "type": "voice_actor",
+   "slug": "reiji-kawashima",
+   "names": {
+    "en": "Reiji Kawashima",
+    "ja": "川島零士",
+    "ko": "카와시마 레이지"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47468"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/47468"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社青二プロダクション (Aoni Production)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-reiji-kawashima"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/kawashima-reiji.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-reiji-kawashima"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kaede-hondo",
+   "type": "voice_actor",
+   "slug": "kaede-hondo",
+   "names": {
+    "en": "Kaede Hondo",
+    "ja": "本渡楓",
+    "ko": "혼도 카에데"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47468"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/47468"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ (I'm Enterprise)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kaede-hondo"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=78",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-kaede-hondo"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:katsuyuki-konishi",
+   "type": "voice_actor",
+   "slug": "katsuyuki-konishi",
+   "names": {
+    "en": "Katsuyuki Konishi",
+    "ja": "小西克幸",
+    "ko": "코니시 카츠유키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47468"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/47468"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "賢プロダクション (Kenproduction)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-katsuyuki-konishi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.kenproduction.co.jp/talent/32",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-katsuyuki-konishi"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:masakazu-morita",
+   "type": "voice_actor",
+   "slug": "masakazu-morita",
+   "names": {
+    "en": "Masakazu Morita",
+    "ja": "森田成一",
+    "ko": "모리타 마사카즈"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-46165"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/46165"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ステイラック (Stay Luck)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-masakazu-morita"
+    },
+    {
+     "p": "homepage",
+     "v": "https://stay-luck.com/talent/morita-masakazu/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-masakazu-morita"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:fumiko-orikasa",
+   "type": "voice_actor",
+   "slug": "fumiko-orikasa",
+   "names": {
+    "en": "Fumiko Orikasa",
+    "ja": "折笠富美子",
+    "ko": "오리카사 후미코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-46165"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name credit",
+     "url": "https://laftel.net/item/46165"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "株式会社アトミックモンキー (Atomic Monkey)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-fumiko-orikasa"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.atomicmonkey.jp/talent/orikasafumiko",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-va-fumiko-orikasa"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "The Apothecary Diaries Season 3 premieres on Nippon TV",
+    "ko": "약사의 혼잣말 3기 일본 방송 시작 (닛폰TV)"
+   },
+   "starts": "2026-10-02T23:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://kusuriyanohitorigoto.jp/news/2623/",
+   "entities": [
+    "work:the-apothecary-diaries-tv-s3",
+    "franchise:the-apothecary-diaries"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-kusuriya-s3-news",
+   "note": "Weekly Fridays 23:00 JST in the FRIDAY ANIME NIGHT slot; streaming platforms follow after broadcast. Opening theme: ヨルシカ「雲を抜け風下へ私だけ」."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "The Apothecary Diaries Season 3 advance screening with cast stage greeting",
+    "ko": "약사의 혼잣말 3기 무대인사 선행 상영회"
+   },
+   "starts": "2026-09-27T14:00+09:00",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "JP",
+   "location": "TOHO Cinemas Roppongi Hills, Tokyo (live viewing at 10 theatres)",
+   "url": "https://kusuriyanohitorigoto.jp/news/2644/",
+   "entities": [
+    "work:the-apothecary-diaries-tv-s3"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-kusuriya-s3-preview",
+   "note": "Episodes 1-2 screened; stage greeting by Aoi Yuki, Takeo Otsuka, Tatsumaru Tachibana and Natsumi Fujiwara."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "The Apothecary Diaries the Movie: The Lost Consort's Treasure opens in Japan",
+    "ko": "극장판 약사의 혼잣말 일본 개봉"
+   },
+   "starts": "2026-12-11",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://kusuriyanohitorigoto.jp/news/2520/",
+   "entities": [
+    "work:the-apothecary-diaries-film-2026",
+    "franchise:the-apothecary-diaries"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-kusuriya-film-news"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Black Clover 2nd Season premieres on TV Tokyo",
+    "ko": "블랙 클로버 2nd Season 일본 방송 시작 (TV 도쿄)"
+   },
+   "starts": "2026-10-03T23:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://bclover.jp/onair/",
+   "entities": [
+    "work:black-clover-tv-s2",
+    "franchise:black-clover"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-bclover-onair",
+   "note": "TV Tokyo network Saturdays 23:00 JST; BS TV Tokyo from 2026-10-07 24:00. Advance streaming 2026-10-04 12:00 on Anime Times, Lemino, U-NEXT, Anime Hodai."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Blue Box Season 2 premieres on TBS",
+    "ko": "푸른 상자 2기 일본 방송 시작 (TBS)"
+   },
+   "starts": "2026-10-04T16:30+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://aonohako-anime.com/news/detail_260826_1.html",
+   "entities": [
+    "work:blue-box-tv-s2",
+    "franchise:blue-box"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-aonohako-s2-onair",
+   "note": "TBS network, 28 stations, Sundays 16:30 JST; streaming platforms from 17:00. Opening: aiko「あなたの花の色」; ending: エルスウェア紀行「blue in」."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Blue Box Season 2 world premiere",
+    "ko": "푸른 상자 2기 월드 프리미어"
+   },
+   "starts": "2026-09-06",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "JP",
+   "location": "TOHO Cinemas Hibiya Screen 12, Tokyo",
+   "url": "https://aonohako-anime.com/news/detail_260803_1.html",
+   "entities": [
+    "work:blue-box-tv-s2"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-aonohako-s2-premiere",
+   "note": "Two sessions (16:00 and 18:30) screening episodes 1-2 with a cast talk."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Steel Ball Run 2nd & 3rd STAGE starts streaming on Netflix",
+    "ko": "스틸 볼 런 2nd·3rd STAGE 넷플릭스 공개 시작"
+   },
+   "starts": "2026-09-25",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "GLOBAL",
+   "url": "https://jojo-portal.com/news/anime/598/",
+   "entities": [
+    "work:jojos-bizarre-adventure-steel-ball-run",
+    "franchise:jojos-bizarre-adventure"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-jojo-sbr-2nd-3rd",
+   "note": "11 episodes, weekly on Fridays, worldwide exclusive on Netflix (including Netflix Korea). Opening: Kroi「SPIN」; ending: 千葉雄喜「死ぬか生きるか」."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Dragon Ball Super: Beerus premieres on Fuji TV",
+    "ko": "드래곤볼 슈퍼: 비루스 일본 방송 시작 (후지TV)"
+   },
+   "starts": "2026-10-11T23:15+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://dragonball-super.com/",
+   "entities": [
+    "work:dragon-ball-super-beerus",
+    "franchise:dragon-ball"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-dbs-beerus-top",
+   "note": "Fuji TV network Sundays 23:15 JST; Prime Video and U-NEXT stream from 00:15."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Tokyo Revengers: Three Titans War Arc premieres on MBS/TBS",
+    "ko": "도쿄 리벤저스 삼천전쟁편 일본 방송 시작 (MBS·TBS)"
+   },
+   "starts": "2026-10-03T01:23+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://tokyo-revengers-anime.com/onair/",
+   "entities": [
+    "work:tokyo-revengers-santen-sensou",
+    "franchise:tokyo-revengers"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-tokyo-revengers-onair",
+   "note": "Listed as 2026年10月2日より毎週金曜深夜1:23 (Friday late-night slot). AT-X from 2026-10-03 21:00. Opening: JO1「IGNITE」; ending: go!go!vanillas「トリックスター」."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Tokyo Revengers: Three Titans War Arc starts on Disney+ worldwide",
+    "ko": "도쿄 리벤저스 삼천전쟁편 디즈니+ 전 세계 독점 공개"
+   },
+   "starts": "2026-10-03T02:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "GLOBAL",
+   "url": "https://tokyo-revengers-anime.com/onair/",
+   "entities": [
+    "work:tokyo-revengers-santen-sensou"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-tokyo-revengers-onair",
+   "note": "Listed as 2026年10月2日から毎週金曜深夜2時; worldwide SVOD exclusive excluding mainland China. Korean availability follows from the worldwide scope; no Korean-specific page was checked."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Ranma1/2 Season 3 premieres on Nippon TV and Netflix",
+    "ko": "란마1/2 3기 일본 방송·넷플릭스 공개 시작"
+   },
+   "starts": "2026-10-04T00:55+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://ranma-pr.com/onair/",
+   "entities": [
+    "work:ranma-1-2-2024-s3",
+    "franchise:ranma-1-2"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-ranma-onair",
+   "note": "Listed as 2026年10月3日より毎週土曜日24:55〜 on Nippon TV; Netflix exclusive streaming right after broadcast. Opening: ふみの「素直未満」; ending: 『ユイカ』「かわいくない」."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Cyberpunk: Edgerunners 2 premieres on Netflix",
+    "ko": "사이버펑크: 엣지러너 2 넷플릭스 공개"
+   },
+   "starts": "2026-10-20",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "GLOBAL",
+   "url": "https://www.cyberpunk.net/en/edgerunners2",
+   "entities": [
+    "work:cyberpunk-edgerunners-2",
+    "franchise:cyberpunk"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-edgerunners2-en",
+   "note": "Netflix exclusive, 10 episodes; the Korean official page gives the same date."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Aoashi Season 2 premieres on NHK E-tele",
+    "ko": "아오아시 2기 일본 방송 시작 (NHK E테레)"
+   },
+   "starts": "2026-10-04T17:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://aoashi-pr.com/onair",
+   "entities": [
+    "work:aoashi-tv-s2",
+    "franchise:aoashi"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-aoashi-onair",
+   "note": "Sundays 17:00 JST; Hulu, Netflix, U-NEXT and Anime Times stream from 23:00 the same day. Opening: 10-FEET; ending: ヒグチアイ."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Mission: Yozakura Family Season 2 second cour premieres on MBS/TBS",
+    "ko": "요자쿠라 일가의 대작전 2기 2쿨 일본 방송 시작"
+   },
+   "starts": "2026-10-11T17:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://mission-yozakura-family.com/news/index02700000.html",
+   "entities": [
+    "work:mission-yozakura-family-tv-s2-part2",
+    "franchise:mission-yozakura-family"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-yozakura-s2-cour2",
+   "note": "MBS/TBS 28 stations Sundays 17:00 JST; opening ハンブレッダーズ「フォーエバーソング」, ending KID PHENOMENON「I'm still breathing」."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "BLEACH TYBW -The Calamity- premieres on TV Tokyo",
+    "ko": "블리치 천년혈전 편 화진담 일본 방송 시작"
+   },
+   "starts": "2026-07-25T23:00+09:00",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "JP",
+   "url": "https://bleach-anime.com/onair/",
+   "entities": [
+    "work:bleach-tybw-the-calamity"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-bleach-onair",
+   "note": "TV Tokyo network Saturdays 23:00 JST; BS TV Tokyo from 07-27."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "BLEACH TYBW episode 49 airs (rescheduled)",
+    "ko": "블리치 천년혈전 편 49화 방송 (일정 변경)"
+   },
+   "starts": "2026-10-20T00:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://bleach-anime.com/news/?id=71195",
+   "entities": [
+    "work:bleach-tybw-the-calamity"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-bleach-ep49-50",
+   "note": "Listed as 10月19日（月）24時 on the TV Tokyo network; streaming from 2026-10-20 12:00. Moved for quality improvement ahead of the finale."
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "BLEACH TYBW episode 50 airs (rescheduled)",
+    "ko": "블리치 천년혈전 편 50화 방송 (일정 변경)"
+   },
+   "starts": "2026-10-27T00:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://bleach-anime.com/news/?id=71195",
+   "entities": [
+    "work:bleach-tybw-the-calamity"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-bleach-ep49-50",
+   "note": "Listed as 10月26日（月）24時 on the TV Tokyo network; streaming from 2026-10-27 12:00."
+  },
+  {
+   "kind": "other",
+   "title": {
+    "en": "BLEACH TYBW -The Calamity- episodes 9-10 on hold on Laftel",
+    "ko": "라프텔 블리치 화진담 9·10화 휴방"
+   },
+   "starts": "2026-09-27",
+   "date_precision": "day",
+   "status": "postponed",
+   "region": "KR",
+   "url": "https://laftel.net/item/46165",
+   "entities": [
+    "work:bleach-tybw-the-calamity"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-bleach-laftel-sub",
+   "note": "Laftel notice: episodes 9 and 10 planned for 2026-09-27 are on hold due to circumstances in Japan; new date undecided (matches the Japanese reschedule of episodes 49-50)."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "BLEACH FES. — TV anime finale celebration event",
+    "ko": "블리치 TV 애니메이션 완결 기념 이벤트 BLEACH FES."
+   },
+   "starts": "2027-02-27",
+   "ends": "2027-02-28",
+   "date_precision": "day",
+   "status": "announced",
+   "region": "JP",
+   "location": "Makuhari Messe Event Hall, Chiba",
+   "url": "https://bleach-fes.jp/",
+   "entities": [
+    "franchise:bleach",
+    "work:bleach-tybw-the-calamity"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-anime-fall-bleach-fes",
+   "note": "Cast includes Masakazu Morita (Ichigo) and Fumiko Orikasa (Rukia); ticket pre-sale opened 2026-09-19."
+  }
+ ]
+}

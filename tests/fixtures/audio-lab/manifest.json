@@ -1,0 +1,163 @@
+{
+  "generator": "generate.py",
+  "source": "Original mathematical synthesis by Nerulio",
+  "license": "CC0-1.0",
+  "cases": [
+    {
+      "file": "tempo-60.wav",
+      "sha256": "9eca68464ad89a7c9499b12b9b27629d27719e286b0e5ba76520f9af30c0c6cf",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 60,
+      "constructionKey": "C major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "tempo-75.wav",
+      "sha256": "89b6e207396a1a80933ca4530e4687a38db7c69f29648ab69ed7d1b4f4648b54",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 75,
+      "constructionKey": "C major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "tempo-90.wav",
+      "sha256": "3703329d19673d7fdddb65e145a133921ccb565bc2516b299e1aa1ce661f3552",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 90,
+      "constructionKey": "C major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "tempo-120.wav",
+      "sha256": "5a639a071f763f323931e953180a4706d82c7ab7df2c57c0f24cf36d42d2223f",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 120,
+      "constructionKey": "C major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "tempo-150.wav",
+      "sha256": "b1620e0bb70423dd301da7cf97abb5ab3aec7c36770c38693ab676ee259f64e1",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 150,
+      "constructionKey": "C major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "tempo-180.wav",
+      "sha256": "a25d02ac64973ee4da272498a5598168cc2b780fc5ebfe25d4aa39aa63cb0110",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 180,
+      "constructionKey": "C major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "key-g-major.wav",
+      "sha256": "48fed5091b1cabed322f9b61812ee6387b390ff27371eea684b4edc2245a35b3",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 120,
+      "constructionKey": "G major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "key-f-major.wav",
+      "sha256": "09b5721c9a15f525c39bb904d1a56d49c13d529e06a8e27398608c323397e3e8",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 120,
+      "constructionKey": "F major",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "key-a-minor.wav",
+      "sha256": "b090615ed0fbbcac6fac4369fccf8d9efd74bf88f293671d1eae6e1be4f26e47",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 120,
+      "constructionKey": "A minor",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "key-e-minor.wav",
+      "sha256": "2c57ba1817a11533e9b50923a1e3814607d78a4afa0909044e8d5733619de3c1",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 120,
+      "constructionKey": "E minor",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "key-d-minor.wav",
+      "sha256": "0a0e795796360f5a555f93c1947116fd60b28f0c3452e86b9461e2b65f012ab0",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": 120,
+      "constructionKey": "D minor",
+      "kind": "music",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "silence.wav",
+      "sha256": "d632daecb4ab19e0f93f179107f4bb4240d5b261217dd6fe33505d7b4fc6106f",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": null,
+      "constructionKey": null,
+      "kind": "silence",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    },
+    {
+      "file": "single-tone.wav",
+      "sha256": "5d109a808172dd3cae1f3f268327e03c9c0e051d8f62194f6fecbd91014c5349",
+      "sampleRate": 22050,
+      "channels": 1,
+      "seconds": 8,
+      "constructionTempoBpm": null,
+      "constructionKey": null,
+      "kind": "tone",
+      "license": "CC0-1.0",
+      "groundTruthMeaning": "synthesis construction; half/double and relative key may be perceptually ambiguous"
+    }
+  ]
+}

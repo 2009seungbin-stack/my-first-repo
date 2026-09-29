@@ -1,0 +1,49 @@
+{
+ "233860": {
+  "success": true,
+  "data": {
+   "type": "game",
+   "name": "Kenshi",
+   "steam_appid": 233860,
+   "supported_languages": "English<strong>*</strong>, Spanish - Spain<strong>*</strong>, Portuguese - Brazil<strong>*</strong>, Japanese<strong>*</strong>, German<strong>*</strong>, Russian<strong>*</strong>, French<strong>*</strong>, Simplified Chinese<strong>*</strong>, Korean<strong>*</strong><br><strong>*</strong>languages with full audio support",
+   "developers": [
+    "Lo-Fi Games"
+   ],
+   "publishers": [
+    "Lo-Fi Games"
+   ],
+   "release_date": {
+    "coming_soon": false,
+    "date": "Dec 6, 2018"
+   },
+   "platforms": {
+    "windows": true,
+    "mac": false,
+    "linux": false
+   },
+   "genres": [
+    {
+     "id": "1",
+     "description": "Action"
+    },
+    {
+     "id": "23",
+     "description": "Indie"
+    },
+    {
+     "id": "3",
+     "description": "RPG"
+    },
+    {
+     "id": "28",
+     "description": "Simulation"
+    },
+    {
+     "id": "2",
+     "description": "Strategy"
+    }
+   ],
+   "website": "http://www.lofigames.com"
+  }
+ }
+}

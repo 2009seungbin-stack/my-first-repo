@@ -1,0 +1,4602 @@
+{
+  "schema": "nerulio.seed/1",
+  "vertical": "ai",
+  "sources": [
+    {"id":"src:open-gpt-oss-model-card","kind":"OFFICIAL","url":"https://cdn.openai.com/pdf/419b6906-9da6-406c-a19d-1bb078ac7637/oai_gpt-oss_model_card.pdf","title":"gpt-oss-120b & gpt-oss-20b Model Card","publisher":"OpenAI","retrieved":"2026-09-28","note":"Table 1 gives exact parameter counts; context length 131,072; dated August 5, 2025."},
+    {"id":"src:open-hf-gpt-oss-20b","kind":"OFFICIAL","url":"https://huggingface.co/openai/gpt-oss-20b","title":"openai/gpt-oss-20b","publisher":"OpenAI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-gpt-oss-120b","kind":"OFFICIAL","url":"https://huggingface.co/openai/gpt-oss-120b","title":"openai/gpt-oss-120b","publisher":"OpenAI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-grok-1-github","kind":"OFFICIAL","url":"https://github.com/xai-org/grok-1","title":"xai-org/grok-1 (README: Model Specifications, License)","publisher":"xAI","retrieved":"2026-09-28"},
+    {"id":"src:open-llama4-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama4/MODEL_CARD.md","title":"Llama 4 Model Card","publisher":"Meta","retrieved":"2026-09-28"},
+    {"id":"src:open-llama3-3-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama3_3/MODEL_CARD.md","title":"Llama 3.3 Model Card","publisher":"Meta","retrieved":"2026-09-28"},
+    {"id":"src:open-llama3-2-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md","title":"Llama 3.2 Model Card (1B/3B)","publisher":"Meta","retrieved":"2026-09-28"},
+    {"id":"src:open-llama3-2-vision-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD_VISION.md","title":"Llama 3.2-Vision Model Card","publisher":"Meta","retrieved":"2026-09-28"},
+    {"id":"src:open-llama3-1-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md","title":"Llama 3.1 Model Card","publisher":"Meta","retrieved":"2026-09-28"},
+    {"id":"src:open-qwen-github-news","kind":"OFFICIAL","url":"https://github.com/QwenLM/Qwen3.8","title":"QwenLM/Qwen3.8 README (News)","publisher":"Qwen (Alibaba)","retrieved":"2026-09-28","note":"Official release dates for Qwen3.5, Qwen3.6 and Qwen3.8 open-weight models."},
+    {"id":"src:open-qwen3-8-flash-next-github","kind":"OFFICIAL","url":"https://github.com/QwenLM/Qwen3.8-Flash-Next","title":"QwenLM/Qwen3.8-Flash-Next README","publisher":"Qwen (Alibaba)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.8-2.4t-a95b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B","title":"Qwen/Qwen3.8-2.4T-A95B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.8-27b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.8-27B","title":"Qwen/Qwen3.8-27B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.8-flash-next","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.8-Flash-Next","title":"Qwen/Qwen3.8-Flash-Next model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.6-27b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.6-27B","title":"Qwen/Qwen3.6-27B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.6-35b-a3b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.6-35B-A3B","title":"Qwen/Qwen3.6-35B-A3B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.5-397b-a17b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.5-397B-A17B","title":"Qwen/Qwen3.5-397B-A17B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.5-122b-a10b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.5-122B-A10B","title":"Qwen/Qwen3.5-122B-A10B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.5-27b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.5-27B","title":"Qwen/Qwen3.5-27B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.5-9b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.5-9B","title":"Qwen/Qwen3.5-9B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3.5-4b","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3.5-4B","title":"Qwen/Qwen3.5-4B model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-qwen3-coder-next","kind":"OFFICIAL","url":"https://huggingface.co/Qwen/Qwen3-Coder-Next","title":"Qwen/Qwen3-Coder-Next model card","publisher":"Qwen (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-deepseek-home","kind":"OFFICIAL","url":"https://www.deepseek.com/en","title":"DeepSeek homepage","publisher":"DeepSeek","retrieved":"2026-09-28"},
+    {"id":"src:open-deepseek-privacy-policy","kind":"OFFICIAL","url":"https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html","title":"DeepSeek Privacy Policy","publisher":"DeepSeek","retrieved":"2026-09-28","note":"Names Hangzhou DeepSeek Artificial Intelligence Co., Ltd. as the service provider. Fetched from Korea, the URL redirected to the ko-KR version of the same policy."},
+    {"id":"src:open-mistral-home","kind":"OFFICIAL","url":"https://mistral.ai/","title":"Mistral AI homepage","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-legal","kind":"OFFICIAL","url":"https://mistral.ai/legal","title":"Mistral AI legal notice","publisher":"Mistral AI","retrieved":"2026-09-28","note":"Registered offices at 15 rue des Halles, 75001 Paris, France."},
+    {"id":"src:open-qwen-home","kind":"OFFICIAL","url":"https://qwen.ai/","title":"Qwen homepage","publisher":"Qwen (Alibaba)","retrieved":"2026-09-28"},
+    {"id":"src:open-xai-docs-index","kind":"OFFICIAL","url":"https://docs.x.ai/llms.txt","title":"SpaceXAI (xAI) API documentation index","publisher":"xAI","retrieved":"2026-09-28","note":"Describes itself as \"Official SpaceXAI (xAI) developer documentation\"; API served at api.x.ai."},
+    {"id":"src:open-meta-dev-site","kind":"OFFICIAL","url":"https://www.llama.com/","title":"Llama developer site (redirects to dev.meta.ai)","publisher":"Meta","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-gemma-4-31b-it","kind":"OFFICIAL","url":"https://huggingface.co/google/gemma-4-31B-it","title":"google/gemma-4-31B-it model card (covers all Gemma 4 sizes)","publisher":"Google DeepMind (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-gemma-releases","kind":"OFFICIAL","url":"https://ai.google.dev/gemma/docs/releases","title":"Gemma releases","publisher":"Google","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-pricing","kind":"OFFICIAL","url":"https://docs.mistral.ai/inference/pricing","title":"Mistral pricing (docs)","publisher":"Mistral AI","retrieved":"2026-09-28","note":"Standard tier, USD per 1M tokens."},
+    {"id":"src:open-mistral-doc-medium-3-5","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/mistral-medium-3-5-26-04","title":"Mistral Medium 3.5 (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-mistral-medium-3.5-128b","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Mistral-Medium-3.5-128B","title":"mistralai/Mistral-Medium-3.5-128B model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-doc-small-4","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/mistral-small-4-0-26-03","title":"Mistral Small 4 (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-mistral-small-4-119b-2603","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Mistral-Small-4-119B-2603","title":"mistralai/Mistral-Small-4-119B-2603 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-doc-large-3","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/mistral-large-3-25-12","title":"Mistral Large 3 (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-mistral-large-3-675b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Mistral-Large-3-675B-Instruct-2512","title":"mistralai/Mistral-Large-3-675B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-doc-ministral-3-14b","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/ministral-3-14b-25-12","title":"Ministral 3 14B (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-ministral-3-14b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512","title":"mistralai/Ministral-3-14B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-doc-ministral-3-8b","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/ministral-3-8b-25-12","title":"Ministral 3 8B (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-ministral-3-8b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512","title":"mistralai/Ministral-3-8B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-doc-ministral-3-3b","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/ministral-3-3b-25-12","title":"Ministral 3 3B (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-ministral-3-3b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512","title":"mistralai/Ministral-3-3B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-doc-devstral-2","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/devstral-2-25-12","title":"Devstral 2 (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-devstral-2-123b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Devstral-2-123B-Instruct-2512","title":"mistralai/Devstral-2-123B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-mistral-doc-devstral-small-2","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/devstral-small-2-25-12","title":"Devstral Small 2 (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-devstral-small-2-24b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512","title":"mistralai/Devstral-Small-2-24B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-deepseek-pricing","kind":"OFFICIAL","url":"https://api-docs.deepseek.com/quick_start/pricing","title":"Models & Pricing","publisher":"DeepSeek","retrieved":"2026-09-28","note":"USD per 1M tokens with peak/off-peak rates; off-peak is half of peak."},
+    {"id":"src:open-deepseek-news-v4-1-flash","kind":"OFFICIAL","url":"https://api-docs.deepseek.com/news/news260910","title":"DeepSeek-V4.1-Flash Release (2026/09/10)","publisher":"DeepSeek","retrieved":"2026-09-28"},
+    {"id":"src:open-deepseek-news-v4-preview","kind":"OFFICIAL","url":"https://api-docs.deepseek.com/news/news260424","title":"DeepSeek V4 Preview Release (2026/04/24)","publisher":"DeepSeek","retrieved":"2026-09-28"},
+    {"id":"src:open-deepseek-news-r1","kind":"OFFICIAL","url":"https://api-docs.deepseek.com/news/news250120","title":"DeepSeek-R1 Release (2025/01/20)","publisher":"DeepSeek","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-deepseek-v4.1-flash","kind":"OFFICIAL","url":"https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash","title":"deepseek-ai/DeepSeek-V4.1-Flash model card","publisher":"DeepSeek (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-deepseek-v4-pro","kind":"OFFICIAL","url":"https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro","title":"deepseek-ai/DeepSeek-V4-Pro model card (DeepSeek-V4 preview series)","publisher":"DeepSeek (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-hf-deepseek-r1","kind":"OFFICIAL","url":"https://huggingface.co/deepseek-ai/DeepSeek-R1","title":"deepseek-ai/DeepSeek-R1 model card","publisher":"DeepSeek (Hugging Face)","retrieved":"2026-09-28"},
+    {"id":"src:open-xai-docs-models","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models","title":"Models and pricing","publisher":"xAI","retrieved":"2026-09-28","note":"USD per 1M tokens; prompts reaching 200k tokens are billed at the higher rate for all tokens."},
+    {"id":"src:open-xai-release-notes","kind":"OFFICIAL","url":"https://docs.x.ai/developers/release-notes","title":"Release notes","publisher":"xAI","retrieved":"2026-09-28"},
+    {"id":"src:open-xai-model-grok-4-7","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models/grok-4.7","title":"Grok 4.7 (model page)","publisher":"xAI","retrieved":"2026-09-28"},
+    {"id":"src:open-xai-model-grok-4-6","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models/grok-4.6","title":"Grok 4.6 (model page)","publisher":"xAI","retrieved":"2026-09-28"},
+    {"id":"src:open-xai-model-grok-4-3","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models/grok-4.3","title":"Grok 4.3 (model page)","publisher":"xAI","retrieved":"2026-09-28"},
+    {"id":"src:ko-ai-studio-zdnet-llama-3-3","kind":"CURATED","url":"https://zdnet.co.kr/view/?no=20241208123618","title":"\"운영 비용 8분의 1\"...메타, 신형 AI '라마 3.3 70B' 출시 - ZDNet korea","publisher":"ZDNet Korea","retrieved":"2026-09-29","note":"Korean press spelling (alias only); Meta's own Korean newsroom uses Latin \"Llama\""},
+    {"id":"src:ko-ai-studio-zdnet-deepseek-r1","kind":"CURATED","url":"https://zdnet.co.kr/view/?no=20250306163231","title":"크기는 '딥시크 R1' 20분의 1, 성능은 비슷…비결은 - ZDNet korea","publisher":"ZDNet Korea","retrieved":"2026-09-29","note":"Korean press spelling (alias only); DeepSeek has no Korean official page"},
+    {"id":"src:ko-ai-studio-zdnet-grok-4-6","kind":"CURATED","url":"https://zdnet.co.kr/view/?no=20260723220142","title":"머스크, xAI '그록 4.6' 예고…2조 매개변수로 키미 K3보다 낫다고 주장 - ZDNet korea","publisher":"ZDNet Korea","retrieved":"2026-09-29","note":"Korean press spelling (alias only); xAI has no Korean official page"},
+    {"id":"src:ko-ai-studio-ddaily-grok-4-7","kind":"CURATED","url":"https://www.ddaily.co.kr/page/view/2026092211233160132","title":"xAI, ‘그록 4.7’ 출시… 가격 대비 성능 앞세워 - 디지털데일리","publisher":"디지털데일리 (Digital Daily)","retrieved":"2026-09-29","note":"Korean press spelling (alias only); xAI has no Korean official page"},
+    {"id":"src:ko-ai-studio-gemma-4","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/gemma-4-kr/","title":"용량 대비(Byte for byte) 가장 강력한 성능의 오픈 모델 ‘젬마 4(Gemma 4)’를 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29","note":"Family name written 젬마 4 in Hangul; size designations (E2B/E4B/26B/31B) are written in Latin by Google Korea"}
+  ],
+  "entities": [
+    {
+      "id": "model:gpt-oss-20b",
+      "type": "model",
+      "slug": "gpt-oss-20b",
+      "names": {
+        "en": "gpt-oss-20b"
+      },
+      "aliases": [
+        "gpt-oss 20b",
+        "openai/gpt-oss-20b"
+      ],
+      "description": {
+        "en": "OpenAI's smaller open-weight mixture-of-experts reasoning model, released under Apache 2.0 for local and lower-latency use.",
+        "ko": "OpenAI가 Apache 2.0 라이선스로 공개한 소형 오픈 웨이트 MoE 추론 모델로, 로컬·저지연 용도를 겨냥합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/openai/gpt-oss-20b"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 20.91,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card",
+          "note": "Model card Table 1: 20.91B total, 3.61B active (marketed as \"20b\"; the Hugging Face card rounds to 21B / 3.6B)."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 3.61,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gpt-oss-20b"
+        },
+        {
+          "p": "context_window",
+          "v": 131072,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "release_date",
+          "v": "2025-08-05",
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:openai",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-gpt-oss",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-gpt-oss",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:gpt-oss-120b",
+      "type": "model",
+      "slug": "gpt-oss-120b",
+      "names": {
+        "en": "gpt-oss-120b"
+      },
+      "aliases": [
+        "gpt-oss 120b",
+        "openai/gpt-oss-120b"
+      ],
+      "description": {
+        "en": "OpenAI's larger open-weight mixture-of-experts reasoning model; the model card says it fits on a single 80GB GPU.",
+        "ko": "OpenAI의 대형 오픈 웨이트 MoE 추론 모델로, 모델 카드에 따르면 80GB GPU 한 장에 올라갑니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/openai/gpt-oss-120b"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 116.83,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card",
+          "note": "Model card Table 1: 116.83B total, 5.13B active (marketed as \"120b\"; the Hugging Face card rounds to 117B / 5.1B)."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 5.13,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gpt-oss-120b"
+        },
+        {
+          "p": "context_window",
+          "v": 131072,
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "release_date",
+          "v": "2025-08-05",
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-gpt-oss-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:openai",
+          "src": "src:open-gpt-oss-model-card"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-gpt-oss",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-gpt-oss",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:grok-1",
+      "type": "model",
+      "slug": "grok-1",
+      "names": {
+        "en": "Grok-1"
+      },
+      "aliases": [
+        "grok-1",
+        "xai-org/grok-1"
+      ],
+      "description": {
+        "en": "xAI's first open-weight release: a 314B-parameter mixture-of-experts base model published with JAX example code under Apache 2.0.",
+        "ko": "xAI의 첫 오픈 웨이트 공개작으로, 3140억 파라미터 MoE 모델을 JAX 예제 코드와 함께 Apache 2.0으로 공개했습니다."
+      },
+      "official_urls": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/xai-org/grok-1"
+        },
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/xai-org/grok-1"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-grok-1-github"
+        },
+        {
+          "p": "parameters_b",
+          "v": 314,
+          "ver": "OFFICIAL",
+          "src": "src:open-grok-1-github",
+          "note": "Mixture of 8 experts, 2 used per token; xAI does not state an active-parameter count."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-grok-1-github"
+        },
+        {
+          "p": "context_window",
+          "v": 8192,
+          "ver": "OFFICIAL",
+          "src": "src:open-grok-1-github"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-grok-1-github"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-grok-1-github"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:xai",
+          "src": "src:open-grok-1-github"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-4-scout",
+      "type": "model",
+      "slug": "llama-4-scout",
+      "names": {
+        "en": "Llama 4 Scout (17B×16E)"
+      },
+      "aliases": [
+        "Llama-4-Scout-17B-16E-Instruct",
+        "Llama 4 Scout",
+        "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+      ],
+      "description": {
+        "en": "Natively multimodal mixture-of-experts Llama 4 model with 16 experts; Meta says it fits on one H100 with on-the-fly int4 quantization.",
+        "ko": "전문가 16개로 구성된 네이티브 멀티모달 MoE Llama 4 모델로, Meta는 int4 즉석 양자화 시 H100 한 장에 올라간다고 밝힙니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 109,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 17,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "license",
+          "v": "Llama 4 Community License Agreement",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 10000000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card",
+          "note": "Model card states \"10M\"."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-04-05",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2024-08",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text",
+            "code"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-llama4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-4-maverick",
+      "type": "model",
+      "slug": "llama-4-maverick",
+      "names": {
+        "en": "Llama 4 Maverick (17B×128E)"
+      },
+      "aliases": [
+        "Llama-4-Maverick-17B-128E-Instruct",
+        "Llama 4 Maverick",
+        "meta-llama/Llama-4-Maverick-17B-128E-Instruct"
+      ],
+      "description": {
+        "en": "The larger Llama 4 mixture-of-experts model with 128 experts, released in BF16 and FP8 weights.",
+        "ko": "전문가 128개를 쓰는 대형 Llama 4 MoE 모델로, BF16과 FP8 가중치로 공개되었습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 400,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 17,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "license",
+          "v": "Llama 4 Community License Agreement",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 1000000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card",
+          "note": "Model card states \"1M\"."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-04-05",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2024-08",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text",
+            "code"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama4-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama4-model-card"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-llama4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-3.3-70b",
+      "type": "model",
+      "slug": "llama-3-3-70b",
+      "names": {
+        "en": "Llama 3.3 70B Instruct"
+      },
+      "aliases": [
+        "Llama-3.3-70B-Instruct",
+        "meta-llama/Llama-3.3-70B-Instruct",
+        "Llama 3.3",
+        "라마 3.3 70B"
+      ],
+      "aliases_src": {
+        "라마 3.3 70B": "src:ko-ai-studio-zdnet-llama-3-3"
+      },
+      "description": {
+        "en": "Text-only multilingual instruction-tuned 70B Llama model released in December 2024.",
+        "ko": "2024년 12월에 공개된 텍스트 전용 다국어 지시 튜닝 70B Llama 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 70,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card",
+          "note": "Model card states 70B."
+        },
+        {
+          "p": "license",
+          "v": "Llama 3.3 Community License Agreement",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card",
+          "note": "Model card states the context length as \"128k\"."
+        },
+        {
+          "p": "release_date",
+          "v": "2024-12-06",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card"
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2023-12",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text",
+            "code"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-3-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama3-3-model-card"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-llama3-3",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-3.2-1b",
+      "type": "model",
+      "slug": "llama-3-2-1b",
+      "names": {
+        "en": "Llama 3.2 1B"
+      },
+      "aliases": [
+        "Llama-3.2-1B-Instruct",
+        "meta-llama/Llama-3.2-1B-Instruct"
+      ],
+      "description": {
+        "en": "Smallest text-only Llama 3.2 model, which Meta expects to be deployed in constrained environments such as mobile devices.",
+        "ko": "가장 작은 텍스트 전용 Llama 3.2 모델로, Meta는 모바일 기기 같은 제한된 환경에서의 배포를 상정합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 1.23,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card",
+          "note": "Model card: \"1B (1.23B)\"."
+        },
+        {
+          "p": "license",
+          "v": "Llama 3.2 Community License",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card",
+          "note": "Model card states the context length as \"128k\". The quantized SpinQuant/QLoRA variants are listed with 8k."
+        },
+        {
+          "p": "release_date",
+          "v": "2024-09-25",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card",
+          "note": "Llama 3.2 family release date per the Llama 3.2-Vision card; the 1B/3B card shows Oct 24, 2024, the date its quantized versions were added."
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2023-12",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text",
+            "code"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama3-2-model-card"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-3.2-3b",
+      "type": "model",
+      "slug": "llama-3-2-3b",
+      "names": {
+        "en": "Llama 3.2 3B"
+      },
+      "aliases": [
+        "Llama-3.2-3B-Instruct",
+        "meta-llama/Llama-3.2-3B-Instruct"
+      ],
+      "description": {
+        "en": "Small text-only Llama 3.2 model intended, like the 1B, for constrained environments such as mobile devices.",
+        "ko": "1B와 마찬가지로 모바일 기기 같은 제한된 환경을 상정한 소형 텍스트 전용 Llama 3.2 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 3.21,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card",
+          "note": "Model card: \"3B (3.21B)\"."
+        },
+        {
+          "p": "license",
+          "v": "Llama 3.2 Community License",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card",
+          "note": "Model card states the context length as \"128k\". The quantized SpinQuant/QLoRA variants are listed with 8k."
+        },
+        {
+          "p": "release_date",
+          "v": "2024-09-25",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card",
+          "note": "Llama 3.2 family release date per the Llama 3.2-Vision card; the 1B/3B card shows Oct 24, 2024, the date its quantized versions were added."
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2023-12",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text",
+            "code"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama3-2-model-card"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-3.2-11b-vision",
+      "type": "model",
+      "slug": "llama-3-2-11b-vision",
+      "names": {
+        "en": "Llama 3.2 11B Vision"
+      },
+      "aliases": [
+        "Llama-3.2-11B-Vision-Instruct",
+        "meta-llama/Llama-3.2-11B-Vision-Instruct",
+        "Llama 3.2 Vision 11B"
+      ],
+      "description": {
+        "en": "Image-and-text Llama 3.2 model; the card notes English is the only supported language for image+text tasks.",
+        "ko": "이미지와 텍스트를 입력받는 Llama 3.2 모델로, 모델 카드상 이미지+텍스트 작업은 영어만 지원합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 10.6,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card",
+          "note": "Model card: \"11B (10.6)\"."
+        },
+        {
+          "p": "license",
+          "v": "Llama 3.2 Community License",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card",
+          "note": "Model card states the context length as \"128k\"."
+        },
+        {
+          "p": "release_date",
+          "v": "2024-09-25",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card"
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2023-12",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-2-vision-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama3-2-vision-model-card"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-3.1-8b",
+      "type": "model",
+      "slug": "llama-3-1-8b",
+      "names": {
+        "en": "Llama 3.1 8B Instruct"
+      },
+      "aliases": [
+        "Llama-3.1-8B-Instruct",
+        "meta-llama/Llama-3.1-8B-Instruct",
+        "Meta-Llama-3.1-8B-Instruct"
+      ],
+      "description": {
+        "en": "The 8B member of the multilingual, text-only Llama 3.1 model family released in July 2024.",
+        "ko": "2024년 7월 공개된 다국어 텍스트 전용 Llama 3.1 모델군의 8B 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 8,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card",
+          "note": "Model card states 8B."
+        },
+        {
+          "p": "license",
+          "v": "Llama 3.1 Community License",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card",
+          "note": "Model card states the context length as \"128k\"."
+        },
+        {
+          "p": "release_date",
+          "v": "2024-07-23",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2023-12",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text",
+            "code"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-llama3-1",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:llama-3.1-405b",
+      "type": "model",
+      "slug": "llama-3-1-405b",
+      "names": {
+        "en": "Llama 3.1 405B Instruct"
+      },
+      "aliases": [
+        "Llama-3.1-405B-Instruct",
+        "meta-llama/Llama-3.1-405B-Instruct",
+        "라마 3.1 405B"
+      ],
+      "aliases_src": {
+        "라마 3.1 405B": "src:ko-ai-studio-zdnet-llama-3-3"
+      },
+      "description": {
+        "en": "The largest dense Llama 3.1 text model; Meta also publishes an FP8 version of the weights.",
+        "ko": "Llama 3.1 텍스트 모델 중 가장 큰 덴스 모델로, Meta는 FP8 가중치도 함께 공개했습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama/Llama-3.1-405B-Instruct"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "parameters_b",
+          "v": 405,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card",
+          "note": "Model card states 405B."
+        },
+        {
+          "p": "license",
+          "v": "Llama 3.1 Community License",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card",
+          "note": "Model card states the context length as \"128k\"."
+        },
+        {
+          "p": "release_date",
+          "v": "2024-07-23",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2023-12",
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text",
+            "code"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-llama3-1-model-card"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:meta",
+          "src": "src:open-llama3-1-model-card"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-llama3-1",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.8-2.4t-a95b",
+      "type": "model",
+      "slug": "qwen3-8-2-4t-a95b",
+      "names": {
+        "en": "Qwen3.8-2.4T-A95B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.8-2.4T-A95B"
+      ],
+      "description": {
+        "en": "Qwen's largest open-weight mixture-of-experts language model; the card says the hosted Qwen3.8-Max is based on it and adds vision input.",
+        "ko": "Qwen의 최대 오픈 웨이트 MoE 언어 모델로, 모델 카드에 따르면 호스팅형 Qwen3.8-Max가 이 모델을 기반으로 비전 입력을 더한 버전입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 2400,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b",
+          "note": "Card: \"2.4T in total and 95B activated\"."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 95,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b"
+        },
+        {
+          "p": "license",
+          "v": "Qwen3.8-Max License",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-08-12",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.8-2.4t-a95b"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.8-27b",
+      "type": "model",
+      "slug": "qwen3-8-27b",
+      "names": {
+        "en": "Qwen3.8-27B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.8-27B"
+      ],
+      "description": {
+        "en": "Dense 27B Qwen3.8 model with a vision encoder, accepting text, image and video input.",
+        "ko": "비전 인코더를 갖춘 27B 덴스 Qwen3.8 모델로, 텍스트·이미지·동영상 입력을 받습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.8-27B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-27b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 27,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-27b",
+          "note": "Card states 27B (language model with vision encoder)."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-27b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-27b",
+          "note": "Card: 262,144 natively, extensible up to 1,000,000 tokens."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-08-14",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-27b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-27b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.8-27b"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-qwen3-8",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-qwen3-8",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.8-flash-next",
+      "type": "model",
+      "slug": "qwen3-8-flash-next",
+      "names": {
+        "en": "Qwen3.8-Flash-Next"
+      },
+      "aliases": [
+        "Qwen/Qwen3.8-Flash-Next"
+      ],
+      "description": {
+        "en": "Experimental multimodal MoE model previewing the Qwen4 architecture, with sparse attention and an n-gram embedding table that the card says is suited to offloading.",
+        "ko": "Qwen4 아키텍처를 미리 보여 주는 실험적 멀티모달 MoE 모델로, 희소 어텐션과 오프로딩에 적합하다는 n-gram 임베딩을 씁니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.8-Flash-Next"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next"
+        },
+        {
+          "p": "status",
+          "v": "preview",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next",
+          "note": "Described as an experimental preview of the architecture that will underpin Qwen4."
+        },
+        {
+          "p": "parameters_b",
+          "v": 125,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next",
+          "note": "Card: \"125B with 6B activated, plus 51B n-gram embedding and 4B MTP\" (language model; vision encoder not counted in these figures)."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 6,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next"
+        },
+        {
+          "p": "license",
+          "v": "Qwen Community License 1.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next",
+          "note": "Card: 262,144 natively, extensible up to 1,000,000 tokens."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-08-26",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen3-8-flash-next-github"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.8-flash-next"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.8-flash-next"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.6-27b",
+      "type": "model",
+      "slug": "qwen3-6-27b",
+      "names": {
+        "en": "Qwen3.6-27B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.6-27B"
+      ],
+      "description": {
+        "en": "Dense 27B Qwen3.6 model with a vision encoder, positioned by Qwen for coding.",
+        "ko": "비전 인코더를 갖춘 27B 덴스 Qwen3.6 모델로, Qwen은 코딩용으로 소개합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.6-27B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-27b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 27,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-27b",
+          "note": "Card states 27B."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-27b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-27b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens with RoPE scaling."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-04-22",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-27b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-27b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.6-27b"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-qwen3-6",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-qwen3-6",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.6-35b-a3b",
+      "type": "model",
+      "slug": "qwen3-6-35b-a3b",
+      "names": {
+        "en": "Qwen3.6-35B-A3B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.6-35B-A3B"
+      ],
+      "description": {
+        "en": "Small-active mixture-of-experts Qwen3.6 model (3B active) with a vision encoder, aimed at agentic coding.",
+        "ko": "활성 파라미터 3B의 Qwen3.6 MoE 모델로, 비전 인코더를 갖추고 에이전트형 코딩을 겨냥합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-35b-a3b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 35,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-35b-a3b",
+          "note": "Card: \"35B in total and 3B activated\"."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 3,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-35b-a3b"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-35b-a3b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-35b-a3b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens with RoPE scaling."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-04-16",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-35b-a3b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.6-35b-a3b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.6-35b-a3b"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-qwen3-6",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-qwen3-6",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.5-397b-a17b",
+      "type": "model",
+      "slug": "qwen3-5-397b-a17b",
+      "names": {
+        "en": "Qwen3.5-397B-A17B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.5-397B-A17B"
+      ],
+      "description": {
+        "en": "The first and largest Qwen3.5 open-weight release, a mixture-of-experts model with a vision encoder.",
+        "ko": "Qwen3.5의 첫 번째이자 가장 큰 오픈 웨이트 모델로, 비전 인코더를 갖춘 MoE 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.5-397B-A17B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-397b-a17b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 397,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-397b-a17b",
+          "note": "Card: \"397B in total and 17B activated\"."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 17,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-397b-a17b"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-397b-a17b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-397b-a17b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens with RoPE scaling."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-02-16",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-397b-a17b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-397b-a17b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.5-397b-a17b"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.5-122b-a10b",
+      "type": "model",
+      "slug": "qwen3-5-122b-a10b",
+      "names": {
+        "en": "Qwen3.5-122B-A10B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.5-122B-A10B"
+      ],
+      "description": {
+        "en": "Mid-size Qwen3.5 mixture-of-experts model with 10B active parameters and a vision encoder.",
+        "ko": "활성 파라미터 10B의 중형 Qwen3.5 MoE 모델로, 비전 인코더를 갖췄습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.5-122B-A10B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-122b-a10b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 122,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-122b-a10b",
+          "note": "Card: \"122B in total and 10B activated\"."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 10,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-122b-a10b"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-122b-a10b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-122b-a10b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens with RoPE scaling."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-02-24",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-122b-a10b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-122b-a10b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.5-122b-a10b"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-qwen3-5",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.5-27b",
+      "type": "model",
+      "slug": "qwen3-5-27b",
+      "names": {
+        "en": "Qwen3.5-27B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.5-27B"
+      ],
+      "description": {
+        "en": "Dense 27B Qwen3.5 model with a vision encoder.",
+        "ko": "비전 인코더를 갖춘 27B 덴스 Qwen3.5 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.5-27B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-27b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 27,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-27b",
+          "note": "Card states 27B."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-27b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-27b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens with RoPE scaling."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-02-24",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-27b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-27b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.5-27b"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-qwen3-5",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-qwen3-5",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.5-9b",
+      "type": "model",
+      "slug": "qwen3-5-9b",
+      "names": {
+        "en": "Qwen3.5-9B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.5-9B"
+      ],
+      "description": {
+        "en": "Small dense Qwen3.5 model with a vision encoder, released alongside the 4B, 2B and 0.8B sizes.",
+        "ko": "비전 인코더를 갖춘 소형 덴스 Qwen3.5 모델로, 4B·2B·0.8B와 함께 공개되었습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.5-9B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-9b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 9,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-9b",
+          "note": "Card states 9B."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-9b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-9b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens with RoPE scaling."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-03-02",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-9b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-9b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.5-9b"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-qwen3-5",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-qwen3-5",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3.5-4b",
+      "type": "model",
+      "slug": "qwen3-5-4b",
+      "names": {
+        "en": "Qwen3.5-4B"
+      },
+      "aliases": [
+        "Qwen/Qwen3.5-4B"
+      ],
+      "description": {
+        "en": "Compact dense Qwen3.5 model with a vision encoder.",
+        "ko": "비전 인코더를 갖춘 소형 덴스 Qwen3.5 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3.5-4B"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-4b"
+        },
+        {
+          "p": "parameters_b",
+          "v": 4,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-4b",
+          "note": "Card states 4B."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-4b"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-4b",
+          "note": "Card: 262,144 natively, extensible up to 1,010,000 tokens with RoPE scaling."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-03-02",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-github-news"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "video"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-4b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3.5-4b"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3.5-4b"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-qwen3-5",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-qwen3-5",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:qwen3-coder-next",
+      "type": "model",
+      "slug": "qwen3-coder-next",
+      "names": {
+        "en": "Qwen3-Coder-Next"
+      },
+      "aliases": [
+        "Qwen/Qwen3-Coder-Next"
+      ],
+      "description": {
+        "en": "Open-weight coding-agent model built on Qwen3-Next-80B-A3B-Base, intended for coding agents and local development.",
+        "ko": "Qwen3-Next-80B-A3B-Base를 바탕으로 한 오픈 웨이트 코딩 에이전트 모델로, 코딩 에이전트와 로컬 개발용입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3-coder-next"
+        },
+        {
+          "p": "parameters_b",
+          "v": 80,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3-coder-next",
+          "note": "Card: \"80B in total and 3B activated\" (79B non-embedding)."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 3,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3-coder-next"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3-coder-next"
+        },
+        {
+          "p": "context_window",
+          "v": 262144,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3-coder-next",
+          "note": "Card: 262,144 natively."
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3-coder-next"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-qwen3-coder-next"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:alibaba",
+          "src": "src:open-hf-qwen3-coder-next"
+        }
+      ]
+    },
+    {
+      "id": "provider:xai",
+      "type": "provider",
+      "slug": "xai",
+      "names": {
+        "en": "xAI"
+      },
+      "aliases": [
+        "SpaceXAI",
+        "X.AI",
+        "x.ai"
+      ],
+      "description": {
+        "en": "Developer of the Grok models; its API documentation now styles the company as \"SpaceXAI (xAI)\". It has published the weights of Grok-1 and Grok 2.",
+        "ko": "Grok 모델 개발사로, API 문서에서는 회사를 \"SpaceXAI (xAI)\"로 표기합니다. Grok-1과 Grok 2의 가중치를 공개했습니다."
+      },
+      "official_urls": [
+        {
+          "label": "API docs",
+          "url": "https://docs.x.ai/"
+        },
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/xai-org"
+        }
+      ],
+      "facts": [
+        {
+          "p": "homepage",
+          "v": "https://x.ai/",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-docs-index"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "provider:deepseek",
+      "type": "provider",
+      "slug": "deepseek",
+      "names": {
+        "en": "DeepSeek",
+        "ko": "딥시크"
+      },
+      "aliases": [
+        "deepseek-ai",
+        "Hangzhou DeepSeek Artificial Intelligence"
+      ],
+      "description": {
+        "en": "Chinese AI developer that releases most of its large language models as open weights under the MIT License and runs a paid API.",
+        "ko": "대부분의 대형 언어 모델을 MIT 라이선스 오픈 웨이트로 공개하고 유료 API를 운영하는 중국 AI 개발사입니다."
+      },
+      "official_urls": [
+        {
+          "label": "API docs",
+          "url": "https://api-docs.deepseek.com/"
+        },
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/deepseek-ai"
+        }
+      ],
+      "facts": [
+        {
+          "p": "hq_country",
+          "v": "China",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-privacy-policy",
+          "note": "Service operated by Hangzhou DeepSeek Artificial Intelligence Co., Ltd. per the privacy policy."
+        },
+        {
+          "p": "homepage",
+          "v": "https://www.deepseek.com/",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-home"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "provider:alibaba",
+      "type": "provider",
+      "slug": "alibaba",
+      "names": {
+        "en": "Alibaba Cloud (Qwen)",
+        "ko": "알리바바 클라우드 (Qwen)"
+      },
+      "aliases": [
+        "Qwen",
+        "Qwen team",
+        "Alibaba",
+        "Tongyi Qianwen"
+      ],
+      "description": {
+        "en": "Alibaba's Qwen team, which publishes the Qwen open-weight model families and offers hosted Qwen models through Qwen Cloud.",
+        "ko": "알리바바의 Qwen 팀으로, Qwen 오픈 웨이트 모델군을 공개하고 Qwen Cloud로 호스팅형 Qwen 모델을 제공합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/Qwen"
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/QwenLM"
+        }
+      ],
+      "facts": [
+        {
+          "p": "homepage",
+          "v": "https://qwen.ai/",
+          "ver": "OFFICIAL",
+          "src": "src:open-qwen-home"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "provider:meta",
+      "type": "provider",
+      "slug": "meta",
+      "names": {
+        "en": "Meta",
+        "ko": "메타"
+      },
+      "aliases": [
+        "Meta Platforms",
+        "Meta AI",
+        "meta-llama"
+      ],
+      "description": {
+        "en": "Maker of the Llama open-weight model families, distributed under Meta's own Llama community licenses.",
+        "ko": "Llama 오픈 웨이트 모델군을 만든 회사로, 자체 Llama 커뮤니티 라이선스로 배포합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Llama developer site",
+          "url": "https://www.llama.com/"
+        },
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/meta-llama"
+        }
+      ],
+      "facts": [
+        {
+          "p": "homepage",
+          "v": "https://www.llama.com/",
+          "ver": "OFFICIAL",
+          "src": "src:open-meta-dev-site",
+          "note": "Llama developer site; redirects to dev.meta.ai."
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "provider:mistral",
+      "type": "provider",
+      "slug": "mistral",
+      "names": {
+        "en": "Mistral AI",
+        "ko": "미스트랄 AI"
+      },
+      "aliases": [
+        "Mistral",
+        "mistralai"
+      ],
+      "description": {
+        "en": "Paris-based AI company whose current flagship API models (Large 3, Medium 3.5, Small 4, Ministral 3) are also released as open weights.",
+        "ko": "파리에 본사를 둔 AI 기업으로, 현재 주력 API 모델(Large 3, Medium 3.5, Small 4, Ministral 3)을 오픈 웨이트로도 공개합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Docs",
+          "url": "https://docs.mistral.ai/"
+        },
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai"
+        }
+      ],
+      "facts": [
+        {
+          "p": "hq_country",
+          "v": "France",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-legal"
+        },
+        {
+          "p": "homepage",
+          "v": "https://mistral.ai/",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-home"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "model:gemma-4-31b",
+      "type": "model",
+      "slug": "gemma-4-31b",
+      "names": {
+        "en": "Gemma 4 31B"
+      },
+      "aliases": [
+        "google/gemma-4-31B-it",
+        "젬마 4"
+      ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
+      "description": {
+        "en": "The largest dense Gemma 4 model, taking text and image input.",
+        "ko": "텍스트와 이미지 입력을 받는 가장 큰 덴스 Gemma 4 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/google/gemma-4-31B-it"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "parameters_b",
+          "v": 30.7,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Card: 30.7B total parameters; ~550M vision encoder."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Stated as \"256K tokens\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-03-31",
+          "ver": "OFFICIAL",
+          "src": "src:open-gemma-releases"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:google",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-gemma4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-gemma-4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:gemma-4-26b-a4b",
+      "type": "model",
+      "slug": "gemma-4-26b-a4b",
+      "names": {
+        "en": "Gemma 4 26B A4B"
+      },
+      "aliases": [
+        "google/gemma-4-26B-A4B-it",
+        "젬마 4"
+      ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
+      "description": {
+        "en": "Mixture-of-experts Gemma 4 model that activates about 4B of its parameters per token.",
+        "ko": "토큰당 약 4B 파라미터만 활성화하는 MoE 방식의 Gemma 4 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/google/gemma-4-26B-A4B-it"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "parameters_b",
+          "v": 25.2,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Card: 25.2B total, 3.8B active (8 of 128 experts plus 1 shared)."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 3.8,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Stated as \"256K tokens\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-03-31",
+          "ver": "OFFICIAL",
+          "src": "src:open-gemma-releases"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:google",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-gemma4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-gemma-4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:gemma-4-12b",
+      "type": "model",
+      "slug": "gemma-4-12b",
+      "names": {
+        "en": "Gemma 4 12B"
+      },
+      "aliases": [
+        "Gemma 4 12B Unified"
+      ],
+      "description": {
+        "en": "Mid-size Gemma 4 model added in June 2026 that accepts text, image and audio input.",
+        "ko": "2026년 6월에 추가된 중형 Gemma 4 모델로, 텍스트·이미지·오디오 입력을 받습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/google/gemma-4-12B-it"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "parameters_b",
+          "v": 11.95,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Card: 11.95B total parameters (\"12B Unified\")."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Stated as \"256K tokens\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-06-03",
+          "ver": "OFFICIAL",
+          "src": "src:open-gemma-releases"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "audio"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:google",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-gemma4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-gemma-4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:gemma-4-e4b",
+      "type": "model",
+      "slug": "gemma-4-e4b",
+      "names": {
+        "en": "Gemma 4 E4B"
+      },
+      "aliases": [
+        "google/gemma-4-E4B-it",
+        "젬마 4"
+      ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
+      "description": {
+        "en": "Small on-device Gemma 4 model; \"E\" means effective parameters, with Per-Layer Embeddings making the stored size larger than the effective size.",
+        "ko": "온디바이스용 소형 Gemma 4 모델로, \"E\"는 유효 파라미터를 뜻하며 레이어별 임베딩 때문에 저장 크기는 유효 크기보다 큽니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/google/gemma-4-E4B-it"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "parameters_b",
+          "v": 8,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Card: \"4.5B effective (8B with embeddings)\"; uses Per-Layer Embeddings."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Stated as \"128K tokens\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-03-31",
+          "ver": "OFFICIAL",
+          "src": "src:open-gemma-releases"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "audio"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:google",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-gemma4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-gemma-4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:gemma-4-e2b",
+      "type": "model",
+      "slug": "gemma-4-e2b",
+      "names": {
+        "en": "Gemma 4 E2B"
+      },
+      "aliases": [
+        "google/gemma-4-E2B-it",
+        "젬마 4"
+      ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
+      "description": {
+        "en": "The smallest Gemma 4 model, built for on-device use with text, image and audio input.",
+        "ko": "가장 작은 Gemma 4 모델로, 텍스트·이미지·오디오 입력을 받는 온디바이스용입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/google/gemma-4-E2B-it"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "parameters_b",
+          "v": 5.1,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Card: \"2.3B effective (5.1B with embeddings)\"; uses Per-Layer Embeddings."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it",
+          "note": "Stated as \"128K tokens\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-03-31",
+          "ver": "OFFICIAL",
+          "src": "src:open-gemma-releases"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image",
+            "audio"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-gemma-4-31b-it"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:google",
+          "src": "src:open-hf-gemma-4-31b-it"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-gemma4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-gemma-4",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:mistral-medium-3.5",
+      "type": "model",
+      "slug": "mistral-medium-3-5",
+      "names": {
+        "en": "Mistral Medium 3.5 (128B)"
+      },
+      "aliases": [
+        "mistralai/Mistral-Medium-3.5-128B",
+        "mistral-medium-3-5",
+        "Mistral Medium 3.5"
+      ],
+      "description": {
+        "en": "Mistral's dense 128B multimodal flagship for agentic and coding work, released as open weights under a Modified MIT License that adds conditions for large-revenue companies.",
+        "ko": "에이전트·코딩 작업용 128B 덴스 멀티모달 주력 모델로, 대기업 매출 조건이 붙은 Modified MIT 라이선스로 가중치를 공개했습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Mistral-Medium-3.5-128B"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.mistral.ai/models/mistral-medium-3-5-26-04"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-medium-3.5-128b"
+        },
+        {
+          "p": "status",
+          "v": "active",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-medium-3-5",
+          "note": "Listed as GA."
+        },
+        {
+          "p": "parameters_b",
+          "v": 128,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-medium-3.5-128b",
+          "note": "Card: \"Dense 128B parameters\"."
+        },
+        {
+          "p": "license",
+          "v": "Modified MIT License",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-medium-3.5-128b"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-medium-3.5-128b",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-04-28",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-medium-3-5"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-medium-3.5-128b"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-medium-3.5-128b"
+        },
+        {
+          "p": "api_model_id",
+          "v": "mistral-medium-3-5",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-medium-3-5",
+          "note": "Aliases: mistral-medium-3, mistral-medium-latest."
+        },
+        {
+          "p": "api_input_price",
+          "v": 1.5,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.15,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_output_price",
+          "v": 7.5,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-mistral-medium-3.5-128b"
+        }
+      ]
+    },
+    {
+      "id": "model:mistral-small-4",
+      "type": "model",
+      "slug": "mistral-small-4",
+      "names": {
+        "en": "Mistral Small 4 (119B A6B)"
+      },
+      "aliases": [
+        "mistralai/Mistral-Small-4-119B-2603",
+        "mistral-small-2603",
+        "Mistral Small 4 119B"
+      ],
+      "description": {
+        "en": "Mixture-of-experts Mistral model that combines instruct, reasoning and coding in one set of weights, with 6.5B parameters active per token.",
+        "ko": "지시·추론·코딩을 하나의 가중치로 통합한 Mistral MoE 모델로, 토큰당 6.5B 파라미터가 활성화됩니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Mistral-Small-4-119B-2603"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.mistral.ai/models/mistral-small-4-0-26-03"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-small-4-119b-2603"
+        },
+        {
+          "p": "status",
+          "v": "active",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-small-4",
+          "note": "Listed as GA."
+        },
+        {
+          "p": "parameters_b",
+          "v": 119,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-small-4-119b-2603",
+          "note": "Card: \"119B parameters, with 6.5B activated per token\"."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 6.5,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-small-4-119b-2603"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-small-4-119b-2603"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-small-4-119b-2603",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-03-16",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-small-4"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-small-4-119b-2603"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-small-4-119b-2603"
+        },
+        {
+          "p": "api_model_id",
+          "v": "mistral-small-2603",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-small-4",
+          "note": "Alias: mistral-small-latest."
+        },
+        {
+          "p": "api_input_price",
+          "v": 0.15,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.015,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_output_price",
+          "v": 0.6,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-mistral-small-4-119b-2603"
+        }
+      ]
+    },
+    {
+      "id": "model:mistral-large-3",
+      "type": "model",
+      "slug": "mistral-large-3",
+      "names": {
+        "en": "Mistral Large 3 (675B)"
+      },
+      "aliases": [
+        "mistralai/Mistral-Large-3-675B-Instruct-2512",
+        "mistral-large-2512",
+        "Mistral Large 3 675B"
+      ],
+      "description": {
+        "en": "Mistral's largest open-weight model, a granular mixture-of-experts multimodal model with 41B active parameters.",
+        "ko": "Mistral의 최대 오픈 웨이트 모델로, 활성 파라미터 41B의 세분화된 MoE 멀티모달 모델입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Mistral-Large-3-675B-Instruct-2512"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.mistral.ai/models/mistral-large-3-25-12"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512"
+        },
+        {
+          "p": "status",
+          "v": "active",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-large-3",
+          "note": "Listed as GA."
+        },
+        {
+          "p": "parameters_b",
+          "v": 675,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512",
+          "note": "Card: 675B total / 41B active overall (a 673B-total, 39B-active language model plus a 2.5B vision encoder)."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 41,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512"
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-12-02",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-large-3"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512"
+        },
+        {
+          "p": "api_model_id",
+          "v": "mistral-large-2512",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-large-3",
+          "note": "Alias: mistral-large-latest."
+        },
+        {
+          "p": "api_input_price",
+          "v": 0.5,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.05,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_output_price",
+          "v": 1.5,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-mistral-large-3-675b-instruct-2512"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:ministral-3-14b",
+      "type": "model",
+      "slug": "ministral-3-14b",
+      "names": {
+        "en": "Ministral 3 14B"
+      },
+      "aliases": [
+        "mistralai/Ministral-3-14B-Instruct-2512",
+        "ministral-14b-2512"
+      ],
+      "description": {
+        "en": "Ministral 3 edge model with vision input; the card says it fits in 24GB of VRAM in FP8.",
+        "ko": "비전 입력을 지원하는 Ministral 3 엣지 모델로, 모델 카드상 FP8 기준 VRAM 24GB에 들어갑니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.mistral.ai/models/ministral-3-14b-25-12"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-14b-instruct-2512"
+        },
+        {
+          "p": "status",
+          "v": "active",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-14b",
+          "note": "Listed as GA."
+        },
+        {
+          "p": "parameters_b",
+          "v": 13.9,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-14b-instruct-2512",
+          "note": "Card: 13.5B language model + 0.4B vision encoder."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-14b-instruct-2512"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-14b-instruct-2512",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-12-02",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-14b"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-14b-instruct-2512"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-14b-instruct-2512"
+        },
+        {
+          "p": "api_model_id",
+          "v": "ministral-14b-2512",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-14b",
+          "note": "Alias: ministral-14b-latest."
+        },
+        {
+          "p": "api_input_price",
+          "v": 0.2,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.02,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_output_price",
+          "v": 0.2,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-ministral-3-14b-instruct-2512"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-ministral-3",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-ministral",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:ministral-3-8b",
+      "type": "model",
+      "slug": "ministral-3-8b",
+      "names": {
+        "en": "Ministral 3 8B"
+      },
+      "aliases": [
+        "mistralai/Ministral-3-8B-Instruct-2512",
+        "ministral-8b-2512"
+      ],
+      "description": {
+        "en": "Ministral 3 edge model with vision input; the card says it fits in 12GB of VRAM in FP8.",
+        "ko": "비전 입력을 지원하는 Ministral 3 엣지 모델로, 모델 카드상 FP8 기준 VRAM 12GB에 들어갑니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.mistral.ai/models/ministral-3-8b-25-12"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-8b-instruct-2512"
+        },
+        {
+          "p": "status",
+          "v": "active",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-8b",
+          "note": "Listed as GA."
+        },
+        {
+          "p": "parameters_b",
+          "v": 8.8,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-8b-instruct-2512",
+          "note": "Card: 8.4B language model + 0.4B vision encoder."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-8b-instruct-2512"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-8b-instruct-2512",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-12-02",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-8b"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-8b-instruct-2512"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-8b-instruct-2512"
+        },
+        {
+          "p": "api_model_id",
+          "v": "ministral-8b-2512",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-8b",
+          "note": "Alias: ministral-8b-latest."
+        },
+        {
+          "p": "api_input_price",
+          "v": 0.15,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.015,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_output_price",
+          "v": 0.15,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-ministral-3-8b-instruct-2512"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-ministral-3",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-ministral",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:ministral-3-3b",
+      "type": "model",
+      "slug": "ministral-3-3b",
+      "names": {
+        "en": "Ministral 3 3B"
+      },
+      "aliases": [
+        "mistralai/Ministral-3-3B-Instruct-2512",
+        "ministral-3b-2512"
+      ],
+      "description": {
+        "en": "Ministral 3 edge model with vision input; the card says it fits in 8GB of VRAM in FP8.",
+        "ko": "비전 입력을 지원하는 Ministral 3 엣지 모델로, 모델 카드상 FP8 기준 VRAM 8GB에 들어갑니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.mistral.ai/models/ministral-3-3b-25-12"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-3b-instruct-2512"
+        },
+        {
+          "p": "status",
+          "v": "active",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-3b",
+          "note": "Listed as GA."
+        },
+        {
+          "p": "parameters_b",
+          "v": 3.8,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-3b-instruct-2512",
+          "note": "Card: 3.4B language model + 0.4B vision encoder."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-3b-instruct-2512"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-3b-instruct-2512",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-12-02",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-3b"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-3b-instruct-2512"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-ministral-3-3b-instruct-2512"
+        },
+        {
+          "p": "api_model_id",
+          "v": "ministral-3b-2512",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-ministral-3-3b",
+          "note": "Alias: ministral-3b-latest."
+        },
+        {
+          "p": "api_input_price",
+          "v": 0.1,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.01,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        },
+        {
+          "p": "api_output_price",
+          "v": 0.1,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-pricing"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-ministral-3-3b-instruct-2512"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-ministral-3",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-ministral",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:devstral-2",
+      "type": "model",
+      "slug": "devstral-2",
+      "names": {
+        "en": "Devstral 2 (123B)"
+      },
+      "aliases": [
+        "mistralai/Devstral-2-123B-Instruct-2512",
+        "devstral-2512"
+      ],
+      "description": {
+        "en": "Mistral's 123B coding-agent model for software-engineering tasks; deprecated on the API in favour of Mistral Medium 3.5.",
+        "ko": "소프트웨어 엔지니어링 작업용 Mistral 123B 코딩 에이전트 모델로, API에서는 Mistral Medium 3.5로 대체되어 지원 종료 예정입니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Devstral-2-123B-Instruct-2512"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-2-123b-instruct-2512"
+        },
+        {
+          "p": "status",
+          "v": "deprecated",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-2",
+          "note": "Deprecated on the Mistral API (replacement: Mistral Medium 3.5); the weights remain on Hugging Face."
+        },
+        {
+          "p": "parameters_b",
+          "v": 123,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-2-123b-instruct-2512",
+          "note": "Card benchmark table lists the size as 123 (B parameters)."
+        },
+        {
+          "p": "license",
+          "v": "Modified MIT License",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-2-123b-instruct-2512"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-2-123b-instruct-2512",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-12-09",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-2"
+        },
+        {
+          "p": "deprecation_date",
+          "v": "2026-05-22",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-2",
+          "note": "Mistral's stated 'Deprecation date'; the model page shows no retirement date."
+        },
+        {
+          "p": "api_model_id",
+          "v": "devstral-2512",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-2",
+          "note": "Aliases: devstral-latest, devstral-medium-latest."
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-devstral-2-123b-instruct-2512"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-devstral-2",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-devstral-2",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:devstral-small-2",
+      "type": "model",
+      "slug": "devstral-small-2",
+      "names": {
+        "en": "Devstral Small 2 (24B)"
+      },
+      "aliases": [
+        "mistralai/Devstral-Small-2-24B-Instruct-2512",
+        "labs-devstral-small-2512"
+      ],
+      "description": {
+        "en": "Small open coding-agent model; the card says it runs on a single RTX 4090 or a Mac with 32GB RAM.",
+        "ko": "소형 오픈 코딩 에이전트 모델로, 모델 카드상 RTX 4090 한 장이나 32GB RAM Mac에서 실행됩니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-small-2-24b-instruct-2512"
+        },
+        {
+          "p": "status",
+          "v": "deprecated",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-small-2",
+          "note": "Deprecated on the Mistral API (replacement: Mistral Medium 3.5); the weights remain on Hugging Face."
+        },
+        {
+          "p": "parameters_b",
+          "v": 24,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-small-2-24b-instruct-2512",
+          "note": "Card: \"24 billion parameters\"."
+        },
+        {
+          "p": "license",
+          "v": "Apache 2.0",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-small-2-24b-instruct-2512"
+        },
+        {
+          "p": "context_window",
+          "v": 256000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-devstral-small-2-24b-instruct-2512",
+          "note": "Stated as \"256k\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-12-09",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-small-2"
+        },
+        {
+          "p": "deprecation_date",
+          "v": "2026-02-27",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-small-2",
+          "note": "Mistral's stated 'Deprecation date'; the model page shows no retirement date."
+        },
+        {
+          "p": "api_model_id",
+          "v": "labs-devstral-small-2512",
+          "ver": "OFFICIAL",
+          "src": "src:open-mistral-doc-devstral-small-2",
+          "note": "Alias: devstral-small-latest."
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:mistral",
+          "src": "src:open-hf-devstral-small-2-24b-instruct-2512"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-devstral-2",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:deepseek-v4.1-flash",
+      "type": "model",
+      "slug": "deepseek-v4-1-flash",
+      "names": {
+        "en": "DeepSeek-V4.1-Flash"
+      },
+      "aliases": [
+        "deepseek-ai/DeepSeek-V4.1-Flash",
+        "deepseek-flash",
+        "DeepSeek V4.1 Flash"
+      ],
+      "description": {
+        "en": "Natively multimodal DeepSeek MoE model with a causal encoder-decoder design; it replaced V4-Flash on the DeepSeek API in September 2026.",
+        "ko": "인과적 인코더-디코더 구조의 네이티브 멀티모달 DeepSeek MoE 모델로, 2026년 9월 DeepSeek API에서 V4-Flash를 대체했습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash"
+        },
+        {
+          "label": "Announcement",
+          "url": "https://api-docs.deepseek.com/news/news260910"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4.1-flash"
+        },
+        {
+          "p": "status",
+          "v": "active",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-pricing"
+        },
+        {
+          "p": "parameters_b",
+          "v": 552,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4.1-flash",
+          "note": "Card: 552B backbone parameters; Engram conditional memory adds 196B parameters (sparsely accessed via lookup)."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 16,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4.1-flash",
+          "note": "Causal encoder-decoder: 8B active parameters per token during prefill, 16B during decode."
+        },
+        {
+          "p": "license",
+          "v": "MIT",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4.1-flash"
+        },
+        {
+          "p": "context_window",
+          "v": 1000000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4.1-flash",
+          "note": "Stated as \"1M\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-09-10",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-news-v4-1-flash"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4.1-flash"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4.1-flash"
+        },
+        {
+          "p": "max_output",
+          "v": 384000,
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-pricing",
+          "note": "Stated as \"MAXIMUM: 384K\" on the source page."
+        },
+        {
+          "p": "api_model_id",
+          "v": "deepseek-flash",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-pricing",
+          "note": "Legacy names deepseek-v4-flash and deepseek-v4-flash-vision-exp are routed to this model."
+        },
+        {
+          "p": "api_input_price",
+          "v": 0.3,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-pricing",
+          "note": "Peak rate (01:00-04:00 and 06:00-10:00 UTC, Mon-Fri excl. Chinese public holidays); off-peak is half: $0.15 (cache miss)."
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.006,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-pricing",
+          "note": "Peak rate (01:00-04:00 and 06:00-10:00 UTC, Mon-Fri excl. Chinese public holidays); off-peak is half: $0.003 (cache hit)."
+        },
+        {
+          "p": "api_output_price",
+          "v": 1.2,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-pricing",
+          "note": "Peak rate (01:00-04:00 and 06:00-10:00 UTC, Mon-Fri excl. Chinese public holidays); off-peak is half: $0.6."
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:deepseek",
+          "src": "src:open-hf-deepseek-v4.1-flash"
+        },
+        {
+          "p": "successor_of",
+          "o": "model:deepseek-v4-flash",
+          "src": "src:open-deepseek-news-v4-1-flash"
+        }
+      ]
+    },
+    {
+      "id": "model:deepseek-v4-pro",
+      "type": "model",
+      "slug": "deepseek-v4-pro",
+      "names": {
+        "en": "DeepSeek-V4-Pro"
+      },
+      "aliases": [
+        "deepseek-ai/DeepSeek-V4-Pro",
+        "DeepSeek-V4-Pro-0813",
+        "deepseek-ai/DeepSeek-V4-Pro-0813",
+        "deepseek-v4-pro"
+      ],
+      "description": {
+        "en": "DeepSeek's 1.6T-parameter MoE flagship with 1M-token context, released as a preview in April 2026 and as the GA DeepSeek-V4-Pro-0813 in August 2026.",
+        "ko": "100만 토큰 컨텍스트를 지원하는 1.6T 파라미터 DeepSeek MoE 주력 모델로, 2026년 4월 프리뷰, 8월 정식판 DeepSeek-V4-Pro-0813이 공개되었습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro"
+        },
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813"
+        },
+        {
+          "label": "GA announcement",
+          "url": "https://api-docs.deepseek.com/news/news260813"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "status",
+          "v": "deprecated",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-news-v4-1-flash",
+          "note": "DeepSeek is phasing out V4-Pro: from 2026-09-14 04:00 UTC, deepseek-v4-pro API requests route to V4.1-Flash at V4.1-Flash rates until V4.1-Pro launches."
+        },
+        {
+          "p": "parameters_b",
+          "v": 1600,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro",
+          "note": "Card: \"1.6T\" total, 49B activated."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 49,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "license",
+          "v": "MIT",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "context_window",
+          "v": 1000000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro",
+          "note": "Stated as \"1M\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-04-24",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-news-v4-preview",
+          "note": "Preview release; the GA version DeepSeek-V4-Pro-0813 was released 2026-08-13."
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "api_model_id",
+          "v": "deepseek-v4-pro",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-pricing",
+          "note": "The pricing page maps it to DeepSeek-V4-Pro-0813."
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:deepseek",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:deepseek-v4-flash",
+      "type": "model",
+      "slug": "deepseek-v4-flash",
+      "names": {
+        "en": "DeepSeek-V4-Flash"
+      },
+      "aliases": [
+        "deepseek-ai/DeepSeek-V4-Flash",
+        "deepseek-v4-flash"
+      ],
+      "description": {
+        "en": "The smaller model of the DeepSeek-V4 preview series; DeepSeek has since retired it from its API in favour of V4.1-Flash.",
+        "ko": "DeepSeek-V4 프리뷰 시리즈의 소형 모델로, 이후 DeepSeek API에서는 V4.1-Flash로 대체되어 종료되었습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "status",
+          "v": "retired",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-news-v4-1-flash",
+          "note": "Retired from the DeepSeek API on 2026-09-10; the open weights remain on Hugging Face."
+        },
+        {
+          "p": "parameters_b",
+          "v": 284,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro",
+          "note": "Card: 284B total, 13B activated."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 13,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "license",
+          "v": "MIT",
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "context_window",
+          "v": 1000000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro",
+          "note": "Stated as \"1M\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-04-24",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-news-v4-preview"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-v4-pro"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:deepseek",
+          "src": "src:open-hf-deepseek-v4-pro"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:lm-studio",
+          "src": "src:rt-lmstudio-model-deepseek-v4-flash",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:llama-cpp",
+          "src": "src:rt-llama-app-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:deepseek-r1",
+      "type": "model",
+      "slug": "deepseek-r1",
+      "names": {
+        "en": "DeepSeek-R1"
+      },
+      "aliases": [
+        "deepseek-ai/DeepSeek-R1",
+        "R1",
+        "딥시크 R1"
+      ],
+      "aliases_src": {
+        "딥시크 R1": "src:ko-ai-studio-zdnet-deepseek-r1"
+      },
+      "description": {
+        "en": "DeepSeek's first open-weight reasoning model, released under the MIT License together with six smaller distilled models.",
+        "ko": "DeepSeek의 첫 오픈 웨이트 추론 모델로, 소형 증류 모델 6종과 함께 MIT 라이선스로 공개되었습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Hugging Face",
+          "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1"
+        }
+      ],
+      "facts": [
+        {
+          "p": "open_weights",
+          "v": true,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-r1"
+        },
+        {
+          "p": "parameters_b",
+          "v": 671,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-r1",
+          "note": "Card: 671B total, 37B activated."
+        },
+        {
+          "p": "active_parameters_b",
+          "v": 37,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-r1"
+        },
+        {
+          "p": "license",
+          "v": "MIT",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-news-r1"
+        },
+        {
+          "p": "context_window",
+          "v": 128000,
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-r1",
+          "note": "Stated as \"128K\" on the source page."
+        },
+        {
+          "p": "release_date",
+          "v": "2025-01-20",
+          "ver": "OFFICIAL",
+          "src": "src:open-deepseek-news-r1"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-r1"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-hf-deepseek-r1"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:deepseek",
+          "src": "src:open-hf-deepseek-r1"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:ollama",
+          "src": "src:rt-ollama-lib-deepseek-r1",
+          "ver": "OFFICIAL"
+        },
+        {
+          "p": "runs_on",
+          "o": "runtime:vllm",
+          "src": "src:rt-vllm-supported-models",
+          "ver": "OFFICIAL"
+        }
+      ]
+    },
+    {
+      "id": "model:grok-4.7",
+      "type": "model",
+      "slug": "grok-4-7",
+      "names": {
+        "en": "Grok 4.7"
+      },
+      "aliases": [
+        "grok-4.7",
+        "그록 4.7"
+      ],
+      "aliases_src": {
+        "그록 4.7": "src:ko-ai-studio-ddaily-grok-4-7"
+      },
+      "description": {
+        "en": "xAI's current frontier API model for coding, agentic tasks and knowledge work, taking text and image input.",
+        "ko": "코딩·에이전트·지식 작업용 xAI의 현행 최상위 API 모델로, 텍스트와 이미지 입력을 받습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Docs",
+          "url": "https://docs.x.ai/developers/models/grok-4.7"
+        }
+      ],
+      "facts": [
+        {
+          "p": "api_model_id",
+          "v": "grok-4.7",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-7"
+        },
+        {
+          "p": "context_window",
+          "v": 500000,
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-7"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-7"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-7"
+        },
+        {
+          "p": "api_input_price",
+          "v": 2,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-7",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $4.00 for all tokens."
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.5,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-7",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $1.00 for all tokens."
+        },
+        {
+          "p": "api_output_price",
+          "v": 6,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-7",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $12.00 for all tokens."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-09",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-release-notes",
+          "note": "Month given in the release notes."
+        },
+        {
+          "p": "knowledge_cutoff",
+          "v": "2026-05",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-docs-models"
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:xai",
+          "src": "src:open-xai-model-grok-4-7"
+        }
+      ]
+    },
+    {
+      "id": "model:grok-4.6",
+      "type": "model",
+      "slug": "grok-4-6",
+      "names": {
+        "en": "Grok 4.6"
+      },
+      "aliases": [
+        "grok-4.6",
+        "그록 4.6"
+      ],
+      "aliases_src": {
+        "그록 4.6": "src:ko-ai-studio-zdnet-grok-4-6"
+      },
+      "description": {
+        "en": "xAI API model released in August 2026, one month before Grok 4.7, at the same list prices.",
+        "ko": "Grok 4.7보다 한 달 앞선 2026년 8월 공개된 xAI API 모델로, 가격은 같습니다."
+      },
+      "official_urls": [
+        {
+          "label": "Docs",
+          "url": "https://docs.x.ai/developers/models/grok-4.6"
+        }
+      ],
+      "facts": [
+        {
+          "p": "api_model_id",
+          "v": "grok-4.6",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-6"
+        },
+        {
+          "p": "context_window",
+          "v": 500000,
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-6"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-6"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-6"
+        },
+        {
+          "p": "api_input_price",
+          "v": 2,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-6",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $4.00 for all tokens."
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.5,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-6",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $1.00 for all tokens."
+        },
+        {
+          "p": "api_output_price",
+          "v": 6,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-6",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $12.00 for all tokens."
+        },
+        {
+          "p": "release_date",
+          "v": "2026-08",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-release-notes",
+          "note": "Month given in the release notes."
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:xai",
+          "src": "src:open-xai-model-grok-4-6"
+        }
+      ]
+    },
+    {
+      "id": "model:grok-4.3",
+      "type": "model",
+      "slug": "grok-4-3",
+      "names": {
+        "en": "Grok 4.3"
+      },
+      "aliases": [
+        "grok-4.3",
+        "grok-4.3-latest"
+      ],
+      "description": {
+        "en": "Lower-priced xAI API model with a 1M-token context window, described by xAI as fast with strong tool calling.",
+        "ko": "100만 토큰 컨텍스트를 지원하는 저가형 xAI API 모델로, xAI는 빠르고 도구 호출에 강하다고 설명합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Docs",
+          "url": "https://docs.x.ai/developers/models/grok-4.3"
+        }
+      ],
+      "facts": [
+        {
+          "p": "api_model_id",
+          "v": "grok-4.3",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-3",
+          "note": "Alias: grok-4.3-latest."
+        },
+        {
+          "p": "context_window",
+          "v": 1000000,
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-3"
+        },
+        {
+          "p": "input_modalities",
+          "v": [
+            "text",
+            "image"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-3"
+        },
+        {
+          "p": "output_modalities",
+          "v": [
+            "text"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-3"
+        },
+        {
+          "p": "api_input_price",
+          "v": 1.25,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-3",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $2.50 for all tokens."
+        },
+        {
+          "p": "api_cached_input_price",
+          "v": 0.2,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-3",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $0.40 for all tokens."
+        },
+        {
+          "p": "api_output_price",
+          "v": 2.5,
+          "unit": "USD",
+          "ver": "OFFICIAL",
+          "src": "src:open-xai-model-grok-4-3",
+          "note": "Below 200k prompt tokens; requests whose prompt reaches 200k tokens are billed at $5.00 for all tokens."
+        }
+      ],
+      "relations": [
+        {
+          "p": "made_by",
+          "o": "provider:xai",
+          "src": "src:open-xai-model-grok-4-3"
+        }
+      ]
+    }
+  ]
+}

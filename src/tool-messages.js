@@ -1,4 +1,5 @@
 import {TOOLS} from './tool-registry.js';
+// The maker is available without a file upload; its action opens the composer.
 export const TOOL_MESSAGES = {
   'intent.store-art-pack.title':TOOLS['store-art-pack'].title,
   'intent.store-art-pack.headline':TOOLS['store-art-pack'].title,
@@ -844,3 +845,14 @@ Object.assign(TOOL_MESSAGES,Object.fromEntries(['tile-lab','autotile-tester','ti
  [`intent.${id}.title`,TOOLS[id].title],[`intent.${id}.headline`,TOOLS[id].title],
  [`intent.${id}.description`,TOOLS[id].description],
  [`intent.${id}.action`,['열기','Open','開く']]])));
+
+Object.assign(TOOL_MESSAGES,Object.fromEntries(['title','headline','description'].map(k=>[
+ `intent.webtoon-manga-toolkit.${k}`,TOOLS['webtoon-manga-toolkit'][k==='headline'?'title':k]
+])));
+TOOL_MESSAGES['intent.webtoon-manga-toolkit.action']=['열기','Open','開く'];
+Object.assign(TOOL_MESSAGES,{
+ 'intent.pixel-avatar-maker.title':TOOLS['pixel-avatar-maker'].title,
+ 'intent.pixel-avatar-maker.headline':TOOLS['pixel-avatar-maker'].title,
+ 'intent.pixel-avatar-maker.description':TOOLS['pixel-avatar-maker'].description,
+ 'intent.pixel-avatar-maker.action':['만들기','Create','作成'],
+});

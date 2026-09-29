@@ -1,0 +1,500 @@
+{
+  "schema": "nerulio.seed/1",
+  "vertical": "ai",
+  "sources": [
+    {"id":"src:rt-llama-cpp-releases","kind":"OFFICIAL_API","url":"https://github.com/ggml-org/llama.cpp/releases","title":"llama.cpp releases (GitHub)","publisher":"ggml-org","retrieved":"2026-09-28","note":"Read via api.github.com/repos/ggml-org/llama.cpp/releases and /releases/latest. Semver releases (v0.x) are published as normal releases; numbered builds (bNNNNN) are flagged prerelease and labelled 'nightly' in the README."},
+    {"id":"src:rt-llama-cpp-b11229","kind":"OFFICIAL","url":"https://github.com/ggml-org/llama.cpp/releases/tag/b11229","title":"llama.cpp build b11229 (release assets)","publisher":"ggml-org","retrieved":"2026-09-28","note":"Binary list: macOS arm64/x64, iOS XCFramework, Ubuntu/Linux x64/arm64/s390x, Android arm64, Windows x64/arm64; openEuler builds listed as disabled."},
+    {"id":"src:rt-llama-cpp-readme","kind":"OFFICIAL","url":"https://github.com/ggml-org/llama.cpp","title":"llama.cpp README","publisher":"ggml-org","retrieved":"2026-09-28"},
+    {"id":"src:rt-llama-app","kind":"OFFICIAL","url":"https://llama.app","title":"llama.app - Official home for llama.cpp","publisher":"ggml-org","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-releases","kind":"OFFICIAL_API","url":"https://github.com/ollama/ollama/releases","title":"Ollama releases (GitHub)","publisher":"Ollama","retrieved":"2026-09-28","note":"Read via api.github.com/repos/ollama/ollama/releases and /releases/latest."},
+    {"id":"src:rt-ollama-repo","kind":"OFFICIAL","url":"https://github.com/ollama/ollama","title":"Ollama GitHub repository (README, LICENSE)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-download","kind":"OFFICIAL","url":"https://ollama.com/download","title":"Download Ollama","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-gpu","kind":"OFFICIAL","url":"https://docs.ollama.com/gpu","title":"Ollama docs - Hardware support","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-vllm-releases","kind":"OFFICIAL_API","url":"https://github.com/vllm-project/vllm/releases","title":"vLLM releases (GitHub)","publisher":"vLLM project","retrieved":"2026-09-28","note":"Read via api.github.com/repos/vllm-project/vllm/releases and /releases/latest."},
+    {"id":"src:rt-vllm-repo","kind":"OFFICIAL","url":"https://github.com/vllm-project/vllm","title":"vLLM GitHub repository (README, LICENSE)","publisher":"vLLM project","retrieved":"2026-09-28"},
+    {"id":"src:rt-vllm-install","kind":"OFFICIAL","url":"https://docs.vllm.ai/en/latest/getting_started/installation/index.html","title":"vLLM docs - Installation","publisher":"vLLM project","retrieved":"2026-09-28"},
+    {"id":"src:rt-vllm-install-gpu","kind":"OFFICIAL","url":"https://docs.vllm.ai/en/latest/getting_started/installation/gpu/index.html","title":"vLLM docs - GPU installation (requirements)","publisher":"vLLM project","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-download","kind":"OFFICIAL","url":"https://lmstudio.ai/download","title":"Download LM Studio","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-changelog","kind":"OFFICIAL","url":"https://lmstudio.ai/changelog/lmstudio","title":"LM Studio changelog","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-sysreq","kind":"OFFICIAL","url":"https://lmstudio.ai/docs/app/system-requirements","title":"LM Studio docs - System Requirements","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-gpt-oss","kind":"OFFICIAL","url":"https://ollama.com/library/gpt-oss/tags","title":"Ollama library: gpt-oss (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-llama3-3","kind":"OFFICIAL","url":"https://ollama.com/library/llama3.3/tags","title":"Ollama library: llama3.3 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-llama3-1","kind":"OFFICIAL","url":"https://ollama.com/library/llama3.1/tags","title":"Ollama library: llama3.1 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-llama4","kind":"OFFICIAL","url":"https://ollama.com/library/llama4/tags","title":"Ollama library: llama4 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-qwen3-5","kind":"OFFICIAL","url":"https://ollama.com/library/qwen3.5/tags","title":"Ollama library: qwen3.5 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-qwen3-6","kind":"OFFICIAL","url":"https://ollama.com/library/qwen3.6/tags","title":"Ollama library: qwen3.6 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-qwen3-8","kind":"OFFICIAL","url":"https://ollama.com/library/qwen3.8/tags","title":"Ollama library: qwen3.8 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-gemma4","kind":"OFFICIAL","url":"https://ollama.com/library/gemma4/tags","title":"Ollama library: gemma4 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-deepseek-r1","kind":"OFFICIAL","url":"https://ollama.com/library/deepseek-r1/tags","title":"Ollama library: deepseek-r1 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-devstral-2","kind":"OFFICIAL","url":"https://ollama.com/library/devstral-2/tags","title":"Ollama library: devstral-2 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-ollama-lib-ministral-3","kind":"OFFICIAL","url":"https://ollama.com/library/ministral-3/tags","title":"Ollama library: ministral-3 (tags)","publisher":"Ollama","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-gpt-oss","kind":"OFFICIAL","url":"https://lmstudio.ai/models/gpt-oss","title":"LM Studio model catalog: gpt-oss","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-qwen3-5","kind":"OFFICIAL","url":"https://lmstudio.ai/models/qwen3.5","title":"LM Studio model catalog: qwen3.5","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-qwen3-6","kind":"OFFICIAL","url":"https://lmstudio.ai/models/qwen3.6","title":"LM Studio model catalog: qwen3.6","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-qwen3-8","kind":"OFFICIAL","url":"https://lmstudio.ai/models/qwen3.8","title":"LM Studio model catalog: qwen3.8","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-gemma-4","kind":"OFFICIAL","url":"https://lmstudio.ai/models/gemma-4","title":"LM Studio model catalog: gemma-4","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-deepseek-v4-flash","kind":"OFFICIAL","url":"https://lmstudio.ai/models/deepseek-v4-flash","title":"LM Studio model catalog: deepseek-v4-flash","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-devstral-2","kind":"OFFICIAL","url":"https://lmstudio.ai/models/devstral-2","title":"LM Studio model catalog: devstral-2","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-lmstudio-model-ministral","kind":"OFFICIAL","url":"https://lmstudio.ai/models/ministral","title":"LM Studio model catalog: ministral","publisher":"Element Labs (LM Studio)","retrieved":"2026-09-28"},
+    {"id":"src:rt-vllm-supported-models","kind":"OFFICIAL","url":"https://docs.vllm.ai/en/latest/models/supported_models.html","title":"vLLM docs - Supported Models","publisher":"vLLM project","retrieved":"2026-09-28","note":"The 'latest' docs are labelled developer preview; example checkpoints are listed per architecture."},
+    {"id":"src:rt-llama-app-models","kind":"OFFICIAL","url":"https://llama.app/models","title":"llama.app - Models (curated open models that run in llama.cpp)","publisher":"ggml-org","retrieved":"2026-09-28"}
+  ],
+  "entities": [
+    {
+      "id": "runtime:llama-cpp",
+      "type": "runtime",
+      "slug": "llama-cpp",
+      "names": {
+        "en": "llama.cpp",
+        "ko": "llama.cpp"
+      },
+      "aliases": [
+        "llama cpp",
+        "llamacpp",
+        "ggml-org/llama.cpp",
+        "llama-server"
+      ],
+      "description": {
+        "en": "Open-source C/C++ engine for running LLMs and vision-language models locally from GGUF files, built on the ggml library. It ships a CLI and an OpenAI-compatible server and supports many CPU, GPU and NPU backends.",
+        "ko": "ggml 라이브러리를 기반으로 GGUF 형식의 LLM·비전 언어 모델을 로컬에서 실행하는 오픈소스 C/C++ 엔진입니다. CLI와 OpenAI 호환 서버를 제공하며 다양한 CPU·GPU·NPU 백엔드를 지원합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Website",
+          "url": "https://llama.app"
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/ggml-org/llama.cpp"
+        }
+      ],
+      "facts": [
+        {
+          "p": "latest_version",
+          "v": "v0.5.0",
+          "ver": "OFFICIAL",
+          "src": "src:rt-llama-cpp-releases",
+          "note": "Latest semver release (2026-09-23). The newest nightly build on 2026-09-28 was b11229."
+        },
+        {
+          "p": "os_support",
+          "v": [
+            "windows",
+            "macos",
+            "linux",
+            "android",
+            "ios"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-llama-cpp-b11229",
+          "note": "Per the prebuilt binaries of build b11229; iOS is an XCFramework library. openEuler builds are listed but disabled."
+        },
+        {
+          "p": "gpu_backends",
+          "v": [
+            "CUDA",
+            "HIP",
+            "Metal",
+            "Vulkan",
+            "SYCL",
+            "MUSA",
+            "OpenCL",
+            "CANN",
+            "Hexagon",
+            "VirtGPU",
+            "WebGPU"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-llama-cpp-readme",
+          "note": "GPU/NPU rows of the README's 'Supported backends' table: CUDA (Nvidia GPU), HIP (AMD GPU), Metal (Apple Silicon), Vulkan (GPU), SYCL (Intel GPU), MUSA (Moore Threads GPU), OpenCL (Adreno GPU), CANN (Ascend NPU), Hexagon (Snapdragon), VirtGPU, WebGPU. The table also lists CPU/BLAS-type backends (BLAS, BLIS, ZenDNN, IBM zDNN), RPC and OpenVINO [In Progress]; CPU inference is built in."
+        },
+        {
+          "p": "homepage",
+          "v": "https://llama.app",
+          "ver": "OFFICIAL",
+          "src": "src:rt-llama-app"
+        },
+        {
+          "p": "license",
+          "v": "MIT",
+          "ver": "OFFICIAL",
+          "src": "src:rt-llama-cpp-readme"
+        }
+      ],
+      "versions": [
+        {
+          "version": "b11229",
+          "released": "2026-09-28",
+          "channel": "prerelease",
+          "notes_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b11229",
+          "src": "src:rt-llama-cpp-releases"
+        },
+        {
+          "version": "b11228",
+          "released": "2026-09-28",
+          "channel": "prerelease",
+          "notes_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b11228",
+          "src": "src:rt-llama-cpp-releases"
+        },
+        {
+          "version": "v0.5.0",
+          "released": "2026-09-23",
+          "channel": "stable",
+          "notes_url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.5.0",
+          "src": "src:rt-llama-cpp-releases"
+        },
+        {
+          "version": "v0.4.1",
+          "released": "2026-09-14",
+          "channel": "stable",
+          "notes_url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.4.1",
+          "src": "src:rt-llama-cpp-releases"
+        },
+        {
+          "version": "v0.4.0",
+          "released": "2026-09-04",
+          "channel": "stable",
+          "notes_url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.4.0",
+          "src": "src:rt-llama-cpp-releases"
+        }
+      ]
+    },
+    {
+      "id": "runtime:ollama",
+      "type": "runtime",
+      "slug": "ollama",
+      "names": {
+        "en": "Ollama",
+        "ko": "Ollama"
+      },
+      "aliases": [
+        "ollama"
+      ],
+      "description": {
+        "en": "Open-source tool for downloading and running open models locally through a CLI, desktop app and REST API, with a model library at ollama.com. It uses llama.cpp as a backend.",
+        "ko": "CLI·데스크톱 앱·REST API로 오픈 모델을 내려받아 로컬에서 실행하는 오픈소스 도구로, ollama.com에서 모델 라이브러리를 제공합니다. 백엔드로 llama.cpp를 사용합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Website",
+          "url": "https://ollama.com"
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/ollama/ollama"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.ollama.com"
+        }
+      ],
+      "facts": [
+        {
+          "p": "latest_version",
+          "v": "v0.34.4",
+          "ver": "OFFICIAL",
+          "src": "src:rt-ollama-releases",
+          "note": "Latest stable release (2026-09-23). A v0.40.0-rc0 prerelease was published on 2026-09-25."
+        },
+        {
+          "p": "os_support",
+          "v": [
+            "macos",
+            "windows",
+            "linux"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-ollama-download",
+          "note": "The macOS app requires macOS 14 Sonoma or later. An official Docker image (ollama/ollama) is also published."
+        },
+        {
+          "p": "gpu_backends",
+          "v": [
+            "CUDA",
+            "ROCm",
+            "Metal",
+            "Vulkan"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-ollama-gpu",
+          "note": "NVIDIA GPUs with compute capability 5.0+ (driver 550+); AMD via ROCm v7 on Linux and Windows; Apple GPUs via Metal; Vulkan adds GPU support on Windows and Linux."
+        },
+        {
+          "p": "homepage",
+          "v": "https://ollama.com",
+          "ver": "OFFICIAL",
+          "src": "src:rt-ollama-repo"
+        },
+        {
+          "p": "license",
+          "v": "MIT",
+          "ver": "OFFICIAL",
+          "src": "src:rt-ollama-repo"
+        }
+      ],
+      "versions": [
+        {
+          "version": "v0.40.0-rc0",
+          "released": "2026-09-25",
+          "channel": "prerelease",
+          "notes_url": "https://github.com/ollama/ollama/releases/tag/v0.40.0-rc0",
+          "src": "src:rt-ollama-releases"
+        },
+        {
+          "version": "v0.34.4",
+          "released": "2026-09-23",
+          "channel": "stable",
+          "notes_url": "https://github.com/ollama/ollama/releases/tag/v0.34.4",
+          "src": "src:rt-ollama-releases"
+        },
+        {
+          "version": "v0.34.3",
+          "released": "2026-09-19",
+          "channel": "stable",
+          "notes_url": "https://github.com/ollama/ollama/releases/tag/v0.34.3",
+          "src": "src:rt-ollama-releases"
+        },
+        {
+          "version": "v0.34.2",
+          "released": "2026-09-15",
+          "channel": "stable",
+          "notes_url": "https://github.com/ollama/ollama/releases/tag/v0.34.2",
+          "src": "src:rt-ollama-releases"
+        },
+        {
+          "version": "v0.34.1",
+          "released": "2026-09-14",
+          "channel": "stable",
+          "notes_url": "https://github.com/ollama/ollama/releases/tag/v0.34.1",
+          "src": "src:rt-ollama-releases"
+        },
+        {
+          "version": "v0.34.0",
+          "released": "2026-09-05",
+          "channel": "stable",
+          "notes_url": "https://github.com/ollama/ollama/releases/tag/v0.34.0",
+          "src": "src:rt-ollama-releases"
+        }
+      ]
+    },
+    {
+      "id": "runtime:vllm",
+      "type": "runtime",
+      "slug": "vllm",
+      "names": {
+        "en": "vLLM",
+        "ko": "vLLM"
+      },
+      "aliases": [
+        "vllm",
+        "vllm-project"
+      ],
+      "description": {
+        "en": "Open-source Python library and server for high-throughput LLM inference, originally developed at UC Berkeley's Sky Computing Lab and known for PagedAttention. It exposes an OpenAI-compatible API and targets Linux GPU servers.",
+        "ko": "UC 버클리 Sky Computing Lab에서 시작된 고처리량 LLM 추론용 오픈소스 Python 라이브러리이자 서버로, PagedAttention으로 알려져 있습니다. OpenAI 호환 API를 제공하며 주로 Linux GPU 서버를 대상으로 합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Website",
+          "url": "https://vllm.ai"
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.vllm.ai"
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/vllm-project/vllm"
+        }
+      ],
+      "facts": [
+        {
+          "p": "latest_version",
+          "v": "v0.30.0",
+          "ver": "OFFICIAL",
+          "src": "src:rt-vllm-releases",
+          "note": "Released 2026-09-22."
+        },
+        {
+          "p": "os_support",
+          "v": [
+            "linux",
+            "macos"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-vllm-install-gpu",
+          "note": "GPU builds require Linux; macOS (Sonoma or later, Apple Silicon) is supported via vLLM-Metal and the CPU build. Windows is not supported natively (WSL suggested)."
+        },
+        {
+          "p": "gpu_backends",
+          "v": [
+            "NVIDIA CUDA",
+            "AMD ROCm",
+            "Intel XPU",
+            "Apple Silicon (vLLM-Metal)",
+            "CPU"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-vllm-install",
+          "note": "Further hardware (e.g. Google TPU, Intel Gaudi, Huawei Ascend) is supported through third-party hardware plugins outside the main repository."
+        },
+        {
+          "p": "homepage",
+          "v": "https://vllm.ai",
+          "ver": "OFFICIAL",
+          "src": "src:rt-vllm-repo"
+        },
+        {
+          "p": "license",
+          "v": "Apache-2.0",
+          "ver": "OFFICIAL",
+          "src": "src:rt-vllm-repo"
+        }
+      ],
+      "versions": [
+        {
+          "version": "v0.30.0",
+          "released": "2026-09-22",
+          "channel": "stable",
+          "notes_url": "https://github.com/vllm-project/vllm/releases/tag/v0.30.0",
+          "src": "src:rt-vllm-releases"
+        },
+        {
+          "version": "v0.29.0",
+          "released": "2026-09-09",
+          "channel": "stable",
+          "notes_url": "https://github.com/vllm-project/vllm/releases/tag/v0.29.0",
+          "src": "src:rt-vllm-releases"
+        },
+        {
+          "version": "v0.28.0",
+          "released": "2026-08-26",
+          "channel": "stable",
+          "notes_url": "https://github.com/vllm-project/vllm/releases/tag/v0.28.0",
+          "src": "src:rt-vllm-releases"
+        },
+        {
+          "version": "v0.27.1",
+          "released": "2026-08-11",
+          "channel": "stable",
+          "notes_url": "https://github.com/vllm-project/vllm/releases/tag/v0.27.1",
+          "src": "src:rt-vllm-releases"
+        },
+        {
+          "version": "v0.27.0",
+          "released": "2026-08-10",
+          "channel": "stable",
+          "notes_url": "https://github.com/vllm-project/vllm/releases/tag/v0.27.0",
+          "src": "src:rt-vllm-releases"
+        }
+      ]
+    },
+    {
+      "id": "runtime:lm-studio",
+      "type": "runtime",
+      "slug": "lm-studio",
+      "names": {
+        "en": "LM Studio",
+        "ko": "LM Studio"
+      },
+      "aliases": [
+        "lmstudio",
+        "LMStudio",
+        "llmster",
+        "lms"
+      ],
+      "description": {
+        "en": "Desktop app from Element Labs for downloading and running LLMs locally, with a chat interface and an OpenAI-compatible local server. It runs GGUF models through llama.cpp and, on Apple Silicon Macs, MLX models.",
+        "ko": "Element Labs가 만든 데스크톱 앱으로, LLM을 내려받아 로컬에서 실행하며 채팅 화면과 OpenAI 호환 로컬 서버를 제공합니다. GGUF 모델은 llama.cpp로, Apple Silicon Mac에서는 MLX 모델도 실행합니다."
+      },
+      "official_urls": [
+        {
+          "label": "Website",
+          "url": "https://lmstudio.ai"
+        },
+        {
+          "label": "Docs",
+          "url": "https://lmstudio.ai/docs"
+        },
+        {
+          "label": "Changelog",
+          "url": "https://lmstudio.ai/changelog/lmstudio"
+        }
+      ],
+      "facts": [
+        {
+          "p": "latest_version",
+          "v": "0.4.25",
+          "ver": "OFFICIAL",
+          "src": "src:rt-lmstudio-download",
+          "note": "Version shown on the download page; the changelog dates LM Studio 0.4.25 (Build 1) to 2026-09-19. Beta builds are listed separately at lmstudio.ai/beta-releases."
+        },
+        {
+          "p": "os_support",
+          "v": [
+            "macos",
+            "windows",
+            "linux"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-lmstudio-sysreq",
+          "note": "macOS: Apple Silicon only, macOS 14.0+. Windows: x64 (AVX2 required) and ARM. Linux: x64 and ARM64, AppImage, Ubuntu 20.04+."
+        },
+        {
+          "p": "gpu_backends",
+          "v": [
+            "CUDA",
+            "ROCm",
+            "Vulkan"
+          ],
+          "ver": "OFFICIAL",
+          "src": "src:rt-lmstudio-changelog",
+          "note": "Backends named in LM Studio's own changelog entries for its llama.cpp runtime; the docs describe runtimes as engines (llama.cpp on all platforms, MLX on Apple Silicon)."
+        },
+        {
+          "p": "homepage",
+          "v": "https://lmstudio.ai",
+          "ver": "OFFICIAL",
+          "src": "src:rt-lmstudio-download"
+        }
+      ],
+      "versions": [
+        {
+          "version": "0.4.25",
+          "released": "2026-09-19",
+          "channel": "stable",
+          "notes_url": "https://lmstudio.ai/changelog/lmstudio/lmstudio-v0.4.25",
+          "src": "src:rt-lmstudio-changelog"
+        },
+        {
+          "version": "0.4.24",
+          "released": "2026-09-09",
+          "channel": "stable",
+          "notes_url": "https://lmstudio.ai/changelog/lmstudio/lmstudio-v0.4.24",
+          "src": "src:rt-lmstudio-changelog"
+        },
+        {
+          "version": "0.4.23",
+          "released": "2026-08-28",
+          "channel": "stable",
+          "notes_url": "https://lmstudio.ai/changelog/lmstudio/lmstudio-v0.4.23",
+          "src": "src:rt-lmstudio-changelog"
+        },
+        {
+          "version": "0.4.22",
+          "released": "2026-08-28",
+          "channel": "stable",
+          "notes_url": "https://lmstudio.ai/changelog/lmstudio/lmstudio-v0.4.22",
+          "src": "src:rt-lmstudio-changelog"
+        },
+        {
+          "version": "0.4.21",
+          "released": "2026-08-12",
+          "channel": "stable",
+          "notes_url": "https://lmstudio.ai/changelog/lmstudio/lmstudio-v0.4.21",
+          "src": "src:rt-lmstudio-changelog"
+        }
+      ]
+    }
+  ]
+}

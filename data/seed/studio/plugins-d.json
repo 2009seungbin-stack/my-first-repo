@@ -1,0 +1,4647 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:valhalla-dsp-shop",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/",
+   "title": "Shop - Valhalla DSP",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:valhalla-dsp-freq-echo-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/delay/valhalla-freq-echo/",
+   "title": "Valhalla Freq Echo: Freqency Shifter Plugin | Free Reverb Plugin",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-ubermod-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/delay/valhalla-uber-mod/",
+   "title": "Valhalla UberMod: Modulating Delay Plugin | Valhalla DSP Plugins",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-delay-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/delay/valhalladelay/",
+   "title": "Valhalla Delay: Digital Delay Plugin | Digital, Tape, PingPong, BBD & More",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-space-modulator-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/modulation/valhalla-space-modulator/",
+   "title": "Valhalla Space Modulator: Flanger Plugin | Valhalla DSP Plugins",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-plate-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/reverb/valhalla-plate/",
+   "title": "Valhalla Plate: Plate Reverb Plugin | Valhalla DSP Plugins",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-room-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/reverb/valhalla-room/",
+   "title": "Valhalla Room: Room Reverb Plugin | Valhalla DSP Plugins",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-shimmer-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/reverb/valhalla-shimmer/",
+   "title": "Valhalla Shimmer: Pitchshifting Reverb Plugin | Shimmer Plugin | Valhalla",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-supermassive-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/reverb/valhalla-supermassive/",
+   "title": "Valhalla Super Massive - Valhalla DSP",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 (64-bit Windows only) | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-vintageverb-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/reverb/valhalla-vintage-verb/",
+   "title": "Valhalla VintageVerb: Vintage Reverb Plugin | Valhalla DSP Plugin",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:valhalla-dsp-futureverb-product",
+   "kind": "OFFICIAL",
+   "url": "https://valhalladsp.com/shop/reverb/valhallafutureverb/",
+   "title": "Valhalla FutureVerb - Valhalla DSP",
+   "publisher": "Valhalla DSP",
+   "retrieved": "2026-09-28",
+   "note": "Mac: OSX 10.9/10.10/10.11, macOS 10.12/10.13/10.14/10.15, Big Sur, Monterey, Ventura, Sonoma, Sequoia, Tahoe | Windows: Windows 7/8/10/11 | Plugin formats: 64-bit VST2.4/VST3/AAX / Plugin Formats: 64-bit VST2.4/VST3/AAX/AU"
+  },
+  {
+   "id": "src:soundtoys-products",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/",
+   "title": "Shop Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:soundtoys-crystallizer-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/crystallizer/",
+   "title": "Crystallizer - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-decapitator-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/decapitator/",
+   "title": "Decapitator - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-devil-loc-deluxe-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/devil-loc-deluxe/",
+   "title": "Devil-Loc Deluxe - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-echoboy-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/echoboy/",
+   "title": "EchoBoy - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-echoboy-jr-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/echoboy-jr/",
+   "title": "EchoBoy Jr. - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-effect-rack-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/effect-rack/",
+   "title": "Effect Rack - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-filterfreak-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/filterfreak/",
+   "title": "FilterFreak - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-little-alterboy-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/little-alterboy/",
+   "title": "Little AlterBoy - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-little-plate-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/little-plate/",
+   "title": "Little Plate - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-microshift-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/microshift/",
+   "title": "MicroShift - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-panman-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/panman/",
+   "title": "PanMan - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-phasemistress-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/phasemistress/",
+   "title": "PhaseMistress - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-primaltap-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/primaltap/",
+   "title": "PrimalTap - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-radiator-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/radiator/",
+   "title": "Radiator - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-sie-q-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/sie-q/",
+   "title": "Sie-Q - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-spaceblender-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/spaceblender/",
+   "title": "SpaceBlender - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-superplate-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/superplate/",
+   "title": "SuperPlate - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:soundtoys-tremolator-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.soundtoys.com/product/tremolator/",
+   "title": "Tremolator - Soundtoys",
+   "publisher": "Soundtoys",
+   "retrieved": "2026-09-28",
+   "note": "Apple Silicon and VST 3 compatible; AAX Native, AAX AudioSuite, VST 2, VST 3, AU; Mac OS X 10.15 or later; Windows 10 or later."
+  },
+  {
+   "id": "src:xfer-records-serum-2-product",
+   "kind": "OFFICIAL",
+   "url": "https://xferrecords.com/products/serum-2",
+   "title": "Serum 2: Advanced Hybrid Synthesizer",
+   "publisher": "Xfer Records",
+   "retrieved": "2026-09-28",
+   "note": "Available as VST3, AU, AAX 64-bit; Windows 10+; macOS High Sierra or later (Intel) or Big Sur or later (Apple Silicon)."
+  },
+  {
+   "id": "src:vital-audio-home",
+   "kind": "OFFICIAL",
+   "url": "https://vital.audio/",
+   "title": "Vital - Spectral Warping Wavetable Synth",
+   "publisher": "Vital Audio",
+   "retrieved": "2026-09-28",
+   "note": "Windows 10 and higher; macOS 10.15 and higher (Intel or Apple Silicon); Ubuntu Linux 18.04 and above."
+  },
+  {
+   "id": "src:cableguys-shaperbox-3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.cableguys.com/shaperbox",
+   "title": "Cableguys | ShaperBox 3",
+   "publisher": "Cableguys",
+   "retrieved": "2026-09-28",
+   "note": "Windows 7, 8, 10 or 11 (VST 2, VST 3, AAX); OS X 10.15 or later, Intel or Apple Silicon (VST 2, VST 3, AU, AAX); works with Ableton Live, Logic Pro, Pro Tools, Cubase, Bitwig Studio, FL Studio, REAPER, Studio One."
+  },
+  {
+   "id": "src:toontrack-superior-drummer-3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.toontrack.com/product/superior-drummer-3/",
+   "title": "Superior Drummer 3 | Software for professional drum production | Toontrack",
+   "publisher": "Toontrack",
+   "retrieved": "2026-09-28",
+   "note": "64-bit Windows 10 or newer; macOS 10.13 or higher, Intel or Apple silicon; 64-bit host (VST/VST3, AU or AAX); standalone included."
+  },
+  {
+   "id": "src:toontrack-ezdrummer-3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.toontrack.com/product/ezdrummer-3/",
+   "title": "EZdrummer 3 | Virtual drum software for songwriters | Toontrack",
+   "publisher": "Toontrack",
+   "retrieved": "2026-09-28",
+   "note": "64-bit Windows 10 or newer; macOS 10.13 or higher, Intel or Apple silicon; 64-bit host (VST/VST3, AU or AAX); standalone included."
+  },
+  {
+   "id": "src:toontrack-ezkeys-2-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.toontrack.com/product/ezkeys-2/",
+   "title": "EZkeys 2 | Virtual piano & songwriting software | Toontrack",
+   "publisher": "Toontrack",
+   "retrieved": "2026-09-28",
+   "note": "64-bit Windows 10 or newer; macOS 10.13 or higher, Intel or Apple silicon; 64-bit host (VST/VST3, AU or AAX); standalone included."
+  },
+  {
+   "id": "src:toontrack-ezbass-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.toontrack.com/product/ezbass/",
+   "title": "EZbass | Bass software for songwriting & production | Toontrack",
+   "publisher": "Toontrack",
+   "retrieved": "2026-09-28",
+   "note": "64-bit Windows 10 or newer; macOS 10.13 or higher, Intel or Apple silicon; 64-bit host (VST/VST3, AU or AAX); standalone included."
+  },
+  {
+   "id": "src:oeksound-soothe3-product",
+   "kind": "OFFICIAL",
+   "url": "https://oeksound.com/plugins/soothe3/",
+   "title": "oeksound: soothe3",
+   "publisher": "oeksound",
+   "retrieved": "2026-09-28",
+   "note": "[download for macOS](<https://oeksound.ams3.cdn.digitaloceanspaces.com/soothe3_v1.0.5_macos.pkg>) [download for Windows](<https://oeksound.ams3.cdn.digitaloceanspaces.com/soothe3_v1.0.5_win.exe>) | You're downloading soothe3 (1.0.5) for Windows. | Windows 10 - 11 (no ARM support) | 64-bit VST3 and AAX (Pro Tools 2018.1 and up) | Mac OS X 10.14 (Mojave) – macOS 26 (Tahoe) * | 64-bit VST3, AU and AAX (Pro Tools 2018.1 and up) | * Apple Silicon Macs supported; Intel support up to macOS 15 (Sequoia). | VST is a trademark and software of Steinberg Media Technologies GmbH. | iLok account and iLok Li"
+  },
+  {
+   "id": "src:oeksound-spiff-product",
+   "kind": "OFFICIAL",
+   "url": "https://oeksound.com/plugins/spiff/",
+   "title": "oeksound: spiff",
+   "publisher": "oeksound",
+   "retrieved": "2026-09-28",
+   "note": "[download for macOS](<https://oeksound.ams3.cdn.digitaloceanspaces.com/spiff_v144_Mac.pkg>) [download for Windows](<https://oeksound.ams3.cdn.digitaloceanspaces.com/spiff_v144_Win.exe>) | You're downloading spiff (1.4.4) for Windows. | Windows 7 - 11 (no ARM support) | 64-bit VST, VST3 and AAX (Pro Tools 11 and up) | Mac OS X 10.14 (Mojave) – macOS 26 (Tahoe) * | 64-bit VST, VST3, AU and AAX | * Apple Silicon Macs supported; Intel support up to macOS 15 (Sequoia). | VST is a trademark and software of Steinberg Media Technologies GmbH. | iLok account and iLok License Manager installation requir"
+  },
+  {
+   "id": "src:oeksound-bloom-product",
+   "kind": "OFFICIAL",
+   "url": "https://oeksound.com/plugins/bloom/",
+   "title": "oeksound: bloom",
+   "publisher": "oeksound",
+   "retrieved": "2026-09-28",
+   "note": "[download for macOS](<https://oeksound.ams3.cdn.digitaloceanspaces.com/bloom_v1.1.2_macos.pkg>) [download for Windows](<https://oeksound.ams3.cdn.digitaloceanspaces.com/bloom_v1.1.3_win.exe>) | You're downloading bloom (1.1.3) for Windows. | Windows 10 – 11 (no ARM support) | 64-bit VST3 and AAX (Pro Tools 2018.1 and up) | Mac OS X 10.14 (Mojave) – macOS 26 (Tahoe) * | 64-bit VST3, AU and AAX (Pro Tools 2018.1 and up) | * Apple Silicon Macs supported; Intel support up to macOS 15 (Sequoia). | VST is a trademark and software of Steinberg Media Technologies GmbH. | iLok account and iLok License "
+  },
+  {
+   "id": "src:surge-synth-team-home",
+   "kind": "OFFICIAL",
+   "url": "https://surge-synthesizer.github.io/",
+   "title": "Surge",
+   "publisher": "Surge Synth Team",
+   "retrieved": "2026-09-28",
+   "note": "Surge XT 1.3.4; Windows 7+ (VST3/CLAP); macOS universal binary, Intel requires 10.11+ (VST3/AU/CLAP); Linux PC or ARM (VST3/CLAP/LV2)."
+  },
+  {
+   "id": "src:surge-synth-team-releases",
+   "kind": "OFFICIAL_API",
+   "url": "https://github.com/surge-synthesizer/releases-xt/releases",
+   "title": "surge-synthesizer/releases-xt releases (GitHub)",
+   "publisher": "Surge Synth Team",
+   "retrieved": "2026-09-28",
+   "note": "GitHub Releases API: https://api.github.com/repos/surge-synthesizer/releases-xt/releases"
+  }
+ ],
+ "entities": [
+  {
+   "id": "vendor:valhalla-dsp",
+   "type": "vendor",
+   "slug": "valhalla-dsp",
+   "names": {
+    "en": "Valhalla DSP",
+    "ko": "발할라 DSP"
+   },
+   "aliases": [
+    "Valhalla",
+    "Valhalla DSP, LLC"
+   ],
+   "description": {
+    "en": "US developer of reverb, delay and modulation plug-ins such as VintageVerb and Supermassive.",
+    "ko": "VintageVerb·Supermassive 등 리버브·딜레이·모듈레이션 플러그인을 만드는 미국 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://valhalladsp.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-shop"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-freq-echo",
+   "type": "plugin",
+   "slug": "valhalla-dsp-freq-echo",
+   "names": {
+    "en": "Valhalla Freq Echo"
+   },
+   "aliases": [
+    "Freq Echo",
+    "FreqEcho",
+    "ValhallaFreq Echo"
+   ],
+   "description": {
+    "en": "Free frequency shifter/echo plug-in.",
+    "ko": "무료 주파수 시프터·에코 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/delay/valhalla-freq-echo/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-freq-echo-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-freq-echo-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-freq-echo-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-freq-echo-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-freq-echo-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/delay/valhalla-freq-echo/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-freq-echo-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-freq-echo-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-ubermod",
+   "type": "plugin",
+   "slug": "valhalla-dsp-ubermod",
+   "names": {
+    "en": "Valhalla UberMod"
+   },
+   "aliases": [
+    "UberMod",
+    "Uber Mod",
+    "ValhallaUberMod"
+   ],
+   "description": {
+    "en": "Modulating delay plug-in.",
+    "ko": "모듈레이션 딜레이 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/delay/valhalla-uber-mod/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-ubermod-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-ubermod-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-ubermod-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-ubermod-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-ubermod-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/delay/valhalla-uber-mod/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-ubermod-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-ubermod-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-delay",
+   "type": "plugin",
+   "slug": "valhalla-dsp-delay",
+   "names": {
+    "en": "Valhalla Delay"
+   },
+   "aliases": [
+    "ValhallaDelay"
+   ],
+   "description": {
+    "en": "Multi-mode delay plug-in (digital, tape, BBD and more).",
+    "ko": "디지털·테이프·BBD 등 멀티 모드 딜레이 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/delay/valhalladelay/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-delay-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-delay-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-delay-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-delay-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-delay-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/delay/valhalladelay/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-delay-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-delay-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-space-modulator",
+   "type": "plugin",
+   "slug": "valhalla-dsp-space-modulator",
+   "names": {
+    "en": "Valhalla Space Modulator"
+   },
+   "aliases": [
+    "Space Modulator",
+    "ValhallaSpace Modulator"
+   ],
+   "description": {
+    "en": "Free flanger plug-in.",
+    "ko": "무료 플랜저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/modulation/valhalla-space-modulator/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-space-modulator-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-space-modulator-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-space-modulator-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-space-modulator-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-space-modulator-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/modulation/valhalla-space-modulator/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-space-modulator-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-space-modulator-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-plate",
+   "type": "plugin",
+   "slug": "valhalla-dsp-plate",
+   "names": {
+    "en": "Valhalla Plate"
+   },
+   "aliases": [
+    "ValhallaPlate"
+   ],
+   "description": {
+    "en": "Plate reverb plug-in.",
+    "ko": "플레이트 리버브 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/reverb/valhalla-plate/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-plate-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-plate-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-plate-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-plate-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-plate-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/reverb/valhalla-plate/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-plate-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-plate-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-room",
+   "type": "plugin",
+   "slug": "valhalla-dsp-room",
+   "names": {
+    "en": "Valhalla Room"
+   },
+   "aliases": [
+    "ValhallaRoom"
+   ],
+   "description": {
+    "en": "Room reverb plug-in.",
+    "ko": "룸 리버브 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/reverb/valhalla-room/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-room-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-room-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-room-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-room-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-room-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/reverb/valhalla-room/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-room-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-room-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-shimmer",
+   "type": "plugin",
+   "slug": "valhalla-dsp-shimmer",
+   "names": {
+    "en": "Valhalla Shimmer"
+   },
+   "aliases": [
+    "ValhallaShimmer"
+   ],
+   "description": {
+    "en": "Pitch-shifting reverb plug-in.",
+    "ko": "피치 시프팅 리버브 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/reverb/valhalla-shimmer/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-shimmer-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-shimmer-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-shimmer-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-shimmer-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-shimmer-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/reverb/valhalla-shimmer/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-shimmer-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-shimmer-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-supermassive",
+   "type": "plugin",
+   "slug": "valhalla-dsp-supermassive",
+   "names": {
+    "en": "Valhalla Supermassive"
+   },
+   "aliases": [
+    "Supermassive",
+    "Super Massive",
+    "ValhallaSupermassive"
+   ],
+   "description": {
+    "en": "Free delay/reverb plug-in.",
+    "ko": "무료 딜레이·리버브 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/reverb/valhalla-supermassive/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-supermassive-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-supermassive-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-supermassive-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-supermassive-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-supermassive-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/reverb/valhalla-supermassive/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-supermassive-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-supermassive-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-vintageverb",
+   "type": "plugin",
+   "slug": "valhalla-dsp-vintageverb",
+   "names": {
+    "en": "Valhalla VintageVerb"
+   },
+   "aliases": [
+    "VintageVerb",
+    "Vintage Verb",
+    "ValhallaVintageVerb"
+   ],
+   "description": {
+    "en": "Algorithmic reverb modelled on vintage digital reverbs.",
+    "ko": "빈티지 디지털 리버브를 모델링한 알고리즘 리버브입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/reverb/valhalla-vintage-verb/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-vintageverb-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-vintageverb-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-vintageverb-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-vintageverb-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-vintageverb-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/reverb/valhalla-vintage-verb/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-vintageverb-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "4.0.5",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-vintageverb-product",
+     "note": "\"Current Version: 4.0.5 (updated March 15, 2024)\"."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-vintageverb-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "4.0.5",
+     "channel": "stable",
+     "src": "src:valhalla-dsp-vintageverb-product",
+     "released": "2024-03-15",
+     "notes_url": "https://valhalladsp.com/shop/reverb/valhalla-vintage-verb/"
+    }
+   ]
+  },
+  {
+   "id": "plugin:valhalla-dsp-futureverb",
+   "type": "plugin",
+   "slug": "valhalla-dsp-futureverb",
+   "names": {
+    "en": "Valhalla FutureVerb"
+   },
+   "aliases": [
+    "FutureVerb",
+    "ValhallaFutureVerb"
+   ],
+   "description": {
+    "en": "Reverb plug-in.",
+    "ko": "리버브 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://valhalladsp.com/shop/reverb/valhallafutureverb/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-futureverb-product",
+     "note": "64-bit; AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-futureverb-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-futureverb-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-futureverb-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-futureverb-product",
+     "note": "\"Intel/M1/M2/M3/M4/M5 native Mac builds\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://valhalladsp.com/shop/reverb/valhallafutureverb/",
+     "ver": "OFFICIAL",
+     "src": "src:valhalla-dsp-futureverb-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:valhalla-dsp",
+     "src": "src:valhalla-dsp-futureverb-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:soundtoys",
+   "type": "vendor",
+   "slug": "soundtoys",
+   "names": {
+    "en": "Soundtoys",
+    "ko": "사운드토이즈"
+   },
+   "aliases": [
+    "Soundtoys Inc."
+   ],
+   "description": {
+    "en": "US maker of effect plug-ins such as EchoBoy, Decapitator and Little AlterBoy.",
+    "ko": "EchoBoy·Decapitator·Little AlterBoy 등 이펙트 플러그인을 만드는 미국 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.soundtoys.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-products"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-crystallizer",
+   "type": "plugin",
+   "slug": "soundtoys-crystallizer",
+   "names": {
+    "en": "Soundtoys Crystallizer"
+   },
+   "aliases": [
+    "Crystallizer"
+   ],
+   "description": {
+    "en": "Granular echo/pitch effect.",
+    "ko": "크리스털라이저(그래뉼러 에코·피치) 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/crystallizer/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-crystallizer-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-crystallizer-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-crystallizer-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-crystallizer-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-crystallizer-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/crystallizer/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-crystallizer-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-crystallizer-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-decapitator",
+   "type": "plugin",
+   "slug": "soundtoys-decapitator",
+   "names": {
+    "en": "Soundtoys Decapitator"
+   },
+   "aliases": [
+    "Decapitator"
+   ],
+   "description": {
+    "en": "Analog saturation effect.",
+    "ko": "아날로그 새추레이션 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/decapitator/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-decapitator-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-decapitator-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-decapitator-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-decapitator-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-decapitator-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/decapitator/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-decapitator-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-decapitator-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-devil-loc-deluxe",
+   "type": "plugin",
+   "slug": "soundtoys-devil-loc-deluxe",
+   "names": {
+    "en": "Soundtoys Devil-Loc Deluxe"
+   },
+   "aliases": [
+    "Devil-Loc Deluxe"
+   ],
+   "description": {
+    "en": "Level crusher/distortion effect.",
+    "ko": "레벨 크러셔·디스토션 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/devil-loc-deluxe/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-devil-loc-deluxe-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-devil-loc-deluxe-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-devil-loc-deluxe-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-devil-loc-deluxe-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-devil-loc-deluxe-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/devil-loc-deluxe/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-devil-loc-deluxe-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-devil-loc-deluxe-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-echoboy",
+   "type": "plugin",
+   "slug": "soundtoys-echoboy",
+   "names": {
+    "en": "Soundtoys EchoBoy"
+   },
+   "aliases": [
+    "EchoBoy"
+   ],
+   "description": {
+    "en": "Echo/delay effect.",
+    "ko": "에코·딜레이 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/echoboy/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/echoboy/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-echoboy-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-echoboy-jr",
+   "type": "plugin",
+   "slug": "soundtoys-echoboy-jr",
+   "names": {
+    "en": "Soundtoys EchoBoy Jr."
+   },
+   "aliases": [
+    "EchoBoy Jr."
+   ],
+   "description": {
+    "en": "Simplified EchoBoy delay.",
+    "ko": "EchoBoy의 간소화 버전 딜레이입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/echoboy-jr/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-jr-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-jr-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-jr-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-jr-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-jr-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/echoboy-jr/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-echoboy-jr-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-echoboy-jr-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-effect-rack",
+   "type": "plugin",
+   "slug": "soundtoys-effect-rack",
+   "names": {
+    "en": "Soundtoys Effect Rack"
+   },
+   "aliases": [
+    "Effect Rack"
+   ],
+   "description": {
+    "en": "Rack hosting Soundtoys effects in chains.",
+    "ko": "Soundtoys 이펙트를 체인으로 구성하는 랙입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/effect-rack/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-effect-rack-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-effect-rack-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-effect-rack-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-effect-rack-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-effect-rack-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/effect-rack/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-effect-rack-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-effect-rack-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-filterfreak",
+   "type": "plugin",
+   "slug": "soundtoys-filterfreak",
+   "names": {
+    "en": "Soundtoys FilterFreak"
+   },
+   "aliases": [
+    "FilterFreak"
+   ],
+   "description": {
+    "en": "Resonant filter effect.",
+    "ko": "레조넌트 필터 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/filterfreak/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-filterfreak-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-filterfreak-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-filterfreak-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-filterfreak-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-filterfreak-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/filterfreak/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-filterfreak-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-filterfreak-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-little-alterboy",
+   "type": "plugin",
+   "slug": "soundtoys-little-alterboy",
+   "names": {
+    "en": "Soundtoys Little AlterBoy"
+   },
+   "aliases": [
+    "Little AlterBoy"
+   ],
+   "description": {
+    "en": "Voice pitch and formant effect.",
+    "ko": "보이스 피치·포먼트 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/little-alterboy/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-alterboy-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-alterboy-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-alterboy-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-alterboy-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-alterboy-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/little-alterboy/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-alterboy-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-little-alterboy-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-little-plate",
+   "type": "plugin",
+   "slug": "soundtoys-little-plate",
+   "names": {
+    "en": "Soundtoys Little Plate"
+   },
+   "aliases": [
+    "Little Plate"
+   ],
+   "description": {
+    "en": "Plate reverb.",
+    "ko": "플레이트 리버브입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/little-plate/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-plate-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-plate-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-plate-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-plate-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-plate-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/little-plate/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-little-plate-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-little-plate-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-microshift",
+   "type": "plugin",
+   "slug": "soundtoys-microshift",
+   "names": {
+    "en": "Soundtoys MicroShift"
+   },
+   "aliases": [
+    "MicroShift"
+   ],
+   "description": {
+    "en": "Stereo widening/pitch-shift effect.",
+    "ko": "스테레오 확장·피치 시프트 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/microshift/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-microshift-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-microshift-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-microshift-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-microshift-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-microshift-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/microshift/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-microshift-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-microshift-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-panman",
+   "type": "plugin",
+   "slug": "soundtoys-panman",
+   "names": {
+    "en": "Soundtoys PanMan"
+   },
+   "aliases": [
+    "PanMan"
+   ],
+   "description": {
+    "en": "Auto-panning effect.",
+    "ko": "오토 패닝 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/panman/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-panman-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-panman-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-panman-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-panman-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-panman-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/panman/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-panman-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-panman-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-phasemistress",
+   "type": "plugin",
+   "slug": "soundtoys-phasemistress",
+   "names": {
+    "en": "Soundtoys PhaseMistress"
+   },
+   "aliases": [
+    "PhaseMistress"
+   ],
+   "description": {
+    "en": "Phaser effect.",
+    "ko": "페이저 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/phasemistress/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-phasemistress-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-phasemistress-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-phasemistress-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-phasemistress-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-phasemistress-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/phasemistress/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-phasemistress-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-phasemistress-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-primaltap",
+   "type": "plugin",
+   "slug": "soundtoys-primaltap",
+   "names": {
+    "en": "Soundtoys PrimalTap"
+   },
+   "aliases": [
+    "PrimalTap"
+   ],
+   "description": {
+    "en": "Vintage-style delay.",
+    "ko": "빈티지 스타일 딜레이입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/primaltap/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-primaltap-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-primaltap-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-primaltap-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-primaltap-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-primaltap-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/primaltap/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-primaltap-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-primaltap-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-radiator",
+   "type": "plugin",
+   "slug": "soundtoys-radiator",
+   "names": {
+    "en": "Soundtoys Radiator"
+   },
+   "aliases": [
+    "Radiator"
+   ],
+   "description": {
+    "en": "Tube preamp/saturation effect.",
+    "ko": "튜브 프리앰프·새추레이션 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/radiator/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-radiator-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-radiator-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-radiator-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-radiator-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-radiator-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/radiator/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-radiator-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-radiator-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-sie-q",
+   "type": "plugin",
+   "slug": "soundtoys-sie-q",
+   "names": {
+    "en": "Soundtoys Sie-Q"
+   },
+   "aliases": [
+    "Sie-Q"
+   ],
+   "description": {
+    "en": "Equalizer.",
+    "ko": "이퀄라이저입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/sie-q/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-sie-q-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-sie-q-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-sie-q-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-sie-q-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-sie-q-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/sie-q/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-sie-q-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-sie-q-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-spaceblender",
+   "type": "plugin",
+   "slug": "soundtoys-spaceblender",
+   "names": {
+    "en": "Soundtoys SpaceBlender"
+   },
+   "aliases": [
+    "SpaceBlender"
+   ],
+   "description": {
+    "en": "Reverb/modulation effect.",
+    "ko": "리버브·모듈레이션 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/spaceblender/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-spaceblender-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-spaceblender-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-spaceblender-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-spaceblender-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-spaceblender-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/spaceblender/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-spaceblender-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-spaceblender-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-superplate",
+   "type": "plugin",
+   "slug": "soundtoys-superplate",
+   "names": {
+    "en": "Soundtoys SuperPlate"
+   },
+   "aliases": [
+    "SuperPlate"
+   ],
+   "description": {
+    "en": "Plate reverb.",
+    "ko": "플레이트 리버브입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/superplate/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-superplate-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-superplate-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-superplate-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-superplate-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-superplate-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/superplate/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-superplate-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-superplate-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:soundtoys-tremolator",
+   "type": "plugin",
+   "slug": "soundtoys-tremolator",
+   "names": {
+    "en": "Soundtoys Tremolator"
+   },
+   "aliases": [
+    "Tremolator"
+   ],
+   "description": {
+    "en": "Tremolo/auto-gain effect.",
+    "ko": "트레몰로·오토 게인 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.soundtoys.com/product/tremolator/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-tremolator-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-tremolator-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-tremolator-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-tremolator-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-tremolator-product",
+     "note": "\"Apple Silicon and VST 3 Compatible\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.soundtoys.com/product/tremolator/",
+     "ver": "OFFICIAL",
+     "src": "src:soundtoys-tremolator-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:soundtoys",
+     "src": "src:soundtoys-tremolator-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:xfer-records",
+   "type": "vendor",
+   "slug": "xfer-records",
+   "names": {
+    "en": "Xfer Records"
+   },
+   "aliases": [
+    "Xfer"
+   ],
+   "description": {
+    "en": "Developer of the Serum wavetable synthesizer.",
+    "ko": "Serum 웨이브테이블 신시사이저 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://xferrecords.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://xferrecords.com/",
+     "ver": "OFFICIAL",
+     "src": "src:xfer-records-serum-2-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:xfer-records-serum-2",
+   "type": "plugin",
+   "slug": "xfer-records-serum-2",
+   "names": {
+    "en": "Xfer Records Serum 2"
+   },
+   "aliases": [
+    "Serum 2",
+    "Serum",
+    "Xfer Serum",
+    "Serum2"
+   ],
+   "description": {
+    "en": "Hybrid wavetable synthesizer, successor to Serum.",
+    "ko": "Serum의 후속작인 하이브리드 웨이브테이블 신시사이저입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://xferrecords.com/products/serum-2"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:xfer-records-serum-2-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:xfer-records-serum-2-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13 High Sierra (Intel) / macOS 11 Big Sur (Apple Silicon)",
+     "ver": "OFFICIAL",
+     "src": "src:xfer-records-serum-2-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:xfer-records-serum-2-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:xfer-records-serum-2-product",
+     "note": "Separate minimum for Apple Silicon (Big Sur or later)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://xferrecords.com/products/serum-2",
+     "ver": "OFFICIAL",
+     "src": "src:xfer-records-serum-2-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:xfer-records",
+     "src": "src:xfer-records-serum-2-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:vital-audio",
+   "type": "vendor",
+   "slug": "vital-audio",
+   "names": {
+    "en": "Vital Audio"
+   },
+   "aliases": [
+    "Vital"
+   ],
+   "description": {
+    "en": "Developer of the Vital spectral-warping wavetable synthesizer.",
+    "ko": "Vital 스펙트럴 워핑 웨이브테이블 신시사이저 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://vital.audio/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://vital.audio/",
+     "ver": "OFFICIAL",
+     "src": "src:vital-audio-home"
+    }
+   ]
+  },
+  {
+   "id": "plugin:vital-audio-vital",
+   "type": "plugin",
+   "slug": "vital-audio-vital",
+   "names": {
+    "en": "Vital"
+   },
+   "aliases": [
+    "Vital Synth",
+    "Vital Audio Vital"
+   ],
+   "description": {
+    "en": "Spectral-warping wavetable synthesizer with a free tier.",
+    "ko": "무료 버전이 있는 스펙트럴 워핑 웨이브테이블 신시사이저입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://vital.audio/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:vital-audio-home"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:vital-audio-home"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:vital-audio-home"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:vital-audio-home",
+     "note": "\"Intel or Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://vital.audio/",
+     "ver": "OFFICIAL",
+     "src": "src:vital-audio-home"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:vital-audio",
+     "src": "src:vital-audio-home"
+    }
+   ]
+  },
+  {
+   "id": "vendor:cableguys",
+   "type": "vendor",
+   "slug": "cableguys",
+   "names": {
+    "en": "Cableguys"
+   },
+   "aliases": [
+    "Cableguys GmbH"
+   ],
+   "description": {
+    "en": "Developer of ShaperBox and HalfTime.",
+    "ko": "ShaperBox·HalfTime 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.cableguys.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.cableguys.com/",
+     "ver": "OFFICIAL",
+     "src": "src:cableguys-shaperbox-3-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:cableguys-shaperbox-3",
+   "type": "plugin",
+   "slug": "cableguys-shaperbox-3",
+   "names": {
+    "en": "Cableguys ShaperBox 3"
+   },
+   "aliases": [
+    "ShaperBox 3",
+    "ShaperBox"
+   ],
+   "description": {
+    "en": "Multi-effect plug-in built around drawable LFO shapers.",
+    "ko": "드로잉 LFO 셰이퍼 기반 멀티 이펙트 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.cableguys.com/shaperbox"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:cableguys-shaperbox-3-product",
+     "note": "AU on macOS only."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:cableguys-shaperbox-3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15",
+     "ver": "OFFICIAL",
+     "src": "src:cableguys-shaperbox-3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:cableguys-shaperbox-3-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:cableguys-shaperbox-3-product",
+     "note": "\"Intel or Apple Silicon processor\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.cableguys.com/shaperbox",
+     "ver": "OFFICIAL",
+     "src": "src:cableguys-shaperbox-3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:cableguys",
+     "src": "src:cableguys-shaperbox-3-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:toontrack",
+   "type": "vendor",
+   "slug": "toontrack",
+   "names": {
+    "en": "Toontrack",
+    "ko": "툰트랙"
+   },
+   "aliases": [
+    "Toontrack Music"
+   ],
+   "description": {
+    "en": "Swedish maker of Superior Drummer and the EZ series (EZdrummer, EZkeys, EZbass).",
+    "ko": "Superior Drummer와 EZ 시리즈(EZdrummer·EZkeys·EZbass)를 만드는 스웨덴 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.toontrack.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.toontrack.com/",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-superior-drummer-3-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:toontrack-superior-drummer-3",
+   "type": "plugin",
+   "slug": "toontrack-superior-drummer-3",
+   "names": {
+    "en": "Toontrack Superior Drummer 3"
+   },
+   "aliases": [
+    "Superior Drummer 3",
+    "SD3",
+    "Superior Drummer"
+   ],
+   "description": {
+    "en": "Drum production software (plug-in and standalone).",
+    "ko": "드럼 프로덕션 소프트웨어(플러그인·독립 실행형)입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.toontrack.com/product/superior-drummer-3/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-superior-drummer-3-product",
+     "note": "\"VST\" as stated by Toontrack (version not specified)."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-superior-drummer-3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-superior-drummer-3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-superior-drummer-3-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-superior-drummer-3-product",
+     "note": "\"Intel or Apple silicon processor\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.toontrack.com/product/superior-drummer-3/",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-superior-drummer-3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:toontrack",
+     "src": "src:toontrack-superior-drummer-3-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:toontrack-ezdrummer-3",
+   "type": "plugin",
+   "slug": "toontrack-ezdrummer-3",
+   "names": {
+    "en": "Toontrack EZdrummer 3"
+   },
+   "aliases": [
+    "EZdrummer 3",
+    "EZD3",
+    "EZdrummer"
+   ],
+   "description": {
+    "en": "Drum instrument with songwriting tools.",
+    "ko": "작곡 도구를 갖춘 드럼 악기입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.toontrack.com/product/ezdrummer-3/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezdrummer-3-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezdrummer-3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezdrummer-3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezdrummer-3-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezdrummer-3-product",
+     "note": "\"Intel or Apple silicon processor\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.toontrack.com/product/ezdrummer-3/",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezdrummer-3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:toontrack",
+     "src": "src:toontrack-ezdrummer-3-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:toontrack-ezkeys-2",
+   "type": "plugin",
+   "slug": "toontrack-ezkeys-2",
+   "names": {
+    "en": "Toontrack EZkeys 2"
+   },
+   "aliases": [
+    "EZkeys 2",
+    "EZkeys"
+   ],
+   "description": {
+    "en": "Keyboard instrument with songwriting tools.",
+    "ko": "작곡 도구를 갖춘 건반 악기입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.toontrack.com/product/ezkeys-2/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezkeys-2-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezkeys-2-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezkeys-2-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezkeys-2-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezkeys-2-product",
+     "note": "\"Intel or Apple silicon processor\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.toontrack.com/product/ezkeys-2/",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezkeys-2-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:toontrack",
+     "src": "src:toontrack-ezkeys-2-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:toontrack-ezbass",
+   "type": "plugin",
+   "slug": "toontrack-ezbass",
+   "names": {
+    "en": "Toontrack EZbass"
+   },
+   "aliases": [
+    "EZbass"
+   ],
+   "description": {
+    "en": "Bass instrument.",
+    "ko": "베이스 악기입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.toontrack.com/product/ezbass/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezbass-product",
+     "note": "\"VST\" as stated by Toontrack (version not specified)."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezbass-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezbass-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezbass-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezbass-product",
+     "note": "\"Intel or Apple silicon processor\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.toontrack.com/product/ezbass/",
+     "ver": "OFFICIAL",
+     "src": "src:toontrack-ezbass-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:toontrack",
+     "src": "src:toontrack-ezbass-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:oeksound",
+   "type": "vendor",
+   "slug": "oeksound",
+   "names": {
+    "en": "oeksound"
+   },
+   "aliases": [
+    "oeksound Oy"
+   ],
+   "description": {
+    "en": "Finnish developer of the soothe, spiff and bloom plug-ins.",
+    "ko": "soothe·spiff·bloom 플러그인을 만드는 핀란드 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://oeksound.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://oeksound.com/",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:oeksound-soothe3",
+   "type": "plugin",
+   "slug": "oeksound-soothe3",
+   "names": {
+    "en": "oeksound soothe3"
+   },
+   "aliases": [
+    "soothe3",
+    "soothe 3",
+    "soothe"
+   ],
+   "description": {
+    "en": "Resonance suppressor.",
+    "ko": "공진 억제 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://oeksound.com/plugins/soothe3/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product",
+     "note": "AU on macOS only; 64-bit."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "Mac OS X 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product",
+     "note": "No Windows ARM support."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product",
+     "note": "Apple Silicon Macs supported."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.0.5",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product",
+     "note": "Version offered on the download button (macOS build)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://oeksound.com/plugins/soothe3/",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-soothe3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:oeksound",
+     "src": "src:oeksound-soothe3-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:oeksound-spiff",
+   "type": "plugin",
+   "slug": "oeksound-spiff",
+   "names": {
+    "en": "oeksound spiff"
+   },
+   "aliases": [
+    "spiff"
+   ],
+   "description": {
+    "en": "Transient shaping/processing plug-in.",
+    "ko": "트랜지언트 처리 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://oeksound.com/plugins/spiff/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-spiff-product",
+     "note": "AU on macOS only; 64-bit."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-spiff-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "Mac OS X 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-spiff-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-spiff-product",
+     "note": "No Windows ARM support."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-spiff-product",
+     "note": "Apple Silicon Macs supported."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.4.4",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-spiff-product",
+     "note": "Version offered on the download button (macOS build)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://oeksound.com/plugins/spiff/",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-spiff-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:oeksound",
+     "src": "src:oeksound-spiff-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:oeksound-bloom",
+   "type": "plugin",
+   "slug": "oeksound-bloom",
+   "names": {
+    "en": "oeksound bloom"
+   },
+   "aliases": [
+    "bloom"
+   ],
+   "description": {
+    "en": "Adaptive tone-shaping plug-in.",
+    "ko": "적응형 톤 셰이핑 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://oeksound.com/plugins/bloom/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-bloom-product",
+     "note": "AU on macOS only; 64-bit."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-bloom-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "Mac OS X 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-bloom-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-bloom-product",
+     "note": "No Windows ARM support."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-bloom-product",
+     "note": "Apple Silicon Macs supported."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.1.2",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-bloom-product",
+     "note": "Version offered on the download button (macOS build)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://oeksound.com/plugins/bloom/",
+     "ver": "OFFICIAL",
+     "src": "src:oeksound-bloom-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:oeksound",
+     "src": "src:oeksound-bloom-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:surge-synth-team",
+   "type": "vendor",
+   "slug": "surge-synth-team",
+   "names": {
+    "en": "Surge Synth Team"
+   },
+   "aliases": [
+    "Surge Synthesizer Team"
+   ],
+   "description": {
+    "en": "Volunteer team that develops the open-source Surge XT synthesizer.",
+    "ko": "오픈소스 신시사이저 Surge XT를 개발하는 자원봉사 팀입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://surge-synthesizer.github.io/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://surge-synthesizer.github.io/",
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-home"
+    }
+   ]
+  },
+  {
+   "id": "plugin:surge-synth-team-surge-xt",
+   "type": "plugin",
+   "slug": "surge-synth-team-surge-xt",
+   "names": {
+    "en": "Surge XT"
+   },
+   "aliases": [
+    "Surge",
+    "SurgeXT",
+    "Surge Synthesizer"
+   ],
+   "description": {
+    "en": "Free, open-source (GPL-3.0) hybrid synthesizer for Windows, macOS and Linux.",
+    "ko": "Windows·macOS·Linux용 무료 오픈소스(GPL-3.0) 하이브리드 신시사이저입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://surge-synthesizer.github.io/"
+    },
+    {
+     "label": "Releases",
+     "url": "https://github.com/surge-synthesizer/releases-xt/releases"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST3",
+      "AU",
+      "CLAP",
+      "LV2",
+      "Standalone"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-home",
+     "note": "AU on macOS; LV2 on Linux."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-home"
+    },
+    {
+     "p": "min_macos",
+     "v": "OS X 10.11 (Intel)",
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-home",
+     "note": "Apple Silicon: any Apple Silicon macOS version."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-home"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-home",
+     "note": "Intel/Apple Silicon universal binary."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.3.4",
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-releases",
+     "note": "Published 2024-08-11."
+    },
+    {
+     "p": "homepage",
+     "v": "https://surge-synthesizer.github.io/",
+     "ver": "OFFICIAL",
+     "src": "src:surge-synth-team-home"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:surge-synth-team",
+     "src": "src:surge-synth-team-home"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.3.4",
+     "channel": "stable",
+     "src": "src:surge-synth-team-releases",
+     "released": "2024-08-11",
+     "notes_url": "https://github.com/surge-synthesizer/releases-xt/releases/tag/1.3.4"
+    },
+    {
+     "version": "1.3.3",
+     "channel": "stable",
+     "src": "src:surge-synth-team-releases",
+     "released": "2024-08-09",
+     "notes_url": "https://github.com/surge-synthesizer/releases-xt/releases/tag/1.3.3"
+    },
+    {
+     "version": "1.3.2",
+     "channel": "stable",
+     "src": "src:surge-synth-team-releases",
+     "released": "2024-05-08",
+     "notes_url": "https://github.com/surge-synthesizer/releases-xt/releases/tag/1.3.2"
+    },
+    {
+     "version": "1.3.1",
+     "channel": "stable",
+     "src": "src:surge-synth-team-releases",
+     "released": "2024-02-06",
+     "notes_url": "https://github.com/surge-synthesizer/releases-xt/releases/tag/1.3.1"
+    },
+    {
+     "version": "1.3.0",
+     "channel": "stable",
+     "src": "src:surge-synth-team-releases",
+     "released": "2023-12-08",
+     "notes_url": "https://github.com/surge-synthesizer/releases-xt/releases/tag/1.3.0"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "plugin:valhalla-dsp-freq-echo",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-freq-echo-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-freq-echo",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-freq-echo-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-freq-echo",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-freq-echo-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-freq-echo",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.2.8",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-freq-echo-product",
+   "note": "Valhalla: \"ready for Tahoe\" from Mac build 1.2.8."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-freq-echo",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-freq-echo-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-freq-echo",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-freq-echo-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-ubermod",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-ubermod-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-ubermod",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-ubermod-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-ubermod",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-ubermod-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-ubermod",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.2.8",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-ubermod-product",
+   "note": "Valhalla: \"ready for Tahoe\" from Mac build 1.2.8."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-ubermod",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-ubermod-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-ubermod",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-ubermod-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-delay",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-delay-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-delay",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-delay-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-delay",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-delay-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-delay",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-delay-product",
+   "note": "Valhalla: \"ready for Tahoe\"."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-delay",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-delay-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-delay",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-delay-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-space-modulator",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-space-modulator-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-space-modulator",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-space-modulator-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-space-modulator",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-space-modulator-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-space-modulator",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.2.8",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-space-modulator-product",
+   "note": "Valhalla: \"ready for Tahoe\" from Mac build 1.2.8."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-space-modulator",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-space-modulator-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-space-modulator",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-space-modulator-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-plate",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-plate-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-plate",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-plate-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-plate",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-plate-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-plate",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.6.8",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-plate-product",
+   "note": "Valhalla: \"ready for Tahoe\" from Mac build 1.6.8."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-plate",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-plate-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-plate",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-plate-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-room",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-room-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-room",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-room-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-room",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-room-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-room",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-room-product",
+   "note": "Valhalla: \"ready for Tahoe\"."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-room",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-room-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-room",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-room-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-shimmer",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-shimmer-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-shimmer",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-shimmer-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-shimmer",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-shimmer-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-shimmer",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-shimmer-product",
+   "note": "Valhalla: \"ready for Tahoe\"."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-shimmer",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-shimmer-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-shimmer",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-shimmer-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-supermassive",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-supermassive-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-supermassive",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-supermassive-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-supermassive",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-supermassive-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-supermassive",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "5.0.0",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-supermassive-product",
+   "note": "Valhalla: \"ready for Tahoe\" from Mac build 5.0.0."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-supermassive",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-supermassive-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-supermassive",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-supermassive-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-vintageverb",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-vintageverb-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-vintageverb",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-vintageverb-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-vintageverb",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-vintageverb-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-vintageverb",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-vintageverb-product",
+   "note": "Valhalla: \"ready for Tahoe\"."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-vintageverb",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-vintageverb-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-vintageverb",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-vintageverb-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-futureverb",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-futureverb-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-futureverb",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-futureverb-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-futureverb",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-futureverb-product",
+   "note": "Valhalla lists Ventura, Sonoma, Sequoia and Tahoe among supported macOS versions."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-futureverb",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-futureverb-product",
+   "note": "Valhalla: \"ready for Tahoe\"."
+  },
+  {
+   "subject": "plugin:valhalla-dsp-futureverb",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-futureverb-product"
+  },
+  {
+   "subject": "plugin:valhalla-dsp-futureverb",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:valhalla-dsp-futureverb-product"
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product"
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product"
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:ableton-live",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with Ableton Live."
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:logic-pro",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with Logic Pro."
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:pro-tools",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with Pro Tools."
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:cubase",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with Cubase."
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:bitwig-studio",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with Bitwig Studio."
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:fl-studio",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with FL Studio."
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:reaper",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with REAPER."
+  },
+  {
+   "subject": "plugin:cableguys-shaperbox-3",
+   "subject_version": "*",
+   "target": "app:studio-one",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cableguys-shaperbox-3-product",
+   "note": "Cableguys: works with Studio One."
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product",
+   "note": "oeksound: supported up to macOS 26 on Apple Silicon."
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product",
+   "note": "oeksound: Intel support only up to macOS 15 (Sequoia)."
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product"
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product"
+  },
+  {
+   "subject": "plugin:oeksound-soothe3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-soothe3-product",
+   "note": "oeksound: no ARM support on Windows."
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product",
+   "note": "oeksound: supported up to macOS 26 on Apple Silicon."
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product",
+   "note": "oeksound: Intel support only up to macOS 15 (Sequoia)."
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product"
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product"
+  },
+  {
+   "subject": "plugin:oeksound-spiff",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-spiff-product",
+   "note": "oeksound: no ARM support on Windows."
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product",
+   "note": "oeksound: Mac OS X 10.14 – macOS 26."
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product",
+   "note": "oeksound: supported up to macOS 26 on Apple Silicon."
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product",
+   "note": "oeksound: Intel support only up to macOS 15 (Sequoia)."
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product"
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product"
+  },
+  {
+   "subject": "plugin:oeksound-bloom",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:oeksound-bloom-product",
+   "note": "oeksound: no ARM support on Windows."
+  }
+ ]
+}

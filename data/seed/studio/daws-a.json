@@ -1,0 +1,2531 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:ableton-imprint",
+   "kind": "OFFICIAL",
+   "url": "https://www.ableton.com/en/imprint/",
+   "title": "Imprint",
+   "publisher": "Ableton",
+   "retrieved": "2026-09-28",
+   "note": "Ableton AG, Berlin, Germany."
+  },
+  {
+   "id": "src:ableton-mac-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://help.ableton.com/hc/en-us/articles/115001261150-Mac-Compatibility-Guide-for-Ableton-Live",
+   "title": "Mac Compatibility Guide for Ableton Live",
+   "publisher": "Ableton",
+   "retrieved": "2026-09-28",
+   "note": "Zendesk article 115001261150, edited 2026-09-23. Supported macOS ranges per Live version, Apple silicon/Intel split."
+  },
+  {
+   "id": "src:ableton-live-system-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://help.ableton.com/hc/en-us/articles/115001663530-Live-Minimum-System-Requirements",
+   "title": "Live Minimum System Requirements",
+   "publisher": "Ableton",
+   "retrieved": "2026-09-28",
+   "note": "Zendesk article 115001663530, edited 2026-09-23."
+  },
+  {
+   "id": "src:ableton-windows-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://help.ableton.com/hc/en-us/articles/209775965-Windows-Compatibility-with-Live",
+   "title": "Windows Compatibility with Live",
+   "publisher": "Ableton",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ableton-plugin-formats",
+   "kind": "OFFICIAL",
+   "url": "https://help.ableton.com/hc/en-us/articles/5937501570460-Supported-Plug-in-Formats",
+   "title": "Supported Plug-in Formats",
+   "publisher": "Ableton",
+   "retrieved": "2026-09-28",
+   "note": "VST2 (64-bit), VST3 (since Live 10.1), AUv2, AUv3 (Live 11.2+); AAX/RTAS/DirectX unsupported."
+  },
+  {
+   "id": "src:ableton-live-12-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://www.ableton.com/en/release-notes/live-12/",
+   "title": "Live 12 Release Notes",
+   "publisher": "Ableton",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ableton-shop-live",
+   "kind": "OFFICIAL",
+   "url": "https://www.ableton.com/en/shop/live/",
+   "title": "Buy Live",
+   "publisher": "Ableton",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:apple-logic-pro-app-store",
+   "kind": "OFFICIAL",
+   "url": "https://apps.apple.com/us/app/logic-pro/id634148309?mt=12",
+   "title": "Logic Pro on the Mac App Store",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "Compatibility: \"Requires macOS 15.6 or later\"; version history with dates (current-year dates shown without year = 2026); US price $199.99."
+  },
+  {
+   "id": "src:apple-logic-pro-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://support.apple.com/en-us/109503",
+   "title": "Logic Pro for Mac release notes",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "Mentions fixes for Intel Macs and \"Rosetta mode\", i.e. the app runs natively on Apple silicon and on Intel."
+  },
+  {
+   "id": "src:apple-logic-pro-audio-units",
+   "kind": "OFFICIAL",
+   "url": "https://support.apple.com/guide/logicpro/work-with-audio-units-in-logic-pro-for-mac-lgcp22a0dab0/mac",
+   "title": "Work with Audio Units in Logic Pro for Mac",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "Logic Pro uses Audio Units plug-ins (AUv2) and Audio Unit Extensions (AUv3)."
+  },
+  {
+   "id": "src:apple-logic-pro-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.apple.com/logic-pro/",
+   "title": "Logic Pro",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "One-time purchase or Apple Creator Studio subscription ($12.99/month or $129/year in the US)."
+  },
+  {
+   "id": "src:image-line-fl-system-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://support.image-line.com/action/knowledgebase?ans=82",
+   "title": "What are the system requirements of FL Studio (Mac and Windows)?",
+   "publisher": "Image-Line",
+   "retrieved": "2026-09-28",
+   "note": "macOS 10.15 or higher, Apple Silicon or Intel; Windows 10 or 11, Intel/AMD."
+  },
+  {
+   "id": "src:image-line-fl-download",
+   "kind": "OFFICIAL",
+   "url": "https://www.image-line.com/fl-studio/download",
+   "title": "Download FL Studio",
+   "publisher": "Image-Line",
+   "retrieved": "2026-09-28",
+   "note": "Windows version 26.1.6.5639 (Windows 10, 11 or newer; ARM not supported); macOS version 26.1.6.5406 (macOS 10.15.7 or newer; Intel and Apple Silicon)."
+  },
+  {
+   "id": "src:image-line-fl-plugin-standards",
+   "kind": "OFFICIAL",
+   "url": "https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins_supported.htm",
+   "title": "FL Studio manual: Plugin Standards",
+   "publisher": "Image-Line",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:image-line-fl-apple-silicon",
+   "kind": "OFFICIAL",
+   "url": "https://support.image-line.com/action/knowledgebase?ans=668",
+   "title": "FL Studio macOS - Apple Silicon ARM processors support & VST plugins",
+   "publisher": "Image-Line",
+   "retrieved": "2026-09-28",
+   "note": "FL Studio runs natively on Apple Silicon; Intel VST plugins are bridged, Intel AU plugins handled by macOS; Rosetta 2 mode available."
+  },
+  {
+   "id": "src:image-line-fl-pricing",
+   "kind": "OFFICIAL",
+   "url": "https://www.image-line.com/fl-studio/pricing",
+   "title": "FL Studio Pricing & Editions",
+   "publisher": "Image-Line",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:image-line-legal",
+   "kind": "OFFICIAL",
+   "url": "https://www.image-line.com/legal",
+   "title": "Legal",
+   "publisher": "Image-Line",
+   "retrieved": "2026-09-28",
+   "note": "Image-Line NV, Belgium."
+  },
+  {
+   "id": "src:steinberg-system-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://www.steinberg.net/system-requirements/",
+   "title": "System Requirements for Steinberg Products",
+   "publisher": "Steinberg",
+   "retrieved": "2026-09-28",
+   "note": "Per-product structured requirements embedded in the page (window.__INITIAL_STATE__), page timestamp 2026-09-28."
+  },
+  {
+   "id": "src:steinberg-macos-27-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://helpcenter.steinberg.de/hc/en-us/articles/38919570456594-macOS-Golden-Gate-Steinberg-Product-Compatibility",
+   "title": "macOS Golden Gate: Steinberg Product Compatibility",
+   "publisher": "Steinberg",
+   "retrieved": "2026-09-28",
+   "note": "Edited 2026-09-15: Steinberg recommends refraining from updating to macOS Golden Gate for now; a compatibility chart will follow after initial tests."
+  },
+  {
+   "id": "src:steinberg-macos-26-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://helpcenter.steinberg.de/hc/en-us/articles/32601471585810-macOS-Tahoe-Steinberg-Product-Compatibility",
+   "title": "macOS Tahoe: Steinberg Product Compatibility",
+   "publisher": "Steinberg",
+   "retrieved": "2026-09-28",
+   "note": "Software chart dated 2026/07/22, hardware chart 2026/07/17; products not listed are not supported on macOS 26."
+  },
+  {
+   "id": "src:steinberg-macos-15-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://helpcenter.steinberg.de/hc/en-us/articles/21304823501202-macOS-Sequoia-macOS-15-Steinberg-product-compatibility",
+   "title": "macOS Sequoia/macOS 15: Steinberg product compatibility",
+   "publisher": "Steinberg",
+   "retrieved": "2026-09-28",
+   "note": "Chart dated 2026/02/03."
+  },
+  {
+   "id": "src:steinberg-windows-11-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://helpcenter.steinberg.de/hc/en-us/articles/4407350910866-Windows-11-product-compatibility",
+   "title": "Windows 11 product compatibility",
+   "publisher": "Steinberg",
+   "retrieved": "2026-09-28",
+   "note": "Chart dated 2024-11-06; newer versions of listed products are usually automatically compatible."
+  },
+  {
+   "id": "src:steinberg-vst2-cubase-14-15",
+   "kind": "OFFICIAL",
+   "url": "https://helpcenter.steinberg.de/hc/en-us/articles/31858223176210-Using-VST-2-Plug-ins-in-Cubase-Nuendo-14-and-15",
+   "title": "Using VST 2 Plug-ins in Cubase/Nuendo 14 and 15",
+   "publisher": "Steinberg",
+   "retrieved": "2026-09-28",
+   "note": "VST 2 disabled by default; on macOS usable only in Rosetta mode; not on Windows on Arm."
+  },
+  {
+   "id": "src:avid-pro-tools-system-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://kb.avid.com/pkb/articles/compatibility/Pro-Tools-System-Requirements",
+   "title": "Pro Tools System Requirements and Compatibility",
+   "publisher": "Avid",
+   "retrieved": "2026-09-28",
+   "note": "Last updated 2026-07-09. Current version 2026.4.1 released 2026-07-09. macOS Tahoe 26.3.x, Sequoia 15.7.x or Sonoma 14.8.x; Windows 11 25H2 or 24H2."
+  },
+  {
+   "id": "src:avid-pro-tools-os-chart",
+   "kind": "OFFICIAL",
+   "url": "https://kb.avid.com/pkb/articles/compatibility/Pro-Tools-Operating-System-Compatibility-Chart",
+   "title": "Pro Tools Operating System Compatibility Chart",
+   "publisher": "Avid",
+   "retrieved": "2026-09-28",
+   "note": "Last updated 2026-07-09; tested and qualified Pro Tools versions per macOS/Windows version."
+  },
+  {
+   "id": "src:avid-pro-tools-macos-known-issues",
+   "kind": "OFFICIAL",
+   "url": "https://kb.avid.com/pkb/articles/compatibility/Pro-Tools-support-with-macOS-Known-Issues",
+   "title": "Pro Tools support with macOS Sonoma, Sequoia and Tahoe (Known Issues)",
+   "publisher": "Avid",
+   "retrieved": "2026-09-28",
+   "note": "Last updated 2026-04-09."
+  },
+  {
+   "id": "src:avid-macos-27-support",
+   "kind": "OFFICIAL",
+   "url": "https://kb.avid.com/pkb/articles/en_US/Knowledge/macOS-Golden-Gate",
+   "title": "macOS Golden Gate support information for Avid software",
+   "publisher": "Avid",
+   "retrieved": "2026-09-28",
+   "note": "Last updated 2026-08-01: Pro Tools \"not yet supported\" on macOS Golden Gate (27.x)."
+  },
+  {
+   "id": "src:avid-pro-tools-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.avid.com/pro-tools",
+   "title": "Pro Tools",
+   "publisher": "Avid",
+   "retrieved": "2026-09-28",
+   "note": "FAQ: supports third-party plug-ins in the AAX format; subscriptions plus perpetual licenses; Pro Tools Intro is free."
+  }
+ ],
+ "entities": [
+  {
+   "id": "vendor:ableton",
+   "type": "vendor",
+   "slug": "ableton",
+   "names": {
+    "en": "Ableton",
+    "ko": "에이블톤"
+   },
+   "aliases": [
+    "Ableton AG"
+   ],
+   "description": {
+    "en": "Berlin-based developer of the Ableton Live DAW and the Push hardware.",
+    "ko": "베를린에 본사를 둔 DAW Ableton Live와 Push 하드웨어 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.ableton.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.ableton.com/",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-imprint"
+    },
+    {
+     "p": "hq_country",
+     "v": "Germany",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-imprint"
+    }
+   ]
+  },
+  {
+   "id": "app:ableton-live",
+   "type": "app",
+   "slug": "ableton-live",
+   "names": {
+    "en": "Ableton Live",
+    "ko": "에이블톤 라이브"
+   },
+   "aliases": [
+    "Live",
+    "Ableton Live 12",
+    "Live 12",
+    "Live Suite",
+    "Live Standard",
+    "Live Intro",
+    "Ableton"
+   ],
+   "description": {
+    "en": "Ableton's DAW for macOS and Windows, sold as Intro, Standard and Suite editions; Live 12 is the current major version.",
+    "ko": "Ableton이 만든 macOS·Windows용 DAW로 Intro·Standard·Suite 에디션이 있으며 현재 메이저 버전은 Live 12입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.ableton.com/en/live/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://www.ableton.com/en/release-notes/live-12/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "12.4.6",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-live-12-release-notes",
+     "note": "Released 2026-09-15."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:ableton-live-system-requirements"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 11.7.10",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-live-system-requirements",
+     "note": "Live 12: macOS 11.7.10 Big Sur through macOS 27 (Apple silicon) / through macOS 26 (Intel)."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (22H2)",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-live-system-requirements",
+     "note": "Live 12: Windows 10 version 22H2 or Windows 11 version 22H2 or higher; CPU must support AVX2; Windows on Arm via Prism emulation."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-mac-compatibility",
+     "note": "Live 12 and Live 11.1+ macOS Universal build runs natively; Live 11.0 and 10 need Rosetta."
+    },
+    {
+     "p": "plugin_formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AUv3"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:ableton-plugin-formats"
+    },
+    {
+     "p": "license_model",
+     "v": "One-time purchase (Intro, Standard, Suite); Suite also as rent-to-own over 24 monthly payments",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-shop-live"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.ableton.com/en/live/",
+     "ver": "OFFICIAL",
+     "src": "src:ableton-shop-live"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:ableton",
+     "src": "src:ableton-imprint"
+    }
+   ],
+   "versions": [
+    {
+     "version": "12.4.6",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-09-15",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.4.5",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-08-26",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.4.3",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-07-14",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.4.2",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-06-11",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.4.1",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-05-28",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.4",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-05-05",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.3.8",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-04-29",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.3.7",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-04-13",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.3.6",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2026-03-03",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    },
+    {
+     "version": "12.3",
+     "channel": "stable",
+     "src": "src:ableton-live-12-release-notes",
+     "released": "2025-11-25",
+     "notes_url": "https://www.ableton.com/en/release-notes/live-12/"
+    }
+   ]
+  },
+  {
+   "id": "vendor:apple",
+   "type": "vendor",
+   "slug": "apple",
+   "names": {
+    "en": "Apple",
+    "ko": "애플"
+   },
+   "aliases": [
+    "Apple Inc."
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.apple.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.apple.com/",
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-page"
+    }
+   ]
+  },
+  {
+   "id": "app:logic-pro",
+   "type": "app",
+   "slug": "logic-pro",
+   "names": {
+    "en": "Logic Pro",
+    "ko": "로직 프로"
+   },
+   "aliases": [
+    "Logic",
+    "Logic Pro X",
+    "Logic Pro 12",
+    "Logic Pro for Mac",
+    "Apple Logic"
+   ],
+   "description": {
+    "en": "Apple's DAW for the Mac (a separate iPad version exists). It hosts Audio Units plug-ins only.",
+    "ko": "Apple의 Mac용 DAW입니다(iPad용 버전은 별도). 서드파티 플러그인은 Audio Units만 지원합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.apple.com/logic-pro/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://support.apple.com/en-us/109503"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "12.3.1",
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-app-store",
+     "note": "Released 2026-08-13 per the Mac App Store version history."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-app-store"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 15.6",
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-app-store"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-release-notes",
+     "note": "Release notes distinguish native mode from Rosetta mode; Intel Macs are also supported."
+    },
+    {
+     "p": "plugin_formats",
+     "v": [
+      "AU",
+      "AUv3"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-audio-units"
+    },
+    {
+     "p": "license_model",
+     "v": "One-time purchase on the Mac App Store, or included in an Apple Creator Studio subscription",
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-page"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.apple.com/logic-pro/",
+     "ver": "OFFICIAL",
+     "src": "src:apple-logic-pro-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:apple",
+     "src": "src:apple-logic-pro-app-store"
+    }
+   ],
+   "versions": [
+    {
+     "version": "12.3.1",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2026-08-13",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    },
+    {
+     "version": "12.3",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2026-06-30",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    },
+    {
+     "version": "12.2",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2026-04-09",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    },
+    {
+     "version": "12.0.1",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2026-02-05",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    },
+    {
+     "version": "12.0",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2026-01-28",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    },
+    {
+     "version": "11.2.2",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2025-07-22",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    },
+    {
+     "version": "11.2.1",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2025-07-03",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    },
+    {
+     "version": "11.2",
+     "channel": "stable",
+     "src": "src:apple-logic-pro-app-store",
+     "released": "2025-05-28",
+     "notes_url": "https://support.apple.com/en-us/109503"
+    }
+   ]
+  },
+  {
+   "id": "vendor:image-line",
+   "type": "vendor",
+   "slug": "image-line",
+   "names": {
+    "en": "Image-Line",
+    "ko": "이미지라인"
+   },
+   "aliases": [
+    "Image-Line NV",
+    "Image Line"
+   ],
+   "description": {
+    "en": "Belgian developer of FL Studio.",
+    "ko": "FL Studio를 개발하는 벨기에 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.image-line.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.image-line.com/",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-legal"
+    },
+    {
+     "p": "hq_country",
+     "v": "Belgium",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-legal"
+    }
+   ]
+  },
+  {
+   "id": "app:fl-studio",
+   "type": "app",
+   "slug": "fl-studio",
+   "names": {
+    "en": "FL Studio",
+    "ko": "FL 스튜디오"
+   },
+   "aliases": [
+    "FL",
+    "Fruity Loops",
+    "FruityLoops",
+    "FL Studio 2025",
+    "FL Studio 2024",
+    "FL Studio 26"
+   ],
+   "description": {
+    "en": "Image-Line's DAW for Windows and macOS, sold as editions with lifetime free updates.",
+    "ko": "Image-Line의 Windows·macOS용 DAW로, 에디션 구매 시 평생 무료 업데이트를 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.image-line.com/fl-studio"
+    },
+    {
+     "label": "Download",
+     "url": "https://www.image-line.com/fl-studio/download"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "26.1.6",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-download",
+     "note": "Build 26.1.6.5639 (Windows) / 26.1.6.5406 (macOS) on the download page."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-system-requirements"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.15.7",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-download"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-download",
+     "note": "Intel and AMD CPUs; ARM is not supported."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-apple-silicon"
+    },
+    {
+     "p": "plugin_formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-plugin-standards",
+     "note": "Windows: 32/64-bit VST 1/2, VST3, CLAP; macOS: 64-bit VST 1/2, VST3, AU, CLAP."
+    },
+    {
+     "p": "license_model",
+     "v": "One-time purchase per edition with lifetime free updates; rent-to-own (12 payments) also offered",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-pricing"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.image-line.com/fl-studio",
+     "ver": "OFFICIAL",
+     "src": "src:image-line-fl-pricing"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:image-line",
+     "src": "src:image-line-legal"
+    }
+   ],
+   "versions": [
+    {
+     "version": "26.1.6",
+     "channel": "stable",
+     "src": "src:image-line-fl-download",
+     "notes_url": "https://www.image-line.com/fl-studio/download"
+    }
+   ]
+  },
+  {
+   "id": "vendor:steinberg",
+   "type": "vendor",
+   "slug": "steinberg",
+   "names": {
+    "en": "Steinberg",
+    "ko": "스타인버그"
+   },
+   "aliases": [
+    "Steinberg Media Technologies",
+    "Steinberg Media Technologies GmbH"
+   ],
+   "description": {
+    "en": "German developer of Cubase, Nuendo, Dorico and WaveLab, and maker of the UR series audio interfaces.",
+    "ko": "Cubase·Nuendo·Dorico·WaveLab 개발사이자 UR 시리즈 오디오 인터페이스 제조사인 독일 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.steinberg.net/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.steinberg.net/",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "app:cubase",
+   "type": "app",
+   "slug": "cubase",
+   "names": {
+    "en": "Cubase",
+    "ko": "큐베이스"
+   },
+   "aliases": [
+    "Cubase Pro",
+    "Cubase Artist",
+    "Cubase Elements",
+    "Cubase AI",
+    "Cubase LE",
+    "Cubase 15",
+    "Cubase Pro 15",
+    "Cubase 14",
+    "Steinberg Cubase"
+   ],
+   "description": {
+    "en": "Steinberg's DAW for Windows and macOS, sold in Pro, Artist and Elements editions (AI and LE ship with hardware). Cubase 15 is the current version.",
+    "ko": "Steinberg의 Windows·macOS용 DAW로 Pro·Artist·Elements 에디션이 있으며(AI·LE는 하드웨어 번들) 현재 버전은 Cubase 15입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.steinberg.net/cubase/"
+    },
+    {
+     "label": "System requirements",
+     "url": "https://www.steinberg.net/system-requirements/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "15.0.6",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "note": "Most recent Cubase 15 version listed in Steinberg's macOS Tahoe chart (2026/07/22); a newer maintenance update may exist."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Cubase 15: macOS Sequoia, Sonoma, Tahoe."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (22H2)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Cubase 15: 64-bit Windows 10 22H2 or higher, 64-bit Windows 11 24H2 or higher; Windows on Arm processors listed."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "\"Native App, Rosetta 2 App\"."
+    },
+    {
+     "p": "plugin_formats",
+     "v": [
+      "VST3",
+      "VST2"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-vst2-cubase-14-15",
+     "note": "VST 2 is disabled by default in Cubase 14/15; on macOS VST 2 works only with Cubase in Rosetta mode."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.steinberg.net/cubase/",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ],
+   "versions": [
+    {
+     "version": "15.0.6",
+     "channel": "stable",
+     "src": "src:steinberg-macos-26-compatibility"
+    },
+    {
+     "version": "14.0.41",
+     "channel": "stable",
+     "src": "src:steinberg-macos-26-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur12",
+   "type": "audio_device",
+   "slug": "steinberg-ur12",
+   "names": {
+    "en": "Steinberg UR12"
+   },
+   "aliases": [
+    "UR12"
+   ],
+   "description": {
+    "en": "Steinberg UR12 USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR12 USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "3.1.7 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur22mkii",
+   "type": "audio_device",
+   "slug": "steinberg-ur22mkii",
+   "names": {
+    "en": "Steinberg UR22mkII"
+   },
+   "aliases": [
+    "UR22mkII",
+    "UR22 MKII"
+   ],
+   "description": {
+    "en": "Steinberg UR22mkII USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR22mkII USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "3.1.7 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur22c",
+   "type": "audio_device",
+   "slug": "steinberg-ur22c",
+   "names": {
+    "en": "Steinberg UR22C"
+   },
+   "aliases": [
+    "UR22C"
+   ],
+   "description": {
+    "en": "Steinberg UR22C USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR22C USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "4.1.0 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur24c",
+   "type": "audio_device",
+   "slug": "steinberg-ur24c",
+   "names": {
+    "en": "Steinberg UR24C"
+   },
+   "aliases": [
+    "UR24C"
+   ],
+   "description": {
+    "en": "Steinberg UR24C USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR24C USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "4.1.0 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur44c",
+   "type": "audio_device",
+   "slug": "steinberg-ur44c",
+   "names": {
+    "en": "Steinberg UR44C"
+   },
+   "aliases": [
+    "UR44C"
+   ],
+   "description": {
+    "en": "Steinberg UR44C USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR44C USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "4.1.0 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur816c",
+   "type": "audio_device",
+   "slug": "steinberg-ur816c",
+   "names": {
+    "en": "Steinberg UR816C"
+   },
+   "aliases": [
+    "UR816C"
+   ],
+   "description": {
+    "en": "Steinberg UR816C USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR816C USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "4.1.0 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur-rt2",
+   "type": "audio_device",
+   "slug": "steinberg-ur-rt2",
+   "names": {
+    "en": "Steinberg UR-RT2"
+   },
+   "aliases": [
+    "UR-RT2"
+   ],
+   "description": {
+    "en": "Steinberg UR-RT2 USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR-RT2 USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "1.2.0 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:steinberg-ur-rt4",
+   "type": "audio_device",
+   "slug": "steinberg-ur-rt4",
+   "names": {
+    "en": "Steinberg UR-RT4"
+   },
+   "aliases": [
+    "UR-RT4"
+   ],
+   "description": {
+    "en": "Steinberg UR-RT4 USB audio interface. Steinberg publishes its macOS and Windows driver/TOOLS compatibility in its help center.",
+    "ko": "Steinberg UR-RT4 USB 오디오 인터페이스입니다. Steinberg가 헬프센터에서 macOS·Windows 드라이버/TOOLS 호환성을 공개합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-system-requirements",
+     "note": "Per Steinberg system requirements (macOS list there ends at Ventura; see the Tahoe chart for macOS 26)."
+    },
+    {
+     "p": "latest_driver",
+     "v": "1.2.0 (macOS, per Steinberg Tahoe chart)",
+     "ver": "OFFICIAL",
+     "src": "src:steinberg-macos-26-compatibility",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:steinberg",
+     "src": "src:steinberg-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "vendor:avid",
+   "type": "vendor",
+   "slug": "avid",
+   "names": {
+    "en": "Avid",
+    "ko": "아비드"
+   },
+   "aliases": [
+    "Avid Technology"
+   ],
+   "description": {
+    "en": "Developer of Pro Tools, Media Composer and Sibelius.",
+    "ko": "Pro Tools·Media Composer·Sibelius 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.avid.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.avid.com/",
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-page"
+    }
+   ]
+  },
+  {
+   "id": "app:pro-tools",
+   "type": "app",
+   "slug": "pro-tools",
+   "names": {
+    "en": "Pro Tools",
+    "ko": "프로툴스"
+   },
+   "aliases": [
+    "Avid Pro Tools",
+    "Pro Tools Studio",
+    "Pro Tools Artist",
+    "Pro Tools Ultimate",
+    "Pro Tools Intro",
+    "Pro Tools HD",
+    "ProTools"
+   ],
+   "description": {
+    "en": "Avid's DAW for macOS and Windows; third-party plug-ins must be AAX. Avid publishes a qualified-OS chart per Pro Tools release.",
+    "ko": "Avid의 macOS·Windows용 DAW로, 서드파티 플러그인은 AAX 형식만 지원합니다. Avid는 릴리스별로 검증된 OS 목록을 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.avid.com/pro-tools"
+    },
+    {
+     "label": "OS compatibility chart",
+     "url": "https://kb.avid.com/pkb/articles/compatibility/Pro-Tools-Operating-System-Compatibility-Chart"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "2026.4.1",
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-system-requirements",
+     "note": "Released 2026-07-09."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-system-requirements"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14.8 Sonoma",
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-system-requirements",
+     "note": "Qualified: macOS Tahoe 26.3.x, Sequoia 15.7.x or Sonoma 14.8.x; earlier versions untested."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 11 (24H2)",
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-system-requirements",
+     "note": "Windows 11 25H2 or 24H2."
+    },
+    {
+     "p": "plugin_formats",
+     "v": [
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-page"
+    },
+    {
+     "p": "license_model",
+     "v": "Subscription (Artist, Studio, Ultimate) or perpetual license; Pro Tools Intro is free",
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-page"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.avid.com/pro-tools",
+     "ver": "OFFICIAL",
+     "src": "src:avid-pro-tools-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:avid",
+     "src": "src:avid-pro-tools-page"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2026.4.1",
+     "channel": "stable",
+     "src": "src:avid-pro-tools-system-requirements",
+     "released": "2026-07-09",
+     "notes_url": "https://kb.avid.com/pkb/articles/Knowledge/Pro-Tools-2026-4-Release-Notes"
+    },
+    {
+     "version": "2026.4",
+     "channel": "stable",
+     "src": "src:avid-pro-tools-os-chart",
+     "notes_url": "https://kb.avid.com/pkb/articles/Knowledge/Pro-Tools-2026-4-Release-Notes"
+    },
+    {
+     "version": "2025.12",
+     "channel": "stable",
+     "src": "src:avid-pro-tools-os-chart",
+     "notes_url": "https://kb.avid.com/pkb/articles/Knowledge/Pro-Tools-2025-12-Release-Notes"
+    },
+    {
+     "version": "2025.10",
+     "channel": "stable",
+     "src": "src:avid-pro-tools-os-chart",
+     "notes_url": "https://kb.avid.com/pkb/articles/Knowledge/Pro-Tools-2025-10-Release-Notes"
+    },
+    {
+     "version": "2025.6",
+     "channel": "stable",
+     "src": "src:avid-pro-tools-os-chart",
+     "notes_url": "https://kb.avid.com/pkb/articles/Knowledge/Pro-Tools-2025-6-Release-Notes"
+    },
+    {
+     "version": "2024.10",
+     "channel": "stable",
+     "src": "src:avid-pro-tools-os-chart",
+     "notes_url": "https://kb.avid.com/pkb/articles/Knowledge/Pro-Tools-2024-10-Release-Notes"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 12 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported through macOS 26 on Intel Macs."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Ableton lists Live 11 as supported from macOS 11.7.10 through macOS 27 on Apple silicon."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "10.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Live 10 supported from macOS 10.11.6 El Capitan through macOS 15 Sequoia; runs on Apple silicon only via Rosetta."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "10.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Live 10 supported from macOS 10.11.6 El Capitan through macOS 15 Sequoia; runs on Apple silicon only via Rosetta."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "10.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Live 10 supported from macOS 10.11.6 El Capitan through macOS 15 Sequoia; runs on Apple silicon only via Rosetta."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "10.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Outside the supported range Ableton lists for Live 10 (through macOS 15 Sequoia)."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "10.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-mac-compatibility",
+   "note": "Outside the supported range Ableton lists for Live 10 (through macOS 15 Sequoia)."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-windows-compatibility",
+   "note": "Windows 11 version 22H2 or higher."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "12.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-windows-compatibility"
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-windows-compatibility"
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "11.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-windows-compatibility",
+   "note": "Live 11: Windows 10 64-bit build 1909 or later."
+  },
+  {
+   "subject": "app:ableton-live",
+   "subject_version": "10.1.43",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ableton-windows-compatibility",
+   "note": "Live 10.1.43 lists Windows 11 to Windows 7 SP1 (64-bit)."
+  },
+  {
+   "subject": "app:logic-pro",
+   "subject_version": "12.3.1",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:apple-logic-pro-app-store",
+   "note": "The current Mac App Store version requires macOS 15.6 or later."
+  },
+  {
+   "subject": "app:logic-pro",
+   "subject_version": "12.3.1",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:apple-logic-pro-app-store",
+   "note": "The current Mac App Store version requires macOS 15.6 or later."
+  },
+  {
+   "subject": "app:logic-pro",
+   "subject_version": "12.3.1",
+   "target": "os_release:macos-15",
+   "target_version": ">=15.6",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:apple-logic-pro-app-store",
+   "note": "Requires macOS 15.6 or later."
+  },
+  {
+   "subject": "app:fl-studio",
+   "subject_version": "26.1.6",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:image-line-fl-download",
+   "note": "Download page: Windows 10, 11 or newer."
+  },
+  {
+   "subject": "app:fl-studio",
+   "subject_version": "26.1.6",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:image-line-fl-download",
+   "note": "Download page: Windows 10, 11 or newer; Intel and AMD CPUs."
+  },
+  {
+   "subject": "app:fl-studio",
+   "subject_version": "26.1.6",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:image-line-fl-download",
+   "note": "Image-Line: \"ARM is not supported\" on Windows."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-system-requirements",
+   "note": "Cubase 15 system requirements list macOS Sonoma, Sequoia and Tahoe."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-system-requirements",
+   "note": "Cubase 15 system requirements list macOS Sonoma, Sequoia and Tahoe."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "14.0.5",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-15-compatibility",
+   "note": "Steinberg Sequoia chart: Cubase 14.0.5 compatible (Intel) / native (Apple silicon)."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "13.0.50",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-15-compatibility",
+   "note": "Steinberg Sequoia chart: Cubase 13.0.50 compatible / native."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "15.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "15.0.6",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Steinberg Tahoe chart: Cubase 15.0.6 compatible on Intel, native on Apple silicon."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "14.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Steinberg Tahoe chart lists Cubase 14.0.41 as incompatible: general compatibility exists but performance problems have occurred since macOS 26.1."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "<14",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Products not listed in the Tahoe chart are not supported on macOS 26 and will not be updated."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet; compatibility chart pending tests."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "15.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-system-requirements"
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "15.*",
+   "target": "os_release:windows-11",
+   "target_version": ">=24H2",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-system-requirements",
+   "note": "Cubase 15: 64-bit Windows 11 version 24H2 or higher."
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "14.x",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility"
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "13.x",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility"
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "12.x",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility"
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "11.x",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility"
+  },
+  {
+   "subject": "app:cubase",
+   "subject_version": "10.x",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Listed as \"not officially compatible\"."
+  },
+  {
+   "subject": "audio_device:steinberg-ur12",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "3.1.7",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 3.1.7."
+  },
+  {
+   "subject": "audio_device:steinberg-ur12",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur12",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2.0.4",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 2.0.4."
+  },
+  {
+   "subject": "audio_device:steinberg-ur22mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "3.1.7",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 3.1.7."
+  },
+  {
+   "subject": "audio_device:steinberg-ur22mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur22mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2.0.4",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 2.0.4."
+  },
+  {
+   "subject": "audio_device:steinberg-ur22c",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.1.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 4.1.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur22c",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur22c",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 1.5.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur24c",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.1.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 4.1.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur24c",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur24c",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 1.5.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur44c",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.1.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 4.1.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur44c",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur44c",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 1.5.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur816c",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.1.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 4.1.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur816c",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur816c",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 1.5.0."
+  },
+  {
+   "subject": "audio_device:steinberg-ur-rt2",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.2.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 1.2.0. Requires Yamaha Steinberg USB Driver V3.1.7 or later installed over the latest TOOLS, and Basic FX Suite V3.0.0 for the bundled plug-ins."
+  },
+  {
+   "subject": "audio_device:steinberg-ur-rt2",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur-rt2",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.1.2",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 1.1.2."
+  },
+  {
+   "subject": "audio_device:steinberg-ur-rt4",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.2.0",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-26-compatibility",
+   "note": "Compatible on Intel and native on Apple silicon with driver/TOOLS 1.2.0. Requires Yamaha Steinberg USB Driver V3.1.7 or later installed over the latest TOOLS, and Basic FX Suite V3.0.0 for the bundled plug-ins."
+  },
+  {
+   "subject": "audio_device:steinberg-ur-rt4",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-macos-27-compatibility",
+   "note": "Steinberg recommends not updating to macOS 27 Golden Gate yet (hardware included)."
+  },
+  {
+   "subject": "audio_device:steinberg-ur-rt4",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.1.2",
+   "ver": "OFFICIAL",
+   "src": "src:steinberg-windows-11-compatibility",
+   "note": "Steinberg Windows 11 chart: compatible with TOOLS/driver 1.1.2."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2026.4.x",
+   "target": "os_release:macos-14",
+   "target_version": "14.8.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2026.4 with macOS 14.8.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2026.4.x",
+   "target": "os_release:macos-15",
+   "target_version": "15.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2026.4 with macOS 15.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2026.4.x",
+   "target": "os_release:macos-26",
+   "target_version": "26.3.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2026.4 with macOS 26.3.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2026.4.x",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2026.4 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2026.4.x",
+   "target": "os_release:windows-11-25h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2026.4 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.12.x",
+   "target": "os_release:macos-14",
+   "target_version": "14.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.12 with macOS 14.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.12.x",
+   "target": "os_release:macos-15",
+   "target_version": "15.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.12 with macOS 15.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.12.x",
+   "target": "os_release:macos-26",
+   "target_version": "26.1",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.12 with macOS 26.1."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.12.x",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.12 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.12.x",
+   "target": "os_release:windows-11-25h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.12 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.10.x",
+   "target": "os_release:macos-13",
+   "target_version": "13.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.10 with macOS 13.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.10.x",
+   "target": "os_release:macos-14",
+   "target_version": "14.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.10 with macOS 14.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.10.x",
+   "target": "os_release:macos-15",
+   "target_version": "15.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.10 with macOS 15.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.10.x",
+   "target": "os_release:macos-26",
+   "target_version": "26.0.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.10 with macOS 26.0.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.10.x",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.10 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.10.x",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.10 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.6.x",
+   "target": "os_release:macos-13",
+   "target_version": "13.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.6 with macOS 13.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.6.x",
+   "target": "os_release:macos-14",
+   "target_version": "14.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.6 with macOS 14.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.6.x",
+   "target": "os_release:macos-15",
+   "target_version": "15.4.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.6 with macOS 15.4.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.6.x",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.6 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2025.6.x",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2025.6 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2024.10.x",
+   "target": "os_release:macos-13",
+   "target_version": "13.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2024.10 with macOS 13.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2024.10.x",
+   "target": "os_release:macos-14",
+   "target_version": "14.7.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2024.10 with macOS 14.7.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2024.10.x",
+   "target": "os_release:macos-15",
+   "target_version": "15.3.x",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2024.10 with macOS 15.3.x."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2024.10.x",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2024.10 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "2024.10.x",
+   "target": "os_release:windows-11-23h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "Avid qualified Pro Tools 2024.10 with this Windows release."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2025.10",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-system-requirements",
+   "note": "Avid: Pro Tools 2025.10 and higher is supported with macOS Tahoe (see known issues)."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2024.10",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-system-requirements",
+   "note": "Avid: Pro Tools 2024.10 and higher is supported with macOS Sequoia."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2024.3.1",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-macos-known-issues",
+   "note": "Avid: macOS Sonoma 14.x is supported with Pro Tools 2024.3.1 and later."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-macos-27-support",
+   "note": "Avid lists Pro Tools as \"not yet supported\" on macOS Golden Gate (27.x) and recommends holding off on production systems."
+  },
+  {
+   "subject": "app:pro-tools",
+   "subject_version": ">=2025.12",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:avid-pro-tools-os-chart",
+   "note": "From Pro Tools 2025.12 Avid qualifies only Windows 11 (24H2 and 25H2); 2025.10 was the last release qualified on Windows 10 22H2."
+  }
+ ]
+}

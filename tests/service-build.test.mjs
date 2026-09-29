@@ -40,7 +40,9 @@ test('default build is the unchanged static site: no Worker, no account pages, n
  });
 });
 test('service build: Worker bundle, API-only routes, pages, headers, privacy text',async()=>{
- const secrets={GOOGLE_OAUTH_CLIENT_SECRET:'google-secret-xyz-123',BILLING_WEBHOOK_SECRET:'whsec-xyz-456',SESSION_SECRET:'session-secret-xyz-789-0123456789abcdef',TURNSTILE_SECRET_KEY:'0x4-turnstile-secret-xyz'};
+ const secrets={GOOGLE_OAUTH_CLIENT_SECRET:'google-secret-xyz-123',GITHUB_OAUTH_CLIENT_SECRET:'github-oauth-secret-xyz-0123456789abcdef',DISCORD_OAUTH_CLIENT_SECRET:'discord-oauth-secret-xyz-0123456789',BILLING_WEBHOOK_SECRET:'whsec-xyz-456',SESSION_SECRET:'session-secret-xyz-789-0123456789abcdef',TURNSTILE_SECRET_KEY:'0x4-turnstile-secret-xyz',
+  // Admin app credentials (server/platform/admin.js) are runtime secrets too.
+  ADMIN_SETUP_CODE:'admin-setup-code-xyz-0123456789',VAPID_PRIVATE_KEY:'vapid-private-xyz-0123456789abcdefghijklmnopq',NOTIFY_TOKEN:'notify-token-xyz-0123456789abcdefghijkl',GITHUB_DISPATCH_TOKEN:'github_pat_xyz_0123456789',CF_ANALYTICS_TOKEN:'cf-analytics-xyz-0123456789'};
  await withBuild({SITE_URL:origin,SERVICE_API:'on',PRO_PRICE_AMOUNT:'4.99',PRO_PRICE_CURRENCY:'USD',...secrets},async(out,read)=>{
   // Worker: every relative import resolves inside the _worker.js directory.
   const worker=path.join(out,'_worker.js'),sources=(await files(worker)).filter(f=>f.endsWith('.js')||f.endsWith('.mjs'));
@@ -98,5 +100,21 @@ test('REDIRECT_TO builds a redirect-only deployment for a retired address',async
  await withBuild({REDIRECT_TO:'https://nerulio.pages.dev',SITE_URL:'https://fileforge-studio.pages.dev'},async(out,read)=>{
   assert.equal(await read('_redirects'),'/* https://nerulio.pages.dev/:splat 301\n');
   assert.deepEqual(await readdir(out),['_redirects'],'nothing else is served from the old address');
+ });
+});
+test('platform build: PLATFORM=on routes the channel/community prefixes to the Worker and ships the renderers',async()=>{
+ assert.throws(()=>configuration({SITE_URL:origin,PLATFORM:'on'}),/SERVICE_API=on/);
+ assert.throws(()=>configuration({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'yes'}),/PLATFORM must be on or off/);
+ // TRAFFIC_HTML=off: only the platform prefixes are dynamic (the default routes all HTML for bot statistics; tests/traffic.test.mjs).
+ await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off'},async(out,read)=>{
+  const routes=JSON.parse(await read('_routes.json'));
+  for(const p of ['/api/*','/ko/community/*','/en/ai/*','/ko/games/*','/ko/subculture/*'])assert(routes.include.includes(p),p);
+  assert(!routes.include.includes('/*')&&!routes.include.some(r=>r.startsWith('/ko/image')),'tool pages stay static');
+  assert.match(await read('_worker.js/server/build-info.js'),/"platform":true/);
+  assert((await read('_worker.js/platform/render/channel.js')).includes('renderChannel'));
+  assert((await read('src/platform/n2.css')).includes('.pr{'));
+  assert(routes.include.includes('/sitemap-n2-*'));
+  assert((await read('sitemap.xml')).includes('sitemap-n2-games.xml'),'entity sitemaps are listed in the index');
+  assert((await read('_worker.js/platform/seo.js')).includes('indexable'));
  });
 });

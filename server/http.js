@@ -16,7 +16,9 @@ export const ERRORS=Object.freeze({
  FORBIDDEN_ORIGIN:403,CHALLENGE_REQUIRED:403,CHALLENGE_FAILED:403,FORBIDDEN:403,
  NOT_FOUND:404,METHOD_NOT_ALLOWED:405,OPERATION_CONFLICT:409,ALREADY_PRO:409,
  PAYLOAD_TOO_LARGE:413,UNSUPPORTED_MEDIA_TYPE:415,DAILY_LIMIT:429,NETWORK_LIMIT:429,RATE_LIMITED:429,SIGN_IN_REQUIRED:403,ACCOUNT_FLAGGED:403,OPERATION_EXPIRED:409,PRICE_UNAVAILABLE:400,
- INTERNAL:500,BILLING_UNAVAILABLE:503,SERVICE_NOT_CONFIGURED:503,UPSTREAM_FAILED:502
+ INTERNAL:500,BILLING_UNAVAILABLE:503,SERVICE_NOT_CONFIGURED:503,UPSTREAM_FAILED:502,
+ // Admin app (/api/v2/admin/*): re-run the passkey sign-in; an optional secret is missing ({need}); a passkey response failed verification.
+ REAUTH:401,NOT_CONFIGURED:503,PASSKEY_REJECTED:400
 });
 const DEFAULT_MESSAGES={DAILY_LIMIT:'Daily free heavy-job limit reached.',LOGIN_REQUIRED:'Sign in required.',FORBIDDEN_ORIGIN:'Cross-site request rejected.',SERVICE_NOT_CONFIGURED:'Account service is not configured on this deployment.',INTERNAL:'Internal error.'};
 export class ApiError extends Error{
@@ -44,7 +46,8 @@ export function parseCookies(header){
  }
  return out;
 }
-/** HttpOnly + SameSite=Lax + Path=/ by default; Secure except on plain-http localhost dev. */
+/** HttpOnly + SameSite=Lax + Path=/ by default; Secure except on plain-http localhost dev.
+ * @param {string} name @param {string} value @param {{maxAge?:number,path?:string,secure?:boolean,httpOnly?:boolean}} [options] */
 export function cookie(name,value,{maxAge,path='/',secure=true,httpOnly=true}={}){
  return [`${name}=${value}`,`Path=${path}`,maxAge!==undefined&&`Max-Age=${Math.max(0,Math.floor(maxAge))}`,httpOnly&&'HttpOnly',secure&&'Secure','SameSite=Lax'].filter(Boolean).join('; ');
 }

@@ -1,0 +1,16 @@
+v7.80 - September 13 2026
+  + Actions: reset JSFX loudness meters on monitoring FX when resetting all track meters
+  + API: fix PlayTime toolbar addition when toolbar is not already customized
+  + Automation: provide menu/action state feedback for actions like 'Global automation override: All automation in touch mode'
+v7.79 - August 17 2026
+  + Actions: rename actions to reset meter peak indicators, for consistency
+  + Actions: check that media is online when running render item actions
+  + Actions window: improve behavior when running actions in the MIDI editor section, with multiple editors open
+v7.78 - July 18 2026
+  + API: ignore midi_reinit() (and related others) when incorrectly called by certain extensions in other threads
+  + API: improve performance of PlayTrackPreview/StopTrackPreview, defer global lock/routing reanalysis if called multiple times within a short window
+  + ARA: apply the final item gain (zero, if item is faded out) to ARA plugin output after the end of the media item being processed
+v7.77 - July 7 2026
+  + Actions window: don't show full path for ReaScripts in the default path [t=309902]
+  + Batch converter: support pasting converter settings from clipboard [t=309126]
+  + Default media path: do not create default path unless it being written to

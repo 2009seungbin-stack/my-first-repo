@@ -1,0 +1,33 @@
+{
+ "377160": {
+  "success": true,
+  "data": {
+   "type": "game",
+   "name": "Fallout 4",
+   "steam_appid": 377160,
+   "supported_languages": "영어<strong>*</strong>, 프랑스어<strong>*</strong>, 이탈리아어<strong>*</strong>, 독일어<strong>*</strong>, 스페인어 - 스페인<strong>*</strong>, 폴란드어, 포르투갈어 - 브라질, 러시아어, 중국어 번체, 일본어<strong>*</strong><br><strong>*</strong>음성이 지원되는 언어",
+   "developers": [
+    "Bethesda Game Studios"
+   ],
+   "publishers": [
+    "Bethesda Softworks"
+   ],
+   "release_date": {
+    "coming_soon": false,
+    "date": "2015년 11월 9일"
+   },
+   "platforms": {
+    "windows": true,
+    "mac": false,
+    "linux": false
+   },
+   "genres": [
+    {
+     "id": "3",
+     "description": "RPG"
+    }
+   ],
+   "website": "http://www.fallout4.com"
+  }
+ }
+}

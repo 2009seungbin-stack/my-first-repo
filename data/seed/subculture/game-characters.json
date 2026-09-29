@@ -1,0 +1,1241 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-game-characters-arknights-kr-site",
+   "kind": "OFFICIAL",
+   "url": "https://www.arknights.kr/",
+   "title": "명일방주 한국 공식 사이트",
+   "publisher": "Arknights Korean official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-game-characters-endfield-kr-site",
+   "kind": "OFFICIAL",
+   "url": "https://endfield.gryphline.com/ko-kr",
+   "title": "명일방주: 엔드필드 - 변경을 넘어 최전방으로",
+   "publisher": "GRYPHLINE (Arknights: Endfield official site, Korean)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-game-characters-endfield-steam",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/4732690/",
+   "title": "명일방주: 엔드필드 — Steam store page",
+   "publisher": "GRYPHLINE (Steam)",
+   "retrieved": "2026-09-28",
+   "note": "Steam lists developer Hypergryph, publisher GRYPHLINE, release \"출시 예정\" (coming soon) as of 2026-09-28."
+  },
+  {
+   "id": "src:sc-game-characters-endfield-steam-pretest",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/news/app/4732690/view/689766422328378820",
+   "title": "Steam 「사전 테스트」 참가자 모집이 시작됩니다!",
+   "publisher": "GRYPHLINE — Steam announcement",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-game-characters-hypergryph-site",
+   "kind": "OFFICIAL",
+   "url": "https://www.hypergryph.com/",
+   "title": "鹰角网络 - HYPERGRYPH",
+   "publisher": "Hypergryph",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-game-characters-fgo-jp-site",
+   "kind": "OFFICIAL",
+   "url": "https://www.fate-go.jp/",
+   "title": "スマホでフェイト！ | Fate/Grand Order 公式サイト",
+   "publisher": "TYPE-MOON / FGO PROJECT (Fate/Grand Order official site)",
+   "retrieved": "2026-09-28",
+   "note": "Footer: ©TYPE-MOON / FGO PROJECT."
+  },
+  {
+   "id": "src:sc-game-characters-fgo-kr-site",
+   "kind": "OFFICIAL",
+   "url": "https://fgo.netmarble.com/",
+   "title": "페이트/그랜드 오더 - 넷마블",
+   "publisher": "Netmarble (Fate/Grand Order Korean service)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-c-ba-brand-chardata",
+   "kind": "OFFICIAL",
+   "url": "https://ssl.nexon.com/s1/Game/m_ba/brand/char_kr.js",
+   "title": "블루 아카이브 공식 브랜드 사이트 학생명부 데이터 (char_kr.js, loaded by bluearchive.nexon.com/home)",
+   "publisher": "NEXON Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-ba-prob-regular",
+   "kind": "OFFICIAL",
+   "url": "https://m.nexon.com/probability/7799?client_id=MjcwOA&language=ko",
+   "title": "Nexon 확률 정보 — 블루 아카이브 상시 모집",
+   "publisher": "NEXON Korea",
+   "retrieved": "2026-09-29",
+   "note": "Linked from official forum notice https://forum.nexon.com/bluearchive/board_view?board=4606&thread=2480089"
+  },
+  {
+   "id": "src:ko-sub-c-ba-forum-2253348",
+   "kind": "OFFICIAL",
+   "url": "https://forum.nexon.com/bluearchive/board_view?board=1018&thread=2253348",
+   "title": "8/22(화) 토키, 나기사 특별 픽업 모집 안내",
+   "publisher": "NEXON Korea (블루 아카이브 공식 포럼 공지사항)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-ba-forum-2679540",
+   "kind": "OFFICIAL",
+   "url": "https://forum.nexon.com/bluearchive/board_view?board=1018&thread=2679540",
+   "title": "[영상/축전] 블루 아카이브 3주년 기념! 아로나 & 프라나의 감사 인사를 전해 드립니다.",
+   "publisher": "NEXON Korea (블루 아카이브 공식 포럼 공지사항)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-uma-brand-data",
+   "kind": "OFFICIAL",
+   "url": "https://umamusume.kakaogames.com/assets/js/data.v5.js?v=20260909",
+   "title": "우마무스메 프리티 더비 공식 사이트 캐릭터 데이터 (umamusume.kakaogames.com)",
+   "publisher": "Kakao Games",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-nikke-yt-anis-summer",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=-jMRHdWgzCU",
+   "title": "《승리의 여신: 니케》 【NIKKE 모션 VIEW】 아니스 : 스파클링 서머(Anis: Sparkling Summer)",
+   "publisher": "승리의 여신: 니케 공식 한국 YouTube (@nikkekr)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-nikke-x-dorothy",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/NIKKE_kr/status/1943626334317736077",
+   "title": "【NIKKE 프로필】 도로시 : 세렌디피티(Dorothy: Serendipity)",
+   "publisher": "승리의 여신: 니케 공식 한국 X (@NIKKE_kr)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror of the official post"
+  },
+  {
+   "id": "src:ko-sub-c-zzz-yt-aria",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/shorts/hTbu6FGvtNg",
+   "title": "[성우 공개] 아리아",
+   "publisher": "젠레스 존 제로 공식 한국 YouTube (@ZZZ_KO)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-hsr-yt-blackswan",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=4Lw1dp-iCzA",
+   "title": "블랙 스완 캐릭터 PV —— 「자장가」 | 〈붕괴: 스타레일〉",
+   "publisher": "붕괴: 스타레일 공식 한국 YouTube (@Honkaistarrail_kr)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-morgan",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1991116938559557871",
+   "title": "11/21(금) <8주년 기념 메모리얼 픽업> 개최 예정!",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-okita-alter",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/2013172449731596435",
+   "title": "1/21(수) <복각 칼데아 서머 어드벤처! 오키타 소지(얼터)(세이버) 픽업> 개최 예정!",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-abigail-summer",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1649244479860408320",
+   "title": "4/25(화) 복각 <서번트 서머 캠프!> 애비게일 윌리엄스(여름) 픽업 개최 예정!",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-mash",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1638362595441922053",
+   "title": "Fate/Grand Order Waltz in the MOONLIGHT/LOSTROOM X Fate/Grand Order 콜라보레이션 이벤트 신규 영의 소개",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-old-man",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1083205072324943872",
+   "title": "#페그오_이벤트_안내 '산의 노인' 픽업 소환",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror. KR servant name for the Assassin 'First Hassan' (JP 山の翁 / EN King Hassan)"
+  },
+  {
+   "id": "src:ko-sub-c-laftel-csm",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41105",
+   "title": "체인소 맨 — 라프텔 (episode list via https://laftel.net/api/episodes/v2/list/?item_id=41105)",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-laftel-jjk0",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41149",
+   "title": "극장판 주술회전 0 — 라프텔",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-opcg-kr-stk22",
+   "kind": "OFFICIAL",
+   "url": "https://onepiece-cardgame.kr/cardlist.do?series=%5BSTK-22%5D%20%EC%8A%A4%ED%83%80%ED%8A%B8%20%EB%8D%B1%20%EC%97%90%EC%9D%B4%EC%8A%A4%20%26%20%EB%89%B4%EA%B2%8C%EC%9D%B4%ED%8A%B8",
+   "title": "ONE PIECE 원피스 카드게임 — 카드 리스트 [STK-22] 스타트 덱 에이스 & 뉴게이트",
+   "publisher": "BANDAI Korea (official Korean ONE PIECE Card Game site)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-endfield-ko",
+   "kind": "OFFICIAL",
+   "url": "https://endfield.gryphline.com/ko-kr",
+   "title": "명일방주: 엔드필드 - 변경을 넘어 최전방으로",
+   "publisher": "GRYPHLINE",
+   "retrieved": "2026-09-29",
+   "note": "'하이퍼그리프' appears only in the page's meta keywords; visible branding is Latin 'GRYPHLINE'/'HYPERGRYPH'"
+  }
+ ],
+ "entities": [
+  {
+   "id": "studio_org:hypergryph",
+   "type": "studio_org",
+   "slug": "hypergryph",
+   "names": {
+    "en": "Hypergryph",
+    "ja": "Hypergryph"
+   },
+   "aliases": [
+    "하이퍼그리프"
+   ],
+   "aliases_src": {
+    "하이퍼그리프": "src:ko-sub-c-endfield-ko"
+   },
+   "description": {
+    "en": "Chinese developer of Arknights and Arknights: Endfield.",
+    "ko": "명일방주와 명일방주: 엔드필드를 개발한 중국 게임사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.hypergryph.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-hypergryph-site"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:gryphline",
+   "type": "studio_org",
+   "slug": "gryphline",
+   "names": {
+    "en": "GRYPHLINE"
+   },
+   "description": {
+    "en": "Publisher of Arknights: Endfield outside mainland China, as listed on Steam.",
+    "ko": "Steam에 명일방주: 엔드필드의 퍼블리셔로 표기된 회사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://endfield.gryphline.com/ko-kr",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-endfield-kr-site",
+     "note": "Endfield official site operated by GRYPHLINE."
+    }
+   ]
+  },
+  {
+   "id": "franchise:arknights",
+   "type": "franchise",
+   "slug": "arknights",
+   "names": {
+    "en": "Arknights",
+    "ko": "명일방주"
+   },
+   "description": {
+    "en": "Hypergryph game franchise that began with the tower-defence RPG Arknights and continues with Arknights: Endfield.",
+    "ko": "타워 디펜스 RPG 명일방주로 시작해 명일방주: 엔드필드로 이어지는 하이퍼그리프의 게임 프랜차이즈."
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://www.arknights.kr/"
+    },
+    {
+     "label": "Arknights: Endfield (KR)",
+     "url": "https://endfield.gryphline.com/ko-kr"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.arknights.kr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-arknights-kr-site"
+    },
+    {
+     "p": "origin_media",
+     "v": "Game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-arknights-kr-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:hypergryph",
+     "src": "src:sc-game-characters-endfield-steam",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:arknights-game",
+   "type": "work",
+   "slug": "arknights-game",
+   "names": {
+    "en": "Arknights",
+    "ko": "명일방주"
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://www.arknights.kr/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-arknights-kr-site"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.arknights.kr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-arknights-kr-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:arknights",
+     "src": "src:sc-game-characters-arknights-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:hypergryph",
+     "src": "src:sc-game-characters-hypergryph-site",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:arknights-endfield-game",
+   "type": "work",
+   "slug": "arknights-endfield-game",
+   "names": {
+    "en": "Arknights: Endfield",
+    "ko": "명일방주: 엔드필드"
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://endfield.gryphline.com/ko-kr"
+    },
+    {
+     "label": "Steam",
+     "url": "https://store.steampowered.com/app/4732690/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-endfield-steam"
+    },
+    {
+     "p": "steam_appid",
+     "v": 4732690,
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-endfield-steam"
+    },
+    {
+     "p": "homepage",
+     "v": "https://endfield.gryphline.com/ko-kr",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-endfield-kr-site"
+    },
+    {
+     "p": "status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-endfield-steam",
+     "platform": "windows",
+     "note": "Steam version: coming soon, date to be announced separately."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:arknights",
+     "src": "src:sc-game-characters-endfield-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:hypergryph",
+     "src": "src:sc-game-characters-endfield-steam",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:gryphline",
+     "src": "src:sc-game-characters-endfield-steam",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "franchise:fate",
+   "type": "franchise",
+   "slug": "fate",
+   "names": {
+    "en": "Fate series",
+    "ja": "Fateシリーズ"
+   },
+   "aliases": [
+    "Fate",
+    "Fate/Grand Order",
+    "FGO",
+    "페이트"
+   ],
+   "description": {
+    "en": "TYPE-MOON franchise whose mobile RPG Fate/Grand Order is served in Korea by Netmarble.",
+    "ko": "타입문의 프랜차이즈로, 모바일 RPG 페이트/그랜드 오더의 국내 서비스는 넷마블이 맡고 있다."
+   },
+   "official_urls": [
+    {
+     "label": "Fate/Grand Order (JP)",
+     "url": "https://www.fate-go.jp/"
+    },
+    {
+     "label": "Fate/Grand Order (KR)",
+     "url": "https://fgo.netmarble.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.fate-go.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-fgo-jp-site"
+    }
+   ]
+  },
+  {
+   "id": "work:fate-grand-order-game-kr",
+   "type": "work",
+   "slug": "fate-grand-order-game-kr",
+   "names": {
+    "en": "Fate/Grand Order (Korean service)",
+    "ko": "페이트/그랜드 오더",
+    "ja": "Fate/Grand Order"
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://fgo.netmarble.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-fgo-kr-site"
+    },
+    {
+     "p": "homepage",
+     "v": "https://fgo.netmarble.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-game-characters-fgo-kr-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:fate",
+     "src": "src:sc-game-characters-fgo-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:netmarble",
+     "src": "src:sc-game-characters-fgo-kr-site",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-noa",
+   "type": "character",
+   "slug": "blue-archive-noa",
+   "names": {
+    "en": "Noa Ushio",
+    "ja": "生塩ノア",
+    "ko": "노아"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1137995",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-gsc-1137995",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-nagisa",
+   "type": "character",
+   "slug": "blue-archive-nagisa",
+   "names": {
+    "en": "Nagisa",
+    "ja": "ナギサ",
+    "ko": "나기사"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-forum-2253348"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1137828",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-gsc-1137828",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-kisaki",
+   "type": "character",
+   "slug": "blue-archive-kisaki",
+   "names": {
+    "en": "Kisaki",
+    "ja": "キサキ",
+    "ko": "키사키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1137829",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-gsc-1137829",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-arona",
+   "type": "character",
+   "slug": "blue-archive-arona",
+   "names": {
+    "en": "Arona",
+    "ja": "アロナ",
+    "ko": "아로나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-forum-2679540"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1141869",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-gsc-1141869",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-plana",
+   "type": "character",
+   "slug": "blue-archive-plana",
+   "names": {
+    "en": "Plana",
+    "ja": "プラナ",
+    "ko": "프라나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-forum-2679540"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1141871",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-gsc-1141871",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-neru",
+   "type": "character",
+   "slug": "blue-archive-neru",
+   "names": {
+    "en": "Neru",
+    "ja": "ネル",
+    "ko": "네루"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-brand-chardata"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1146337",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-gsc-1146337",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-kirara",
+   "type": "character",
+   "slug": "blue-archive-kirara",
+   "names": {
+    "en": "Kirara",
+    "ja": "キララ",
+    "ko": "키라라"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1145707",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-gsc-1145707",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:blue-archive-ichika",
+   "type": "character",
+   "slug": "blue-archive-ichika",
+   "names": {
+    "en": "Ichika",
+    "ja": "イチカ",
+    "ko": "이치카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-alter-656",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:blue-archive-game",
+     "src": "src:sc-merch-alter-656",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:uma-musume-pretty-derby-nice-nature",
+   "type": "character",
+   "slug": "uma-musume-pretty-derby-nice-nature",
+   "names": {
+    "en": "Nice Nature",
+    "ja": "ナイスネイチャ",
+    "ko": "나이스 네이처"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-12485",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:uma-musume-pretty-derby-mejiro-ardan",
+   "type": "character",
+   "slug": "uma-musume-pretty-derby-mejiro-ardan",
+   "names": {
+    "en": "Mejiro Ardan",
+    "ja": "メジロアルダン",
+    "ko": "메지로 아르당"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-1145711",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:uma-musume-pretty-derby-admire-vega",
+   "type": "character",
+   "slug": "uma-musume-pretty-derby-admire-vega",
+   "names": {
+    "en": "Admire Vega",
+    "ja": "アドマイヤベガ",
+    "ko": "어드마이어 베가"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-1146115",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:uma-musume-pretty-derby-mejiro-mcqueen",
+   "type": "character",
+   "slug": "uma-musume-pretty-derby-mejiro-mcqueen",
+   "names": {
+    "en": "Mejiro McQueen",
+    "ja": "メジロマックイーン",
+    "ko": "메지로 맥퀸"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-1145954",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:uma-musume-pretty-derby-rice-shower",
+   "type": "character",
+   "slug": "uma-musume-pretty-derby-rice-shower",
+   "names": {
+    "en": "Rice Shower",
+    "ja": "ライスシャワー",
+    "ko": "라이스 샤워"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-alter-657",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:uma-musume-pretty-derby-aston-machan",
+   "type": "character",
+   "slug": "uma-musume-pretty-derby-aston-machan",
+   "names": {
+    "en": "Aston Machan",
+    "ja": "アストンマーチャン",
+    "ko": "애스턴 마짱"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-alter-642",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:uma-musume-pretty-derby-smart-falcon",
+   "type": "character",
+   "slug": "uma-musume-pretty-derby-smart-falcon",
+   "names": {
+    "en": "Smart Falcon",
+    "ja": "スマートファルコン",
+    "ko": "스마트 팔콘"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-alter-639",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:goddess-of-victory-nikke-anis",
+   "type": "character",
+   "slug": "goddess-of-victory-nikke-anis",
+   "names": {
+    "en": "Anis",
+    "ja": "アニス",
+    "ko": "아니스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-nikke-yt-anis-summer"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:goddess-of-victory-nikke",
+     "src": "src:sc-merch-gsc-1145947",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:goddess-of-victory-nikke-game",
+     "src": "src:sc-merch-gsc-1145947",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:goddess-of-victory-nikke-dorothy",
+   "type": "character",
+   "slug": "goddess-of-victory-nikke-dorothy",
+   "names": {
+    "en": "Dorothy",
+    "ja": "ドロシー",
+    "ko": "도로시"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-nikke-x-dorothy"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:goddess-of-victory-nikke",
+     "src": "src:sc-merch-gsc-1138213",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:goddess-of-victory-nikke-game",
+     "src": "src:sc-merch-gsc-1138213",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:zenless-zone-zero-aria",
+   "type": "character",
+   "slug": "zenless-zone-zero-aria",
+   "names": {
+    "en": "Aria",
+    "ja": "アリア",
+    "ko": "아리아"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-zzz-yt-aria"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:zenless-zone-zero",
+     "src": "src:sc-merch-gsc-1144169",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:zenless-zone-zero-game",
+     "src": "src:sc-merch-gsc-1144169",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:honkai-star-rail-black-swan",
+   "type": "character",
+   "slug": "honkai-star-rail-black-swan",
+   "names": {
+    "en": "Black Swan",
+    "ja": "ブラックスワン",
+    "ko": "블랙 스완"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-hsr-yt-blackswan"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:honkai-star-rail",
+     "src": "src:sc-merch-alter-643",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:honkai-star-rail-game",
+     "src": "src:sc-merch-alter-643",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:arknights-mon3tr",
+   "type": "character",
+   "slug": "arknights-mon3tr",
+   "names": {
+    "en": "Mon3tr"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:arknights",
+     "src": "src:sc-merch-gsc-1144113",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:arknights-game",
+     "src": "src:sc-merch-gsc-1144113",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:fate-mash",
+   "type": "character",
+   "slug": "fate-mash",
+   "names": {
+    "en": "Mash Kyrielight",
+    "ja": "マシュ・キリエライト",
+    "ko": "마슈 키리에라이트"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-mash"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-gsc-1144549",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:fate-grand-order-game-kr",
+     "src": "src:sc-merch-gsc-1144549",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:fate-first-hassan",
+   "type": "character",
+   "slug": "fate-first-hassan",
+   "names": {
+    "en": "First Hassan",
+    "ja": "山の翁",
+    "ko": "산의 노인"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-old-man"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-gsc-61723",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:fate-grand-order-game-kr",
+     "src": "src:sc-merch-gsc-61723",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:fate-okita-souji-alter",
+   "type": "character",
+   "slug": "fate-okita-souji-alter",
+   "names": {
+    "en": "Okita Souji (Alter)",
+    "ja": "沖田総司〔オルタ〕",
+    "ko": "오키타 소지(얼터)"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-okita-alter"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-alter-633",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:fate-grand-order-game-kr",
+     "src": "src:sc-merch-alter-633",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:fate-abigail-williams",
+   "type": "character",
+   "slug": "fate-abigail-williams",
+   "names": {
+    "en": "Abigail Williams",
+    "ja": "アビゲイル・ウィリアムズ",
+    "ko": "애비게일 윌리엄스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-abigail-summer"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-alter-632",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:fate-grand-order-game-kr",
+     "src": "src:sc-merch-alter-632",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:fate-morgan",
+   "type": "character",
+   "slug": "fate-morgan",
+   "names": {
+    "en": "Morgan",
+    "ja": "モルガン",
+    "ko": "모르간"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-morgan"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-alter-654",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:fate-grand-order-game-kr",
+     "src": "src:sc-merch-alter-654",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:chainsaw-man-aki",
+   "type": "character",
+   "slug": "chainsaw-man-aki",
+   "names": {
+    "en": "Aki Hayakawa",
+    "ja": "早川アキ",
+    "ko": "하야카와 아키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-laftel-csm"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-gsc-1142517",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:chainsaw-man-power",
+   "type": "character",
+   "slug": "chainsaw-man-power",
+   "names": {
+    "en": "Power",
+    "ja": "パワー",
+    "ko": "파워"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-laftel-csm"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-gsc-1144811",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:jujutsu-kaisen-yuta",
+   "type": "character",
+   "slug": "jujutsu-kaisen-yuta",
+   "names": {
+    "en": "Yuta Okkotsu",
+    "ja": "乙骨憂太",
+    "ko": "옷코츠 유타"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-laftel-jjk0"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-merch-gsc-1142649",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:one-piece-ace",
+   "type": "character",
+   "slug": "one-piece-ace",
+   "names": {
+    "en": "Portgas D. Ace",
+    "ja": "ポートガス・D・エース",
+    "ko": "포트거스 D. 에이스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-opcg-kr-stk22"
+   },
+   "aliases": [
+    "에이스"
+   ],
+   "aliases_src": {
+    "에이스": "src:ko-sub-c-opcg-kr-stk22"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-merch-megahouse-3754",
+     "ver": "OFFICIAL"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "ver": "OFFICIAL",
+   "kind": "event",
+   "title": {
+    "en": "Arknights: Endfield Steam pre-test sign-ups",
+    "ko": "명일방주: 엔드필드 Steam 「사전 테스트」 참가자 모집"
+   },
+   "starts": "2026-08-26T12:00+08:00",
+   "ends": "2026-09-10T13:00+08:00",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "GLOBAL",
+   "url": "https://store.steampowered.com/news/app/4732690/view/689766422328378820",
+   "entities": [
+    "work:arknights-endfield-game"
+   ],
+   "src": "src:sc-game-characters-endfield-steam-pretest",
+   "note": "Pre-test ahead of the Steam release; the Steam release date is to be announced separately."
+  }
+ ]
+}

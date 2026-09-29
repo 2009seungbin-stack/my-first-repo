@@ -4,13 +4,15 @@ For each scenario this builds dist/ with SERVICE_API=on into a temporary directo
 migrations/ to an isolated *local* D1 (miniflare sqlite under that directory), and serves it
 with `wrangler pages dev` (workerd). Production D1 and real billing are never contacted.
 Google OAuth is not exercised here (tests/service.test.mjs covers it with a mocked token
-endpoint); signed-in users are created directly in the local database.
+endpoint); signed-in users are created directly in the local database. GitHub and Discord sign-in run
+the whole redirect flow against a local mock provider (scenario "social"; OAUTH_TEST_ORIGIN is honoured
+only on local development builds).
 
 Requires: Node + npx (downloads wrangler), Python Playwright + Chromium.
 """
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-import base64, hashlib, hmac, io, json, os, re, shutil, signal, socket, subprocess, sys, tempfile, time, urllib.request, uuid
+import base64, hashlib, hmac, io, json, os, re, shutil, signal, socket, subprocess, sys, tempfile, time, urllib.parse, urllib.request, uuid
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 WRANGLER=['npx','--yes','wrangler@4.135.0']
@@ -32,7 +34,7 @@ def ticket_keys():
 class Stack:
     """One isolated deployment: build + local D1 + wrangler pages dev. Every stack signs its answers
     (TICKET_PRIVATE_KEY in the Worker, TICKET_PUBLIC_KEY in the pages), as production should."""
-    def __init__(self,name,build_env,vars,port=None):
+    def __init__(self,name,build_env,vars,port=None,toml=()):
         self.dir=Path(tempfile.mkdtemp(prefix=f'nerulio-{name}-'));self.port=port or int(os.environ.get('SERVICE_PORT','0')) or free_port();self.url=f'http://127.0.0.1:{self.port}'
         keys=ticket_keys();vars={'TICKET_PRIVATE_KEY':keys['privateKey'],**vars};build_env={'TICKET_PUBLIC_KEY':keys['publicKey'],**build_env}
         env={k:v for k,v in os.environ.items() if not k.startswith(('ADSENSE_','CF_PAGES','SITE_','SERVICE_','PRO_PRICE','FREE_DAILY','TICKET_'))}
@@ -43,7 +45,7 @@ class Stack:
         (self.dir/'wrangler.toml').write_text('\n'.join([
             'name = "nerulio-e2e"','pages_build_output_dir = "./dist"','compatibility_date = "2026-09-18"','',
             '[[d1_databases]]','binding = "DB"','database_name = "nerulio-e2e"','database_id = "00000000-0000-4000-8000-000000000001"',
-            f'migrations_dir = {json.dumps((ROOT/"migrations").as_posix())}','','[vars]',*lines,'']),encoding='utf-8')
+            f'migrations_dir = {json.dumps((ROOT/"migrations").as_posix())}','',*toml,'[vars]',*lines,'']),encoding='utf-8')
         r=shell([*WRANGLER,'d1','migrations','apply','nerulio-e2e','--local'],self.dir)
         if r.returncode:raise RuntimeError(r.stdout+r.stderr)
         self.log=open(self.dir/'wrangler.log','w',encoding='utf-8')
@@ -416,7 +418,7 @@ def scenario_signin(browser):
                 assets=page.evaluate('window.nerulioStudio.doc.assets.map(a=>a.name)')
                 with context.expect_page() as popup:page.click('#studioSignInDialog [data-value="signin"]')
                 tab=popup.value;tab.wait_for_load_state('domcontentloaded')
-                ok('sign-in opens in a NEW tab; the Studio tab stays put','/game/studio/' in page.url and '/api/v1/auth/google/start' in tab.url,tab.url)
+                ok('sign-in opens the provider chooser in a NEW tab; the Studio tab stays put','/game/studio/' in page.url and '/en/account/?from=studio' in tab.url,tab.url)
                 ok('the refused export produced no bundle',not [n for n in downloads if n.endswith('.zip')])
                 # Google OAuth is not configured locally (the start endpoint answers 503; Google is never
                 # contacted). Complete sign-in the way the callback would: a session for a new account on
@@ -457,14 +459,175 @@ def scenario_signin(browser):
         context.close()
     finally:stack.close()
 
+# ------------------------------------------------------------------ GitHub / Discord sign-in (mock provider)
+class MockProvider:
+    """GitHub and Discord as the Worker sees them through OAUTH_TEST_ORIGIN (/<host>/<path>). Authorize
+    redirects straight back (or with error=access_denied when told to deny); the token endpoints check the
+    client secret, the redirect URI and the PKCE verifier, and each code works once."""
+    def __init__(self):
+        import http.server, threading
+        self.codes={};self.deny=set();self.tokens=[];mock=self
+        self.users={'github':{'id':4242,'login':'e2e-octo','name':'E2E Octo'},
+                    'discord':{'id':'515151515151','username':'e2e_nelly','global_name':'E2E Nelly','email':'nelly@example.test','verified':True}}
+        class H(http.server.BaseHTTPRequestHandler):
+            def log_message(self,*a):pass
+            def send(self,code,body=None,headers=()):
+                data=json.dumps(body).encode() if body is not None else b''
+                self.send_response(code)
+                for k,v in headers:self.send_header(k,v)
+                if body is not None:self.send_header('Content-Type','application/json')
+                self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
+            def do_GET(self):
+                u=urllib.parse.urlparse(self.path);q=dict(urllib.parse.parse_qsl(u.query))
+                provider={'/github.com/login/oauth/authorize':'github','/discord.com/oauth2/authorize':'discord'}.get(u.path)
+                if provider:
+                    back=q['redirect_uri']
+                    if provider in mock.deny:return self.send(302,headers=[('Location',back+'?'+urllib.parse.urlencode({'error':'access_denied','state':q['state']}))])
+                    code=provider+'-'+uuid.uuid4().hex
+                    mock.codes[code]={'provider':provider,'challenge':q['code_challenge'],'method':q.get('code_challenge_method'),'redirect':back,'scope':q['scope']}
+                    return self.send(302,headers=[('Location',back+'?'+urllib.parse.urlencode({'code':code,'state':q['state']}))])
+                if not self.headers.get('Authorization','').startswith('Bearer mock-token-'):return self.send(401,{'message':'Bad credentials'})
+                if u.path=='/api.github.com/user':return self.send(200,mock.users['github'])
+                if u.path=='/api.github.com/user/emails':return self.send(200,[{'email':'octo@example.test','primary':True,'verified':True,'visibility':'private'}])
+                if u.path=='/discord.com/api/v10/users/@me':return self.send(200,mock.users['discord'])
+                self.send(404,{'message':'Not Found'})
+            def do_POST(self):
+                body=dict(urllib.parse.parse_qsl(self.rfile.read(int(self.headers.get('Content-Length','0'))).decode()))
+                provider={'/github.com/login/oauth/access_token':'github','/discord.com/api/oauth2/token':'discord'}.get(urllib.parse.urlparse(self.path).path)
+                grant=mock.codes.pop(body.get('code',''),None)
+                secret={'github':'e2e-github-secret','discord':'e2e-discord-secret'}.get(provider)
+                verifier=body.get('code_verifier','')
+                good=bool(grant) and grant['provider']==provider and grant['method']=='S256' and body.get('client_secret')==secret and body.get('redirect_uri')==grant['redirect'] and b64url(hashlib.sha256(verifier.encode()).digest())==grant['challenge']
+                if not good:return self.send(200 if provider=='github' else 400,{'error':'bad_verification_code' if provider=='github' else 'invalid_grant'})
+                mock.tokens.append(provider);self.send(200,{'access_token':'mock-token-'+uuid.uuid4().hex,'token_type':'bearer','scope':grant['scope']})
+        self.server=http.server.ThreadingHTTPServer(('127.0.0.1',0),H);self.url=f'http://127.0.0.1:{self.server.server_address[1]}'
+        threading.Thread(target=self.server.serve_forever,daemon=True).start()
+    def close(self):self.server.shutdown()
+
+def scenario_social(browser):
+    """PLATFORM + SERVICE_API build (like the preview): a member signs in with GitHub and another with Discord
+    through the real redirect flow and each posts a comment; a denied consent shows a Korean message with a
+    working retry; the GitHub member links and unlinks Discord on the account page."""
+    mock=MockProvider()
+    # SITE_URL is this local origin: writes purge the edge-cached pages under the site origin.
+    port=PORT or free_port();origin=f'http://127.0.0.1:{port}'
+    stack=Stack('social',{'SITE_URL':origin,'PLATFORM':'on'},
+                {'SITE_URL':origin,'GITHUB_OAUTH_CLIENT_ID':'e2e-github-client','GITHUB_OAUTH_CLIENT_SECRET':'e2e-github-secret','DISCORD_OAUTH_CLIENT_ID':'e2e-discord-client',
+                 'DISCORD_OAUTH_CLIENT_SECRET':'e2e-discord-secret','OAUTH_TEST_ORIGIN':mock.url},port=port)
+    try:
+        now=int(time.time()*1000)
+        names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
+        stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});"
+                  f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','E2E 질문','로그인 테스트','ko','system:radar-bot',{now},{now},{now});")
+        health=json.load(urllib.request.urlopen(stack.url+'/api/v1/health',timeout=20))
+        ok('social: health lists GitHub and Discord, Google dormant',health['github'] and health['discord'] and not health['google'] and health['providers']==['github','discord'],health)
+        post=stack.url+'/ko/ai/e2e-chat/1'
+        # --- GitHub, from the comment box of a post
+        context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url;log=[]
+        page=context.new_page();instrument(page,log)
+        page.goto(post,wait_until='networkidle')
+        page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form button[type="submit"]')
+        sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
+        ok('social: a signed-out comment opens the sign-in sheet with the configured providers only',sheet.locator('.sib').count()==2 and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
+        page.screenshot(path=str(SHOTS/'signin-sheet-ko.png'))
+        with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):sheet.locator('.sib-github').click()
+        page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
+        ok('social: GitHub sign-in returns to the post, signed in with an automatic nickname',page.url==post and page.locator('.hd [data-island="account"]').inner_text().startswith('user-'),page.url)
+        ok('social: the comment typed before signing in is still in the box',page.locator('#comment-form textarea').input_value()=='로그인 전 댓글')
+        page.fill('#comment-form textarea','GitHub로 로그인해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
+        page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("GitHub로 로그인해서 남긴 댓글")',timeout=15000)
+        ok('social: the GitHub member posted a comment',True)
+        gh=stack.sql("SELECT u.id,u.provider_subject,u.email,i.handle FROM users u JOIN user_identities i ON i.user_id=u.id WHERE i.provider='github'")
+        ok('social: GitHub account keyed by the numeric id with the verified primary e-mail',len(gh)==1 and gh[0]['provider_subject']=='4242' and gh[0]['email']=='octo@example.test' and gh[0]['handle']=='e2e-octo' and 'github' in mock.tokens,gh)
+        page.goto(stack.url+'/ko/community/me',wait_until='networkidle');page.locator('form[data-nickname]:not([hidden])').wait_for(timeout=10000)
+        ok('social: 내 정보 pre-fills the GitHub handle as the nickname (saved only when the member saves)',page.locator('form[data-nickname] input').input_value()=='e2e-octo' and page.locator('[data-suggested]').is_visible())
+        # --- linking Discord from the account page
+        page.goto(stack.url+'/ko/account/',wait_until='networkidle')
+        page.locator('[data-identities] [data-linked-provider="github"]').wait_for(timeout=15000)
+        ok('social: 연결된 로그인 shows GitHub (not removable while it is the only one) and a Discord link button',page.locator('[data-unlink="github"]').is_disabled() and page.locator('[data-link-provider="discord"] .sib-discord').inner_text().strip()=='Discord 연결하기')
+        page.screenshot(path=str(SHOTS/'account-linked-ko.png'),full_page=True)
+        with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('[data-link-provider="discord"] a').click()
+        page.locator('[data-identities] [data-linked-provider="discord"]').wait_for(timeout=15000)
+        ok('social: Discord linked to the same account, with a confirmation','Discord를 연결했어요' in page.locator('#accountStatus').inner_text() and len(stack.sql(f"SELECT 1 FROM user_identities WHERE user_id='{gh[0]['id']}'"))==2)
+        page.on('dialog',lambda d:d.accept())
+        page.click('[data-unlink="discord"]');page.locator('[data-identities] [data-link-provider="discord"]').wait_for(timeout=15000)
+        ok('social: Discord unlinked again; GitHub remains',len(stack.sql(f"SELECT 1 FROM user_identities WHERE user_id='{gh[0]['id']}'"))==1)
+        context.close()
+        # --- Discord, from the community front page box, on a phone
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url;log=[]
+        page=context.new_page();instrument(page,log)
+        page.goto(stack.url+'/ko/community/',wait_until='networkidle')
+        box=page.locator('.box.login')
+        ok('social: the front page sign-in box shows the branded buttons',box.locator('.sib-github').count()==1 and box.locator('.sib-discord').count()==1 and box.locator('.sib-google').count()==0)
+        w=page.evaluate('document.documentElement.scrollWidth');ok('social: no sideways scroll at 390px',w<=390,w)
+        page.screenshot(path=str(SHOTS/'community-signin-box-ko.png'),full_page=True)
+        with page.expect_navigation(url=re.compile(r'/ko/community/$'),timeout=30000):box.locator('.sib-discord').click()
+        page.wait_for_function('()=>document.querySelector(".box.login")&&document.querySelector(".box.login").textContent.includes("내 구독 채널")',timeout=15000)
+        ok('social: Discord sign-in returns to the community front, signed in',True)
+        page.goto(post,wait_until='networkidle')
+        page.fill('#comment-form textarea','Discord로 로그인해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
+        page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("Discord로 로그인해서 남긴 댓글")',timeout=15000)
+        dc=stack.sql("SELECT provider_subject,email FROM users WHERE provider='discord'")
+        ok('social: the Discord member posted a comment from a separate account keyed by the snowflake',len(dc)==1 and dc[0]['provider_subject']=='515151515151' and dc[0]['email']=='nelly@example.test',dc)
+        ok('social: two members, two comments',len(stack.sql("SELECT 1 FROM comments WHERE discussion_id='e2e-post'"))==2)
+        context.close()
+        # --- denied consent: a Korean message and a retry that works
+        mock.deny.add('github')
+        context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url
+        page=context.new_page();page.goto(stack.url+'/ko/account/?return=%2Fko%2Fai%2Fe2e-chat%2F1',wait_until='networkidle')
+        with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('.sibs .sib-github').click()
+        err=page.locator('.service-error');err.wait_for(timeout=15000)
+        ok('social: denied consent → a clear Korean message with 다시 시도','GitHub 로그인을 취소했어요' in err.inner_text() and err.locator('[data-retry]').inner_text()=='다시 시도',err.inner_text())
+        page.screenshot(path=str(SHOTS/'signin-denied-ko.png'))
+        mock.deny.clear()
+        with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):err.locator('[data-retry]').click()
+        page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
+        ok('social: the retry signs in and comes back to the original page',page.url==post)
+        context.close()
+    finally:
+        stack.close();mock.close()
+
+# ------------------------------------------------------------------ visitor/bot statistics (server/traffic.js)
+def scenario_traffic(browser):
+    """PLATFORM + TRAFFIC_HTML build on the real Pages runtime: HTML, robots.txt and sitemaps go through the
+    Worker (and are passed through unchanged), assets stay static, and a visible page sends one beacon."""
+    stack=Stack('traffic',{'SITE_URL':'https://nerulio.test','PLATFORM':'on'},{},toml=['[[analytics_engine_datasets]]','binding = "TRAFFIC"','dataset = "nerulio_traffic"',''])
+    try:
+        routes=json.loads((stack.dir/'dist'/'_routes.json').read_text())
+        ok('traffic: HTML routed through the Worker, assets excluded',routes['include']==['/*'] and all(p in routes['exclude'] for p in ['/src/*','/assets/*','/favicon.ico']) and '/robots.txt' not in routes['exclude'])
+        robots=urllib.request.urlopen(urllib.request.Request(stack.url+'/robots.txt',headers={'User-Agent':'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'}),timeout=20)
+        ok('traffic: robots.txt served through the Worker unchanged',robots.status==200 and robots.read().decode().startswith('User-agent: *'))
+        sm=urllib.request.urlopen(urllib.request.Request(stack.url+'/sitemap.xml',headers={'User-Agent':'Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)'}),timeout=20)
+        ok('traffic: sitemap served through the Worker',sm.status==200 and b'<sitemapindex' in sm.read())
+        js=urllib.request.urlopen(stack.url+'/src/hit.js',timeout=20)
+        ok('traffic: beacon script is a static asset','javascript' in js.headers.get('content-type','') and b'sendBeacon' in js.read())
+        try:
+            urllib.request.urlopen(urllib.request.Request(stack.url+'/api/v2/hit',data=b'{"p":"/ko/"}',method='POST',headers={'Content-Type':'text/plain','Origin':'https://evil.test','Sec-Fetch-Site':'cross-site'}),timeout=20);cross=200
+        except urllib.error.HTTPError as e:cross=e.code
+        ok('traffic: cross-site hits are refused',cross==403)
+        context=browser.new_context();context._nerulio_base=stack.url;log=[]
+        page=context.new_page();instrument(page,log)
+        with page.expect_response(lambda r:r.url.endswith('/api/v2/hit'),timeout=15000) as hit:
+            response=page.goto(stack.url+'/ko/image/crop/',wait_until='domcontentloaded')
+        ok('traffic: page HTML served through the Worker',response.status==200 and '/src/hit.js' in response.text())
+        ok('traffic: one beacon per visible pageview, answered 204',hit.value.status==204)
+        page.wait_for_timeout(1500)
+        beacons=[r for r in log if r['url'].endswith('/api/v2/hit')]
+        body=json.loads(beacons[0]['body']) if beacons else {}
+        ok('traffic: exactly one beacon with path, source, device, language only',len(beacons)==1 and set(body)=={'p','r','d','l','e','w'} and body['p']=='/ko/image/crop/' and body['r']=='direct')
+        context.close()
+    finally:stack.close()
+
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,traffic').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
         if 'signin' in only:scenario_signin(browser)
+        if 'social' in only:scenario_social(browser)
+        if 'traffic' in only:scenario_traffic(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))
 (OUT/'service-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')

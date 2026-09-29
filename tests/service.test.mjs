@@ -95,7 +95,7 @@ test('anonymous identity: secure random cookie issued once, then reused',{skip},
  // No database rows exist for an anonymous visitor who never ran a heavy job.
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
  const {grace,...rest}=first.json;
- assert.deepEqual(rest,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:3,remaining:3,resetAt:new Date(Date.UTC(2026,8,22)).toISOString(),signInLimit:10,signInRequired:false},billing:{mode:'off',yearly:false},turnstileSiteKey:''});
+ assert.deepEqual(rest,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:3,remaining:3,resetAt:new Date(Date.UTC(2026,8,22)).toISOString(),signInLimit:10,signInRequired:false},billing:{mode:'off',yearly:false},providers:[],turnstileSiteKey:''});
  // Signed offline allowance: none before the identity's first counted job of the day…
  assert.equal(grace.day,'2026-09-21');assert.deepEqual([grace.heavy,grace.studio],[[],[]]);
  await h.authorize('studio-pack-export');
@@ -288,7 +288,7 @@ test('Google OAuth: state + PKCE + nonce, subject-keyed identity, anonymous usag
  const s3=await h.call('GET','/api/v1/auth/google/start'),l3=new URL(s3.headers.get('location'));
  h.setFetch(async()=>Response.json({id_token:idToken({iss:'accounts.google.com',aud:'client-1',exp:Math.floor(h.clock.now/1000)+300,nonce:l3.searchParams.get('nonce'),sub:'1098',email:'changed@example.test',email_verified:true})}));
  await h.call('GET',`/api/v1/auth/google/callback?code=x&state=${l3.searchParams.get('state')}`);
- assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM users').get().n,1);
+ assert.equal(h.db.raw.prepare("SELECT COUNT(*) n FROM users WHERE provider<>'system'").get().n,1);
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM sessions').get().n,1,'re-login replaces the previous session');
 });
 

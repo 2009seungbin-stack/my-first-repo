@@ -18,6 +18,7 @@ import {GAME_HUB_PATH} from '../src/game-seo.js';
 import {gamePageFor,gameSitemapPaths} from './game-landing-build.mjs';
 import {GUIDE_ROUTES,guideLastmod} from './guides-registry.mjs';
 import {imageSitemap} from './growth-build.mjs';
+import {AUDIO_LAB_PATH} from './audio-lab-build.mjs';
 
 export const SITEMAP_LIMITS=Object.freeze({urls:50000,bytes:50*1024*1024});
 export const SITEMAP_INDEX='sitemap.xml';
@@ -34,7 +35,7 @@ export function sitemapGroups(extra=[]){
  // canonical URL in the tools sitemap; the game renderer has no gamePageFor record for them.
  const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p)&&gamePageFor(p)),'game/sfx-generator'])];
  const inGame=new Set(game);
- const tools=[...new Set([...indexable,...POLICY_ROUTES,...extra])].filter(p=>!inGame.has(p));
+ const tools=[...new Set([...indexable,AUDIO_LAB_PATH,...POLICY_ROUTES,...extra])].filter(p=>!inGame.has(p));
  return {game,guides:[...GUIDE_ROUTES],tools};
 }
 /** The <url> entries of `paths` in every language. `lastmod(route)` → W3C datetime or null, where
@@ -56,7 +57,8 @@ const newest=dates=>dates.filter(Boolean).reduce((a,d)=>!a||Date.parse(d)>Date.p
 const guideDate=route=>guideLastmod(route.replace(/^(ko|en|ja)\//,''));
 /** Every sitemap file of a build: {file name: XML}. Without a site URL (preview builds) the index
  * is an empty urlset, as before, and nothing else is listed. */
-export function sitemapFiles(siteURL,{extra=[],lastmod=()=>null}={}){
+/** `dynamic`: sitemap files served by the Worker (PLATFORM=on entity sitemaps), listed in the index only. */
+export function sitemapFiles(siteURL,{extra=[],lastmod=()=>null,dynamic=[]}={}){
  if(!siteURL)return {[SITEMAP_INDEX]:urlset(''),[SITEMAP_FILES.images]:imageSitemap('')};
  const g=sitemapGroups(extra),out={},dated={};
  const add=(key,paths,dateOf)=>{
@@ -66,7 +68,7 @@ export function sitemapFiles(siteURL,{extra=[],lastmod=()=>null}={}){
  };
  add('game',g.game,lastmod);add('guides',g.guides,guideDate);add('tools',g.tools,lastmod);
  out[SITEMAP_FILES.images]=imageSitemap(siteURL);
- const entries=Object.keys(out).map(f=>`<sitemap><loc>${esc(new URL(f,siteURL).href)}</loc>${dated[f]?`<lastmod>${dated[f]}</lastmod>`:''}</sitemap>`).join('');
+ const entries=Object.keys(out).map(f=>`<sitemap><loc>${esc(new URL(f,siteURL).href)}</loc>${dated[f]?`<lastmod>${dated[f]}</lastmod>`:''}</sitemap>`).join('')+dynamic.map(f=>`<sitemap><loc>${esc(new URL(f,siteURL).href)}</loc></sitemap>`).join('');
  return {[SITEMAP_INDEX]:`<?xml version="1.0" encoding="UTF-8"?><sitemapindex ${NS}>${entries}</sitemapindex>`,...out};
 }
 /** Every page URL of the site in one urlset (game, guides, then tools): what IndexNow submits and

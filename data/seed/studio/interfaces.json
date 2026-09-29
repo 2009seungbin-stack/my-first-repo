@@ -1,0 +1,3313 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:focusrite-macos-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.focusrite.com/hc/en-gb/articles/12033372452754-Focusrite-Compatibility-on-macOS",
+   "title": "Focusrite Compatibility on macOS",
+   "publisher": "Focusrite",
+   "retrieved": "2026-09-28",
+   "note": "Per-macOS tables (Intel / Apple silicon). macOS 27: testing ongoing; \"we currently do not officially support our devices on this new macOS\". Article edited 2026-09-03."
+  },
+  {
+   "id": "src:focusrite-windows-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.focusrite.com/hc/en-gb/articles/14369604878738-Focusrite-Compatibility-with-Windows",
+   "title": "Focusrite Compatibility with Windows",
+   "publisher": "Focusrite",
+   "retrieved": "2026-09-28",
+   "note": "Windows 11 table \"applies to Windows 11 24H2\", Intel/AMD and Arm64 columns."
+  },
+  {
+   "id": "src:universal-audio-os-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://help.uaudio.com/hc/en-us/articles/210208926-Latest-macOS-Windows-Operating-System-Compatibility-Information",
+   "title": "Latest macOS & Windows Operating System Compatibility Information",
+   "publisher": "Universal Audio",
+   "retrieved": "2026-09-28",
+   "note": "Updated 2026-09-16: latest UAD software compatible with macOS 11-15 and 26, Windows 10/11; macOS 27 is being tested, minor display issues known with various UAD Native plug-ins."
+  },
+  {
+   "id": "src:universal-audio-uad-version-history",
+   "kind": "OFFICIAL",
+   "url": "https://help.uaudio.com/hc/en-us/articles/215270403-UAD-DSP-Plug-Ins-and-Drivers-Version-History-Release-Notes",
+   "title": "UAD DSP Plug-Ins and Drivers Version History & Release Notes",
+   "publisher": "Universal Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:universal-audio-apollo-x-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://help.uaudio.com/hc/en-us/articles/360015483551-Apollo-X-Series-System-Requirements",
+   "title": "Apollo X Series System Requirements",
+   "publisher": "Universal Audio",
+   "retrieved": "2026-09-28",
+   "note": "macOS 11-15 and 26; Windows 10 64-bit or 11; Apollo X Gen 2 requires UAD software 11.5.0 or later."
+  },
+  {
+   "id": "src:universal-audio-volt-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://help.uaudio.com/hc/en-us/articles/4409494301204-Volt-System-Requirements",
+   "title": "Volt System Requirements",
+   "publisher": "Universal Audio",
+   "retrieved": "2026-09-28",
+   "note": "macOS 11 or higher; Windows 10/11 64-bit; Windows ARM: UA software not compatible, Volt hardware untested."
+  },
+  {
+   "id": "src:universal-audio-uadx-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://help.uaudio.com/hc/en-us/articles/5172379808276-UAD-Native-Plug-ins-UADx-and-UAD-Spark-Studio-System-Requirements",
+   "title": "UAD Native Plug-ins (UADx) and UAD Spark Studio System Requirements",
+   "publisher": "Universal Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:universal-audio-uad-macos-26",
+   "kind": "OFFICIAL",
+   "url": "https://help.uaudio.com/hc/en-us/articles/41351505627028-UAD-DSP-Software-Compatibility-with-macOS-Tahoe-26",
+   "title": "UAD DSP Software Compatibility with macOS Tahoe 26",
+   "publisher": "Universal Audio",
+   "retrieved": "2026-09-28",
+   "note": "Latest UAD DSP software compatible with macOS 26; Thunderbolt Apollo/Satellite and UAD-2 PCIe compatible; FireWire models incompatible."
+  },
+  {
+   "id": "src:rme-downloads",
+   "kind": "OFFICIAL",
+   "url": "https://rme-audio.de/downloads.html",
+   "title": "RME Downloads",
+   "publisher": "RME",
+   "retrieved": "2026-09-28",
+   "note": "Windows USB-series driver 1.277 and MADIface-series driver 1.0.26 (both 2026-09-21, Windows 10/11 x64 and Windows 11 Arm); macOS 11+ USB-series DriverKit driver 4.30 (2026-06-07) and kernel-extension driver 3.39."
+  },
+  {
+   "id": "src:motu-m2-downloads",
+   "kind": "OFFICIAL",
+   "url": "https://motu.com/en-us/download/product/408/",
+   "title": "M2 - Downloads | MOTU.com",
+   "publisher": "MOTU",
+   "retrieved": "2026-09-28",
+   "note": "MOTU M-Series Installer Mac v2.0.2 (2026-03-25) supports macOS 26, 15, 14, 13, 12; PC v4.6.0.705 (2026-09-22) supports Windows 11."
+  },
+  {
+   "id": "src:motu-m2-specs",
+   "kind": "OFFICIAL",
+   "url": "https://motu.com/en-us/products/m-series/m2/specs/",
+   "title": "MOTU M2 Specs",
+   "publisher": "MOTU",
+   "retrieved": "2026-09-28",
+   "note": "macOS 12 or later (driver or class compliant), Apple silicon and Intel; Windows 11 23H2 or later (x86-64/ARM64)."
+  },
+  {
+   "id": "src:motu-m4-specs",
+   "kind": "OFFICIAL",
+   "url": "https://motu.com/en-us/products/m-series/m4/specs/",
+   "title": "MOTU M4 Specs",
+   "publisher": "MOTU",
+   "retrieved": "2026-09-28",
+   "note": "macOS 12 or later (driver or class compliant), Apple silicon and Intel; Windows 11 23H2 or later (x86-64/ARM64)."
+  },
+  {
+   "id": "src:motu-m6-specs",
+   "kind": "OFFICIAL",
+   "url": "https://motu.com/en-us/products/m-series/m6/specs/",
+   "title": "MOTU M6 Specs",
+   "publisher": "MOTU",
+   "retrieved": "2026-09-28",
+   "note": "macOS 12 or later (driver or class compliant), Apple silicon and Intel; Windows 11 23H2 or later (x86-64/ARM64)."
+  },
+  {
+   "id": "src:audient-id-range-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.audient.com/hc/en-us/articles/7931530978196-ID-Range-Compatibility",
+   "title": "ID Range Compatibility",
+   "publisher": "Audient",
+   "retrieved": "2026-09-28",
+   "note": "Entire iD MKI & MKII range: macOS 10.13.6 through 15.x and Tahoe (listed as \"16.x (Tahoe)\"); Windows 10 and 11; Intel or Apple Silicon."
+  },
+  {
+   "id": "src:audient-evo-range-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.audient.com/hc/en-us/articles/7956519800852-EVO-Range-Compatibility",
+   "title": "EVO Range Compatibility",
+   "publisher": "Audient",
+   "retrieved": "2026-09-28",
+   "note": "EVO range: macOS 10.13.6 through 15.x; Windows 10 and 11."
+  },
+  {
+   "id": "src:audient-macos-26-announcement",
+   "kind": "OFFICIAL",
+   "url": "https://support.audient.com/hc/en-us/articles/47496148269204-MacOS-26-Tahoe-Compatibility-Announcement-Update",
+   "title": "MacOS 26 Tahoe - Compatibility Announcement Update",
+   "publisher": "Audient",
+   "retrieved": "2026-09-28",
+   "note": "EVO, iD and ORIA ranges officially supported under macOS Tahoe with the latest drivers."
+  },
+  {
+   "id": "src:ssl-2-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.solidstatelogic.com/hc/en-gb/articles/4408964173073-SSL-2-2-MKI-MKII-Compatibility",
+   "title": "SSL 2/2+ MKI & MKII Compatibility",
+   "publisher": "Solid State Logic",
+   "retrieved": "2026-09-28",
+   "note": "Class compliant on macOS (no driver); macOS 27 not yet tested and currently unsupported; tested on M1-M4, M5 unsupported; Windows 10+ with SSL ASIO/WDM driver; Windows ARM not supported."
+  },
+  {
+   "id": "src:ssl-12-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.solidstatelogic.com/hc/en-gb/articles/12051952313757-SSL-12-Compatibility",
+   "title": "SSL 12 Compatibility",
+   "publisher": "Solid State Logic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ssl-18-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.solidstatelogic.com/hc/en-gb/articles/24642960482845-SSL-18-Compatibility",
+   "title": "SSL 18 Compatibility",
+   "publisher": "Solid State Logic",
+   "retrieved": "2026-09-28",
+   "note": "Windows ARM-based systems are not supported."
+  },
+  {
+   "id": "src:ssl-1-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.solidstatelogic.com/hc/en-gb/articles/36389406672669-SSL-1-Compatibility",
+   "title": "SSL 1 Compatibility",
+   "publisher": "Solid State Logic",
+   "retrieved": "2026-09-28",
+   "note": "SSL 1 is ARM compatible on Windows."
+  },
+  {
+   "id": "src:ko-ai-studio-focusrite-userguides-ko",
+   "kind": "OFFICIAL",
+   "url": "https://userguides.focusrite.com/hc/ko",
+   "title": "Focusrite 사용자 가이드",
+   "publisher": "Focusrite Audio Engineering Ltd.",
+   "retrieved": "2026-09-29",
+   "note": "Vendor Korean help-centre category titles: \"스칼렛 4세대 사용 설명서\", \"Scarlett 3rd Gen 사용자 가이드\", \"Clarett⁺ 사용자 가이드\", \"보캐스터 사용자 가이드\" (page is behind Cloudflare; read in a real browser)"
+  }
+ ],
+ "entities": [
+  {
+   "id": "vendor:focusrite",
+   "type": "vendor",
+   "slug": "focusrite",
+   "names": {
+    "en": "Focusrite",
+    "ko": "포커스라이트"
+   },
+   "aliases": [
+    "Focusrite Audio Engineering",
+    "Focusrite plc"
+   ],
+   "description": {
+    "en": "UK maker of the Scarlett, Clarett and Vocaster audio interfaces.",
+    "ko": "Scarlett·Clarett·Vocaster 오디오 인터페이스를 만드는 영국 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://focusrite.com/"
+    },
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://focusrite.com/",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:focusrite-scarlett-4th-gen",
+   "type": "audio_device",
+   "slug": "focusrite-scarlett-4th-gen",
+   "names": {
+    "en": "Focusrite Scarlett 4th Gen",
+    "ko": "스칼렛 4세대"
+   },
+   "names_src": {
+    "ko": "src:ko-ai-studio-focusrite-userguides-ko"
+   },
+   "aliases": [
+    "Scarlett 4th Gen",
+    "Scarlett Solo 4th Gen",
+    "Scarlett 2i2 4th Gen",
+    "Scarlett 4i4 4th Gen",
+    "Scarlett 16i16 4th Gen",
+    "Scarlett 18i16 4th Gen",
+    "Scarlett 18i20 4th Gen",
+    "Scarlett 2i2",
+    "Scarlett Solo"
+   ],
+   "description": {
+    "en": "Focusrite Scarlett 4th Gen family of USB/Thunderbolt audio interfaces; Focusrite publishes per-OS compatibility tables.",
+    "ko": "Focusrite Scarlett 4th Gen 오디오 인터페이스 제품군으로, Focusrite가 OS별 호환성 표를 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/focusrite/scarlett-4th-gen"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://downloads.focusrite.com/focusrite/scarlett-4th-gen",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-macos-compatibility",
+     "note": "Focusrite downloads page (drivers, control software, user guides)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:focusrite",
+     "src": "src:focusrite-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:focusrite-scarlett-3rd-gen",
+   "type": "audio_device",
+   "slug": "focusrite-scarlett-3rd-gen",
+   "names": {
+    "en": "Focusrite Scarlett 3rd Gen"
+   },
+   "aliases": [
+    "Scarlett 3rd Gen",
+    "Scarlett Solo 3rd Gen",
+    "Scarlett 2i2 3rd Gen",
+    "Scarlett 4i4 3rd Gen",
+    "Scarlett 8i6 3rd Gen",
+    "Scarlett 18i8 3rd Gen",
+    "Scarlett 18i20 3rd Gen"
+   ],
+   "description": {
+    "en": "Focusrite Scarlett 3rd Gen family of USB/Thunderbolt audio interfaces; Focusrite publishes per-OS compatibility tables.",
+    "ko": "Focusrite Scarlett 3rd Gen 오디오 인터페이스 제품군으로, Focusrite가 OS별 호환성 표를 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/focusrite/scarlett-3rd-gen"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://downloads.focusrite.com/focusrite/scarlett-3rd-gen",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-macos-compatibility",
+     "note": "Focusrite downloads page (drivers, control software, user guides)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:focusrite",
+     "src": "src:focusrite-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:focusrite-scarlett-2nd-gen",
+   "type": "audio_device",
+   "slug": "focusrite-scarlett-2nd-gen",
+   "names": {
+    "en": "Focusrite Scarlett 2nd Gen"
+   },
+   "aliases": [
+    "Scarlett 2nd Gen",
+    "Scarlett 2i2 2nd Gen",
+    "Scarlett Solo 2nd Gen"
+   ],
+   "description": {
+    "en": "Focusrite Scarlett 2nd Gen family of USB/Thunderbolt audio interfaces; Focusrite publishes per-OS compatibility tables.",
+    "ko": "Focusrite Scarlett 2nd Gen 오디오 인터페이스 제품군으로, Focusrite가 OS별 호환성 표를 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/focusrite/scarlett-2nd-gen"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://downloads.focusrite.com/focusrite/scarlett-2nd-gen",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-macos-compatibility",
+     "note": "Focusrite downloads page (drivers, control software, user guides)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:focusrite",
+     "src": "src:focusrite-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:focusrite-clarett-plus",
+   "type": "audio_device",
+   "slug": "focusrite-clarett-plus",
+   "names": {
+    "en": "Focusrite Clarett+"
+   },
+   "aliases": [
+    "Clarett+",
+    "Clarett Plus",
+    "Clarett+ 2Pre",
+    "Clarett+ 4Pre",
+    "Clarett+ 8Pre"
+   ],
+   "description": {
+    "en": "Focusrite Clarett+ family of USB/Thunderbolt audio interfaces; Focusrite publishes per-OS compatibility tables.",
+    "ko": "Focusrite Clarett+ 오디오 인터페이스 제품군으로, Focusrite가 OS별 호환성 표를 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/focusrite/clarett"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://downloads.focusrite.com/focusrite/clarett",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-macos-compatibility",
+     "note": "Focusrite downloads page (drivers, control software, user guides)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:focusrite",
+     "src": "src:focusrite-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:focusrite-clarett-usb",
+   "type": "audio_device",
+   "slug": "focusrite-clarett-usb",
+   "names": {
+    "en": "Focusrite Clarett USB"
+   },
+   "aliases": [
+    "Clarett USB",
+    "Clarett 2Pre USB",
+    "Clarett 4Pre USB",
+    "Clarett 8Pre USB"
+   ],
+   "description": {
+    "en": "Focusrite Clarett USB family of USB/Thunderbolt audio interfaces; Focusrite publishes per-OS compatibility tables.",
+    "ko": "Focusrite Clarett USB 오디오 인터페이스 제품군으로, Focusrite가 OS별 호환성 표를 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/focusrite/clarett-usb"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://downloads.focusrite.com/focusrite/clarett-usb",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-macos-compatibility",
+     "note": "Focusrite downloads page (drivers, control software, user guides)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:focusrite",
+     "src": "src:focusrite-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:focusrite-clarett-thunderbolt",
+   "type": "audio_device",
+   "slug": "focusrite-clarett-thunderbolt",
+   "names": {
+    "en": "Focusrite Clarett Thunderbolt"
+   },
+   "aliases": [
+    "Clarett Thunderbolt",
+    "Clarett 2Pre",
+    "Clarett 4Pre",
+    "Clarett 8Pre",
+    "Clarett 8PreX"
+   ],
+   "description": {
+    "en": "Focusrite Clarett Thunderbolt family of USB/Thunderbolt audio interfaces; Focusrite publishes per-OS compatibility tables.",
+    "ko": "Focusrite Clarett Thunderbolt 오디오 인터페이스 제품군으로, Focusrite가 OS별 호환성 표를 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/focusrite/clarett-0"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://downloads.focusrite.com/focusrite/clarett-0",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-macos-compatibility",
+     "note": "Focusrite downloads page (drivers, control software, user guides)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:focusrite",
+     "src": "src:focusrite-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:focusrite-vocaster",
+   "type": "audio_device",
+   "slug": "focusrite-vocaster",
+   "names": {
+    "en": "Focusrite Vocaster",
+    "ko": "보캐스터"
+   },
+   "names_src": {
+    "ko": "src:ko-ai-studio-focusrite-userguides-ko"
+   },
+   "aliases": [
+    "Vocaster One",
+    "Vocaster Two",
+    "Vocaster"
+   ],
+   "description": {
+    "en": "Focusrite Vocaster family of USB/Thunderbolt audio interfaces; Focusrite publishes per-OS compatibility tables.",
+    "ko": "Focusrite Vocaster 오디오 인터페이스 제품군으로, Focusrite가 OS별 호환성 표를 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://downloads.focusrite.com/focusrite/vocaster"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-windows-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://downloads.focusrite.com/focusrite/vocaster",
+     "ver": "OFFICIAL",
+     "src": "src:focusrite-macos-compatibility",
+     "note": "Focusrite downloads page (drivers, control software, user guides)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:focusrite",
+     "src": "src:focusrite-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "vendor:universal-audio",
+   "type": "vendor",
+   "slug": "universal-audio",
+   "names": {
+    "en": "Universal Audio",
+    "ko": "유니버설 오디오"
+   },
+   "aliases": [
+    "UA",
+    "UAD",
+    "Universal Audio Inc."
+   ],
+   "description": {
+    "en": "US maker of Apollo and Volt audio interfaces and UAD plug-ins.",
+    "ko": "Apollo·Volt 오디오 인터페이스와 UAD 플러그인을 만드는 미국 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.uaudio.com/"
+    },
+    {
+     "label": "Help center",
+     "url": "https://help.uaudio.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.uaudio.com/",
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-os-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:universal-audio-apollo-x",
+   "type": "audio_device",
+   "slug": "universal-audio-apollo-x",
+   "names": {
+    "en": "Universal Audio Apollo X Series"
+   },
+   "aliases": [
+    "Apollo x4",
+    "Apollo x6",
+    "Apollo x8",
+    "Apollo x8p",
+    "Apollo x16",
+    "Apollo x16D",
+    "Apollo Twin X",
+    "Apollo X Gen 2",
+    "Apollo Twin X Gen 2",
+    "Apollo X",
+    "UA Apollo"
+   ],
+   "description": {
+    "en": "Thunderbolt Apollo X rack and desktop interfaces (Gen 1 and Gen 2) with UAD DSP.",
+    "ko": "UAD DSP를 내장한 Thunderbolt 방식 Apollo X 랙·데스크톱 인터페이스(1·2세대)입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Requirements",
+     "url": "https://help.uaudio.com/hc/en-us/articles/360015483551-Apollo-X-Series-System-Requirements"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-apollo-x-requirements"
+    },
+    {
+     "p": "latest_driver",
+     "v": "UAD DSP Plug-Ins and Drivers 12.0",
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-uad-version-history",
+     "note": "Released 2026-09-08."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:universal-audio",
+     "src": "src:universal-audio-apollo-x-requirements"
+    }
+   ],
+   "versions": [
+    {
+     "version": "12.0",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2026-09-08",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    },
+    {
+     "version": "11.9.0",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2026-07-07",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    },
+    {
+     "version": "11.8.3",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2026-03-03",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    },
+    {
+     "version": "11.8.2",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2025-11-18",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:universal-audio-volt",
+   "type": "audio_device",
+   "slug": "universal-audio-volt",
+   "names": {
+    "en": "Universal Audio Volt"
+   },
+   "aliases": [
+    "Volt 1",
+    "Volt 2",
+    "Volt 176",
+    "Volt 276",
+    "Volt 476",
+    "Volt 476P",
+    "Volt 4",
+    "UA Volt"
+   ],
+   "description": {
+    "en": "Universal Audio's USB-C class-compliant Volt interfaces (Volt 1 to Volt 476P).",
+    "ko": "Universal Audio의 USB-C 클래스 컴플라이언트 Volt 인터페이스(Volt 1~476P)입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Requirements",
+     "url": "https://help.uaudio.com/hc/en-us/articles/4409494301204-Volt-System-Requirements"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS",
+      "Android"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-volt-requirements",
+     "note": "iOS/Android: hardware works as class-compliant USB; the Volt software bundle is not compatible."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:universal-audio",
+     "src": "src:universal-audio-volt-requirements"
+    }
+   ]
+  },
+  {
+   "id": "plugin:universal-audio-uadx",
+   "type": "plugin",
+   "slug": "universal-audio-uadx",
+   "names": {
+    "en": "UAD Native plug-ins (UADx)"
+   },
+   "aliases": [
+    "UADx",
+    "UAD Native",
+    "UAD Spark",
+    "UAD Spark Studio",
+    "UAD plug-ins native"
+   ],
+   "description": {
+    "en": "Universal Audio's native (no DSP hardware needed) plug-ins, sold individually or via UAD Spark Studio and managed with UA Connect.",
+    "ko": "DSP 하드웨어 없이 동작하는 Universal Audio 네이티브 플러그인으로, 개별 구매 또는 UAD Spark Studio로 제공되며 UA Connect로 관리합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Requirements",
+     "url": "https://help.uaudio.com/hc/en-us/articles/5172379808276"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-uadx-requirements"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-uadx-requirements"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 11 Big Sur",
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-uadx-requirements"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-uadx-requirements"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-uadx-requirements",
+     "note": "UADx run natively on Apple silicon in DAWs that support it."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:universal-audio",
+     "src": "src:universal-audio-uadx-requirements"
+    }
+   ]
+  },
+  {
+   "id": "plugin:universal-audio-uad-dsp",
+   "type": "plugin",
+   "slug": "universal-audio-uad-dsp",
+   "names": {
+    "en": "UAD DSP plug-ins"
+   },
+   "aliases": [
+    "UAD-2",
+    "UAD DSP",
+    "UAD plug-ins",
+    "UAD Software"
+   ],
+   "description": {
+    "en": "Universal Audio plug-ins that run on the DSP inside Apollo, UAD-2 Satellite and UAD-2 PCIe hardware.",
+    "ko": "Apollo·UAD-2 Satellite·UAD-2 PCIe 하드웨어의 DSP에서 동작하는 Universal Audio 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Version history",
+     "url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "12.0",
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-uad-version-history",
+     "note": "UAD DSP Plug-Ins and Drivers 12.0, 2026-09-08."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-os-compatibility"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 11 Big Sur",
+     "ver": "OFFICIAL",
+     "src": "src:universal-audio-os-compatibility",
+     "note": "UAD software 11.6.0+ requires macOS 11; 11.5.2 was the last for macOS 10.15."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:universal-audio",
+     "src": "src:universal-audio-uad-version-history"
+    }
+   ],
+   "versions": [
+    {
+     "version": "12.0",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2026-09-08",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    },
+    {
+     "version": "11.9.0",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2026-07-07",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    },
+    {
+     "version": "11.8.3",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2026-03-03",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    },
+    {
+     "version": "11.8.2",
+     "channel": "stable",
+     "src": "src:universal-audio-uad-version-history",
+     "released": "2025-11-18",
+     "notes_url": "https://help.uaudio.com/hc/en-us/articles/215270403"
+    }
+   ]
+  },
+  {
+   "id": "vendor:rme",
+   "type": "vendor",
+   "slug": "rme",
+   "names": {
+    "en": "RME",
+    "ko": "알엠이"
+   },
+   "aliases": [
+    "RME Audio",
+    "Audio AG"
+   ],
+   "description": {
+    "en": "German maker of Fireface, Babyface and Digiface audio interfaces.",
+    "ko": "Fireface·Babyface·Digiface 오디오 인터페이스를 만드는 독일 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://rme-audio.de/"
+    },
+    {
+     "label": "Downloads",
+     "url": "https://rme-audio.de/downloads.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://rme-audio.de/",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:rme-fireface-ucx-ii",
+   "type": "audio_device",
+   "slug": "rme-fireface-ucx-ii",
+   "names": {
+    "en": "RME Fireface UCX II"
+   },
+   "aliases": [
+    "Fireface UCX II",
+    "UCX II",
+    "UCX2"
+   ],
+   "description": {
+    "en": "RME Fireface UCX II USB audio interface; RME publishes separate Windows (USB series driver) and macOS DriverKit drivers.",
+    "ko": "RME Fireface UCX II USB 오디오 인터페이스로, RME가 Windows(USB series 드라이버)와 macOS DriverKit 드라이버를 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://rme-audio.de/downloads.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads"
+    },
+    {
+     "p": "latest_driver",
+     "v": "Windows USB series driver 1.277 (2026-09-21)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "platform": "windows"
+    },
+    {
+     "p": "latest_driver",
+     "v": "macOS USB series DriverKit driver 4.30 (2026-06-07)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "note": "For macOS 11 or later; a kernel-extension driver 3.39 is also offered.",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:rme",
+     "src": "src:rme-downloads"
+    }
+   ],
+   "versions": [
+    {
+     "version": "win-1.277",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-09-21",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    },
+    {
+     "version": "mac-dk-4.30",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-06-07",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:rme-babyface-pro-fs",
+   "type": "audio_device",
+   "slug": "rme-babyface-pro-fs",
+   "names": {
+    "en": "RME Babyface Pro FS"
+   },
+   "aliases": [
+    "Babyface Pro FS",
+    "Babyface Pro"
+   ],
+   "description": {
+    "en": "RME Babyface Pro FS USB audio interface; RME publishes separate Windows (USB series driver) and macOS DriverKit drivers.",
+    "ko": "RME Babyface Pro FS USB 오디오 인터페이스로, RME가 Windows(USB series 드라이버)와 macOS DriverKit 드라이버를 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://rme-audio.de/downloads.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads"
+    },
+    {
+     "p": "latest_driver",
+     "v": "Windows USB series driver 1.277 (2026-09-21)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "platform": "windows"
+    },
+    {
+     "p": "latest_driver",
+     "v": "macOS USB series DriverKit driver 4.30 (2026-06-07)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "note": "For macOS 11 or later; a kernel-extension driver 3.39 is also offered.",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:rme",
+     "src": "src:rme-downloads"
+    }
+   ],
+   "versions": [
+    {
+     "version": "win-1.277",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-09-21",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    },
+    {
+     "version": "mac-dk-4.30",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-06-07",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:rme-fireface-ufx-iii",
+   "type": "audio_device",
+   "slug": "rme-fireface-ufx-iii",
+   "names": {
+    "en": "RME Fireface UFX III"
+   },
+   "aliases": [
+    "Fireface UFX III",
+    "UFX III"
+   ],
+   "description": {
+    "en": "RME Fireface UFX III USB audio interface; RME publishes separate Windows (MADIface series driver) and macOS DriverKit drivers.",
+    "ko": "RME Fireface UFX III USB 오디오 인터페이스로, RME가 Windows(MADIface series 드라이버)와 macOS DriverKit 드라이버를 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://rme-audio.de/downloads.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads"
+    },
+    {
+     "p": "latest_driver",
+     "v": "Windows MADIface series driver 1.0.26 (2026-09-21)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "platform": "windows"
+    },
+    {
+     "p": "latest_driver",
+     "v": "macOS USB series DriverKit driver 4.30 (2026-06-07)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "note": "For macOS 11 or later; a kernel-extension driver 3.39 is also offered.",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:rme",
+     "src": "src:rme-downloads"
+    }
+   ],
+   "versions": [
+    {
+     "version": "win-1.0.26",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-09-21",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    },
+    {
+     "version": "mac-dk-4.30",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-06-07",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:rme-digiface-usb",
+   "type": "audio_device",
+   "slug": "rme-digiface-usb",
+   "names": {
+    "en": "RME Digiface USB"
+   },
+   "aliases": [
+    "Digiface USB"
+   ],
+   "description": {
+    "en": "RME Digiface USB USB audio interface; RME publishes separate Windows (MADIface series driver) and macOS DriverKit drivers.",
+    "ko": "RME Digiface USB USB 오디오 인터페이스로, RME가 Windows(MADIface series 드라이버)와 macOS DriverKit 드라이버를 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Downloads",
+     "url": "https://rme-audio.de/downloads.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads"
+    },
+    {
+     "p": "latest_driver",
+     "v": "Windows MADIface series driver 1.0.26 (2026-09-21)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "platform": "windows"
+    },
+    {
+     "p": "latest_driver",
+     "v": "macOS USB series DriverKit driver 4.30 (2026-06-07)",
+     "ver": "OFFICIAL",
+     "src": "src:rme-downloads",
+     "note": "For macOS 11 or later; a kernel-extension driver 3.39 is also offered.",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:rme",
+     "src": "src:rme-downloads"
+    }
+   ],
+   "versions": [
+    {
+     "version": "win-1.0.26",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-09-21",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    },
+    {
+     "version": "mac-dk-4.30",
+     "channel": "stable",
+     "src": "src:rme-downloads",
+     "released": "2026-06-07",
+     "notes_url": "https://rme-audio.de/downloads.html"
+    }
+   ]
+  },
+  {
+   "id": "vendor:motu",
+   "type": "vendor",
+   "slug": "motu",
+   "names": {
+    "en": "MOTU",
+    "ko": "모투"
+   },
+   "aliases": [
+    "Mark of the Unicorn"
+   ],
+   "description": {
+    "en": "US maker of the M-Series and UltraLite audio interfaces and the Digital Performer DAW.",
+    "ko": "M 시리즈·UltraLite 오디오 인터페이스와 DAW Digital Performer를 만드는 미국 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://motu.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://motu.com/",
+     "ver": "OFFICIAL",
+     "src": "src:motu-m2-downloads"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:motu-m2",
+   "type": "audio_device",
+   "slug": "motu-m2",
+   "names": {
+    "en": "MOTU M2"
+   },
+   "aliases": [
+    "M2",
+    "M-Series M2"
+   ],
+   "description": {
+    "en": "MOTU M2 USB-C audio interface from MOTU's M-Series.",
+    "ko": "MOTU M 시리즈의 MOTU M2 USB-C 오디오 인터페이스입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Specs",
+     "url": "https://motu.com/en-us/products/m-series/m2/specs/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:motu-m2-specs",
+     "note": "Class compliant on Mac and iOS (no driver required)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://motu.com/en-us/products/m-series/m2/",
+     "ver": "OFFICIAL",
+     "src": "src:motu-m2-specs"
+    },
+    {
+     "p": "latest_driver",
+     "v": "M-Series Installer PC v4.6.0.705 (2026-09-22)",
+     "ver": "OFFICIAL",
+     "src": "src:motu-m2-downloads",
+     "platform": "windows"
+    },
+    {
+     "p": "latest_driver",
+     "v": "M-Series Installer Mac v2.0.2 (2026-03-25)",
+     "ver": "OFFICIAL",
+     "src": "src:motu-m2-downloads",
+     "platform": "macos"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:motu",
+     "src": "src:motu-m2-specs"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:motu-m4",
+   "type": "audio_device",
+   "slug": "motu-m4",
+   "names": {
+    "en": "MOTU M4"
+   },
+   "aliases": [
+    "M4",
+    "M-Series M4"
+   ],
+   "description": {
+    "en": "MOTU M4 USB-C audio interface from MOTU's M-Series.",
+    "ko": "MOTU M 시리즈의 MOTU M4 USB-C 오디오 인터페이스입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Specs",
+     "url": "https://motu.com/en-us/products/m-series/m4/specs/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:motu-m4-specs",
+     "note": "Class compliant on Mac and iOS (no driver required)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://motu.com/en-us/products/m-series/m4/",
+     "ver": "OFFICIAL",
+     "src": "src:motu-m4-specs"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:motu",
+     "src": "src:motu-m4-specs"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:motu-m6",
+   "type": "audio_device",
+   "slug": "motu-m6",
+   "names": {
+    "en": "MOTU M6"
+   },
+   "aliases": [
+    "M6",
+    "M-Series M6"
+   ],
+   "description": {
+    "en": "MOTU M6 USB-C audio interface from MOTU's M-Series.",
+    "ko": "MOTU M 시리즈의 MOTU M6 USB-C 오디오 인터페이스입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Specs",
+     "url": "https://motu.com/en-us/products/m-series/m6/specs/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "iOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:motu-m6-specs",
+     "note": "Class compliant on Mac and iOS (no driver required)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://motu.com/en-us/products/m-series/m6/",
+     "ver": "OFFICIAL",
+     "src": "src:motu-m6-specs"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:motu",
+     "src": "src:motu-m6-specs"
+    }
+   ]
+  },
+  {
+   "id": "vendor:audient",
+   "type": "vendor",
+   "slug": "audient",
+   "names": {
+    "en": "Audient",
+    "ko": "오디언트"
+   },
+   "aliases": [
+    "Audient Ltd"
+   ],
+   "description": {
+    "en": "UK maker of the iD, EVO and ORIA audio interfaces.",
+    "ko": "iD·EVO·ORIA 오디오 인터페이스를 만드는 영국 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://audient.com/"
+    },
+    {
+     "label": "Support",
+     "url": "https://support.audient.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://audient.com/",
+     "ver": "OFFICIAL",
+     "src": "src:audient-id-range-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:audient-id4-mkii",
+   "type": "audio_device",
+   "slug": "audient-id4-mkii",
+   "names": {
+    "en": "Audient iD4 MKII"
+   },
+   "aliases": [
+    "iD4 MKII",
+    "iD4 MK2",
+    "iD4MKII"
+   ],
+   "description": {
+    "en": "Audient iD4 MKII USB audio interface.",
+    "ko": "Audient iD4 MKII USB 오디오 인터페이스입니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:audient-id-range-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:audient",
+     "src": "src:audient-id-range-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:audient-id14-mkii",
+   "type": "audio_device",
+   "slug": "audient-id14-mkii",
+   "names": {
+    "en": "Audient iD14 MKII"
+   },
+   "aliases": [
+    "iD14 MKII",
+    "iD14 MK2",
+    "iD14MKII"
+   ],
+   "description": {
+    "en": "Audient iD14 MKII USB audio interface.",
+    "ko": "Audient iD14 MKII USB 오디오 인터페이스입니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:audient-id-range-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:audient",
+     "src": "src:audient-id-range-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:audient-id44-mkii",
+   "type": "audio_device",
+   "slug": "audient-id44-mkii",
+   "names": {
+    "en": "Audient iD44 MKII"
+   },
+   "aliases": [
+    "iD44 MKII",
+    "iD44 MK2",
+    "iD44MKII"
+   ],
+   "description": {
+    "en": "Audient iD44 MKII USB audio interface.",
+    "ko": "Audient iD44 MKII USB 오디오 인터페이스입니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:audient-id-range-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:audient",
+     "src": "src:audient-id-range-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:audient-evo-4",
+   "type": "audio_device",
+   "slug": "audient-evo-4",
+   "names": {
+    "en": "Audient EVO 4"
+   },
+   "aliases": [
+    "EVO 4",
+    "EVO4"
+   ],
+   "description": {
+    "en": "Audient EVO 4 USB audio interface.",
+    "ko": "Audient EVO 4 USB 오디오 인터페이스입니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:audient-evo-range-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:audient",
+     "src": "src:audient-evo-range-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:audient-evo-8",
+   "type": "audio_device",
+   "slug": "audient-evo-8",
+   "names": {
+    "en": "Audient EVO 8"
+   },
+   "aliases": [
+    "EVO 8",
+    "EVO8"
+   ],
+   "description": {
+    "en": "Audient EVO 8 USB audio interface.",
+    "ko": "Audient EVO 8 USB 오디오 인터페이스입니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:audient-evo-range-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:audient",
+     "src": "src:audient-evo-range-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:audient-evo-16",
+   "type": "audio_device",
+   "slug": "audient-evo-16",
+   "names": {
+    "en": "Audient EVO 16"
+   },
+   "aliases": [
+    "EVO 16",
+    "EVO16"
+   ],
+   "description": {
+    "en": "Audient EVO 16 USB audio interface.",
+    "ko": "Audient EVO 16 USB 오디오 인터페이스입니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:audient-evo-range-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:audient",
+     "src": "src:audient-evo-range-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "vendor:ssl",
+   "type": "vendor",
+   "slug": "ssl",
+   "names": {
+    "en": "Solid State Logic",
+    "ko": "솔리드 스테이트 로직"
+   },
+   "aliases": [
+    "SSL",
+    "Solid State Logic Ltd"
+   ],
+   "description": {
+    "en": "UK console maker that also sells the SSL USB audio interfaces and SSL plug-ins.",
+    "ko": "SSL USB 오디오 인터페이스와 SSL 플러그인도 판매하는 영국 콘솔 제조사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.solidstatelogic.com/"
+    },
+    {
+     "label": "Support",
+     "url": "https://support.solidstatelogic.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.solidstatelogic.com/",
+     "ver": "OFFICIAL",
+     "src": "src:ssl-2-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:ssl-2-mkii",
+   "type": "audio_device",
+   "slug": "ssl-2-mkii",
+   "names": {
+    "en": "Solid State Logic SSL 2 MKII"
+   },
+   "aliases": [
+    "SSL 2 MKII",
+    "SSL 2 MK2"
+   ],
+   "description": {
+    "en": "SSL 2 MKII USB audio interface; class compliant on macOS, ASIO/WDM driver on Windows.",
+    "ko": "SSL 2 MKII USB 오디오 인터페이스로, macOS에서는 클래스 컴플라이언트, Windows에서는 ASIO/WDM 드라이버를 사용합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:ssl-2-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:ssl",
+     "src": "src:ssl-2-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:ssl-2-plus-mkii",
+   "type": "audio_device",
+   "slug": "ssl-2-plus-mkii",
+   "names": {
+    "en": "Solid State Logic SSL 2+ MKII"
+   },
+   "aliases": [
+    "SSL 2+ MKII",
+    "SSL 2+ MK2",
+    "SSL 2 Plus MKII"
+   ],
+   "description": {
+    "en": "SSL 2+ MKII USB audio interface; class compliant on macOS, ASIO/WDM driver on Windows.",
+    "ko": "SSL 2+ MKII USB 오디오 인터페이스로, macOS에서는 클래스 컴플라이언트, Windows에서는 ASIO/WDM 드라이버를 사용합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:ssl-2-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:ssl",
+     "src": "src:ssl-2-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:ssl-12",
+   "type": "audio_device",
+   "slug": "ssl-12",
+   "names": {
+    "en": "Solid State Logic SSL 12"
+   },
+   "aliases": [
+    "SSL 12"
+   ],
+   "description": {
+    "en": "SSL 12 USB audio interface; class compliant on macOS, ASIO/WDM driver on Windows.",
+    "ko": "SSL 12 USB 오디오 인터페이스로, macOS에서는 클래스 컴플라이언트, Windows에서는 ASIO/WDM 드라이버를 사용합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:ssl-12-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:ssl",
+     "src": "src:ssl-12-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:ssl-18",
+   "type": "audio_device",
+   "slug": "ssl-18",
+   "names": {
+    "en": "Solid State Logic SSL 18"
+   },
+   "aliases": [
+    "SSL 18"
+   ],
+   "description": {
+    "en": "SSL 18 USB audio interface; class compliant on macOS, ASIO/WDM driver on Windows.",
+    "ko": "SSL 18 USB 오디오 인터페이스로, macOS에서는 클래스 컴플라이언트, Windows에서는 ASIO/WDM 드라이버를 사용합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:ssl-18-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:ssl",
+     "src": "src:ssl-18-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "audio_device:ssl-1",
+   "type": "audio_device",
+   "slug": "ssl-1",
+   "names": {
+    "en": "Solid State Logic SSL 1"
+   },
+   "aliases": [
+    "SSL 1"
+   ],
+   "description": {
+    "en": "SSL 1 USB audio interface; class compliant on macOS, ASIO/WDM driver on Windows.",
+    "ko": "SSL 1 USB 오디오 인터페이스로, macOS에서는 클래스 컴플라이언트, Windows에서는 ASIO/WDM 드라이버를 사용합니다."
+   },
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:ssl-1-compatibility"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:ssl",
+     "src": "src:ssl-1-compatibility"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "audio_device:focusrite-scarlett-4th-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-4th-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-4th-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-4th-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-4th-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: testing ongoing; devices not officially supported on macOS 27 until testing is finished; advises not to upgrade yet."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-4th-gen",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-4th-gen",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-3rd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-3rd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-3rd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-3rd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-3rd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: testing ongoing; devices not officially supported on macOS 27 until testing is finished; advises not to upgrade yet."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-3rd-gen",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-3rd-gen",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility",
+   "note": "Arm64: install Focusrite Control 3.25.0."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-2nd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-2nd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-2nd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-2nd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-2nd-gen",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: testing ongoing; devices not officially supported on macOS 27 until testing is finished; advises not to upgrade yet."
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-2nd-gen",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-scarlett-2nd-gen",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility",
+   "note": "Arm64: install Focusrite USB Driver 4.142.0."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-plus",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-plus",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-plus",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-plus",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-plus",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: testing ongoing; devices not officially supported on macOS 27 until testing is finished; advises not to upgrade yet."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-plus",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-plus",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-usb",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-usb",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-usb",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-usb",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-usb",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: testing ongoing; devices not officially supported on macOS 27 until testing is finished; advises not to upgrade yet."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-usb",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-usb",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "works_with_issues",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: MIDI I/O does not work on macOS 26 (Intel); being investigated."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Supported on Apple silicon after installing the Thunderbolt driver and following Focusrite's steps."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: testing ongoing; devices not officially supported on macOS 27 until testing is finished; advises not to upgrade yet."
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-clarett-thunderbolt",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility",
+   "note": "Windows on Arm does not support Thunderbolt or PCIe."
+  },
+  {
+   "subject": "audio_device:focusrite-vocaster",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-vocaster",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-vocaster",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-vocaster",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite table: Intel YES / Apple silicon YES."
+  },
+  {
+   "subject": "audio_device:focusrite-vocaster",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-macos-compatibility",
+   "note": "Focusrite: testing ongoing; devices not officially supported on macOS 27 until testing is finished; advises not to upgrade yet."
+  },
+  {
+   "subject": "audio_device:focusrite-vocaster",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility"
+  },
+  {
+   "subject": "audio_device:focusrite-vocaster",
+   "subject_version": "*",
+   "target": "os_release:windows-11-24h2",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:focusrite-windows-compatibility",
+   "note": "Arm64: Vocaster Hub is not compatible, audio works via the standalone driver."
+  },
+  {
+   "subject": "audio_device:universal-audio-apollo-x",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-apollo-x-requirements",
+   "note": "UA lists macOS Big Sur 11 through Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "audio_device:universal-audio-apollo-x",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-apollo-x-requirements",
+   "note": "UA lists macOS Big Sur 11 through Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "audio_device:universal-audio-apollo-x",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-apollo-x-requirements",
+   "note": "UA lists macOS Big Sur 11 through Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "audio_device:universal-audio-apollo-x",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-uad-macos-26",
+   "note": "UA lists macOS Big Sur 11 through Sequoia 15 and Tahoe 26; the latest UAD DSP software is compatible with macOS 26, with manual security steps after install."
+  },
+  {
+   "subject": "audio_device:universal-audio-apollo-x",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility",
+   "note": "UA: macOS 27 is being tested; full compatibility to be announced."
+  },
+  {
+   "subject": "audio_device:universal-audio-apollo-x",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-apollo-x-requirements",
+   "note": "Windows 10 64-bit edition (v1803 or newer for UAD 11.8.3+)."
+  },
+  {
+   "subject": "audio_device:universal-audio-apollo-x",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-apollo-x-requirements"
+  },
+  {
+   "subject": "audio_device:universal-audio-volt",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-volt-requirements"
+  },
+  {
+   "subject": "audio_device:universal-audio-volt",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-volt-requirements"
+  },
+  {
+   "subject": "audio_device:universal-audio-volt",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-volt-requirements",
+   "note": "UA: Windows ARM systems are not compatible with UA software; Volt hardware is untested."
+  },
+  {
+   "subject": "plugin:universal-audio-uadx",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-uadx-requirements"
+  },
+  {
+   "subject": "plugin:universal-audio-uadx",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-uadx-requirements"
+  },
+  {
+   "subject": "plugin:universal-audio-uadx",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-uadx-requirements"
+  },
+  {
+   "subject": "plugin:universal-audio-uadx",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-uadx-requirements"
+  },
+  {
+   "subject": "plugin:universal-audio-uadx",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility",
+   "note": "UA: macOS 27 still being tested; minor display issues known with various UAD Native plug-ins; full compatibility not yet announced."
+  },
+  {
+   "subject": "plugin:universal-audio-uadx",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-uadx-requirements"
+  },
+  {
+   "subject": "plugin:universal-audio-uadx",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-uadx-requirements"
+  },
+  {
+   "subject": "plugin:universal-audio-uad-dsp",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility"
+  },
+  {
+   "subject": "plugin:universal-audio-uad-dsp",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility"
+  },
+  {
+   "subject": "plugin:universal-audio-uad-dsp",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility"
+  },
+  {
+   "subject": "plugin:universal-audio-uad-dsp",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility"
+  },
+  {
+   "subject": "plugin:universal-audio-uad-dsp",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility",
+   "note": "UA: macOS 27 compatibility testing in progress."
+  },
+  {
+   "subject": "plugin:universal-audio-uad-dsp",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility"
+  },
+  {
+   "subject": "plugin:universal-audio-uad-dsp",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:universal-audio-os-compatibility",
+   "note": "Latest version of Windows 10 64-bit."
+  },
+  {
+   "subject": "audio_device:rme-fireface-ucx-ii",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.277",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.277 supports Intel Windows 10 or later (64-bit)."
+  },
+  {
+   "subject": "audio_device:rme-fireface-ucx-ii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.277",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.277 supports Windows 11 Arm systems (WDM and ASIO)."
+  },
+  {
+   "subject": "audio_device:rme-fireface-ucx-ii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.277",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads"
+  },
+  {
+   "subject": "audio_device:rme-babyface-pro-fs",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.277",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.277 supports Intel Windows 10 or later (64-bit)."
+  },
+  {
+   "subject": "audio_device:rme-babyface-pro-fs",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.277",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.277 supports Windows 11 Arm systems (WDM and ASIO)."
+  },
+  {
+   "subject": "audio_device:rme-babyface-pro-fs",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.277",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads"
+  },
+  {
+   "subject": "audio_device:rme-fireface-ufx-iii",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.0.26",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.0.26 supports Intel Windows 10 or later (64-bit)."
+  },
+  {
+   "subject": "audio_device:rme-fireface-ufx-iii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.0.26",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.0.26 supports Windows 11 Arm systems (WDM and ASIO)."
+  },
+  {
+   "subject": "audio_device:rme-fireface-ufx-iii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.0.26",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads"
+  },
+  {
+   "subject": "audio_device:rme-digiface-usb",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.0.26",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.0.26 supports Intel Windows 10 or later (64-bit)."
+  },
+  {
+   "subject": "audio_device:rme-digiface-usb",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.0.26",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads",
+   "note": "Driver 1.0.26 supports Windows 11 Arm systems (WDM and ASIO)."
+  },
+  {
+   "subject": "audio_device:rme-digiface-usb",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.0.26",
+   "ver": "OFFICIAL",
+   "src": "src:rme-downloads"
+  },
+  {
+   "subject": "audio_device:motu-m2",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:motu-m2-downloads",
+   "note": "MOTU lists macOS 26, 15, 14, 13, 12 for the Mac installer v2.0.2."
+  },
+  {
+   "subject": "audio_device:motu-m2",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:motu-m2-downloads",
+   "note": "MOTU lists macOS 26, 15, 14, 13, 12 for the Mac installer v2.0.2."
+  },
+  {
+   "subject": "audio_device:motu-m2",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:motu-m2-downloads",
+   "note": "MOTU lists macOS 26, 15, 14, 13, 12 for the Mac installer v2.0.2."
+  },
+  {
+   "subject": "audio_device:motu-m2",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "2.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:motu-m2-downloads",
+   "note": "MOTU lists macOS 26, 15, 14, 13, 12 for the Mac installer v2.0.2."
+  },
+  {
+   "subject": "audio_device:motu-m2",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": ">=23H2",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:motu-m2-specs",
+   "note": "Windows 11 23H2 or later, x86-64 and ARM64."
+  },
+  {
+   "subject": "audio_device:motu-m4",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": ">=23H2",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:motu-m4-specs",
+   "note": "Windows 11 23H2 or later, x86-64 and ARM64."
+  },
+  {
+   "subject": "audio_device:motu-m6",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": ">=23H2",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:motu-m6-specs",
+   "note": "Windows 11 23H2 or later, x86-64 and ARM64."
+  },
+  {
+   "subject": "audio_device:audient-id4-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id4-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id4-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id4-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility",
+   "note": "Audient: officially supported under macOS Tahoe with the latest drivers installed."
+  },
+  {
+   "subject": "audio_device:audient-id4-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id4-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id14-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id14-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id14-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id14-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility",
+   "note": "Audient: officially supported under macOS Tahoe with the latest drivers installed."
+  },
+  {
+   "subject": "audio_device:audient-id14-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id14-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id44-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id44-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id44-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id44-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility",
+   "note": "Audient: officially supported under macOS Tahoe with the latest drivers installed."
+  },
+  {
+   "subject": "audio_device:audient-id44-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-id44-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-id-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-4",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-4",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-4",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-4",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-macos-26-announcement",
+   "note": "Audient: officially supported under macOS Tahoe with the latest drivers installed."
+  },
+  {
+   "subject": "audio_device:audient-evo-4",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-4",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-8",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-8",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-8",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-8",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-macos-26-announcement",
+   "note": "Audient: officially supported under macOS Tahoe with the latest drivers installed."
+  },
+  {
+   "subject": "audio_device:audient-evo-8",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-8",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-16",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-16",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-16",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-16",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-macos-26-announcement",
+   "note": "Audient: officially supported under macOS Tahoe with the latest drivers installed."
+  },
+  {
+   "subject": "audio_device:audient-evo-16",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:audient-evo-16",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:audient-evo-range-compatibility"
+  },
+  {
+   "subject": "audio_device:ssl-2-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-2-compatibility",
+   "note": "SSL: macOS 27 (Golden Gate) has not yet been tested and is currently unsupported."
+  },
+  {
+   "subject": "audio_device:ssl-2-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-2-compatibility",
+   "note": "SSL: Windows ARM-based systems are not supported."
+  },
+  {
+   "subject": "audio_device:ssl-2-plus-mkii",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-2-compatibility",
+   "note": "SSL: macOS 27 (Golden Gate) has not yet been tested and is currently unsupported."
+  },
+  {
+   "subject": "audio_device:ssl-2-plus-mkii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-2-compatibility",
+   "note": "SSL: Windows ARM-based systems are not supported."
+  },
+  {
+   "subject": "audio_device:ssl-12",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-12-compatibility",
+   "note": "SSL: macOS 27 (Golden Gate) has not yet been tested and is currently unsupported."
+  },
+  {
+   "subject": "audio_device:ssl-18",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-18-compatibility",
+   "note": "SSL: macOS 27 (Golden Gate) has not yet been tested and is currently unsupported."
+  },
+  {
+   "subject": "audio_device:ssl-18",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-18-compatibility",
+   "note": "SSL: Windows ARM-based systems are not supported."
+  },
+  {
+   "subject": "audio_device:ssl-1",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-1-compatibility",
+   "note": "SSL: macOS 27 (Golden Gate) has not yet been tested and is currently unsupported."
+  },
+  {
+   "subject": "audio_device:ssl-1",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:ssl-1-compatibility",
+   "note": "SSL: SSL 1 is ARM compatible (ASIO driver required)."
+  }
+ ]
+}
