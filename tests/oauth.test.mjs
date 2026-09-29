@@ -380,7 +380,7 @@ test('platform pages: the front box shows the configured buttons; every sign-in 
  const {renderFront}=await import('../platform/render/front.js');
  const {renderMe}=await import('../platform/render/me.js');
  const {signInUrl}=await import('../platform/render/ui.js');
- const m={l:'ko',now:NOW,vertical:null,best:[],news:[],changes:[],reports:[],questions:[],popular:[],releases:[],upcoming:[],channels:[]};
+ const m={l:'ko',now:NOW,best:[],latest:[],notice:null,news:[],changes:[],tags:[],upcoming:[],channels:[]};
  const on=String(renderFront(/** @type {any} */(m),{origin:ORIGIN,providers:['github','discord']}));
  const box=on.slice(on.indexOf('class="box login"'),on.indexOf('</section>',on.indexOf('class="box login"')));
  assert(box.includes('GitHub로 계속하기')&&box.includes('Discord로 계속하기')&&!box.includes('Google'),'configured providers only');

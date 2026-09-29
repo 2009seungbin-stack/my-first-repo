@@ -4,7 +4,7 @@
 
 const S={
  ko:{
-  search:'채널, 게임, 모델, GPU, 글 검색',searchIn:(/** @type {string} */ n)=>`${n} 채널에서 검색`,
+  search:'채널·태그·글 검색 (예: 클로드, 5070)',searchIn:(/** @type {string} */ n)=>`${n} 태그에서 검색`,
   radar:'레이더',tools:'도구',login:'로그인',write:'글쓰기',home:'홈',allBest:'전체 베스트',allChannels:'전체 채널',
   channel:(/** @type {string} */ n)=>`${n} 채널`,followers:'구독',today:'오늘 글',posts:'글',follow:'구독',following:'✓ 구독 중',alerts:'알림 설정',
   live:'LIVE',wiki:(/** @type {string} */ n)=>`${n} 위키`,history:'기록',edit:'편집',docs:'위키 문서',official:'공식 링크',related:'관련 채널',toolsBox:'도구',

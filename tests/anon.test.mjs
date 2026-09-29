@@ -161,6 +161,22 @@ test('boards, tags and member-only features stay as they are for anonymous write
  assert.equal((await b.call('POST','/mod/action',{body:{target:'discussion:x',action:'hide',reason:'xx'}})).status,401);
 });
 
+test('유동 in a channel: 말머리 of that channel, tags from any area, the post URL is the channel number',{skip},async()=>{
+ const h=await harness();
+ const r=await post(h.browser('203.0.113.20'),{entityId:undefined,channel:'free',kind:'question',tags:['service:svc'],name:'지나가던 사람'});
+ assert.equal(r.status,201,JSON.stringify(r.json));
+ assert.match(r.json.url,/^\/ko\/community\/free\/\d+$/);assert.equal(r.json.channel,'free');
+ const row=h.db.raw.prepare('SELECT author_id,anon_name,channel_id,flair FROM discussions WHERE id=?').get(r.json.id);
+ assert.deepEqual({...row},{author_id:'anon',anon_name:'지나가던 사람',channel_id:'free',flair:'question'});
+ assert.deepEqual(h.db.raw.prepare('SELECT entity_id FROM discussion_tags WHERE discussion_id=?').all(r.json.id).map(x=>x.entity_id),['service:svc']);
+ assert.equal((await post(h.browser('203.0.113.21'),{entityId:undefined,channel:'free',kind:'notice',tags:[]})).status,400,'공지 stays staff-only');
+ assert.equal((await post(h.browser('192.0.2.22'),{entityId:undefined,channel:'notice',kind:'feedback',tags:[],title:'건의 드립니다'})).status,201,'유동 may leave 건의');
+ // 유동 cannot propose tags or keep pins on the server.
+ assert.equal((await h.browser('203.0.113.23').call('POST','/tags/propose',{body:{name:'새 게임',channel:'games'}})).status,401);
+ assert.equal((await h.browser('203.0.113.24').call('POST','/pins',{body:{channels:['ai']}})).status,401);
+ assert.deepEqual((await h.browser('203.0.113.25').call('GET','/pins')).json,{pins:null},'signed out: pins live in the browser');
+});
+
 test('per-network limits: burst per minute, daily cap; stricter without a bot check',{skip},async()=>{
  const h=await harness(),b=h.browser('203.0.113.7');
  assert.equal((await post(b,{title:'첫 번째 글'})).status,201);
@@ -539,8 +555,8 @@ async function imagePost(h){
  const up=await b.call('POST','/uploads',{raw:FIX('gps.jpg'),type:'image/jpeg',host:PREVIEW});
  assert.equal(up.status,201,JSON.stringify(up.json));
  const p=await post(b,{body:`사진 ![](${up.json.url})`});assert.equal(p.status,201,JSON.stringify(p.json));
- const no=h.db.raw.prepare('SELECT post_no FROM discussions WHERE id=?').get(p.json.id).post_no;
- return {b,img:up.json.url,id:up.json.id,postId:p.json.id,postPath:`/ko/ai/svc/${no}`};
+ const {channel_id:ch,channel_no:no}=h.db.raw.prepare('SELECT channel_id,channel_no FROM discussions WHERE id=?').get(p.json.id);
+ return {b,img:up.json.url,id:up.json.id,postId:p.json.id,postPath:`/ko/community/${ch}/${no}`,board:`/ko/community/${ch}/`};
 }
 
 test('purge origins: the request host, SITE_URL and the build URL, without repeats',()=>{
@@ -576,7 +592,8 @@ test('takedown: an author\'s password delete stops the image and the post at onc
   assert.equal(h.db.raw.prepare('SELECT removed FROM uploads WHERE id=?').get(x.id).removed,'author');
   for(const host of [PREVIEW,ORIGIN]){
    assert(!cache.has(host+x.postPath),`page purged under ${host}`);assert(!cache.has(host+x.img),`image purged under ${host}`);
-   assert(!cache.has(host+'/ko/ai/svc/')&&!cache.has(host+'/en/ai/svc/'),'the board too');
+   assert(!cache.has(host+'/ko/ai/svc/')&&!cache.has(host+'/en/ai/svc/'),'the tag page too');
+   assert(!cache.has(host+x.board)&&!cache.has(host+x.board+'feed.xml'),'the channel board and its feed too');
    assert.equal((await page(h,host,x.postPath)).status,404,`post gone under ${host}`);
    assert.doesNotMatch(await (await page(h,host,'/ko/ai/svc/feed.xml')).text(),/익명 글 제목/,`feed under ${host}`);
    for(const path of [x.img,x.img+'?v=1',x.img+'?'+Math.random(),x.img.replace('/full.','/thumb.')]){

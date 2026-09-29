@@ -1,24 +1,25 @@
 // @ts-check
-/** Post view (/{l}/{vertical}/{slug}/{no}): title and meta, the structured report table when the
- * post carries a report, the body (safe markdown), votes, threaded comments with the best comment
- * on top, then the channel's board around this post. */
+/** Post view (/{l}/community/{channel}/{no}): the channel and the post's tags, title and meta, the
+ * structured report table when the post carries a report, the body (safe markdown), votes, threaded
+ * comments with the best comment on top, then the channel's board around this post. */
 import {html,raw} from './html.js';
 import {t} from './strings.js';
-import {page,nameOf,channelUrl,postUrl,postRow,author,authorText,kindChip,signInUrl} from './ui.js';
+import {page,nameOf,channelUrl,postHref,postRow,boardHead,author,authorText,kindChip,tagChip,signInUrl,channelName,channelTile} from './ui.js';
 import {fullTime,boardTime,compact} from './format.js';
-import {postByNo,commentsOf,reportById,channelPosts,channelStats,entitiesByIds,compatibilityOf} from '../db/channel.js';
+import {postByChannelNo,commentsOf,reportById,boardPosts,entitiesByIds,compatibilityOf} from '../db/channel.js';
 import {renderMarkdown,plainExcerpt} from '../markdown.js';
 import {COMPAT_STATUS_LABEL,label} from '../labels.js';
-import {confirmationsNeeded,boardOpen} from '../community.js';
-import {dayStart,proposeForm} from './channel.js';
+import {confirmationsNeeded} from '../community.js';
+import {proposeForm} from './channel.js';
+import {channelPath,postPath,writePath} from '../channels.js';
 import {typeDef} from '../verticals/index.js';
 
 /** Best comment: most upvotes, at least 5, and ahead of the runner-up. */
 export const BEST_COMMENT_MIN=5;
 
-/** @param {any} db @param {import('../db/channel.js').Entity} entity @param {number} no @param {{l:string,now:number,channels?:{name:string,href:string}[]}} o */
-export async function loadPost(db,entity,no,o){
- const post=await postByNo(db,entity.id,no);
+/** @param {any} db @param {string} channel @param {number} no @param {{l:string,now:number,channels?:{name:string,href:string,id?:string}[]}} o */
+export async function loadPost(db,channel,no,o){
+ const post=await postByChannelNo(db,channel,no);
  if(!post)return null;
  const comments=await commentsOf(db,post.id);
  const report=post.report_id?await reportById(db,post.report_id):null;
@@ -30,16 +31,15 @@ export async function loadPost(db,entity,no,o){
    compat=rows.find(r=>r.subject_id===report.entity_id&&r.target_version===(report.target_version||'*')&&r.subject_version===(report.subject_version||'*'))||null;
   }
  }
- // The board around this post: the newest page that contains it.
- const around=(await channelPosts(db,entity.id,{limit:12})).posts;
- const stats=await channelStats(db,entity.id,dayStart(o.now,o.l));
- return {entity,post,comments,report,reportNames,compat,around,stats,l:o.l,now:o.now,channels:o.channels||[]};
+ // The board around this post: the newest page of its channel.
+ const around=(await boardPosts(db,{channel,limit:12})).posts;
+ return {channel,entity:post.tags[0]||null,post,comments,report,reportNames,compat,around,l:o.l,now:o.now,channels:o.channels||[]};
 }
 
 /** @param {NonNullable<Awaited<ReturnType<typeof loadPost>>>} m @param {{origin:string}} site */
 export function renderPost(m,site){
  const {entity:e,post:p,l,now}=m,s=t(l);
- const name=nameOf(e,l),base=channelUrl(l,e),url=postUrl(l,e,p.post_no);
+ const name=channelName(m.channel,l),base=channelPath(l,m.channel),url=postHref(l,p);
  const top=m.comments.filter(c=>!c.deleted).sort((a,b)=>b.up-a.up);
  const accepted=p.solved?m.comments.find(c=>c.id===p.solved&&!c.deleted)||null:null;
  // Pinned above the thread only when there is a thread to skip (3+ comments); with one or two it
@@ -53,7 +53,7 @@ export function renderPost(m,site){
  const thread=(parent,depth)=>(kids.get(parent)||[]).flatMap(c=>[comment(c,Math.min(depth,2)),...thread(c.id,depth+1)]);
  const rep=m.report;
  // 정보 제안 from this post: the post becomes the evidence linked to the proposal.
- const propose=proposeForm(e,l,typeDef(e.vertical,e.type)?.props||[],p.id);
+ const propose=e?proposeForm(e,l,typeDef(e.vertical,e.type)?.props||[],p.id):'';
  const nm=(/** @type {string|null|undefined} */ id)=>{const x=id?m.reportNames.get(id):null;return x?html`<a href="${channelUrl(l,x)}">${nameOf(x,l)}</a>`:id||'';};
  const RESULT=/** @type {Record<string,string>} */({works:'c',works_with_issues:'u',broken:'d'});
  const envText=rep?Object.entries(rep.env||{}).map(([,v])=>String(v)).join(' · '):'';
@@ -66,8 +66,8 @@ ${Object.keys(rep.metrics||{}).length?html`<tr><th>${s.report.metrics}</th><td>$
 </tbody></table>`:'';
  const c=m.compat;
  const vstate=c?html`<p class="vstate"><b>${l==='ko'?'이 조합 상태':'This combination'}</b> <span class="st ${c.verification==='COMMUNITY_VERIFIED'?'c':c.verification==='DISPUTED'?'d':'u'}">${label(/** @type {any} */(COMPAT_STATUS_LABEL)[c.status],l)}</span> — ${l==='ko'?`확인 ${c.confirmations}명 · 반대 ${c.contradictions}명`:`${c.confirmations} confirm · ${c.contradictions} disagree`}${confirmationsNeeded({users:c.confirmations+c.contradictions,verification:c.verification})?html`. ${s.needMore(confirmationsNeeded({users:c.confirmations+c.contradictions,verification:c.verification}))}`:''}</p>`:'';
- const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="fine">${s.followers} ${compact(m.stats.followers,l)}</span><span class="sp"></span><a class="btn" href="${base}">${s.list}</a><a class="btn p" href="${base}write">${s.write}</a></div>
-<article class="box post"><header class="ph1"><p class="ph1tags">${kindChip(p.kind,l)}${p.best_at?html`<span class="star">★ ${l==='ko'?'념글':'Best'}</span>`:''}</p><h1>${p.title}</h1>
+ const body=html`<div class="crumb">${channelTile(m.channel,l)}<a class="chl" href="${base}">${s.channel(name)}</a>${p.tags.length?html`<span class="rtags">${p.tags.map(x=>tagChip(x,l))}</span>`:''}<span class="sp"></span><a class="btn" href="${base}">${s.list}</a><a class="btn p" href="${writePath(l,m.channel,{tag:e?.id||null})}">${s.write}</a></div>
+<article class="box post"><header class="ph1"><p class="ph1tags">${kindChip(p.kind,l,m.channel)}${p.best_at?html`<span class="star">★ ${l==='ko'?'념글':'Best'}</span>`:''}</p><h1>${p.title}</h1>
 <div class="meta1">${author(p,l)}<span class="sep">|</span><time datetime="${new Date(p.created_at).toISOString()}">${fullTime(p.created_at,l)}</time>${p.edited_at?html`<span>${s.editedAt(boardTime(p.edited_at,now,l))}</span>`:''}<span class="sep">|</span><span>${s.up} ${p.up}</span><span class="sep">|</span><span>${s.comments} ${p.comments}</span><span class="sep">|</span><span>${s.views} ${compact(p.views,l)}</span></div></header>
 ${facts}<div class="pbody">${raw(renderMarkdown(p.body_md))}</div>${vstate}
 <div class="vote" data-island="post-vote" data-post="${p.id}"${rep?.kind==='compat'?html` data-report="${JSON.stringify({kind:'compat',entityId:rep.entity_id,targetId:rep.target_id,subjectVersion:rep.subject_version||undefined,targetVersion:rep.target_version||undefined,result:rep.result})}"`:''}><button class="up" type="button" disabled><b>${p.up}</b><span>${s.up}</span></button>${rep?.kind==='compat'?html`<button type="button" disabled><b>0</b><span>${s.sameHere}</span></button><button type="button" disabled><b>0</b><span>${s.notRepro}</span></button>`:html`<button type="button" disabled><b>${p.down}</b><span>${s.down}</span></button>`}</div>
@@ -75,14 +75,14 @@ ${facts}<div class="pbody">${raw(renderMarkdown(p.body_md))}</div>${vstate}
 ${propose?html`<section class="box">${propose}</section>`:''}
 <section class="box" id="comments"><div class="cmh">${s.commentsN(m.comments.filter(x=>!x.deleted).length)}<span class="srt"><span>${s.byOrder}</span></span></div>
 <ol class="cl">${accepted?comment(accepted,0,true):best?comment(best,0,true):''}${thread(null,0)}</ol>
-${boardOpen(e)?html`<form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea>${anonFields(l,url)}</div><button class="btn p" type="submit">${s.submit}</button></form>`:html`<p class="empty closed">${l==='ko'?'이 채널 게시판은 준비 중이라 댓글을 쓸 수 없어요.':'Comments open when this channel\'s board opens.'}</p>`}</section>
-<section class="box"><div class="cmh">${s.channelList(name)}</div><ol class="plist">${m.around.map(x=>postRow(x,{l,now,href:postUrl(l,e,x.post_no),current:x.post_no===p.post_no}))}</ol><div class="pager"><a class="btn" href="${base}">${s.moreList}</a></div></section>`;
+<form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea>${anonFields(l,url)}</div><button class="btn p" type="submit">${s.submit}</button></form></section>
+<section class="box"><div class="cmh">${s.channelList(name)}</div><ol class="plist">${boardHead(l)}${m.around.map(x=>postRow(x,{l,now,current:x.id===p.id}))}</ol><div class="pager"><a class="btn" href="${base}">${s.moreList}</a></div></section>`;
  const description=plainExcerpt(p.body_md,150)||p.title;
  // A post exists in the language it was written in: that URL is canonical and the only one indexed.
- const own=site.origin+postUrl(p.locale==='en'?'en':'ko',e,p.post_no);
+ const own=site.origin+postPath(p.locale==='en'?'en':'ko',m.channel,p.channel_no);
  return page({l,title:`${p.title} - ${s.channel(name)} | Nerulio`,description,canonical:own,
   alternates:{[p.locale==='en'?'en':'ko']:own},noindex:p.locale!==l,
-  channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body,
+  channels:m.channels.map(x=>({...x,on:x.href===base})),scope:e?{name:nameOf(e,l),id:e.id}:null,body,
   jsonld:postJsonLd(m,site.origin+url,s)});
 }
 

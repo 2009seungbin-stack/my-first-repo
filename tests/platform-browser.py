@@ -32,7 +32,7 @@ def anon_flow(b, errors):
         pg.on('pageerror', lambda e: errors.append(str(e)))
         return c, pg
     ca, a = ctx('203.0.113.7')
-    a.goto(B + '/ko/ai/claude/write'); a.wait_for_selector('[data-anon-fields]:not([hidden])', timeout=5000)
+    a.goto(B + '/ko/community/ai/write?tag=service:claude'); a.wait_for_selector('[data-anon-fields]:not([hidden])', timeout=5000)
     assert a.locator('.needlogin').is_hidden(), 'signed out with anonymous writing on: no sign-in wall'
     assert a.locator('[data-anon-notice]').is_visible() and '봇 확인이 꺼져' in a.locator('[data-anon-notice]').inner_text(), 'no bot check on this deployment: say so'
     assert a.locator('[data-image-picker]').is_visible(), 'image picker (R2 bound)'
@@ -42,7 +42,7 @@ def anon_flow(b, errors):
     a.wait_for_function('()=>document.querySelector("textarea[name=body]").value.includes("/u/")', timeout=15000)
     assert a.locator('[data-image-list] li').count() == 1 and a.locator('[data-image-list] li.err').count() == 0
     assert re.search(r'!\[이미지\]\(/u/[0-9a-f]{24}/full\.(webp|jpg)\)', a.locator('textarea[name=body]').input_value()), 'the image is in the body'
-    a.click('button[type=submit]'); a.wait_for_url(re.compile(r'/ko/ai/claude/\d+$'), timeout=15000)
+    a.click('button[type=submit]'); a.wait_for_url(re.compile(r'/ko/community/ai/\d+$'), timeout=15000)
     post_url = a.url.replace(B, '')
     meta = a.locator('.meta1 .nick.anon').inner_text()
     assert re.match(r'^테스트유동 \([0-9A-Za-z]{4}\)$', meta), meta
@@ -89,6 +89,51 @@ def anon_flow(b, errors):
     w = ph.evaluate('document.documentElement.scrollWidth'); assert w <= 390, f'anon comment box scrolls sideways ({w})'
     for c in (ca, cm, cp): c.close()
 
+def channel_flow(b, errors):
+    """Channels without an account: pin a channel (kept in this browser), the channel bar puts it first, the
+    전체 채널 sheet (a bottom sheet at phone width) lists it; signing in moves the pins to the account. Old
+    URLs answer with redirects."""
+    c = b.new_context(extra_http_headers={'cf-connecting-ip': '198.51.100.77'}); pg = c.new_page()
+    pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
+    pg.on('pageerror', lambda e: errors.append(str(e)))
+    pg.goto(B + '/ko/community/hw/'); pg.wait_for_timeout(400)
+    assert pg.locator('.chs a').first.get_attribute('data-ch') == 'ai', 'default order before pinning'
+    pg.locator('.chead [data-pin=hw]').click(); pg.wait_for_timeout(300)
+    assert pg.locator('.chead [data-pin=hw]').get_attribute('aria-pressed') == 'true'
+    assert pg.evaluate("localStorage.getItem('n2-pins')") == '["hw"]'
+    pg.reload(); pg.wait_for_timeout(400)
+    assert pg.locator('.chs a').first.get_attribute('data-ch') == 'hw', 'a pinned channel comes first on the bar'
+    pg.locator('.cr .allch').click(); pg.wait_for_selector('dialog#chsheet[open]', timeout=3000)
+    assert pg.locator('[data-my-channels]').is_visible() and 'PC·하드웨어' in pg.locator('[data-my-list]').inner_text()
+    pg.fill('[data-sheet-q]', '클로드'); pg.wait_for_selector('[data-sheet-results]:not([hidden]) a', timeout=5000)
+    assert pg.locator('[data-sheet-results] a', has_text='Claude').count() >= 1, 'the sheet finds tags'
+    pg.locator('[data-close-sheet]').click(); pg.wait_for_timeout(200)
+    assert pg.locator('dialog#chsheet[open]').count() == 0
+    # Tag filter chips and the 게임 facets
+    pg.goto(B + '/ko/community/games/?kind=patch'); pg.wait_for_timeout(300)
+    assert pg.locator('.cr a.patch.on').count() == 1, '한글패치 모음 is highlighted'
+    assert all('한글패치' in pg.locator('.plist .pr:not(.ph) .mh').nth(i).inner_text() for i in range(pg.locator('.plist .pr:not(.ph) .mh').count()))
+    # Sign in: the browser's pins move to the account.
+    pg.goto(B + '/__dev/login?as=pinner&next=/ko/community/'); pg.wait_for_timeout(900)
+    pins = pg.evaluate("fetch('/api/v2/pins').then(r=>r.json())")
+    assert pins == {'pins': ['hw']}, pins
+    assert pg.evaluate("localStorage.getItem('n2-pins')") is None, 'moved, not copied'
+    # Old addresses
+    r = pg.request.get(B + '/ko/ai/claude/write', max_redirects=0)
+    assert r.status == 302 and r.headers['location'].endswith('/ko/community/ai/write?tag=service:claude'), r.headers
+    r = pg.request.get(B + '/ko/community/best/?v=games', max_redirects=0)
+    assert r.status == 301 and r.headers['location'].endswith('/ko/community/best/?ch=games')
+    c.close()
+    # Phone width: the sheet is a bottom sheet and nothing scrolls sideways.
+    c = b.new_context(viewport={'width': 390, 'height': 844}); m = c.new_page()
+    m.goto(B + '/ko/community/ai/'); m.wait_for_timeout(300)
+    assert m.locator('.cr .allch').is_visible(), '전체 채널 stays reachable on the right'
+    m.locator('.cr .allch').click(); m.wait_for_selector('dialog#chsheet[open]', timeout=3000)
+    box = m.locator('dialog#chsheet').bounding_box()
+    assert abs(box['y'] + box['height'] - 844) <= 2 and box['width'] >= 389, f'bottom sheet {box}'
+    assert m.evaluate('document.documentElement.scrollWidth') <= 390
+    c.close()
+
 def main():
     # GitHub and Discord sign-in buttons are shown (placeholder credentials; the round trip is in service-browser.py).
     proc = subprocess.Popen(['node', 'tools/platform/dev-server.mjs', str(PORT)], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env={**os.environ, 'DEV_SIGNIN_PROVIDERS': 'github,discord'})
@@ -118,11 +163,22 @@ def main():
             assert pg.locator('.hd [data-island=account]').inner_text().startswith('user-')
             pg.locator('[data-island=follow] button').first.click(); pg.wait_for_timeout(500)
             assert '구독 중' in pg.locator('[data-island=follow] button').first.inner_text()
-            pg.goto(B + '/ko/ai/claude/write'); pg.wait_for_timeout(400)
-            pg.select_option('select[name=kind]', 'question')
+            # 이 태그로 글쓰기: the AI channel with the Claude tag picked; add a second tag by search.
+            pg.locator('[data-island=follow] a.btn.p').click(); pg.wait_for_url(re.compile(r'/ko/community/ai/write\?tag=service:claude$'))
+            assert pg.locator('[data-tag-selected] .wtag').count() == 1 and pg.locator('[data-tag-count]').inner_text() == '1/3'
+            assert pg.locator('.wsec .wchip.on').inner_text() == 'AI', 'the channel is picked'
+            assert [pg.locator('label.wchip.r span').nth(i).inner_text() for i in range(pg.locator('label.wchip.r').count())] == ['소식', '정보', '질문', '사용기', '팁', '벤치', '잡담'], 'AI 말머리'
+            pg.locator('label.wchip.r', has_text='질문').click()
+            pg.fill('[data-tag-search]', '5070'); pg.wait_for_selector('[data-tag-results]:not([hidden]) button', timeout=5000)
+            pg.locator('[data-tag-results] button', has_text='RTX 5070').first.click()
+            assert pg.locator('[data-tag-selected] .wtag').count() == 2 and pg.locator('[data-tag-count]').inner_text() == '2/3'
+            assert 'RTX 5070' in pg.locator('[data-tag-line]').inner_text()
             pg.fill('input[name=title]', 'E2E 질문: 결제 부가세?'); pg.fill('textarea[name=body]', '**굵게** <script>x</script>')
-            pg.click('button[type=submit]'); pg.wait_for_url(re.compile(r'/ko/ai/claude/\d+$'))
+            pg.click('button[type=submit]'); pg.wait_for_url(re.compile(r'/ko/community/ai/\d+$'))
             assert 'E2E 질문' in pg.locator('h1').inner_text()
+            tags = [pg.locator('.crumb .rtag').nth(i).inner_text() for i in range(pg.locator('.crumb .rtag').count())]
+            assert len(tags) == 2 and tags[0] == 'Claude' and 'RTX 5070' in tags[1], f'tags in the writer\'s order: {tags}'
+            e2e_post = pg.url.replace(B, '')
             assert pg.locator('.pbody strong').inner_text() == '굵게' and pg.locator('.pbody script').count() == 0
             # the author edits the post in place
             pg.locator('[data-island=own-post] [data-edit]').click(); pg.wait_for_timeout(500)
@@ -134,6 +190,10 @@ def main():
             pg.locator('[data-edit-comment]').first.click(); pg.wait_for_timeout(500)
             pg.fill('.cedit textarea', '첫 댓글 (수정)'); pg.click('.cedit button[type=submit]'); pg.wait_for_timeout(1200)
             assert '첫 댓글 (수정)' in pg.locator('.cl').inner_text(), 'own comment edited in place'
+            # The tagged post shows on both tag pages (AI channel post on the GPU page too) and in the channel.
+            for tag_page in ['/ko/ai/claude/', '/ko/hardware/rtx-5070/', '/ko/community/ai/', '/ko/community/ai/?tag=service:claude']:
+                pg.goto(B + tag_page); pg.wait_for_timeout(200)
+                assert pg.locator(f'.plist a.tt[href="{e2e_post}"]').count() == 1, f'{tag_page} lists the new post'
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(500)
             posts_before = pg.locator('.plist .pr').count()
             for _ in range(2): pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_timeout(500)
@@ -185,10 +245,11 @@ def main():
             pg.locator('.box.mf .bh button').first.click(); pg.wait_for_timeout(200)
             assert pg.locator('.box.mf .bh button[aria-pressed=true]').count() == 1, '내 구독만 filter toggles'
             pg.goto(B + '/ko/community/'); pg.wait_for_timeout(800)
-            assert '내 구독 채널' in pg.locator('.box.login').inner_text(), 'the sign-in box becomes the reader\'s channels'
+            assert '구독한 태그' in pg.locator('.box.login').inner_text(), 'the sign-in box becomes the reader\'s followed tags'
             anon_flow(b, errors)
+            channel_flow(b, errors)
             m = b.new_page(viewport={'width': 390, 'height': 900})
-            for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/ai/claude/write', '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:
+            for path in ['/ko/community/', '/ko/community/ai/', '/ko/community/games/?kind=patch', '/ko/community/free/', '/ko/community/best/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/community/ai/write?tag=service:claude', '/ko/community/games/write?tag=game:steam-333640', e2e_post, '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:
                 m.goto(B + path); m.wait_for_timeout(300)
                 assert m.locator('.hd .hn a[href$="/radar/"]').is_visible(), f'{path}: Radar is reachable from the mobile header'
                 w = m.evaluate('document.documentElement.scrollWidth')
@@ -198,7 +259,7 @@ def main():
             if axe and os.path.exists(axe):
                 src = open(axe).read(); ctx = b.new_context(bypass_csp=True); ap = ctx.new_page()
                 for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/local-llm', '/ko/ai/claude/status', '/ko/radar/',
-                             '/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070', '/ko/ai/?type=model&org=anthropic&sort=cheap', '/ko/search/?q=Claude+%EC%9E%A5%EC%95%A0', '/ko/community/policy', '/ko/games/caves-of-qud/write']:
+                             '/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070', '/ko/ai/?type=model&org=anthropic&sort=cheap', '/ko/search/?q=Claude+%EC%9E%A5%EC%95%A0', '/ko/community/policy', '/ko/community/games/write?tag=game:steam-333640', '/ko/community/ai/', '/ko/community/games/']:
                     ap.goto(B + path); ap.wait_for_timeout(300); ap.add_script_tag(content=src)
                     v = ap.evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa']}}).then(r=>r.violations.map(x=>x.id+' '+x.nodes[0].target.join(' ')))")
                     assert not v, f'{path}: {v}'

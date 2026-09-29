@@ -48,7 +48,7 @@ test('a vertical synced alone creates the entities it references in other vertic
  const db=D1Shim.migrated();
  const r=await syncSeeds(db,{verticals:['games'],seeds:seeds(),now:T0});
  assert.equal(r.games.foreign,1);
- assert.deepEqual(rows(db,'SELECT id,vertical FROM entities ORDER BY id'),[{id:'app:tool',vertical:'studio'},{id:'game:steam-1',vertical:'games'}]);
+ assert.deepEqual(rows(db,"SELECT id,vertical FROM entities WHERE id NOT LIKE 'channel:%' ORDER BY id"),[{id:'app:tool',vertical:'studio'},{id:'game:steam-1',vertical:'games'}]);
  assert.equal(rows(db,"SELECT * FROM facts WHERE entity_id='app:tool'").length,0,'its facts belong to its own vertical');
  assert.equal(rows(db,'SELECT * FROM relations').length,1);
 });

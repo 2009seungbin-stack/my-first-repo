@@ -12,11 +12,12 @@ import {resolveContext} from '../identity.js';
 import {allowRequest} from '../ratelimit.js';
 import {randomToken} from '../crypto.js';
 import {assertSameOrigin} from '../api.js';
-import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,boardOpen,LIMITS} from '../../platform/community.js';
+import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,setTagsStatements,LIMITS} from '../../platform/community.js';
+import {channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,isPlaceholder,flairLabel,storedKind,TAG_LIMIT,CHANNELS} from '../../platform/channels.js';
 export {LIMITS};
 import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
-import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
-import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
+import {channelUrl,nameOf,channelName} from '../../platform/render/ui.js';
+import {changesFor,entitiesByIds,factsFor,searchEntities,tagPagesOf} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 import {validateSeed,SEED_SCHEMA} from '../../platform/seed.js';
 import {ingest} from '../../platform/ingest.js';
@@ -31,7 +32,7 @@ import BUILD from '../build-info.js';
 import {IMAGE_LIMITS} from './images.js';
 import {passkeyAvailability} from '../member-passkey.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'GET /tags':1,'GET /pins':1,'POST /pins':1,'POST /tags/propose':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
 /** Writes that also work without an account. */
 const ANON_ROUTES=/** @type {Record<string,1>} */({'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /flags':1,'POST /anon/check':1,'POST /uploads':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1});
 /** Edits of an anonymous post or comment: by its password, signed in or not. */
@@ -109,10 +110,57 @@ export function cacheOrigins(url,env,cfg){
 }
 /** @template T @param {(l:string)=>T} f @returns {T[]} */
 const bothLocales=f=>['ko','en'].map(f);
-/** Every cached page a post or its channel appears on (both languages): the post, the channel's
- * default board and feed, the community front and 념글. Filtered board views (?sort, ?kind, ?page)
- * expire on their own within a minute. @param {{vertical:string,slug:string}} e @param {number|null} [no] */
-const pagesOf=(e,no=null)=>bothLocales(l=>[...(no?[postUrl(l,e,no)]:[]),channelUrl(l,e),channelUrl(l,e)+'feed.xml',`/${l}/community/`,`/${l}/community/best/`]).flat();
+/** Every cached page an entity's tag appears on (both languages): its page and feed, the community front
+ * and 전체 베스트. @param {{vertical:string,slug:string}} e */
+const pagesOf=e=>bothLocales(l=>[channelUrl(l,e),channelUrl(l,e)+'feed.xml',`/${l}/community/`,`/${l}/community/best/`]).flat();
+/** Every cached page a post appears on (both languages): the post, its channel's board, 념글 and feed, the
+ * pages and feeds of its tags, the community front and 전체 베스트. Filtered views (?kind, ?tag, ?sort, ?page)
+ * expire on their own within a minute. @param {{channel_id:string,channel_no:number}|null} post @param {{vertical:string,slug:string}[]} tags */
+const pagesOfPost=(post,tags=[])=>bothLocales(l=>[...(post?[postPath(l,post.channel_id,post.channel_no),channelPath(l,post.channel_id),channelPath(l,post.channel_id)+'feed.xml',channelPath(l,post.channel_id)+'best']:[]),
+ ...tags.flatMap(e=>[channelUrl(l,e),channelUrl(l,e)+'feed.xml']),`/${l}/community/`,`/${l}/community/best/`]).flat();
+/** Purge everything a post appears on, the pages of the tags its tags are part of included (a Claude Code
+ * post is on the Claude page too). @param {string|string[]} origins @param {any} db @param {string} id */
+async function purgePost(origins,db,id){
+ const p=await db.prepare('SELECT channel_id,channel_no FROM discussions WHERE id=?').bind(id).first();
+ const ids=((await db.prepare('SELECT entity_id FROM discussion_tags WHERE discussion_id=?').bind(id).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id));
+ const tags=await tagPagesOf(db,ids);
+ await purge(origins,pagesOfPost(p?{channel_id:String(p.channel_id),channel_no:Number(p.channel_no)}:null,tags));
+}
+/**
+ * The channel, 말머리 and tags of a new post. The old shape (entityId) still works: that entity's default
+ * channel, with it as the tag. Tags: 0–3 active entities (never a channel placeholder), in the writer's order.
+ * @param {any} db @param {any} body @param {boolean} staff
+ */
+async function postTarget(db,body,staff){
+ let ch=typeof body.channel==='string'?body.channel:null;
+ let ids=body.tags===undefined?[]:body.tags;
+ if(!ch&&body.entityId!==undefined){const e=await entity(db,/** @type {string} */(body.entityId));ch=defaultChannelOf(e,(await factsFor(db,[e.id])).get(e.id)||[]);ids=[e.id];}
+ const c=channelById(ch);
+ if(!c)throw new ApiError('BAD_REQUEST','Pick a channel.',{field:'channel'});
+ if(!Array.isArray(ids)||ids.some(x=>typeof x!=='string'||!ENTITY_ID.test(x)||isPlaceholder(x)))throw new ApiError('BAD_REQUEST','Invalid tags.',{field:'tags'});
+ const uniq=[...new Set(/** @type {string[]} */(ids))];
+ if(uniq.length>TAG_LIMIT)throw new ApiError('BAD_REQUEST',`At most ${TAG_LIMIT} tags.`,{field:'tags'});
+ const found=await entitiesByIds(db,uniq);
+ if(found.size!==uniq.length)throw new ApiError('BAD_REQUEST','Unknown tag.',{field:'tags'});
+ const kind=String(body.kind||'');
+ if(!(kind in POST_KINDS)||!writableKinds(c.id,{staff}).includes(kind))throw new ApiError('BAD_REQUEST','This flair cannot be used in this channel.',{field:'kind'});
+ return {channel:c.id,kind,tags:uniq,entities:uniq.map(id=>/** @type {import('../../platform/db/channel.js').Entity} */(found.get(id)))};
+}
+/** The 말머리 a post may switch to when edited (a 리포트 post stays one: it carries a structured report). @param {string} channel @param {string} kind @param {string} l @param {boolean} staff */
+const editKinds=(channel,kind,l,staff)=>(kind==='report'?[kind]:[...new Set([kind,...writableKinds(channel,{staff}).filter(k=>k!=='report')])]).filter(k=>k in POST_KINDS).map(k=>({id:k,label:flairLabel(channel,k,l)}));
+/** The 말머리 after an edit: unchanged, or one the post's channel offers (never into or out of 리포트).
+ * @param {any} p the post row (kind = its 말머리, channel_id) @param {unknown} want */
+function editedKind(p,want){
+ const kind=String(p.kind);
+ if(want===undefined||want===kind)return kind;
+ if(kind==='report'||want==='report'||typeof want!=='string'||!writableKinds(String(p.channel_id)).includes(want))throw new ApiError('BAD_REQUEST','This flair cannot be used in this channel.',{field:'kind'});
+ return want;
+}
+/** The tags of a post, for its edit form. @param {any} db @param {string} id @param {string} l */
+async function postTags(db,id,l){
+ const rows=(await db.prepare('SELECT e.id,e.names FROM discussion_tags t JOIN entities e ON e.id=t.entity_id WHERE t.discussion_id=? ORDER BY t.pos').bind(id).all()).results||[];
+ return rows.map((/** @type {any} */ r)=>({id:String(r.id),name:nameOf({names:JSON.parse(String(r.names||'{}'))},l)}));
+}
 
 /**
  * @param {Request} request @param {any} env @param {any} ctx
@@ -150,10 +198,23 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   // Reads (anonymous allowed).
   if(key==='GET /state')return done({...await state(db,context,url.searchParams,{env,cfg,now,ip:clientIp(request)}),providers:configuredProviders(cfg),passkey:passkeyAvailability(cfg)});
   if(key==='GET /new-posts'){
-   const e=await entity(db,String(url.searchParams.get('entity')||''));
+   // New posts on a channel board since the newest number the reader saw.
+   const ch=channelById(url.searchParams.get('channel'));
+   if(!ch)throw new ApiError('BAD_REQUEST','Invalid channel.',{field:'channel'});
    const after=Number(url.searchParams.get('after'))||0;
-   const r=await db.prepare("SELECT COUNT(*) AS n,MAX(post_no) AS last FROM discussions WHERE entity_id=? AND post_no>? AND status='published'").bind(e.id,after).first();
+   const r=await db.prepare("SELECT COUNT(*) AS n,MAX(channel_no) AS last FROM discussions WHERE channel_id=? AND channel_no>? AND status='published'").bind(ch.id,after).first();
    return done({count:Number(r?.n||0),last:Number(r?.last||after)});
+  }
+  if(key==='GET /tags'){
+   // The write form's tag search and the channel sheet: active entities by name or alias (the search page's ranking).
+   const q=String(url.searchParams.get('q')||'').trim().slice(0,60),l=url.searchParams.get('l')==='en'?'en':'ko';
+   const list=q?await searchEntities(db,q,{limit:10}):[];
+   return done({tags:list.map(e=>({id:e.id,name:nameOf(e,l),vertical:e.vertical,type:e.type,url:channelUrl(l,e),channel:defaultChannelOf(e)}))});
+  }
+  if(key==='GET /pins'){
+   if(!context.user)return done({pins:null});
+   const rows=(await db.prepare('SELECT channel_id FROM channel_pins WHERE user_id=? ORDER BY pos').bind(context.user.id).all()).results||[];
+   return done({pins:rows.map((/** @type {any} */ r)=>String(r.channel_id))});
   }
   if(key==='GET /follows'){
    if(!context.user)throw new ApiError('LOGIN_REQUIRED');
@@ -169,24 +230,20 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   }
   if(key==='GET /posts/source'){
    if(!context.user)throw new ApiError('LOGIN_REQUIRED');
-   const p=await db.prepare("SELECT d.title,d.body_md,d.author_id,d.status,d.kind,e.vertical FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(url.searchParams.get('id')||'')).first();
+   const p=await db.prepare("SELECT d.id,d.title,d.body_md,d.author_id,d.status,COALESCE(d.flair,d.kind) AS kind,d.channel_id FROM discussions d WHERE d.id=?").bind(String(url.searchParams.get('id')||'')).first();
    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
-   // The tags the author may switch to (a 리포트 post stays one: it carries a structured report).
+   // The 말머리 the author may switch to; the post's own is always offered first (a staff 공지 stays a 공지).
    const l=url.searchParams.get('l')==='en'?'en':'ko';
-   // The post's own tag is always offered first (a staff 공지 stays a 공지 when its text is edited).
-   const ids=p.kind==='report'?[]:[...new Set([String(p.kind),...writableKinds(String(p.vertical)).filter(k=>k!=='report')])];
-   const kinds=ids.filter(k=>k in POST_KINDS).map(k=>({id:k,label:/** @type {any} */(POST_KINDS)[k][l]}));
-   return done({title:String(p.title),body:String(p.body_md),kind:String(p.kind),kinds});
+   return done({title:String(p.title),body:String(p.body_md),kind:String(p.kind),kinds:editKinds(String(p.channel_id),String(p.kind),l,false),channel:String(p.channel_id),tags:await postTags(db,String(p.id),l)});
   }
   if(key==='GET /mine'){
    // 내 글·댓글 for the 내 정보 page (the author's own, including locked posts).
    if(!context.user)throw new ApiError('LOGIN_REQUIRED');
    const l=url.searchParams.get('l')==='en'?'en':'ko';
-   const ent=(/** @type {any} */ r)=>({vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))});
-   const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.up_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.author_id=? AND d.status IN ('published','locked') ORDER BY d.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
-    .map((/** @type {any} */ r)=>({title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),up:Number(r.up_count),at:Number(r.created_at),url:postUrl(l,ent(r),Number(r.post_no)),channel:nameOf(ent(r),l)}));
-   const comments=((await db.prepare(`SELECT c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.author_id=? AND c.status='published' AND d.status IN ('published','locked') ORDER BY c.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
-    .map((/** @type {any} */ r)=>({text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),at:Number(r.created_at),url:postUrl(l,ent(r),Number(r.post_no))+`#c-${r.id}`}));
+   const posts=((await db.prepare(`SELECT d.channel_id,d.channel_no,d.title,COALESCE(d.flair,d.kind) AS kind,d.comment_count,d.up_count,d.created_at FROM discussions d WHERE d.author_id=? AND d.status IN ('published','locked') ORDER BY d.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
+    .map((/** @type {any} */ r)=>({title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),up:Number(r.up_count),at:Number(r.created_at),url:postPath(l,String(r.channel_id),Number(r.channel_no)),channel:channelName(String(r.channel_id),l)}));
+   const comments=((await db.prepare(`SELECT c.id,c.body_md,c.created_at,d.channel_id,d.channel_no,d.title FROM comments c JOIN discussions d ON d.id=c.discussion_id WHERE c.author_id=? AND c.status='published' AND d.status IN ('published','locked') ORDER BY c.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
+    .map((/** @type {any} */ r)=>({text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),at:Number(r.created_at),url:postPath(l,String(r.channel_id),Number(r.channel_no))+`#c-${r.id}`}));
    return done({posts,comments});
   }
   if(key==='GET /mod/queue'){const p=await moderator(db,context);return done(await modQueue(db,p));}
@@ -228,29 +285,25 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     return done({following:body.follow!==false,followers:Number(n?.n||0)});
    }
    case 'POST /posts':{
-    only(body,['entityId','kind','title','body']);
-    const e=await entity(db,/** @type {string} */(body.entityId));
-    const kind=String(body.kind||'');
+    only(body,['channel','tags','entityId','kind','title','body']);
     const staff=profile.role==='moderator'||profile.role==='curator'||profile.role==='admin';
-    if(!(kind in POST_KINDS)||!(writableKinds(e.vertical).includes(kind)||(staff&&kind==='notice')))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
-    if(!staff&&!boardOpen(/** @type {any} */(e)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
+    const tg=await postTarget(db,body,staff);
     const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
     await limit('post',LIMITS.postsPerMinute);
     const verdict=staff?null:await blocklistVerdict(db,`${title}\n${md}`,now);
     if(verdict==='reject')throw blockedText();
     const id=randomToken(12);
     const plan=await attachPlan(db,{md,owner,kind:'discussion',id});
-    const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:x.l,authorId:context.user.id,hasImage:plan.ids.length>0,status:verdict==='hide'?'hidden':'published'},now);
+    const no=await createPost(db,{id,channel:tg.channel,kind:tg.kind,tags:tg.tags,title,body:md,locale:x.l,authorId:context.user.id,hasImage:plan.ids.length>0,status:verdict==='hide'?'hidden':'published'},now);
     if(plan.statements.length)await db.batch(plan.statements);
     if(verdict==='hide')await autoHold(x,'discussion',id);
-    await purge(origins,pagesOf(e));
-    return done({id,postNo:no,url:postUrl(x.l,e,no),...(verdict==='hide'?{held:true}:{})},201);
+    await purge(origins,pagesOfPost({channel_id:tg.channel,channel_no:no},tg.entities));
+    return done({id,channel:tg.channel,postNo:no,url:postPath(x.l,tg.channel,no),...(verdict==='hide'?{held:true}:{})},201);
    }
    case 'POST /comments':{
     only(body,['postId','parentId','body']);
-    const post=await db.prepare("SELECT d.id,d.entity_id,d.post_no,d.status,e.vertical,e.type,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    const post=await db.prepare("SELECT d.id,d.status FROM discussions d WHERE d.id=?").bind(String(body.postId||'')).first();
     if(!post||post.status==='hidden'||post.status==='deleted')throw new ApiError('NOT_FOUND','Post not found.');
-    if(!boardOpen(/** @type {any} */(post))&&!['moderator','curator','admin'].includes(String(profile.role)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
     if(post.status==='locked')throw new ApiError('FORBIDDEN','Comments are closed on this post.');
     let parent=null;
     if(body.parentId!==undefined&&body.parentId!==null&&body.parentId!==''){
@@ -267,7 +320,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').bind(id,post.id,parent?parent.id:null,context.user.id,md,verdict==='hide'?'hidden':'published',now,now),
      db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
     if(verdict==='hide')await autoHold(x,'comment',id);
-    await purge(origins,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
+    await purgePost(origins,db,String(post.id));
     return done({id,...(verdict==='hide'?{held:true}:{})},201);
    }
    case 'POST /votes':{
@@ -283,32 +336,31 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     return done(r);
    }
    case 'POST /posts/edit':case 'POST /posts/delete':{
-    only(body,key==='POST /posts/edit'?['postId','title','body','kind']:['postId']);
-    const p=await db.prepare("SELECT d.id,d.author_id,d.status,d.post_no,d.kind,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    only(body,key==='POST /posts/edit'?['postId','title','body','kind','tags']:['postId']);
+    const p=await db.prepare("SELECT d.id,d.author_id,d.status,COALESCE(d.flair,d.kind) AS kind,d.channel_id FROM discussions d WHERE d.id=?").bind(String(body.postId||'')).first();
     // Only the author, and only while the post is visible (a moderator-hidden post stays as the moderator left it).
     if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
     await limit('post-edit',10);
     if(key==='POST /posts/edit'){
      const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
-     let kind=String(p.kind);
-     if(body.kind!==undefined&&body.kind!==kind){
-      if(kind==='report'||body.kind==='report'||!writableKinds(String(p.vertical)).includes(String(body.kind)))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
-      kind=String(body.kind);
-     }
+     const kind=editedKind(p,body.kind);
+     const tags=body.tags===undefined?null:(await postTarget(db,{channel:p.channel_id,kind,tags:body.tags},kind==='notice')).tags;
      if(await blocklistVerdict(db,`${title}\n${md}`,now)==='reject')throw blockedText();
      const plan=await attachPlan(db,{md,owner,kind:'discussion',id:String(p.id)});
-     await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,has_image=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,plan.ids.length?1:0,now,now,p.id),...plan.statements]);
+     // Purge the tag pages the post leaves as well as the ones it joins.
+     await purgePost(origins,db,String(p.id));
+     await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,flair=?,has_image=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,storedKind(kind),kind,plan.ids.length?1:0,now,now,p.id),...(tags?setTagsStatements(db,String(p.id),tags,now):[]),...plan.statements]);
      await deleteImages(env,db,plan.dropped,'author',origins);
     }else{
      await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
      await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',origins);
     }
-    await purge(origins,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    await purgePost(origins,db,String(p.id));
     return done({ok:true});
    }
    case 'POST /posts/solve':{
     only(body,['postId','commentId']);
-    const p=await db.prepare("SELECT d.id,d.author_id,d.kind,d.status,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    const p=await db.prepare("SELECT d.id,d.author_id,COALESCE(d.flair,d.kind) AS kind,d.status FROM discussions d WHERE d.id=?").bind(String(body.postId||'')).first();
     if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
     if(p.kind!=='question')throw new ApiError('BAD_REQUEST','Only questions have an accepted answer.');
     let cid=null;
@@ -319,18 +371,18 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      cid=String(c.id);
     }
     await db.prepare('UPDATE discussions SET solved_comment_id=?,updated_at=? WHERE id=?').bind(cid,now,p.id).run();
-    await purge(origins,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    await purgePost(origins,db,String(p.id));
     return done({solved:cid});
    }
    case 'POST /comments/edit':case 'POST /comments/delete':{
     only(body,key==='POST /comments/edit'?['commentId','body']:['commentId']);
-    const c=await db.prepare("SELECT c.id,c.author_id,c.status,c.discussion_id,d.post_no,e.vertical,e.slug FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.id=?").bind(String(body.commentId||'')).first();
+    const c=await db.prepare("SELECT c.id,c.author_id,c.status,c.discussion_id FROM comments c WHERE c.id=?").bind(String(body.commentId||'')).first();
     if(!c||c.author_id!==context.user.id||c.status!=='published')throw new ApiError('NOT_FOUND');
     await limit('post-edit',10);
     if(key==='POST /comments/edit'){const md=text(body.body,LIMITS.comment,'body');if(hasImageSyntax(md))throw noCommentImages();if(await blocklistVerdict(db,md,now)==='reject')throw blockedText();await db.prepare('UPDATE comments SET body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(md,now,now,c.id).run();}
     else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,c.id),
      db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(c.discussion_id,c.discussion_id)]);
-    await purge(origins,pagesOf({vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)));
+    await purgePost(origins,db,String(c.discussion_id));
     return done({ok:true});
    }
    case 'POST /mod/action':{
@@ -344,6 +396,30 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const rs=Math.min(now,Math.max(0,Number(body.repliesSeenAt)||0));
     await db.prepare('INSERT INTO radar_state (user_id,last_seen_change_id,replies_seen_at,updated_at) VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen_change_id=MAX(radar_state.last_seen_change_id,excluded.last_seen_change_id),replies_seen_at=MAX(radar_state.replies_seen_at,excluded.replies_seen_at),updated_at=excluded.updated_at').bind(context.user.id,id,rs,now).run();
     return done({ok:true});
+   }
+   case 'POST /pins':{
+    // The member's pinned channels, in bar order (a browser's pins move here after sign-in).
+    only(body,['channels']);
+    const list=Array.isArray(body.channels)?[...new Set(body.channels)]:null;
+    if(!list||list.length>CHANNELS.length||list.some(c=>typeof c!=='string'||!channelById(c)?.inBar))throw new ApiError('BAD_REQUEST','Invalid channels.',{field:'channels'});
+    await limit('pins',30);
+    await db.batch([db.prepare('DELETE FROM channel_pins WHERE user_id=?').bind(context.user.id),...list.map((c,i)=>db.prepare('INSERT INTO channel_pins (user_id,channel_id,pos,created_at) VALUES (?,?,?,?)').bind(context.user.id,c,i,now))]);
+    return done({pins:list});
+   }
+   case 'POST /tags/propose':{
+    // A new tag (a game, a model, a work … the seed does not have yet): members only; the owner decides in /admin/.
+    only(body,['name','channel','note','sourceUrl']);
+    const name=text(body.name,[2,60],'name'),ch=channelById(typeof body.channel==='string'?body.channel:null);
+    if(!ch?.vertical)throw new ApiError('BAD_REQUEST','Pick a topic channel (AI, games, PC, creative tools or anime).',{field:'channel'});
+    const note=body.note===undefined||body.note===''?null:text(body.note,[1,300],'note');
+    const src=body.sourceUrl===undefined||body.sourceUrl===''?null:String(body.sourceUrl);
+    if(src!==null&&!/^https?:\/\/[^\s]{4,300}$/.test(src))throw new ApiError('BAD_REQUEST','A source link must be http(s).',{field:'sourceUrl'});
+    const openN=Number((await db.prepare("SELECT COUNT(*) AS n FROM tag_proposals WHERE user_id=? AND status='open'").bind(context.user.id).first())?.n||0);
+    if(openN>=10)throw new ApiError('RATE_LIMITED','Too many open proposals. Please wait for a review.');
+    await limit('proposal',5);
+    const id=randomToken(12);
+    await db.prepare('INSERT INTO tag_proposals (id,user_id,channel_id,name,note,source_url,created_at) VALUES (?,?,?,?,?,?,?)').bind(id,context.user.id,ch.id,name,note,src,now).run();
+    return done({ok:true,id},201);
    }
    case 'POST /facts/propose':{
     only(body,['entityId','property','value','unit','sourceUrl','note','postId']);
@@ -515,8 +591,8 @@ async function anonContentChecks(x,o){
 /** The anonymous post or comment an edit, delete or password check is about. @param {any} db @param {'discussion'|'comment'} kind @param {unknown} id */
 async function anonItem(db,kind,id){
  const row=kind==='discussion'
-  ?await db.prepare("SELECT d.id,d.title,d.body_md,d.kind,d.author_id,d.status,d.post_no,d.anon_pw,d.anon_id,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(id||'')).first()
-  :await db.prepare("SELECT c.id,c.body_md,c.author_id,c.status,c.discussion_id,c.anon_pw,c.anon_id,d.post_no,e.vertical,e.slug FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.id=?").bind(String(id||'')).first();
+  ?await db.prepare("SELECT d.id,d.title,d.body_md,COALESCE(d.flair,d.kind) AS kind,d.channel_id,d.author_id,d.status,d.anon_pw,d.anon_id FROM discussions d WHERE d.id=?").bind(String(id||'')).first()
+  :await db.prepare("SELECT c.id,c.body_md,c.author_id,c.status,c.discussion_id,c.anon_pw,c.anon_id FROM comments c WHERE c.id=?").bind(String(id||'')).first();
  const visible=row&&(kind==='discussion'?row.status==='published'||row.status==='locked':row.status==='published');
  if(!row||row.author_id!==ANON_USER||!visible||!row.anon_pw)throw new ApiError('NOT_FOUND');
  return row;
@@ -545,15 +621,11 @@ async function anonRoute(key,body,x){
    const kind=/** @type {'discussion'|'comment'} */(m[1]),row=await anonItem(db,kind,m[2]);
    await checkPassword(x,{kind,id:String(row.id),password:body.password,stored:row.anon_pw,ident,max:L.passwordFailuresPerHour});
    if(kind==='comment')return {status:200,body:{ok:true,body:String(row.body_md)}};
-   const ids=row.kind==='report'?[]:[...new Set([String(row.kind),...writableKinds(String(row.vertical)).filter(k=>k!=='report')])];
-   return {status:200,body:{ok:true,title:String(row.title),body:String(row.body_md),kind:String(row.kind),kinds:ids.filter(k=>k in POST_KINDS).map(k=>({id:k,label:/** @type {any} */(POST_KINDS)[k][x.l]}))}};
+   return {status:200,body:{ok:true,title:String(row.title),body:String(row.body_md),kind:String(row.kind),kinds:editKinds(String(row.channel_id),String(row.kind),x.l,false),channel:String(row.channel_id),tags:await postTags(db,String(row.id),x.l)}};
   }
   case 'POST /posts':{
-   only(body,['entityId','kind','title','body','name','password','turnstileToken']);
-   const e=await entity(db,/** @type {string} */(body.entityId));
-   const kind=String(body.kind||'');
-   if(!(kind in POST_KINDS)||!writableKinds(e.vertical).includes(kind))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
-   if(!boardOpen(/** @type {any} */(e)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
+   only(body,['channel','tags','entityId','kind','title','body','name','password','turnstileToken']);
+   const tg=await postTarget(db,body,false);
    const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body'),password=anonPassword(body.password),name=await anonName(db,body.name);
    await assertNotBanned(db,ident.net,now);
    await gate(true);
@@ -563,18 +635,17 @@ async function anonRoute(key,body,x){
    const id=randomToken(12);
    const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id});
    await daily('p',L.postsPerDay);
-   const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:x.l,authorId:ANON_USER,hasImage:plan.ids.length>0,status:c.hide?'hidden':'published',textHash:c.hash,
+   const no=await createPost(db,{id,channel:tg.channel,kind:tg.kind,tags:tg.tags,title,body:md,locale:x.l,authorId:ANON_USER,hasImage:plan.ids.length>0,status:c.hide?'hidden':'published',textHash:c.hash,
     anon:{name,id:ident.id,net:ident.net,pw:await hashPassword(password,secret)}},now);
    if(plan.statements.length)await db.batch(plan.statements);
    if(c.hide)await autoHold(x,'discussion',id);
-   await purge(x.origins,pagesOf(e));
-   return {status:201,body:{id,postNo:no,url:postUrl(x.l,e,no),name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
+   await purge(x.origins,pagesOfPost({channel_id:tg.channel,channel_no:no},tg.entities));
+   return {status:201,body:{id,channel:tg.channel,postNo:no,url:postPath(x.l,tg.channel,no),name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
   }
   case 'POST /comments':{
    only(body,['postId','parentId','body','name','password','turnstileToken']);
-   const post=await db.prepare("SELECT d.id,d.entity_id,d.post_no,d.status,e.vertical,e.type,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+   const post=await db.prepare("SELECT d.id,d.status FROM discussions d WHERE d.id=?").bind(String(body.postId||'')).first();
    if(!post||post.status==='hidden'||post.status==='deleted')throw new ApiError('NOT_FOUND','Post not found.');
-   if(!boardOpen(/** @type {any} */(post)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
    if(post.status==='locked')throw new ApiError('FORBIDDEN','Comments are closed on this post.');
    let parent=null;
    if(body.parentId!==undefined&&body.parentId!==null&&body.parentId!==''){
@@ -594,7 +665,7 @@ async function anonRoute(key,body,x){
      .bind(id,post.id,parent?parent.id:null,ANON_USER,md,c.hide?'hidden':'published',name,ident.id,ident.net,await hashPassword(password,secret),c.hash,now,now),
     db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
    if(c.hide)await autoHold(x,'comment',id);
-   await purge(x.origins,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
+   await purgePost(x.origins,db,String(post.id));
    return {status:201,body:{id,name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
   }
   case 'POST /votes':{
@@ -621,7 +692,7 @@ async function anonRoute(key,body,x){
    return {status:r.updated?200:201,body:r};
   }
   case 'POST /posts/edit':case 'POST /posts/delete':{
-   only(body,key==='POST /posts/edit'?['postId','title','body','kind','password','turnstileToken']:['postId','password','turnstileToken']);
+   only(body,key==='POST /posts/edit'?['postId','title','body','kind','tags','password','turnstileToken']:['postId','password','turnstileToken']);
    const p=await anonItem(db,'discussion',body.postId);
    await checkPassword(x,{kind:'discussion',id:String(p.id),password:body.password,stored:p.anon_pw,ident,max:L.passwordFailuresPerHour});
    await gate(false);
@@ -629,22 +700,20 @@ async function anonRoute(key,body,x){
    if(key==='POST /posts/edit'){
     await assertNotBanned(db,ident.net,now);
     const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
-    let kind=String(p.kind);
-    if(body.kind!==undefined&&body.kind!==kind){
-     if(kind==='report'||body.kind==='report'||!writableKinds(String(p.vertical)).includes(String(body.kind)))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
-     kind=String(body.kind);
-    }
+    const kind=editedKind(p,body.kind);
+    const tags=body.tags===undefined?null:(await postTarget(db,{channel:p.channel_id,kind,tags:body.tags},false)).tags;
     const c=await anonContentChecks(x,{text:`${title}\n${md}`,kind:'post',ident,edit:true});
     // The images the post already has stay usable; new ones must be this browser's own uploads.
     const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id:String(p.id)});
-    await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,has_image=?,text_hash=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,plan.ids.length?1:0,c.hash,now,now,p.id),...plan.statements]);
+    await purgePost(x.origins,db,String(p.id));
+    await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,flair=?,has_image=?,text_hash=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,storedKind(kind),kind,plan.ids.length?1:0,c.hash,now,now,p.id),...(tags?setTagsStatements(db,String(p.id),tags,now):[]),...plan.statements]);
     await deleteImages(env,db,plan.dropped,'author',x.origins);
     if(c.hide)await autoHold(x,'discussion',String(p.id));
    }else{
     await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
     await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',x.origins);
    }
-   await purge(x.origins,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+   await purgePost(x.origins,db,String(p.id));
    return {status:200,body:{ok:true}};
   }
   case 'POST /comments/edit':case 'POST /comments/delete':{
@@ -662,7 +731,7 @@ async function anonRoute(key,body,x){
     if(c.hide)await autoHold(x,'comment',String(cm.id));
    }else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,cm.id),
     db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(cm.discussion_id,cm.discussion_id)]);
-   await purge(x.origins,pagesOf({vertical:String(cm.vertical),slug:String(cm.slug)},Number(cm.post_no)));
+   await purgePost(x.origins,db,String(cm.discussion_id));
    return {status:200,body:{ok:true}};
   }
  }
@@ -761,9 +830,9 @@ async function autoHold(x,kind,id){
 }
 /** Purge the pages (and images) of a post or comment under every origin. @param {any} db @param {string|string[]} origins @param {string} kind @param {string} id */
 async function purgeTarget(db,origins,kind,id){
- const d=await db.prepare(`SELECT d.id,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=${kind==='discussion'?'?':'(SELECT discussion_id FROM comments WHERE id=?)'}`).bind(id).first();
+ const d=await db.prepare(`SELECT d.id FROM discussions d WHERE d.id=${kind==='discussion'?'?':'(SELECT discussion_id FROM comments WHERE id=?)'}`).bind(id).first();
  if(!d)return;
- await purge(origins,pagesOf({vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no)));
+ await purgePost(origins,db,String(d.id));
  if(kind==='discussion')await purgeImages(origins,(await imagesOf(db,'discussion',String(d.id))).map(i=>i.id));
 }
 
@@ -792,8 +861,6 @@ async function report(db,context,body,now,limit,origins){
  const titleIn=body.title?text(body.title,[2,120],'title'):null;
  const sv=optVersion(body.subjectVersion),tv=optVersion(body.targetVersion);
  const quick=!comment&&!body.title&&(body.kind==='issue'||!Object.keys(env).length);
- // A report with text becomes a post, so it needs an open board (a one-click vote works anywhere).
- if(!quick&&!boardOpen(target&&body.kind==='compat'?target:subject))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
  await limit(quick?'vote':'report',quick?LIMITS.votesPerMinute:LIMITS.postsPerMinute);
  const id=randomToken(12);
  // A bare click ("✓ 작동" on a game channel, "안 돼요" on a status page) is a vote: one per user and
@@ -825,10 +892,12 @@ async function report(db,context,body,now,limit,origins){
  const subj=target&&nm(subject).startsWith(nm(target)+' ')?nm(subject).slice(nm(target).length+1):nm(subject);
  const title=titleIn?titleIn:(target?`${subj}${sv?' '+sv:''} × ${subj===nm(subject)?nm(target)+(tv?' '+tv:''):(tv||nm(target))}: ${RESULT_KO[result]}`:`${nm(subject)}${sv?' '+sv:''}: ${RESULT_KO[result]}`).slice(0,120);
  const postId=randomToken(12);
- const no=await createPost(db,{id:postId,entityId:board.id,kind:'report',title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
+ // The post goes to the target's channel (a game's → 게임, an app's → 창작 도구), tagged with both.
+ const channel=defaultChannelOf(board,(await factsFor(db,[board.id])).get(board.id)||[]);
+ const no=await createPost(db,{id:postId,channel,kind:'report',tags:[board.id,...(board.id!==subject.id?[subject.id]:[])],title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
  await recompute();
- await purge(origins,[...pagesOf(board),...(board.id!==subject.id?pagesOf(subject):[])]);
- return {id,verdict,postNo:no,url:postUrl('ko',board,no)};
+ await purge(origins,pagesOfPost({channel_id:channel,channel_no:no},[board,...(board.id!==subject.id?[subject]:[])]));
+ return {id,verdict,channel,postNo:no,url:postPath('ko',channel,no)};
 }
 
 /** A measured benchmark (model × GPU): tokens/s with runtime, quantization and context. Never an
@@ -876,23 +945,24 @@ async function myRadar(db,userId,l,now=Date.now()){
   const ev=c.ref_id&&String(c.kind).startsWith('event_')?evAt.get(Number(c.ref_id)):undefined;
   return {id:c.id,at:c.detected_at,eventAt:ev?.starts??null,eventEnd:ev?.ends??null,title,detail:d.detail,unread:c.id>seen,url:e?channelUrl(l,e):null,channel:name};});
  const q=ids.slice(0,40);
- const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.entity_id IN (${q.map(()=>'?').join(',')}) ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
-  .map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postUrl(l,e,Number(r.post_no)),channel:nameOf(e,l)};});
+ // New posts tagged with a followed channel (in any board), each once.
+ const posts=((await db.prepare(`SELECT d.channel_id,d.channel_no,d.title,COALESCE(d.flair,d.kind) AS kind,d.comment_count,d.created_at,MIN(t.pos) AS pos,e.names FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id JOIN entities e ON e.id=t.entity_id WHERE d.status='published' AND t.entity_id IN (${q.map(()=>'?').join(',')}) GROUP BY d.id ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
+  .map((/** @type {any} */ r)=>({title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postPath(l,String(r.channel_id),Number(r.channel_no)),channel:nameOf({names:JSON.parse(String(r.names||'{}'))},l)}));
  return {following:ids.length,unread:changes.filter(c=>c.unread).length+unreadReplies,unreadReplies,lastChangeId:Math.max(seen,...changes.map(c=>c.id)),changes,posts,replies};
 }
 /** Comments on the reader's posts and replies to the reader's comments (not their own), newest first.
  * Two indexed queries instead of one OR. @param {any} db @param {string} userId @param {'ko'|'en'} l @param {number} seenAt */
 async function repliesTo(db,userId,l,seenAt){
- const COLS=`c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names,COALESCE(c.anon_name||' ('||c.anon_id||')',p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author`;
- const FROM=`FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id`;
+ const COLS=`c.id,c.body_md,c.created_at,d.channel_id,d.channel_no,d.title,COALESCE(c.anon_name||' ('||c.anon_id||')',p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author`;
+ const FROM=`FROM comments c JOIN discussions d ON d.id=c.discussion_id LEFT JOIN user_profiles p ON p.user_id=c.author_id`;
  const OK=`c.status='published' AND d.status IN ('published','locked') AND c.author_id<>?`;
  const [onPosts,onComments]=await Promise.all([
   db.prepare(`SELECT ${COLS},'post' AS why ${FROM} WHERE d.author_id=? AND ${OK} ORDER BY c.created_at DESC LIMIT 20`).bind(userId,userId).all(),
   db.prepare(`SELECT ${COLS},'comment' AS why ${FROM} JOIN comments pc ON pc.id=c.parent_id WHERE pc.author_id=? AND ${OK} ORDER BY c.created_at DESC LIMIT 20`).bind(userId,userId).all()]);
  /** @type {Map<string,any>} */const byId=new Map();
  for(const r of [...(onComments.results||[]),...(onPosts.results||[])])if(!byId.has(String(r.id)))byId.set(String(r.id),r);
- return [...byId.values()].sort((a,b)=>Number(b.created_at)-Number(a.created_at)).slice(0,20).map(r=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};
-  return {at:Number(r.created_at),author:String(r.author),text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),why:String(r.why),url:postUrl(l,e,Number(r.post_no))+`#c-${r.id}`,unread:Number(r.created_at)>seenAt};});
+ return [...byId.values()].sort((a,b)=>Number(b.created_at)-Number(a.created_at)).slice(0,20).map(r=>
+  ({at:Number(r.created_at),author:String(r.author),text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),why:String(r.why),url:postPath(l,String(r.channel_id),Number(r.channel_no))+`#c-${r.id}`,unread:Number(r.created_at)>seenAt}));
 }
 
 /* ---------- open data ---------- */
@@ -986,13 +1056,13 @@ async function modTargets(db,list){
  const d=ids('discussion'),c=ids('comment');
  const AUTHOR=(/** @type {string} */ a)=>`COALESCE(${a}.anon_name||' ('||${a}.anon_id||')',p.display_name,'user-'||lower(substr(${a}.author_id,1,6)))`;
  /** @type {Map<string,{id:string,net:string|null}>} */const anonOf=new Map();
- for(const r of await rowsIn(`SELECT d.id,d.title,d.body_md,d.status,d.post_no,d.author_id,d.anon_id,d.anon_net,e.vertical,e.slug,${AUTHOR('d')} AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id IN (?*)`,d)){
+ for(const r of await rowsIn(`SELECT d.id,d.title,d.body_md,d.status,d.channel_id,d.channel_no,d.author_id,d.anon_id,d.anon_net,${AUTHOR('d')} AS author FROM discussions d LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id IN (?*)`,d)){
   if(r.anon_id)anonOf.set(`discussion:${r.id}`,{id:String(r.anon_id),net:r.anon_net??null});
-  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,4000),status:String(r.status),author:String(r.author),authorId:r.author_id===ANON_USER?null:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),anon:null,images:[]});
+  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,4000),status:String(r.status),author:String(r.author),authorId:r.author_id===ANON_USER?null:String(r.author_id),url:postPath('ko',String(r.channel_id),Number(r.channel_no)),anon:null,images:[]});
  }
- for(const r of await rowsIn(`SELECT c.id,c.body_md,c.status,c.author_id,c.anon_id,c.anon_net,d.title,d.post_no,e.vertical,e.slug,${AUTHOR('c')} AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id IN (?*)`,c)){
+ for(const r of await rowsIn(`SELECT c.id,c.body_md,c.status,c.author_id,c.anon_id,c.anon_net,d.title,d.channel_id,d.channel_no,${AUTHOR('c')} AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id IN (?*)`,c)){
   if(r.anon_id)anonOf.set(`comment:${r.id}`,{id:String(r.anon_id),net:r.anon_net??null});
-  out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:r.author_id===ANON_USER?null:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),context:String(r.title),anon:null,images:[]});
+  out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:r.author_id===ANON_USER?null:String(r.author_id),url:postPath('ko',String(r.channel_id),Number(r.channel_no))+`#c-${r.id}`,context:String(r.title),anon:null,images:[]});
  }
  // Anonymous authors: their daily ID and whether their network is banned now (the key itself stays on the server).
  const nets=[...new Set([...anonOf.values()].map(a=>a.net).filter(Boolean))];

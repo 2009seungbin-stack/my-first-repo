@@ -3,6 +3,7 @@
  * these rows only fill the boards so the layout can be judged. Every demo user id starts with
  * "demo:" and the preview banner says the posts are samples. */
 import {createPost} from '../../platform/community.js';
+import {defaultChannelOf,channelById} from '../../platform/channels.js';
 
 const MIN=6e4,HOUR=36e5,DAY=864e5;
 const USERS=[
@@ -10,7 +11,8 @@ const USERS=[
  ['demo:u6','운영C','curator'],['demo:u7','입문','new'],['demo:u8','덱유저','new'],['demo:u9','로그라이커','trusted'],['demo:u10','패치제작자','maintainer'],
  ['demo:u11','측정러','trusted'],['demo:u12','AI그림','contributor'],['demo:u13','고민중','new'],['demo:u14','비트메이커','contributor'],['demo:u15','원작러','new'],['demo:u16','굿즈헌터','contributor'],
 ];
-/** [channel id, kind, title, body, author, minutes ago, up, down, views, comments?, opts] */
+/** [tag entity id (or a channel id for an untagged post), 말머리, title, body, author, minutes ago, up, down, views, comments?, opts]
+ * opts.tags: more tags (up to 3 in all); opts.channel: a channel other than the tag's default one. */
 const POSTS=[
  ['service:claude','question','지금 API만 느린 거 맞죠? 앱은 멀쩡한데','콘솔에서 호출하면 응답이 평소보다 늦게 옵니다. 앱은 괜찮아요.','demo:u3',9,3,0,640],
  ['service:claude','news','Claude Opus 5.5 출시 — API $4 / $20, 1M 컨텍스트','공식 모델·가격 문서 기준으로 레이더봇이 올린 소식입니다.','system:radar-bot',6*DAY/MIN,31,2,5100],
@@ -37,6 +39,12 @@ const POSTS=[
  ['work:bleach-tybw-the-calamity','free','다음 화 예고 보고 온 사람','작화 기대됩니다.','demo:u15',25,57,1,2400],
  ['work:bleach-tybw-the-calamity','question','원작 몇 권부터 이번 내용임?','애니만 봐서 궁금합니다.','demo:u7',90,6,0,1800],
  ['work:bleach-tybw-the-calamity','news','굿즈 예약 일정 공식 공지 모음','공식 공지 링크만 모았습니다.','demo:u16',300,44,0,3300],
+ ['service:claude','review','Claude로 5070 로컬 모델이랑 비교해 본 사용기','같은 요약 작업을 클라우드와 로컬(14B)로 돌려 비교했어요.','demo:u11',140,18,0,1300,[],{tags:['gpu:rtx-5070']}],
+ ['gpu:rtx-5070','buy','150만 원 견적 봐주세요 (로컬 LLM + 게임)','5070 기준으로 파워 750W면 충분할까요?','demo:u13',75,5,0,640,[['demo:u11','750W 골드면 충분해요.',4]]],
+ ['work:bleach-tybw-the-calamity','event','팝업스토어 입장 예약 열렸어요','공식 공지 링크: 예약은 선착순입니다.','demo:u16',120,14,0,900],
+ ['free','free','요즘 다들 점심 뭐 드세요','회사 근처가 다 비싸졌네요.','demo:u7',35,3,0,210],
+ ['free','question','모니터 암 추천 있나요?','27인치 두 대 올릴 예정입니다.','demo:u13',260,2,0,330],
+ ['notice','feedback','[건의] 모바일에서 채널 바 고정 순서 바꾸기','전체 채널 시트에서 순서를 바꿀 수 있으면 좋겠어요.','demo:u2',180,9,0,400],
 ];
 
 /** @param {any} db D1 binding @param {number} now */
@@ -49,11 +57,20 @@ export async function insertDemoContent(db,now){
  // Oldest first so post numbers grow with time.
  const list=[...POSTS].sort((a,b)=>Number(b[5])-Number(a[5]));
  for(const [entity,kind,title,body,author,ago,up,down,views,comments=[],opts={}] of list){
-  if(!await exists(String(entity)))continue;
+  const o=/** @type {{tags?:string[],channel?:string,pinned?:boolean,best?:boolean}} */(opts);
+  let channel=channelById(String(entity))?.id||null,tags=/** @type {string[]} */([]);
+  if(!channel){
+   const e=await db.prepare('SELECT vertical,type FROM entities WHERE id=?').bind(String(entity)).first();
+   if(!e)continue;
+   const facts=(await db.prepare("SELECT property,value FROM facts WHERE entity_id=? AND property='media_type' AND is_current=1").bind(String(entity)).all()).results.map((/** @type {any} */ f)=>({property:f.property,value:JSON.parse(f.value)}));
+   channel=o.channel||defaultChannelOf({vertical:String(e.vertical),type:String(e.type)},facts);
+   tags=[String(entity)];
+  }
+  for(const t of o.tags||[])if(await exists(t))tags.push(t);
   const created=now-Number(ago)*MIN,id=`demo-${++n}`;
-  await createPost(db,{id,entityId:String(entity),kind:String(kind),title:String(title),body:String(body),locale:'ko',authorId:String(author)},created);
+  await createPost(db,{id,channel,kind:String(kind),tags,title:String(title),body:String(body),locale:'ko',authorId:String(author)},created);
   const cs=/** @type {any[]} */(comments);
-  await db.batch([db.prepare('UPDATE discussions SET up_count=?,down_count=?,view_count=?,comment_count=?,pinned=?,best_at=? WHERE id=?').bind(up,down,views,cs.length,/** @type {any} */(opts).pinned?1:0,/** @type {any} */(opts).best?created+HOUR:null,id),
+  await db.batch([db.prepare('UPDATE discussions SET up_count=?,down_count=?,view_count=?,comment_count=?,pinned=?,best_at=? WHERE id=?').bind(up,down,views,cs.length,o.pinned?1:0,o.best?created+HOUR:null,id),
    ...cs.map(([a,text,cup,parent],i)=>db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,up_count,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').bind(`${id}-c${i}`,id,parent!==undefined?`${id}-c${parent-1}`:null,a,text,cup,created+(i+1)*5*MIN,created+(i+1)*5*MIN))]);
   c+=cs.length;
  }

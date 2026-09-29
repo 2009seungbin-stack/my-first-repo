@@ -39,6 +39,17 @@ Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.w
    name survives a seed without one). Each run is recorded as `seed-sync-<vertical>` in the admin app.
    Locally / against a copy: `node tools/platform/seed-sync.mjs --sqlite copy.sqlite [--verticals games]`.
 3. Check: `--command "SELECT vertical,COUNT(*) FROM entities GROUP BY 1"` → 5 rows, 1,580 total.
+5. **Channels (0014, `migrations/0014_channels.sql`, docs/n2/CHANNELS.md)** — preview first, production only
+   after the preview has been checked:
+   `npx --yes wrangler@4.135.0 d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml`
+   Additive only: new tables `channels`, `discussion_tags`, `legacy_posts`, `channel_pins`, `tag_proposals`,
+   new columns `discussions.channel_id/channel_no/flair`, 7 hidden placeholder entities `channel:*`. Every
+   existing post moves into the channel of its entity's vertical, numbered by date; its entity becomes its
+   first tag; its old number goes to `legacy_posts` so `/{l}/{vertical}/{slug}/{no}` answers 301. Nothing is
+   deleted; comments, votes, flags and images keep pointing at the same post ids. Check afterwards:
+   `--command "SELECT channel_id,COUNT(*),MAX(channel_no) FROM discussions GROUP BY 1"` and
+   `--command "SELECT (SELECT COUNT(*) FROM discussions)-(SELECT COUNT(*) FROM legacy_posts)"` → 0.
+   Deploy the code together with (right after) the migration: the new code reads `channel_id`.
 4. Write budget: the seed load alone writes ≈107,000 D1 rows (FTS index included) — more than the Free plan's
    100,000 rows written per day, which is shared by every database in the account. On Free, load the seed right
    after 00:00 UTC and let the collectors start the next UTC day (they fail with "exceeded D1's free tier daily

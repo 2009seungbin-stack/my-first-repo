@@ -57,7 +57,7 @@ test('cross-site POSTs are refused before anything is read',{skip},async()=>{
 test('posting: per-channel numbers, allowed tags only, public nickname never the account name',{skip},async()=>{
  const h=await harness();await h.signIn('a');
  const p1=await h.call('POST','/posts?l=ko',{as:'a',body:{entityId:'game:steam-1',kind:'patch',title:'패치 공지',body:'내용'}});
- assert.equal(p1.status,201);assert.equal(p1.json.postNo,1);assert.equal(p1.json.url,'/ko/games/test-game/1');
+ assert.equal(p1.status,201);assert.equal(p1.json.postNo,1);assert.equal(p1.json.url,'/ko/community/games/1');assert.equal(p1.json.channel,'games');
  const p2=await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'question',title:'두 번째',body:'x'}});
  assert.equal(p2.json.postNo,2);
  const bad=await h.call('POST','/posts',{as:'a',body:{entityId:'service:svc',kind:'patch',title:'패치?',body:'x'}});
@@ -100,7 +100,7 @@ test('comments thread under their post, update counts; votes are one per user an
  assert.equal((await h.call('POST','/votes',{as:'b',body:{kind:'discussion',id:p.id,value:1}})).json.up,1,'voting again does not add');
  const st=await h.call('GET',`/state?entity=game:steam-1&post=${p.id}`,{as:'b'});
  assert.equal(st.json.votes[p.id],1);
- const np=await h.call('GET','/new-posts?entity=game:steam-1&after=0');
+ const np=await h.call('GET','/new-posts?channel=games&after=0');
  assert.deepEqual(np.json,{count:1,last:1});
 });
 
@@ -118,7 +118,7 @@ test('a compat report becomes a 리포트 post in the game channel and moves the
  h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,tier,created_at,updated_at) VALUES ('u-c','숙련자','trusted',0,0)").run();
  let last;
  for(const n of ['a','b','c'])last=await h.call('POST','/reports',{as:n,body:{kind:'compat',entityId:'translation_patch:test-game-ko',subjectVersion:'1.7',targetId:'game:steam-1',targetVersion:'2.3.1',result:'works',env:{os:'Windows 11'}}});
- assert.equal(last.status,201);assert.match(last.json.url,/^\/ko\/games\/test-game\/\d+$/);
+ assert.equal(last.status,201);assert.match(last.json.url,/^\/ko\/community\/games\/\d+$/);
  assert.equal(last.json.verdict.verification,'COMMUNITY_VERIFIED');
  const row=h.db.raw.prepare("SELECT status,verification,confirmations FROM compatibility WHERE is_current=1 AND subject_id='translation_patch:test-game-ko' AND target_version='2.3.1'").get();
  assert.deepEqual({...row},{status:'works',verification:'COMMUNITY_VERIFIED',confirmations:3});
@@ -157,7 +157,7 @@ test('내 정보: my posts and comments, newest first, only mine',{skip},async()
  await h.call('POST','/comments',{as:'a',body:{postId:p.id,body:'내 댓글'}});
  await h.call('POST','/posts',{as:'b',body:{entityId:'game:steam-1',kind:'free',title:'남의 글',body:'x'}});
  const r=(await h.call('GET','/mine?l=ko',{as:'a'})).json;
- assert.deepEqual(r.posts.map(x=>x.title),['내 글']);assert.match(r.posts[0].url,/^\/ko\/games\/test-game\/\d+$/);
+ assert.deepEqual(r.posts.map(x=>x.title),['내 글']);assert.match(r.posts[0].url,/^\/ko\/community\/games\/\d+$/);
  assert.deepEqual(r.comments.map(x=>x.text),['내 댓글']);
  assert.equal((await h.call('GET','/mine')).status,401);
 });
@@ -221,13 +221,36 @@ test('reply alerts: comments on my posts and replies to my comments, unread unti
  assert.equal((await h.call('GET','/my-radar?l=ko',{as:'b'})).json.replies.length,0,'b wrote them');
 });
 
-test('boards open on AI, 한글패치 and GPU channels only; staff may post notices anywhere',{skip},async()=>{
+test('channels: 말머리 of the channel, 0–3 tags from any area, 공지 staff-only, 건의 in 공지·건의',{skip},async()=>{
  const h=await harness();await h.signIn('a');await h.signIn('mod');
  h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('u-mod','운영자1','moderator',0,0)").run();
  await ingest(h.db,{schema:'nerulio.seed/1',vertical:'studio',sources:[{id:'src:s',kind:'OFFICIAL',url:'https://example.com/s',retrieved:'2026-09-01'}],entities:[{id:'app:test-daw',type:'app',slug:'test-daw',names:{en:'Test DAW'}}]},{mode:'seed',actor:'seed',now:T0});
- assert.equal((await h.call('POST','/posts',{as:'a',body:{entityId:'app:test-daw',kind:'free',title:'열리지 않은 게시판',body:'x'}})).status,403);
- assert.equal((await h.call('POST','/posts',{as:'mod',body:{entityId:'app:test-daw',kind:'notice',title:'공지',body:'x'}})).status,201,'staff notice');
- assert.equal((await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'열린 게시판',body:'x'}})).status,201);
+ const post=(as,body)=>{h.clock.now+=61e3;return h.call('POST','/posts?l=ko',{as,body:{title:'채널 글입니다',body:'x',...body}});};
+ // Every channel is open (no "준비 중").
+ const st=await post('a',{channel:'studio',kind:'report',tags:['app:test-daw']});
+ assert.equal(st.status,201,st.text);assert.equal(st.json.url,'/ko/community/studio/1');
+ // A tag from another area: an AI post tagged with a game shows on the game's page too.
+ const cross=await post('a',{channel:'ai',kind:'review',tags:['service:svc','game:steam-1']});
+ assert.equal(cross.status,201,cross.text);
+ const tags=h.db.raw.prepare('SELECT entity_id FROM discussion_tags WHERE discussion_id=? ORDER BY pos').all(cross.json.id).map(r=>r.entity_id);
+ assert.deepEqual(tags,['service:svc','game:steam-1']);
+ const d=h.db.raw.prepare('SELECT kind,flair,channel_id,channel_no FROM discussions WHERE id=?').get(cross.json.id);
+ assert.deepEqual({...d},{kind:'free',flair:'review',channel_id:'ai',channel_no:1},'사용기 is stored as a flair; kind keeps a value its CHECK accepts');
+ // 자유 without tags.
+ assert.equal((await post('a',{channel:'free',kind:'free',tags:[]})).status,201);
+ // Refusals: a 말머리 of another channel, 4 tags, an unknown tag, a placeholder tag, no channel, member 공지.
+ assert.equal((await post('a',{channel:'ai',kind:'patch',tags:[]})).json.error.field,'kind');
+ assert.equal((await post('a',{channel:'free',kind:'free',tags:['service:svc','game:steam-1','app:test-daw','translation_patch:test-game-ko']})).json.error.field,'tags');
+ assert.equal((await post('a',{channel:'free',kind:'free',tags:['game:nope']})).status,400);
+ assert.equal((await post('a',{channel:'free',kind:'free',tags:['channel:ai']})).status,400);
+ assert.equal((await post('a',{channel:'nope',kind:'free'})).json.error.field,'channel');
+ assert.equal((await post('a',{channel:'games',kind:'notice',tags:[]})).status,400,'공지 is staff-only');
+ assert.equal((await post('a',{channel:'notice',kind:'feedback',tags:[]})).status,201,'anyone may leave 건의');
+ assert.equal((await post('mod',{channel:'studio',kind:'notice',tags:[]})).status,201,'staff 공지 in any channel');
+ // The old entity-based body still works: the entity's default channel with it as the only tag.
+ h.clock.now+=61e3;
+ const old=await h.call('POST','/posts',{as:'a',body:{entityId:'app:test-daw',kind:'free',title:'예전 방식',body:'x'}});
+ assert.equal(old.status,201);assert.equal(old.json.channel,'studio');
 });
 
 test('rollout votes: one per user per feature, features only',{skip},async()=>{
@@ -281,7 +304,7 @@ test('My Radar: changes and posts of followed channels, unread until seen',{skip
  await ingest(h.db,{schema:'nerulio.seed/1',vertical:'games',sources:[],entities:[{id:'game:steam-1',versions:[{version:'2.4.0',released:'2026-09-28',src:'src:t'}]}]},{mode:'collector',actor:'collector:steam',now:T0});
  await h.call('POST','/posts',{as:'b',body:{entityId:'game:steam-1',kind:'question',title:'2.4 패치 됨?',body:'x'}});
  const r=(await h.call('GET','/my-radar?l=ko',{as:'a'})).json;
- assert.equal(r.following,1);assert(r.unread>=1);assert(r.changes.some(c=>c.title.includes('2.4.0')));assert.equal(r.posts[0].url,'/ko/games/test-game/1');
+ assert.equal(r.following,1);assert(r.unread>=1);assert(r.changes.some(c=>c.title.includes('2.4.0')));assert.equal(r.posts[0].url,'/ko/community/games/1');
  await h.call('POST','/my-radar/seen',{as:'a',body:{lastChangeId:r.lastChangeId}});
  assert.equal((await h.call('GET','/my-radar',{as:'a'})).json.unread,0);
  assert.equal((await h.call('GET','/my-radar')).status,401);
@@ -382,9 +405,28 @@ test('question authors accept an answer; the post becomes a QAPage with accepted
  assert.equal((await h.call('POST','/posts/solve',{as:'a',body:{postId:q.id,commentId:c.id}})).json.solved,c.id);
  const {loadPost,renderPost}=await import('../platform/render/post.js');const {entitiesByIds,frontPosts}=await import('../platform/db/channel.js');
  const game=(await entitiesByIds(h.db,['game:steam-1'])).get('game:steam-1');
- const out=String(renderPost(await loadPost(h.db,game,1,{l:'ko',now:T0}),{origin:ORIGIN}));
+ const out=String(renderPost(await loadPost(h.db,'games',1,{l:'ko',now:T0}),{origin:ORIGIN}));
  assert(out.includes('✓ 채택된 답변'));
  const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(out)[1]);
  assert.equal(ld['@type'],'QAPage');assert.equal(ld.mainEntity.acceptedAnswer.text,'제작자 블로그에서요');
  assert.equal((await frontPosts(h.db,{mode:'kind',kind:'question',unanswered:true})).length,0);
 });
+
+test('pins: members keep channel pins on the account; tag search finds entities; members propose new tags',{skip},async()=>{
+ const h=await harness();await h.signIn('a');
+ assert.deepEqual((await h.call('GET','/pins',{as:'a'})).json,{pins:[]});
+ assert.deepEqual((await h.call('POST','/pins',{as:'a',body:{channels:['games','ai','games']}})).json,{pins:['games','ai']},'order kept, duplicates dropped');
+ assert.deepEqual((await h.call('GET','/pins',{as:'a'})).json,{pins:['games','ai']});
+ assert.equal((await h.call('POST','/pins',{as:'a',body:{channels:['notice']}})).status,400,'공지·건의 is not on the bar');
+ assert.equal((await h.call('POST','/pins',{as:'a',body:{channels:['nope']}})).status,400);
+ const found=(await h.call('GET','/tags?q=svc&l=ko')).json.tags;
+ assert(found.some(t=>t.id==='service:svc'&&t.url==='/ko/ai/svc/'&&t.channel==='ai'),JSON.stringify(found));
+ assert.deepEqual((await h.call('GET','/tags?q=&l=ko')).json.tags,[]);
+ const pr=await h.call('POST','/tags/propose',{as:'a',body:{name:'새 게임 이름',channel:'games',sourceUrl:'https://store.steampowered.com/app/1/',note:'출시 예정'}});
+ assert.equal(pr.status,201,pr.text);
+ assert.deepEqual({...h.db.raw.prepare('SELECT name,channel_id,status FROM tag_proposals WHERE id=?').get(pr.json.id)},{name:'새 게임 이름',channel_id:'games',status:'open'});
+ assert.equal((await h.call('POST','/tags/propose',{as:'a',body:{name:'잡담 태그',channel:'free'}})).status,400,'자유 has no tag kinds');
+ assert.equal((await h.call('POST','/tags/propose',{as:'a',body:{name:'x',channel:'games'}})).status,400,'too short');
+ assert.equal((await h.call('POST','/tags/propose',{as:'a',body:{name:'링크',channel:'games',sourceUrl:'javascript:alert(1)'}})).status,400);
+});
+

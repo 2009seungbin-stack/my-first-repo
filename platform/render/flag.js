@@ -3,7 +3,8 @@
  * before boards open (takedown / temporary-block requests, wrong information, spam). Submits to
  * /api/v2/flags through the islands; moderators resolve it in the admin console. */
 import {html} from './html.js';
-import {page,postUrl} from './ui.js';
+import {page} from './ui.js';
+import {postPath} from '../channels.js';
 
 /** 신고 사유 (server/platform/anon.js REPORT): the ones marked `now` hide the post or comment at once, until a
  * moderator checks it; the others hide it when 3 different people report it. */
@@ -29,11 +30,11 @@ export async function loadFlagTarget(db,target,l){
  const m=target&&TARGET.exec(target)&&/^(discussion|comment):(.+)$/.exec(target);
  if(!m)return null;
  if(m[1]==='discussion'){
-  const d=await db.prepare("SELECT d.title,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=? AND d.status IN ('published','locked')").bind(m[2]).first();
-  return d?{kind:'discussion',title:String(d.title),url:postUrl(l,{vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no))}:null;
+  const d=await db.prepare("SELECT d.title,d.channel_id,d.channel_no FROM discussions d WHERE d.id=? AND d.status IN ('published','locked')").bind(m[2]).first();
+  return d?{kind:'discussion',title:String(d.title),url:postPath(l,String(d.channel_id),Number(d.channel_no))}:null;
  }
- const c=await db.prepare("SELECT c.id,c.body_md,d.post_no,e.vertical,e.slug FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.id=? AND c.status='published' AND d.status IN ('published','locked')").bind(m[2]).first();
- return c?{kind:'comment',title:String(c.body_md).replace(/\s+/g,' ').slice(0,120),url:postUrl(l,{vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no))+`#c-${c.id}`}:null;
+ const c=await db.prepare("SELECT c.id,c.body_md,d.channel_id,d.channel_no FROM comments c JOIN discussions d ON d.id=c.discussion_id WHERE c.id=? AND c.status='published' AND d.status IN ('published','locked')").bind(m[2]).first();
+ return c?{kind:'comment',title:String(c.body_md).replace(/\s+/g,' ').slice(0,120),url:postPath(l,String(c.channel_id),Number(c.channel_no))+`#c-${c.id}`}:null;
 }
 
 /** @param {{l:string,target:string|null,about?:{kind:string,title:string,url:string}|null,channels?:{name:string,href:string}[]}} o @param {{origin:string}} site */

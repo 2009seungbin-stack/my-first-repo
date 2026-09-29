@@ -17,11 +17,13 @@ Errors are `{"error":{"code","message",…}}`; Korean pages translate the messag
 | Route | Who | Returns |
 | --- | --- | --- |
 | `GET /state?entity=&post=&flag=` | anonymous | `signedIn`, `user{name,tier}`, `following`, the reader's votes on a post and its comments, `mine{post,comments}`, `compat{"patch|gameVersion":result}` on a game channel, `flagged{reason}` for a 신고 target |
-| `GET /new-posts?entity=&after=` | anonymous | posts newer than `after` in a channel (the "↑ 새 글" bar) |
-| `GET /follows?l=` | member | followed channels with names and links |
+| `GET /new-posts?channel=&after=` | anonymous | how many posts newer than channel number `after` (the "↑ 새 글" bar), `last` |
+| `GET /tags?q=&l=` | anonymous | up to 10 tags (active entities) by name or alias: `id, name, vertical, type, url, channel` (its default channel) |
+| `GET /pins` | anonymous | the member's pinned channels in bar order; `{pins:null}` signed out (pins then live in the browser, `localStorage` `n2-pins`) |
+| `GET /follows?l=` | member | followed tags with names and links |
 | `GET /my-radar?l=` | member | changes and posts of followed channels (event items carry `eventAt/eventEnd`), `replies` (comments on my posts, replies to my comments), `unread`, `unreadReplies`, `lastChangeId` |
 | `GET /mine?l=` | member | my posts and comments (newest 30 each) |
-| `GET /posts/source?id=&l=` | author | a post's markdown, its tag and the tags it may switch to |
+| `GET /posts/source?id=&l=` | author | a post's markdown, its 말머리 and the 말머리 of its channel it may switch to, `channel`, `tags` |
 | `GET /comments/source?id=` | author | a comment's markdown |
 | `GET /mod/queue` | moderator, curator, admin (404 for others) | open flags with previews, `hidden` (임시조치 중, full text), `proposals` (정보 제안 with the most trusted current value), the action log |
 | `GET /open-data/compat[?month=YYYY-MM]` | anonymous, edge-cached 1 h | ODbL. Without `month`: months and counts. With `month`: public compat reports of public posts: subject/target ids and versions, `env{os family, runtime, quant}`, result, day, `truncated` |
@@ -31,8 +33,10 @@ Errors are `{"error":{"code","message",…}}`; Korean pages translate the messag
 | Route | Body | Notes |
 | --- | --- | --- |
 | `/follow` | `entityId, follow` | |
-| `/posts` | `entityId, kind, title, body` | `kind` must be writable in the channel's vertical (공지 staff only) |
-| `/posts/edit` | `postId, title, body, kind?` | author only; a 리포트 post keeps its tag |
+| `/posts` | `channel, kind, tags[], title, body` (+ `name, password` without an account) | `kind` = a 말머리 of the channel (`platform/channels.js`; 공지 staff only, any channel). `tags` = 0–3 entity ids from any area, in order. Answers `{id, channel, postNo, url}`. The old body `entityId, kind, …` still works: the entity's default channel with it as the only tag. |
+| `/pins` | `channels[]` | the member's pinned channels (in-bar channels only, order kept) |
+| `/tags/propose` | `name, channel, sourceUrl?, note?` | members only (유동 cannot); a topic channel (not 자유/공지); at most 10 open per member. The owner decides in /admin/ (Radar → 새 태그). |
+| `/posts/edit` | `postId, title, body, kind?, tags?` | author only; a 말머리 of the post's channel; a 리포트 post keeps its 말머리 |
 | `/posts/delete` | `postId` | author only |
 | `/posts/solve` | `postId, commentId` | question author accepts an answer |
 | `/comments` | `postId, body, parentId?` | |
