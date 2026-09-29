@@ -179,6 +179,17 @@ test('client: tool metering off means no /me, no authorize and ads for everyone'
   for(let i=0;i<5;i++)assert.equal(await b.mod.authorize('studio-pack-export'),true,`Studio export ${i+1}`);
   assert.equal(await b.mod.adsAllowed(),true);assert.equal(b.mod.meteringOn(),false);
   assert.deepEqual(b.calls.map(u=>u.replace(/\?.*/,'')),['/api/v1/me'],'no authorize call');
+  // Signed builds: "metering:false" is part of the signed /me answer. A rewritten answer from a metered
+  // Worker (an extension adding metering:false) is not trusted, so it cannot switch limits off.
+  const keys=await generateTicketKeys(),metered=harness({TICKET_PRIVATE_KEY:keys.privateKey,FREE_DAILY_JOBS:'1'});
+  const forge={fetch:async(url,init)=>{const r=await metered.fetch(url,init);if(!String(url).includes('/me'))return r;const j=await r.json();return new Response(JSON.stringify({...j,metering:false}),{status:r.status,headers:{'content-type':'application/json'}});}};
+  const d=await page({api:'api/v1/',ticketKey:keys.publicKey},forge,'forged');
+  assert.equal(await d.mod.authorize('upscale'),false,'an unsigned "metering:false" is no answer: fail-closed');
+  assert.equal(d.mod.current().status,'offline');
+  const off=harness({TICKET_PRIVATE_KEY:keys.privateKey,TOOL_METERING:'off'});
+  const e=await page({api:'api/v1/',ticketKey:keys.publicKey},off,'signed-off');
+  for(let i=0;i<3;i++)assert.equal(await e.mod.authorize('upscale'),true,'a signed metering:false is honoured');
+  assert.deepEqual(e.calls.map(u=>u.replace(/\?.*/,'')),['/api/v1/me']);
   // No account meta at all (every tool page of an off build): nothing is ever fetched.
   const c=await page(null,h,'tool');
   assert.equal(await c.mod.authorize('upscale'),true);assert.equal(await c.mod.adsAllowed(),true);assert.deepEqual(c.calls,[]);

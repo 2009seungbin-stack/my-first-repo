@@ -78,7 +78,7 @@ export async function load({force=false}={}){
   try{
    const nonce=newNonce();
    const r=await request(`me?n=${nonce}`,{timeout:6000});
-   const trusted=r.ok&&(!config.ticketKey||!!await verifyTicket(config.ticketKey,r.data?.entitlement,{kind:'me',n:nonce,plan:r.data?.plan,ads:r.data?.ads,loggedIn:r.data?.loggedIn}));
+   const trusted=r.ok&&(!config.ticketKey||!!await verifyTicket(config.ticketKey,r.data?.entitlement,{kind:'me',n:nonce,plan:r.data?.plan,ads:r.data?.ads,loggedIn:r.data?.loggedIn,metering:r.data?.metering}));
    if(r.ok&&!trusted){me=null;status='offline';track('entitlement_unverified');}
    else if(r.ok){me=r.data;status='ready';graceStore(me.plan==='pro'?null:me.grace);track('account_status_loaded',{plan:me.plan});if(me.plan==='pro')track('pro_active',{plan:'pro'});reconcile();}
    else if(r.code==='SERVICE_NOT_CONFIGURED'){me=null;status='unconfigured';}

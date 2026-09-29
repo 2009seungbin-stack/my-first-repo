@@ -93,7 +93,7 @@ async function me(request,ctx,cfg,db,now){
  }
  // Signed plan, bound to the page's nonce for this request (a copied answer is useless).
  const nonce=ctx.url.searchParams.get('n')||'';
- const entitlement=NONCE.test(nonce)?await signTicket(cfg.ticketKey,{kind:'me',n:nonce,plan:ctx.plan,ads,loggedIn:!!ctx.user}):undefined;
+ const entitlement=NONCE.test(nonce)?await signTicket(cfg.ticketKey,{kind:'me',n:nonce,plan:ctx.plan,ads,loggedIn:!!ctx.user,...(metered?{}:{metering:false})}):undefined;
  return {
   ...(entitlement?{entitlement}:{}),
   loggedIn:!!ctx.user,plan:ctx.plan,ads,usage:metered?publicUsage(ctx.plan,usage):{unlimited:true},studioUsage:metered?publicUsage(ctx.plan,studio):{unlimited:true},
