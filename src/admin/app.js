@@ -52,7 +52,7 @@ let authed=false,renderSeq=0,lastOverviewAt=0;
 /** @type {number|null} */let servedOfflineAt=null;
 /** @type {any} */let deferredInstall=null;
 const rawApi=createApi({served:(_p,off)=>noteServed(off)});
-const api=createApi({served:(_p,off)=>noteServed(off),reauth,signedOut:()=>{forget();if(authed){authed=false;ctx.me=null;route();}}});
+const api=createApi({served:(_p,off)=>noteServed(off),reauth,stillAdmin:()=>rawApi.get('/api/v2/admin/me').then(me=>me?.admin===true),signedOut:()=>{forget();if(authed){authed=false;ctx.me=null;route();}}});
 /** Signed out or not an admin: drop the offline copies of admin data from this device. */
 function forget(){try{caches.delete('admin-data').catch(()=>{});}catch{}}
 const ctx={
@@ -71,7 +71,7 @@ const ctx={
   return h('p.stamp',servedOfflineAt?`오프라인 · 저장된 화면 (${relTime(t,Date.now())})`:`업데이트 ${relTime(t,Date.now())}`);
  },
  signedIn:(/** @type {string} */ msg)=>{authed=false;boot(msg);},
- signedOut:()=>{forget();authed=false;ctx.me=null;ctx.overview=null;location.hash='#/';route({reason:'signedout'});},
+ signedOut:()=>{forget();authed=false;ctx.me=null;ctx.overview=null;history.replaceState(null,'','#/');route({reason:'signedout'});},
  canInstall:()=>!!deferredInstall,
  installed:()=>matchMedia('(display-mode: standalone)').matches||/** @type {any} */(navigator).standalone===true,
  async install(){if(!deferredInstall)return 'unavailable';deferredInstall.prompt();const r=await deferredInstall.userChoice.catch(()=>({outcome:'dismissed'}));deferredInstall=null;return r.outcome;},
@@ -125,7 +125,10 @@ function applyTheme(){
 async function route(o={}){
  const seq=++renderSeq;
  const path=decodeURIComponent(location.hash.replace(/^#\/?/,'')).replace(/\/+$/,'');
- const view=h('div.view');main.replaceChildren(view);
+ const view=h('div.view');
+ // A refresh keeps the current screen on show until the new one is ready (or 400 ms have passed).
+ const swap=()=>{if(seq===renderSeq&&view.parentNode!==main)main.replaceChildren(view);};
+ if(!o.keepScroll||!authed)swap();
  if(!authed){
   document.body.classList.add('signed-out');
   backBtn.hidden=true;actions.hidden=true;tabs.hidden=true;replace(badgeSlot);ctx.setTitle('관리');
@@ -144,8 +147,10 @@ async function route(o={}){
  for(const a of tabs.querySelectorAll('a')){const on=a.getAttribute('data-tab')===screen.tab;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');}
  if(!o.keepScroll)window.scrollTo(0,0);
  refreshBtn.classList.add('spin');servedOfflineAt=null;
+ const late=o.keepScroll?window.setTimeout(swap,400):0;
  try{await screen.render(ctx,view,params);}
  catch(e){if(seq===renderSeq)fill(view,failure(e,()=>ctx.refresh()));}
+ clearTimeout(late);swap();
  if(seq===renderSeq){refreshBtn.classList.remove('spin');paintOffline();}
  // Badges stay current on every tab without refetching on each navigation.
  if(screen!==home&&Date.now()-lastOverviewAt>60000)ctx.loadOverview().catch(()=>{});

@@ -125,18 +125,28 @@ export function normalizePrefs(p){
  };
 }
 
-/** Traffic payload → what the 방문자 screen draws. @param {any} t */
+/** Traffic payload (server/traffic.js mapTraffic) → what the 방문자 screen draws. Bot rows are
+ * verified (확인됨), declared (자칭: says it is a bot, cannot be verified — e.g. GPTBot, ClaudeBot,
+ * Yeti) or suspected (의심: automation that does not say so). @param {any} t */
 export function trafficView(t){
  const tot=t?.totals||{};
  const human=Number(tot.human)||0,verified=Number(tot.verifiedBot)||0,declared=Number(tot.declaredBot)||0,suspected=Number(tot.suspectedBot)||0;
  const bot=verified+declared+suspected,all=human+bot;
- const bots=(Array.isArray(t?.bots)?t.bots:[]).map((/** @type {any} */ b)=>({name:String(b.name||'?'),category:String(b.category||'other'),verified:!!b.verified,requests:Number(b.requests)||0})).sort((a,b)=>b.requests-a.requests);
+ const bots=(Array.isArray(t?.bots)?t.bots:[]).map((/** @type {any} */ b)=>({name:String(b.name||'?'),category:String(b.category||'other'),verified:!!b.verified,suspected:!b.verified&&!!b.suspected,requests:Number(b.requests)||0}))
+  .map(b=>({...b,cls:b.verified?'verified':b.suspected?'suspected':'declared'})).sort((a,b)=>b.requests-a.requests);
  /** @type {Record<string,number>} */const byCategory={};
  for(const b of bots)byCategory[b.category]=(byCategory[b.category]||0)+b.requests;
  const series=(Array.isArray(t?.series)?t.series:[]).map((/** @type {any} */ s)=>({t:s.t,human:Number(s.human)||0,bot:Number(s.bot)||0}));
- return {human,bot,verified,declared,suspected,all,botShare:all?bot/all:0,pageviews:Number(t?.humans?.pageviews)||0,visitors:t?.humans?.visitors==null?null:Number(t.humans.visitors),
+ const hu=t?.humans||{};
+ /** @param {any} o @returns {{key:string,n:number}[]} */
+ const pairs=o=>Array.isArray(o)?o.map(x=>({key:String(x.country??x.key??x.name??'?'),n:Number(x.n)||0})):o&&typeof o==='object'?Object.entries(o).map(([key,n])=>({key,n:Number(n)||0})):[];
+ const sortDesc=(/** @type {{key:string,n:number}[]} */ a)=>a.filter(x=>x.n>0).sort((x,y)=>y.n-x.n);
+ const cov=t?.coverage||{};
+ return {human,bot,verified,declared,suspected,all,botShare:all?bot/all:0,pageviews:Number(hu.pageviews)||0,visitors:hu.visitors==null?null:Number(hu.visitors),unconfirmed:Number(hu.unconfirmed)||0,
+  aiBotRequests:t?.aiBotRequests==null?bots.filter(b=>b.category==='ai').reduce((n,b)=>n+b.requests,0):Number(t.aiBotRequests)||0,
+  breakdown:{sources:sortDesc(pairs(hu.sources)),devices:sortDesc(pairs(hu.devices)),browsers:sortDesc(pairs(hu.browsers)),locales:sortDesc(pairs(hu.locales)),countries:sortDesc(pairs(hu.countries))},
   bots,byCategory,maxBot:bots[0]?.requests||0,series,topPages:{human:Array.isArray(t?.topPages?.human)?t.topPages.human:[],bot:Array.isArray(t?.topPages?.bot)?t.topPages.bot:[]},
-  coverage:{workerSeesHtml:t?.coverage?.workerSeesHtml!==false,note:String(t?.coverage?.note||'')}};
+  coverage:{workerSeesHtml:cov.workerSeesHtml!==false,note:String(cov.note||''),recording:cov.recording!==false,seen:Array.isArray(cov.seen)?cov.seen.map(String):[],unseen:Array.isArray(cov.unseen)?cov.unseen.map(String):[]}};
 }
 /** The overview's compact traffic block → tile text parts. @param {any} tr */
 export function trafficTile(tr){

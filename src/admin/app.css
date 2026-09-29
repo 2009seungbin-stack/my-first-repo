@@ -53,7 +53,7 @@ button,input,select{font:inherit;color:inherit}
 .ab .sp{flex:1}
 .ab .acts{display:flex}
 .ab .ib{width:44px;height:44px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;cursor:pointer;position:relative;color:#fff;text-decoration:none;flex:none}
-.ab .ib:hover{background:rgba(255,255,255,.12)}
+@media (hover:hover){.ab .ib:hover{background:rgba(255,255,255,.12)}}
 .ab .ib:focus-visible{outline-color:#fff}
 .ab .ib .dot{position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 2px var(--head)}
 .ab .ib.spin svg{animation:spin .8s linear infinite}
@@ -270,6 +270,13 @@ a.tile:active{background:var(--bg)}
 .tablev table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
 .tablev th,.tablev td{text-align:right;padding:4px 6px;border-bottom:1px solid var(--line2)}
 .tablev th:first-child,.tablev td:first-child{text-align:left}
+.stb{font:inherit;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;gap:3px;align-items:center;position:relative;margin:0}
+.stb::after{content:"";position:absolute;inset:-12px -6px}
+.stb .qi{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;border:1px solid currentColor;font-size:9px;line-height:1}
+.covok{display:flex;align-items:center;gap:4px;color:var(--ok)}
+.cov summary{cursor:pointer;color:var(--brand);font-size:12.5px;min-height:36px;display:flex;align-items:center}
+.need-item{display:flex;flex-direction:column;gap:4px}
+.need-item+.need-item{border-top:1px dashed var(--gold-line);padding-top:8px;margin-top:2px}
 .botbar{display:block;height:4px;margin-top:5px;background:var(--track);border-radius:2px;overflow:hidden}
 .botbar i{display:block;height:100%;border-radius:2px}
 

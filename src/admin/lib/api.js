@@ -9,8 +9,8 @@ import {needText} from './labels.js';
  *  - A response the service worker served from its cache while offline carries x-admin-offline. */
 
 export class AdminError extends Error{
- /** @param {{status:number,code:string,message?:string,need?:string|null,data?:any}} o */
- constructor({status,code,message,need=null,data=null}){super(message||code);this.status=status;this.code=code;this.need=need;this.data=data;this.serverMessage=message||'';}
+ /** @param {{status:number,code:string,message?:string,need?:string|null,missing?:string[],data?:any}} o */
+ constructor({status,code,message,need=null,missing=/** @type {string[]} */([]),data=null}){super(message||code);this.status=status;this.code=code;this.need=need;this.missing=missing;this.data=data;this.serverMessage=message||'';}
 }
 
 /** Normalizes every error body shape the server may send. @param {number} status @param {any} data */
@@ -21,14 +21,15 @@ export function parseError(status,data){
  if(code==='SERVICE_NOT_CONFIGURED')code='NOT_CONFIGURED';
  const need=(data&&typeof data==='object'&&(data.need??(e&&typeof e==='object'?e.need??e.details?.need:null)))||null;
  const message=(e&&typeof e==='object'&&typeof e.message==='string'?e.message:typeof data?.message==='string'?data.message:'')||'';
- return {code,need:need?String(need):null,message};
+ const missing=[...new Set([...(Array.isArray(data?.missing)?data.missing:[]),...(e&&typeof e==='object'&&Array.isArray(e.missing)?e.missing:[])].map(String))];
+ return {code,need:need?String(need):missing[0]||null,message,missing};
 }
 
 /** Paths whose 404 means "you are not an admin" rather than "no such thing". @param {string} path */
 export const gated=path=>/^\/api\/v2\/(admin\/|mod\/)/.test(path)&&!/\/passkey\//.test(path);
 
 /**
- * @param {{fetch?:typeof fetch,reauth?:()=>Promise<void>,signedOut?:(e:AdminError)=>void,served?:(path:string,offlineAt:number|null)=>void}} hooks
+ * @param {{fetch?:typeof fetch,reauth?:()=>Promise<void>,signedOut?:(e:AdminError)=>void,stillAdmin?:()=>Promise<boolean>,served?:(path:string,offlineAt:number|null)=>void}} hooks
  */
 export function createApi(hooks={}){
  const f=hooks.fetch||((/** @type {any} */ ...a)=>globalThis.fetch(...a));
@@ -45,14 +46,18 @@ export function createApi(hooks={}){
    hooks.served?.(path,off?Number(off)||Date.now():null);
    return data;
   }
-  const {code,need,message}=parseError(r.status,data);
+  const {code,need,message,missing}=parseError(r.status,data);
   if(code==='OFFLINE')throw new AdminError({status:0,code:'NETWORK',message:''});
   if(r.status===401&&code==='REAUTH'&&!retried&&hooks.reauth){
    reauthing=reauthing||hooks.reauth().finally(()=>{reauthing=null;});
    await reauthing;
    return call(method,path,body,true);
   }
-  const err=new AdminError({status:r.status,code:r.status===404&&gated(path)?'NOT_ADMIN':code,message,need,data});
+  // A 404 from an admin endpoint means "not an admin" (the session ended) — unless /me still answers,
+  // in which case it is an ordinary "no such thing" (e.g. the runs of a collector that was removed).
+  let notAdmin=r.status===404&&gated(path);
+  if(notAdmin&&path!=='/api/v2/admin/me'&&hooks.stillAdmin)notAdmin=!(await hooks.stillAdmin().catch(()=>false));
+  const err=new AdminError({status:r.status,code:notAdmin?'NOT_ADMIN':code,message,need,missing,data});
   if(err.code==='NOT_ADMIN'||(r.status===401&&code!=='REAUTH'))hooks.signedOut?.(err);
   throw err;
  }

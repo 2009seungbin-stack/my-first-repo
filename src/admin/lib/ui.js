@@ -16,12 +16,14 @@ export const vt=v=>VERTICALS[v]?h(`span.vt.${verticalClass(v)||'none'}`,VERTICAL
 /** Status dot + a text alternative for screen readers. @param {string} tone @param {string} label */
 export const dot=(tone,label)=>h('span.dotw',h(`span.dotc.${tone}`,{'aria-hidden':'true'}),h('span.sr-only',label));
 
-/** "설정 필요": what is missing, in plain Korean, and how to add it. @param {string|null} need @param {string} [fallback] */
-export function needCard(need,fallback){
- const t=needText(need,fallback);
- return h('section.box.need',{role:'status','data-need':need||''},
+/** "설정 필요": what is missing, in plain Korean, and how to add it. Several missing settings (the
+ * traffic API lists them all in `missing`) are each named. @param {string|null} need @param {string[]} [missing] */
+export function needCard(need,missing=[]){
+ const list=[...new Set([need,...missing].filter(Boolean).map(String))];
+ const items=list.length?list.map(n=>needText(n)):[needText(null)];
+ return h('section.box.need',{role:'status','data-need':list.join(',')},
   h('div.need-h',icon('gear',{size:18}),h('b','설정 필요')),
-  h('p.need-what',t.what),h('p.fine',t.how),need?h('p.fine','필요한 값: ',h('code.mono',need)):null);
+  ...items.map((t,i)=>h('div.need-item',h('p.need-what',t.what),h('p.fine',t.how),list[i]?h('p.fine','필요한 값: ',h('code.mono',list[i])):null)));
 }
 /** @param {string} title @param {string} [text] @param {...any} more */
 export const empty=(title,text,...more)=>h('div.empty',h('b',title),text?h('span',text):null,...more);
@@ -29,7 +31,7 @@ export const empty=(title,text,...more)=>h('div.empty',h('b',title),text?h('span
 /** An error state for a whole screen or a box; NOT_CONFIGURED becomes the 설정 필요 card.
  * @param {unknown} err @param {(()=>void)|null} [retry] @param {string} [fallbackNeed] */
 export function failure(err,retry=null,fallbackNeed){
- if(err instanceof AdminError&&err.code==='NOT_CONFIGURED')return needCard(err.need||fallbackNeed||null);
+ if(err instanceof AdminError&&err.code==='NOT_CONFIGURED')return needCard(err.need||fallbackNeed||null,err.missing);
  const offline=err instanceof AdminError&&err.code==='NETWORK';
  return h('section.box.fail',{role:'alert'},h('div.empty',
   h('b',offline?'오프라인이라 불러오지 못했어요':'불러오지 못했어요'),
@@ -54,7 +56,7 @@ let toastTimer=0;
 export function toast(text,o={}){
  let el=document.getElementById('toast');
  if(!el){el=h('div#toast.toast',{role:'status','aria-live':'polite'});document.body.append(el);}
- el.replaceChildren(h('span',text),o.action?h('button.btn.sm',{type:'button',onclick:()=>{o.action?.run();if(el)el.hidden=true;}},o.action.label):null);
+ fill(el,h('span',text),o.action?h('button.btn.sm',{type:'button',onclick:()=>{o.action?.run();if(el)el.hidden=true;}},o.action.label):null);
  el.hidden=false;clearTimeout(toastTimer);toastTimer=window.setTimeout(()=>{if(el)el.hidden=true;},o.ms||3200);
 }
 
