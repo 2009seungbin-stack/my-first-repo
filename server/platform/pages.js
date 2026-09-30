@@ -113,15 +113,15 @@ export function canonicalQuery(page,q){
 export async function channelBar(_db,l,_now){return channelBarLinks(l);}
 export const resetChannelBarCache=()=>{};
 
-/**
- * Render a platform page, or null when the path is not one (the static site handles it).
- * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site
- */
 /** The site's origin without a path: SITE_URL is written with a trailing slash ("https://nerulio.com/"),
  * and pages join paths that start with "/" onto it — "https://nerulio.com//ko/…" 404s and breaks every
  * canonical, hreflang and sitemap address. @param {string|undefined|null} v */
 export const siteOrigin=v=>{try{return v?new URL(v).origin:'';}catch{return '';}};
 
+/**
+ * Render a platform page, or null when the path is not one (the static site handles it).
+ * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site
+ */
 export async function renderPlatformPage(request,env,site){
  const url=new URL(request.url),route=matchPlatformRoute(url.pathname);
  if(!route||!env.DB)return null;
