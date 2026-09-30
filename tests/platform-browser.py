@@ -109,7 +109,7 @@ def outage_flow(b, errors):
     assert pg.url == B + '/', 'one tap: stays on the page'
     assert 'on' in (btn.get_attribute('class') or '')
     m = c.new_page(); m.set_viewport_size({'width': 390, 'height': 900}); m.goto(B + '/'); m.wait_for_timeout(300)
-    assert m.locator('.mstat a[data-outage]').count() == 3 and m.locator('.mstat a[data-outage]').first.is_visible(), 'the phone strip has 안 돼요 per service'
+    assert m.locator('.mstat a.msi').count() == 3 and m.locator('.mstat a.msi').first.is_visible() and m.locator('.mstat a.msi').first.get_attribute('href').endswith('/status'), 'the phone strip: one line, each service links to its status page'
     w = m.evaluate('document.documentElement.scrollWidth'); assert w <= 390, f'the status strip scrolls sideways ({w})'
     c.close()
 
@@ -121,13 +121,13 @@ def channel_flow(b, errors):
     pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
     pg.on('pageerror', lambda e: errors.append(str(e)))
     pg.goto(B + '/ko/community/hw/'); pg.wait_for_timeout(400)
-    assert pg.locator('.chs a').first.get_attribute('data-ch') == 'ai', 'default order before pinning'
+    assert pg.locator('.chs a').first.get_attribute('data-ch') == 'free', 'default order before pinning (자유 first)'
     pg.locator('.chead [data-pin=hw]').click(); pg.wait_for_timeout(300)
     assert pg.locator('.chead [data-pin=hw]').get_attribute('aria-pressed') == 'true'
     assert pg.evaluate("localStorage.getItem('n2-pins')") == '["hw"]'
     pg.reload(); pg.wait_for_timeout(400)
     assert pg.locator('.chs a').first.get_attribute('data-ch') == 'hw', 'a pinned channel comes first on the bar'
-    pg.locator('.cr .allch').click(); pg.wait_for_selector('dialog#chsheet[open]', timeout=3000)
+    pg.locator('.chbar .allch').click(); pg.wait_for_selector('dialog#chsheet[open]', timeout=3000)
     assert pg.locator('[data-my-channels]').is_visible() and 'PC·하드웨어' in pg.locator('[data-my-list]').inner_text()
     pg.fill('[data-sheet-q]', '클로드'); pg.wait_for_selector('[data-sheet-results]:not([hidden]) a', timeout=5000)
     assert pg.locator('[data-sheet-results] a', has_text='Claude').count() >= 1, 'the sheet finds tags'
@@ -135,7 +135,7 @@ def channel_flow(b, errors):
     assert pg.locator('dialog#chsheet[open]').count() == 0
     # Tag filter chips and the 게임 facets
     pg.goto(B + '/ko/community/games/?kind=patch'); pg.wait_for_timeout(300)
-    assert pg.locator('.cr a.patch.on').count() == 1, '한글패치 모음 is highlighted'
+    assert pg.locator('.lnav a.ln.on', has_text='한글패치 모음').count() == 1, '한글패치 모음 is highlighted (menu)'
     assert all('한글패치' in pg.locator('.plist .pr:not(.ph) .mh').nth(i).inner_text() for i in range(pg.locator('.plist .pr:not(.ph) .mh').count()))
     # Sign in: the browser's pins move to the account.
     pg.goto(B + '/__dev/login?as=pinner&next=/ko/community/'); pg.wait_for_timeout(900)
@@ -151,8 +151,8 @@ def channel_flow(b, errors):
     # Phone width: the sheet is a bottom sheet and nothing scrolls sideways.
     c = b.new_context(viewport={'width': 390, 'height': 844}); m = c.new_page()
     m.goto(B + '/ko/community/ai/'); m.wait_for_timeout(300)
-    assert m.locator('.cr .allch').is_visible(), '전체 채널 stays reachable on the right'
-    m.locator('.cr .allch').click(); m.wait_for_selector('dialog#chsheet[open]', timeout=3000)
+    assert m.locator('.chbar .allch').is_visible(), '전체 채널 stays reachable on the right'
+    m.locator('.chbar .allch').click(); m.wait_for_selector('dialog#chsheet[open]', timeout=3000)
     box = m.locator('dialog#chsheet').bounding_box()
     assert abs(box['y'] + box['height'] - 844) <= 2 and box['width'] >= 389, f'bottom sheet {box}'
     assert m.evaluate('document.documentElement.scrollWidth') <= 390
@@ -190,7 +190,7 @@ def main():
             # 이 태그로 글쓰기: the AI channel with the Claude tag picked; add a second tag by search.
             pg.locator('[data-island=follow] a.btn.p').click(); pg.wait_for_url(re.compile(r'/ko/community/ai/write\?tag=service:claude$'))
             assert pg.locator('[data-tag-selected] .wtag').count() == 1 and pg.locator('[data-tag-count]').inner_text() == '1/3'
-            assert pg.locator('.wsec .wchip.on').inner_text() == 'AI', 'the channel is picked'
+            assert pg.locator('.wch .wchip.on').text_content() == 'AI' and 'AI 채널' in pg.locator('.wch summary').inner_text(), 'the channel is picked (folded in the heading)'
             assert [pg.locator('label.wchip.r span').nth(i).inner_text() for i in range(pg.locator('label.wchip.r').count())] == ['소식', '정보', '질문', '사용기', '팁', '벤치', '잡담'], 'AI 말머리'
             pg.locator('label.wchip.r', has_text='질문').click()
             pg.fill('[data-tag-search]', '5070'); pg.wait_for_selector('[data-tag-results]:not([hidden]) button', timeout=5000)

@@ -15,6 +15,9 @@ with sync_playwright() as pw:
  for name in ['chromium','firefox']:
   browser=getattr(pw,name).launch(headless=True)
   page=browser.new_page(viewport={'width':1440,'height':900},accept_downloads=True)
+  # Playwright turns on file-chooser interception when the first listener is added; added only inside
+  # expect_file_chooser, the Enter below can win that race and the chooser is never reported (1 in 6 runs).
+  page.on('filechooser',lambda c:None)
   errors=[];writes=[];page.on('pageerror',lambda e:errors.append(str(e)));page.on('request',lambda r:writes.append((r.method,r.url)) if r.method not in ('GET','HEAD') else None)
   page.goto(BASE+'/en/game/store-art-pack/',wait_until='domcontentloaded')
   for lang,label in [('ko','키아트'),('ja','キーアート')]:
@@ -33,6 +36,8 @@ with sync_playwright() as pw:
   chooser.value.set_files(str(ART))
   page.locator('#saLogo').set_input_files(str(LOGO))
   page.locator('#saShots').set_input_files([str(p) for p in SHOTS])
+  # Art and logo decode asynchronously and redraw the panel; wait for both before focusing a slider in it.
+  for f in (ART,LOGO):page.locator('.store-intake').get_by_text(f.name).wait_for(timeout=10000)
   page.locator('#saTitle').fill('ALLOY');page.locator('#saTitle').dispatch_event('change')
   page.locator('[data-slot="store-small"]').click()
   slider=page.locator('[data-setting="logoW"]');before=float(slider.input_value());slider.focus();page.keyboard.press('ArrowRight')

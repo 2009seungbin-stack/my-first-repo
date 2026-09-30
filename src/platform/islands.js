@@ -244,7 +244,7 @@ function sendImage(blob,token,onProgress){
 /** The write page's image picker: previews, progress, remove; each finished image is inserted into the body
  * as ![이미지](/u/<id>/full.webp). Hidden when this deployment has no image storage. */
 function imagePicker(wf,cfg,signedIn){
- const box=$('[data-image-picker]',wf),input=box&&$('[data-image-input]',box),list=box&&$('[data-image-list]',box),ta=$('textarea[name="body"]',wf);
+ const box=$('[data-image-picker]',wf),input=box&&$('[data-image-input]',box),list=box&&$('[data-image-list]',wf),ta=$('textarea[name="body"]',wf);
  if(!box||!input||!list||!ta||!cfg||(!signedIn&&!ANON.enabled))return null;
  box.hidden=false;let pending=0;
  const max=Number(cfg.perPost)||10;

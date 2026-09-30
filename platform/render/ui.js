@@ -116,8 +116,7 @@ function shellNav(o){
 <nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn,'home')}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
 <details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
 <span class="lsep" aria-hidden="true"></span>
-${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}
-<p class="lnote fine">${ko?'도구는 파일을 서버에 올리지 않고 이 기기에서 처리해요.':'Tools process files on this device; nothing is uploaded.'}</p></aside>`;
+${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}</aside>`;
 }
 
 /**
@@ -200,12 +199,7 @@ ${shellNav(o)}
 <nav class="hn" aria-label="Nerulio"><a class="hb rdr" href="/${o.l}/radar/" title="${s.radar}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 19 5"/></svg><span>${s.radar}</span></a></nav>
 <div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>
 </header>
-<nav class="chbar" aria-label="${s.allChannels}"><div class="cr" data-island="channel-bar">
-<a href="${homeUrl(o.l)}"${o.homeOn?html` class="on" aria-current="page"`:''}>${s.home}</a><a href="${frontUrl(o.l)}best/"${o.bestOn?html` class="on" aria-current="page"`:''}>${s.allBest}</a><span class="sep" aria-hidden="true"></span>
-<span class="chs" data-channel-links>${o.channels.map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span><span class="sep" aria-hidden="true"></span>
-<a class="patch${o.patchOn?' on':''}" href="${patchCollectionPath(o.l)}"${o.patchOn?html` aria-current="page"`:''}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V4h6v6.8l3 3.2H6Z"/></svg>${o.l==='ko'?'한글패치 모음':'Korean patches'}</a>
-<span class="sp" aria-hidden="true"></span><a class="allch" href="#lnav" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'전체 채널':'All channels'}</span></a>
-</div></nav>
+<nav class="chbar" aria-label="${s.allChannels}"><div class="cr" data-island="channel-bar"><span class="chs" data-channel-links>${o.channels.map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span></div><a class="allch" href="#lnav" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'전체 채널':'All channels'}</span></a></nav>
 ${channelSheet(o.l)}
 ${String(o.body).includes('<main')?html`<div class="pg" id="main">${o.body}</div>`:html`<main class="pg" id="main">${o.body}</main>`}
 <footer class="ft"><div><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a> · <a href="/${o.l}/community/policy">${o.l==='ko'?'게시판 운영정책':'Community rules'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a></div></footer>

@@ -380,8 +380,8 @@ export async function historyOf(db,id,o={}){
 }
 /** Issue reports (user outage/problem clicks) per hour since `since`. @param {D1} db @param {string[]} ids @param {number} since */
 export async function issueReportsSince(db,ids,since){
- const rows=await inChunks(db,ids,ph=>`SELECT entity_id,created_at,env FROM community_reports WHERE kind='issue' AND status='published' AND created_at>=? AND entity_id IN (${ph})`,[since]);
- return rows.map(r=>({entity_id:String(r.entity_id),created_at:Number(r.created_at),env:json(r.env,{})}));
+ const rows=await inChunks(db,ids,ph=>`SELECT entity_id,created_at,env,user_id FROM community_reports WHERE kind='issue' AND status='published' AND created_at>=? AND entity_id IN (${ph})`,[since]);
+ return rows.map(r=>({entity_id:String(r.entity_id),created_at:Number(r.created_at),env:json(r.env,{}),user_id:r.user_id==null?null:String(r.user_id)}));
 }
 
 /* ---------- search and radar ---------- */

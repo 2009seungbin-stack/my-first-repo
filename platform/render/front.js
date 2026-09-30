@@ -4,14 +4,14 @@
  * news, this week's schedule and today's best. File and game tools are in the menu of every page. */
 import {html,raw} from './html.js';
 import {t} from './strings.js';
-import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,channelTile,channelName,author} from './ui.js';
+import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,channelTile,channelName} from './ui.js';
 import {loadRail,renderRail,statusStrip} from './rail.js';
 import {icon,EMPTY_ART} from './icons.js';
 import {buttonsHTML} from '../../src/signin-brands.js';
 import {siteGraph} from '../../src/brand.js';
 /** WebSite + Organization as one JSON-LD graph. @param {string} root @param {string} l */
 const siteJsonld=(root,l)=>{const {site,org}=siteGraph(root,l);return {'@context':'https://schema.org','@graph':[site,org]};};
-import {boardTime,compact} from './format.js';
+import {boardTime} from './format.js';
 import {frontPosts,excerptsOf} from '../db/channel.js';
 import {CHANNELS,channelById,channelPath} from '../channels.js';
 
@@ -35,13 +35,14 @@ export async function loadFront(db,o){
  return {l:o.l,now:o.now,sort,posts:posts.map(p=>({...p,excerpt:excerpts.get(p.id)||''})),rail,channels:o.channels||[]};
 }
 
-/** One post in the home feed: channel · 말머리 · writer · time, title, the first lines, ▲ and comments.
+/** One post in the home feed, kept to three lines: channel · time; 말머리 + title (and the first lines);
+ * ▲ and comments. The writer, views and tags are on the post itself.
  * @param {Awaited<ReturnType<typeof loadFront>>['posts'][number]} p @param {string} l @param {number} now */
 export function feedCard(p,l,now){
  const ko=l==='ko';
- return html`<li><article class="fc"><div class="fm"><a class="fch" href="${channelPath(l,p.channel_id)}">${channelTile(p.channel_id,l)}<b>${channelName(p.channel_id,l)}</b></a>${kindChip(p.kind,l,p.channel_id)}${author(p,l)}<time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time><span class="fv" aria-label="${ko?`조회 ${compact(p.views,l)}`:`${compact(p.views,l)} views`}">${icon('eye',15)}${compact(p.views,l)}</span></div>
-<h2 class="fti"><a href="${postHref(l,p)}">${p.best_at?html`<span class="star" title="${t(l).bestRule}" role="img" aria-label="${ko?'념글':'Best'}">${icon('starFill',15)}</span>`:''}${p.title}</a></h2>${p.excerpt?html`<p class="fx">${p.excerpt}</p>`:''}
-<div class="fa"><span class="up" aria-label="${ko?`추천 ${p.up}`:`${p.up} upvotes`}">${icon('up',14)}${p.up}</span>${p.comments?html`<a class="cm" href="${postHref(l,p)}#comments" aria-label="${ko?`댓글 ${p.comments}`:`${p.comments} comments`}">${icon('bubble',14)}${p.comments}</a>`:''}${p.tags.slice(0,2).map(e=>html`<a class="ftag" href="${channelUrl(l,e)}">#${nameOf(e,l)}</a>`)}</div></article></li>`;
+ return html`<li><article class="fc"><div class="fm"><a class="fch" href="${channelPath(l,p.channel_id)}">${channelTile(p.channel_id,l)}<b>${channelName(p.channel_id,l)}</b></a><span class="dot" aria-hidden="true">·</span><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time></div>
+<h2 class="fti"><a href="${postHref(l,p)}">${kindChip(p.kind,l,p.channel_id)}${p.best_at?html`<span class="star" title="${t(l).bestRule}" role="img" aria-label="${ko?'념글':'Best'}">${icon('starFill',15)}</span>`:''}${p.title}</a></h2>${p.excerpt?html`<p class="fx">${p.excerpt}</p>`:''}
+<div class="fa"><span class="up" aria-label="${ko?`추천 ${p.up}`:`${p.up} upvotes`}">${icon('up',14)}${p.up}</span>${p.comments?html`<a class="cm" href="${postHref(l,p)}#comments" aria-label="${ko?`댓글 ${p.comments}`:`${p.comments} comments`}">${icon('bubble',14)}${p.comments}</a>`:''}</div></article></li>`;
 }
 
 /** @param {Awaited<ReturnType<typeof loadFront>>} m @param {{origin:string,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site */
@@ -49,7 +50,7 @@ export function renderFront(m,site){
  const {l,now}=m,s=t(l),ko=l==='ko',home=homeUrl(l);
  const tabs=html`<nav class="feedtabs" aria-label="${ko?'정렬':'Sort'}"><a href="${home}"${m.sort==='hot'?html` class="on" aria-current="page"`:''}>${icon('flame',16)}${ko?'인기':'Popular'}</a><a href="${home}?sort=new" rel="nofollow"${m.sort==='new'?html` class="on" aria-current="page"`:''}>${icon('clock',16)}${ko?'최신':'Latest'}</a><a href="${frontUrl(l)}best/">${icon('star',16)}${ko?'념글':'Best'}</a><span class="sp"></span><a class="btn p" href="${frontUrl(l)}free/write" aria-label="${s.write}">${icon('pencil',16)}<span>${s.write}</span></a></nav>`;
  const feed=m.posts.length?html`<ol class="feed">${m.posts.map(p=>feedCard(p,l,now))}</ol>`:html`<div class="empty box emptyv">${EMPTY_ART}<p>${s.frontEmpty}</p></div>`;
- const login=html`<section class="box login" data-island="account"><b>${ko?'로그인하면 구독·알림·고정닉':s.loginTitle}</b><span class="fine">${ko?'로그인 없이도 ㅇㅇ (오늘의 ID)로 글과 댓글을 쓸 수 있어요.':'Without an account you can still post as ㅇㅇ (today\'s ID).'}</span>${site.providers?.length?raw(buttonsHTML(site.providers,l,home)):html`<a class="btn" href="${signInUrl(home)}" rel="nofollow" data-signin>${s.login}</a>`}</section>`;
+ const login=html`<section class="box login" data-island="account"><b>${ko?'로그인하면 구독·알림·고정닉':s.loginTitle}</b>${site.providers?.length?raw(buttonsHTML(site.providers,l,home)):html`<a class="btn" href="${signInUrl(home)}" rel="nofollow" data-signin>${s.login}</a>`}</section>`;
  const body=html`<div class="front"><main class="mainc"><h1 class="sr-only">${ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티':'Nerulio — community for AI, games, PC, creator tools and anime'}</h1>${statusStrip(m.rail,l)}${tabs}${feed}<p class="more2"><a class="btn" href="${frontUrl(l)}free/">${ko?'채널에서 더 보기':'More in the channels'} ›</a></p></main><div class="side">${login}${renderRail(m.rail,l)}</div></div>`;
  const title=ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티와 파일 도구':'Nerulio — community for AI, games, PC, creator tools and anime, plus file tools';
  const other=ko?'en':'ko';

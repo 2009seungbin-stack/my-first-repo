@@ -28,8 +28,8 @@ async function oldPost(db,id,entityId,no,kind,at,extra={}){
 }
 
 test('channel config: 7 channels, flairs per the owner decision, labels per channel',()=>{
- assert.deepEqual(CHANNELS.map(c=>c.id),['ai','games','hw','studio','sub','free','notice']);
- assert.deepEqual(CHANNELS.filter(c=>c.inBar).map(c=>c.id),['ai','games','hw','studio','sub','free']);
+ assert.deepEqual(CHANNELS.map(c=>c.id),['free','games','sub','hw','ai','studio','notice']);
+ assert.deepEqual(CHANNELS.filter(c=>c.inBar).map(c=>c.id),['free','games','sub','hw','ai','studio']);
  const labels=(/** @type {string} */ ch)=>writableFlairs(ch).map(f=>flairLabel(ch,f,'ko'));
  assert.deepEqual(labels('ai'),['소식','정보','질문','사용기','팁','벤치','잡담']);
  assert.deepEqual(labels('games'),['소식','정보','질문','공략','한글패치','리포트','스샷','잡담']);

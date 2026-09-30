@@ -38,7 +38,7 @@ async function incident(db,{on,starts,status='confirmed',title='Elevated errors'
  return id;
 }
 async function clicks(db,service,at,n){
- for(let i=0;i<n;i++)await db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue',?,'{}','broken','anon',?,?)").bind(`r${service}${at}${i}`,service,at+i,at+i).run();
+ for(let i=0;i<n;i++)await db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue',?,?,'broken','anon',?,?)").bind(`r${service}${at}${i}`,service,JSON.stringify({who:`net${i}`}),at+i,at+i).run();
 }
 
 test('an official incident: announced once to followers and the webhook; only open, recent, status-page incidents',{skip},async()=>{
@@ -113,8 +113,9 @@ test('the collectors tick runs the watch, with or without push set up; an outage
  const tick=await call('/admin/notify',{kind:'tick'},{authorization:`Bearer ${KEYS.NOTIFY_TOKEN}`});
  assert.equal(tick.status,503,'push itself is not configured here');
  assert.equal(posts.length,1,'but the status watch ran first');assert.equal(posts[0].body.embeds[0].title,'[공식 장애] ChatGPT: 공식 장애 — Elevated errors');
- // Three networks click "안 돼요" on Claude within the hour (a quiet week before): the third starts a spike.
- for(const ip of ['198.51.100.1','192.0.2.1','203.0.113.50']){const r=await call('/reports',{kind:'issue',entityId:'service:claude',result:'broken',env:{symptom:'down'}},{},ip);assert.equal(r.status,201);}
+ // Five networks click "안 돼요" on Claude within the hour (a quiet week before): the fifth starts a spike.
+ for(const [i,ip] of ['198.51.100.1','192.0.2.1','203.0.113.50','198.18.0.1','100.64.0.1'].entries()){
+  if(i===4)assert.equal(posts.length,1,'four people are not a spike yet');const r=await call('/reports',{kind:'issue',entityId:'service:claude',result:'broken',env:{symptom:'down'}},{},ip);assert.equal(r.status,201);}
  await Promise.all(waits);
  assert.equal(posts.length,2);assert.equal(posts[1].body.embeds[0].title,'[사용자 리포트 급증] Claude');
 });

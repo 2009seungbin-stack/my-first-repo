@@ -855,7 +855,7 @@ def scenario_channels(browser):
         context.close()
         m=browser.new_context(viewport={'width':390,'height':844});m._nerulio_base=stack.url;mp=m.new_page();instrument(mp,[])
         mp.goto(stack.url+'/ko/community/ai/',wait_until='networkidle')
-        mp.locator('.cr .allch').click();mp.wait_for_selector('dialog#chsheet[open]',timeout=5000)
+        mp.locator('.chbar .allch').click();mp.wait_for_selector('dialog#chsheet[open]',timeout=5000)
         box=mp.locator('dialog#chsheet').bounding_box()
         ok('channels: 전체 채널 is a bottom sheet at 390px',abs(box['y']+box['height']-844)<=2,box)
         mp.screenshot(path=str(SHOTS/'channels-sheet-390.png'))
