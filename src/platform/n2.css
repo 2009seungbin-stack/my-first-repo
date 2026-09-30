@@ -856,8 +856,8 @@ body.n2{background:var(--page)}
 .kids>li.more .lnk{height:32px;display:inline-flex;align-items:center;gap:8px;margin-left:calc(var(--av)/2 - 16px);text-decoration:none;font-size:13px;font-weight:700;color:var(--mute)}
 .kids>li.more .lnk:hover{color:var(--ink)}.kids>li.more .lnk .i{color:var(--ink2)}
 /* folding by the line */
-.tl{position:absolute;z-index:1;left:0;top:calc(var(--av) + 2px);bottom:0;width:var(--av);border:0;padding:0;background:none;cursor:pointer}
-.tl:focus-visible{outline:2px solid var(--accent-line);outline-offset:-2px;border-radius:6px}
+.cl .tl{position:absolute;z-index:1;left:0;top:calc(var(--av) + 2px);bottom:0;width:var(--av);border:0;padding:0;background:none;cursor:pointer}
+.cl .tl:focus-visible{outline:2px solid var(--accent-line);outline-offset:-2px;border-radius:6px}
 .cl .co.fold>.cbody,.cl .co.fold>.kids{display:none}
 .cl .co.fold>.tl{top:0;height:var(--av);bottom:auto;border-radius:50%}
 .cl .co.fold>.tl::after{content:"+";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:color-mix(in srgb,var(--page) 70%,transparent);color:var(--ink);font-size:20px;font-weight:600}
@@ -906,3 +906,38 @@ body.n2{background:var(--page)}
 .side .box.login{border-bottom:0;padding-left:24px}
 @media (max-width:1000px){.rrail{padding-left:0}.rrail::before{display:none}.side .box.login{padding-left:4px}}
 @media (max-width:640px){.feed{--th:6px}.feed .fc{margin-left:calc(var(--th) + 20px);padding-left:8px;padding-right:6px}.feed>li::before{width:24px}}
+
+/* v6 · channel, tag, status and radar pages: the same page as the home — no boxes, lines between parts,
+   the right column in the thread bracket. */
+.chh{background:none;border:0;border-radius:0;border-bottom:1px solid var(--line);padding:6px 4px 16px}
+.cols>.mainc>.box,.cols>main>.box,.cols>.side>.box{background:none;border:0;border-radius:0;overflow:visible}
+.cols>.mainc>.box+.box{border-top:1px solid var(--line);padding-top:6px}
+.cols .bh{border-bottom:0;padding:10px 4px 6px;min-height:0}
+.cols .bh h2{font-size:15px}
+.mtabs{padding:0}
+.mtabs a{color:var(--mute);font-weight:700}
+.mtabs a.on{color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent)}
+.n2 .mtabs a:hover{text-decoration:none;color:var(--ink)}
+.tagbar{padding:12px 0;border-bottom:0}
+.sb{background:none;border-bottom:1px solid var(--line);padding:6px 0 10px;gap:6px}
+.sb a{height:30px;padding:0 12px;border-radius:999px}
+.sb a.best{border-radius:999px}
+.newbar{border-radius:999px;margin:8px 0;border:0}
+.plist .pr{border-bottom:1px solid var(--line2);padding:4px 8px;border-radius:0}
+.plist .pr.ph{background:none;border-bottom:1px solid var(--line)}
+.plist .pr.pin{background:none}.plist .pr.pin .tt{font-weight:800}
+.plist .pr.bot{background:none}
+.plist .pr:not(.ph):hover{background:var(--hover)}
+.cols .rows li{padding:6px 4px;border-bottom:0}
+.cols .pager{padding:14px 0 4px}
+/* the right column: the home's thread bracket */
+.cols>.side{position:relative;padding-left:20px;gap:6px}
+.cols>.side::before{content:"";position:absolute;left:0;top:4px;bottom:8px;width:14px;border:1.5px solid var(--th-c);border-right:0;border-radius:14px 0 0 14px}
+.cols>.side>.box.hl .bh{background:none}
+@media (max-width:1000px){.cols>.side{padding-left:0;border-top:1px solid var(--line);padding-top:8px}.cols>.side::before{display:none}}
+.cols .g2>.box{background:none;border:0;border-radius:0}
+.cols .g2{border-bottom:1px solid var(--line);padding-bottom:6px}
+.cols .g2>.box+.box{border-left:1px solid var(--line2);padding-left:14px}
+@media (max-width:1000px){.cols .g2>.box+.box{border-left:0;padding-left:0;border-top:1px solid var(--line2)}}
+.hd2{background:none;border-bottom:1px solid var(--line);padding-left:4px;padding-right:4px}
+.cols thead th,.cols tr.th th{background:none;border-bottom:1px solid var(--line)}
