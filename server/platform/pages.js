@@ -117,10 +117,15 @@ export const resetChannelBarCache=()=>{};
  * Render a platform page, or null when the path is not one (the static site handles it).
  * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site
  */
+/** The site's origin without a path: SITE_URL is written with a trailing slash ("https://nerulio.com/"),
+ * and pages join paths that start with "/" onto it — "https://nerulio.com//ko/…" 404s and breaks every
+ * canonical, hreflang and sitemap address. @param {string|undefined|null} v */
+export const siteOrigin=v=>{try{return v?new URL(v).origin:'';}catch{return '';}};
+
 export async function renderPlatformPage(request,env,site){
  const url=new URL(request.url),route=matchPlatformRoute(url.pathname);
  if(!route||!env.DB)return null;
- const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin,providers:site.providers||[],verify:site.verify||null};
+ const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:siteOrigin(site.origin)||url.origin,providers:site.providers||[],verify:site.verify||null};
  // Old addresses (the per-entity boards before the channels, 2026-09-29): 301 to where they live now.
  if(route.page==='front'&&url.searchParams.has('v')){const v=url.searchParams.get('v');if(VERTICALS.includes(/** @type {any} */(v)))return redirect(new URL(channelPath(l,channelOfVertical(String(v))),url).href);}
  if(route.page==='best'&&url.searchParams.has('v')){
@@ -256,6 +261,7 @@ export async function renderSitemap(db,vertical,origin){
  * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site */
 export async function handlePlatformPage(request,env,ctx,site){
  if(request.method!=='GET'&&request.method!=='HEAD')return null;
+ site={...site,origin:siteOrigin(site.origin)};
  const path=new URL(request.url).pathname,sm=SITEMAP.exec(path);
  if(sm){
   if(!PLATFORM_SITEMAPS.includes(`sitemap-n2-${sm[1]}.xml`)||!env.DB)return null;

@@ -11,7 +11,7 @@ import {loadPost,renderPost} from '../platform/render/post.js';
 import {loadFront,renderFront} from '../platform/render/front.js';
 import {panelFor} from '../platform/render/panels/index.js';
 import {createPost} from '../platform/community.js';
-import {matchPlatformRoute,renderPlatformPage} from '../server/platform/pages.js';
+import {matchPlatformRoute,renderPlatformPage,handlePlatformPage} from '../server/platform/pages.js';
 
 const NOW=Date.UTC(2026,8,28,6,0);   // 2026-09-28 15:00 KST
 const SITE={origin:'https://nerulio.com'};
@@ -499,6 +499,10 @@ test('share cards: one per service × state × language, 1200×630, and the stat
  assert.equal(site?.name,'Nerulio');assert.equal(site?.url,'https://nerulio.com/');assert(!/studio/i.test(JSON.stringify(site.alternateName)),'no studio in the site name');
  assert.equal(org?.logo?.url,'https://nerulio.com/assets/brand/nerulio-logo-512.png');
  assert(!(await get('/?sort=new')).includes('application/ld+json'),'only the canonical home carries it');
+ // Production passes SITE_URL with its trailing slash: no address may come out as "https://nerulio.com//…".
+ const slash=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com/',now:()=>NOW})).text();
+ for(const p of ['/','/ko/community/ai/','/ko/ai/claude/'])assert(!(await slash(p)).includes('nerulio.com//'),p);
+ assert(!(await (await handlePlatformPage(new Request('https://nerulio.com/sitemap-n2-ai.xml'),{DB:d},{},{origin:'https://nerulio.com/'})).text()).includes('nerulio.com//'),'sitemap');
 });
 
 test('status feed: official incidents and user-report spikes, each start and end, labelled apart',{skip:!sqliteAvailable},async()=>{
