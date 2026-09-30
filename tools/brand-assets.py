@@ -29,9 +29,9 @@ def card_html(l):
 .b{{display:flex;align-items:center;gap:18px;font-weight:800;font-size:44px;letter-spacing:-1px}}.b svg{{width:72px;height:72px}}
 h1{{margin:44px 0 0;font-size:{58 if l=='ko' else 50}px;line-height:1.2;font-weight:800;letter-spacing:-1.5px;max-width:980px}}
 ul{{list-style:none;margin:36px 0 0 6px;padding:0;position:relative}}
-ul::before{{content:"";position:absolute;left:0;top:-14px;bottom:26px;border-left:3px solid #d6dacf}}
 li{{position:relative;padding:10px 0 10px 50px;font-size:30px;font-weight:600;color:#40464e}}
 li .e{{position:absolute;left:0;top:0;width:34px;height:31px;border-left:3px solid #d6dacf;border-bottom:3px solid #d6dacf;border-bottom-left-radius:18px}}
+li:not(:last-child)::after{{content:"";position:absolute;left:0;top:0;bottom:0;border-left:3px solid #d6dacf}}
 li:last-child .e{{border-color:#a9cf45}}
 .u{{position:absolute;right:80px;bottom:64px;font-size:28px;font-weight:700;color:#3d6608}}
 .bar{{position:absolute;left:0;right:0;bottom:0;height:16px;background:#c6f24e}}

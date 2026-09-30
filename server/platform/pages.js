@@ -42,6 +42,7 @@ import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,p
 import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {RAIL_SERVICES} from '../../platform/render/rail.js';
+import {maybeRefreshStatus} from './status-refresh.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
 const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status/feed\\.xml|status|local-llm|feed\\.xml))?)?)$`);
@@ -113,6 +114,11 @@ export function canonicalQuery(page,q){
 export async function channelBar(_db,l,_now){return channelBarLinks(l);}
 export const resetChannelBarCache=()=>{};
 
+/** The site's origin without a path: SITE_URL is written with a trailing slash ("https://nerulio.com/"),
+ * and pages join paths that start with "/" onto it — "https://nerulio.com//ko/…" 404s and breaks every
+ * canonical, hreflang and sitemap address. @param {string|undefined|null} v */
+export const siteOrigin=v=>{try{return v?new URL(v).origin:'';}catch{return '';}};
+
 /**
  * Render a platform page, or null when the path is not one (the static site handles it).
  * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site
@@ -120,7 +126,7 @@ export const resetChannelBarCache=()=>{};
 export async function renderPlatformPage(request,env,site){
  const url=new URL(request.url),route=matchPlatformRoute(url.pathname);
  if(!route||!env.DB)return null;
- const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin,providers:site.providers||[],verify:site.verify||null};
+ const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:siteOrigin(site.origin)||url.origin,providers:site.providers||[],verify:site.verify||null};
  // Old addresses (the per-entity boards before the channels, 2026-09-29): 301 to where they live now.
  if(route.page==='front'&&url.searchParams.has('v')){const v=url.searchParams.get('v');if(VERTICALS.includes(/** @type {any} */(v)))return redirect(new URL(channelPath(l,channelOfVertical(String(v))),url).href);}
  if(route.page==='best'&&url.searchParams.has('v')){
@@ -256,6 +262,7 @@ export async function renderSitemap(db,vertical,origin){
  * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site */
 export async function handlePlatformPage(request,env,ctx,site){
  if(request.method!=='GET'&&request.method!=='HEAD')return null;
+ site={...site,origin:siteOrigin(site.origin)};
  const path=new URL(request.url).pathname,sm=SITEMAP.exec(path);
  if(sm){
   if(!PLATFORM_SITEMAPS.includes(`sitemap-n2-${sm[1]}.xml`)||!env.DB)return null;
@@ -266,6 +273,8 @@ export async function handlePlatformPage(request,env,ctx,site){
   return res;
  }
  if(!matchPlatformRoute(path))return null;
+ // Page views keep the AI status fresh when the scheduled collectors run late (status-refresh.js).
+ maybeRefreshStatus(env,ctx,site);
  const cache=/** @type {any} */(globalThis).caches?.default;
  const key=new Request(request.url,{method:'GET'});
  const hit=cache?await cache.match(key):null;
