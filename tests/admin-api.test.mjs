@@ -195,7 +195,7 @@ test('collector registry matches the adapters and the workflow',{skip},async()=>
  const wf=readFileSync(new URL('../.github/workflows/collectors.yml',import.meta.url),'utf8');
  assert.match(wf,/\*\/30 \* \* \* \*/);assert.match(wf,/17 \*\/6 \* \* \*/);
  assert(!RUNNABLE.includes('ecb-fx')&&!RUNNABLE.includes('gpu-specs-manual'));
- assert.deepEqual([...STATUS_ADAPTERS],[...PLAN_STATUS],'the 30-minute adapters are the ones collector-plan runs');assert.equal(STATUS_SCHEDULE,'*/30 * * * *');
+ assert.deepEqual([...STATUS_ADAPTERS],[...PLAN_STATUS],'the 30-minute adapters are the ones collector-plan runs');assert.equal(STATUS_SCHEDULE,'11,41 * * * *');
  // The notify job: its own job, after the collectors, silent without NOTIFY_URL / NOTIFY_TOKEN.
  const job=wf.slice(wf.search(/^  notify:/m));
  assert(job.length>10,'notify job exists');

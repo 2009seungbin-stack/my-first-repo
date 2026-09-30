@@ -7,7 +7,10 @@ name: Nerulio 2.0 collectors
 # One job per adapter (tools/platform/collector-plan.mjs): a slow collector cannot time out the others.
 on:
   schedule:
-    - cron: '*/30 * * * *'   # status pages: the "지금 장애?" panels trust data for 2 hours
+    # status pages: the "지금 장애?" panels trust data for 2 hours. Off the hour and half hour: GitHub drops
+    # or delays busy schedules (2026-09-29: 11 of 48 runs). Page views also refresh stale status from the
+    # site itself (server/platform/status-refresh.js), so a missed run no longer empties the panels.
+    - cron: '11,41 * * * *'
     - cron: '17 */6 * * *'   # releases, Steam news/store, prices, schedules
   workflow_dispatch:
     inputs:

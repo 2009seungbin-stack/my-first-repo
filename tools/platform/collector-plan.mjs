@@ -9,7 +9,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {adapterIds,loadAdapter} from './collect.mjs';
 
-export const STATUS_SCHEDULE='*/30 * * * *';
+export const STATUS_SCHEDULE='11,41 * * * *';
 export const STATUS_ADAPTERS=Object.freeze(['claude-status','openai-status']);
 
 /** @param {{schedule?:string,adapters?:string}} o @returns {Promise<string[]>} */
