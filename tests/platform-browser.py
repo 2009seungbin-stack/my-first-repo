@@ -190,7 +190,7 @@ def main():
             # 이 태그로 글쓰기: the AI channel with the Claude tag picked; add a second tag by search.
             pg.locator('[data-island=follow] a.btn.p').click(); pg.wait_for_url(re.compile(r'/ko/community/ai/write\?tag=service:claude$'))
             assert pg.locator('[data-tag-selected] .wtag').count() == 1 and pg.locator('[data-tag-count]').inner_text() == '1/3'
-            assert pg.locator('.wsec .wchip.on').inner_text() == 'AI', 'the channel is picked'
+            assert pg.locator('.wch .wchip.on').text_content() == 'AI' and 'AI 채널' in pg.locator('.wch summary').inner_text(), 'the channel is picked (folded in the heading)'
             assert [pg.locator('label.wchip.r span').nth(i).inner_text() for i in range(pg.locator('label.wchip.r').count())] == ['소식', '정보', '질문', '사용기', '팁', '벤치', '잡담'], 'AI 말머리'
             pg.locator('label.wchip.r', has_text='질문').click()
             pg.fill('[data-tag-search]', '5070'); pg.wait_for_selector('[data-tag-results]:not([hidden]) button', timeout=5000)

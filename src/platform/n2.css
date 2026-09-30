@@ -959,3 +959,66 @@ body.n2{background:var(--page)}
 .tiw{border-left:1px solid var(--line);padding-left:16px}
 @media (max-width:1000px){.tib{grid-template-columns:minmax(0,1fr)}.tiw{border-left:0;padding-left:0;border-top:1px solid var(--line)}.tib .g2>.box+.box{border-left:0;padding-left:0;border-top:1px solid var(--line2)}}
 @media (prefers-reduced-motion:reduce){.tio{transition:none}}
+
+/* write page v6 (2026-09-30, "화면이 너무 복잡하다 — 특히 모바일", model: Arca Live): heading with the channel
+   folded into one pill, 말머리 in one scrolling row, a borderless title, one editor box (image button on
+   its bar, the rules as the empty body's placeholder), tags and the ㅇㅇ fields folded below, one 등록. */
+.wbox{background:none;border:0}
+.whead{display:flex;align-items:center;gap:10px;padding:8px 4px 12px;border-bottom:1px solid var(--line)}
+.whead h1.wt{font-size:18px;font-weight:800}
+.wch{position:relative;border:0;padding:0;margin:0}
+.wch>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 12px;border-radius:999px;background:var(--soft);font-size:14px;color:var(--ink)}
+.wch>summary::-webkit-details-marker{display:none}
+.wch[open]>summary .i{transform:rotate(180deg)}
+.wch>.chips{position:absolute;z-index:8;top:40px;left:0;width:min(320px,80vw);display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(10,14,20,.15)}
+.wx{margin-left:auto;font-weight:700;color:var(--mute)}
+.wbox .wform{padding:12px 4px 20px;gap:12px}
+.wform fieldset.wfl{border:0;padding:0}
+.wfl .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.wfl .chips::-webkit-scrollbar{display:none}
+.wfl .wchip{flex:none}
+.wform input.wti{font-size:18px;font-weight:700;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 4px;background:none}
+.wform input.wti:focus{outline:0;border-bottom-color:var(--accent-line)}
+.wed{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.wed:focus-within{border-color:var(--accent-line)}
+.wbar{display:flex;align-items:center;gap:4px;min-height:40px;padding:4px 6px;border-bottom:1px solid var(--line2)}
+.wbar .imgpick{margin:0;padding:0;border:0}
+.wform label.wtool{flex-direction:row;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:8px;color:var(--ink2);font-size:13px;font-weight:600;cursor:pointer}
+.wform label.wtool:hover{background:var(--hover)}
+.wform .wed textarea{display:block;width:100%;border:0;border-radius:0;min-height:300px;padding:12px;background:none}
+.wform .wed textarea:focus{outline:0}
+.wed .imgs{padding:0 10px 10px}.wed .imgs:empty{display:none}
+.wtags{border:0;padding:0}
+.wtags>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;min-height:40px;padding:0 4px;font-size:14px;font-weight:700;color:var(--ink2);border-bottom:1px solid var(--line2)}
+.wtags>summary::-webkit-details-marker{display:none}
+.wtags>fieldset{border:0;padding:10px 0 0}
+.wtags .tsug .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.wtags .tsug .wchip{flex:none}
+.wbox .acts{display:flex;align-items:center;gap:8px}
+.wbox .acts .sp{flex:1}
+.wbox .acts .btn.p{height:42px;padding:0 26px;border-radius:999px;font-size:15px}
+@media (max-width:640px){
+ .wbox .acts{position:sticky;bottom:0;z-index:4;background:var(--page);padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+ .wbox .acts .btn.p{flex:1}
+ .wform .wed textarea{min-height:240px}
+}
+/* channel and tag lists on phones: the name and one line of description, small buttons beside them, no
+   popular-tag row, and two-line posts (말머리 + title, then writer · time · counts) — no tag chips. */
+@media (max-width:640px){
+ .chh{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;row-gap:8px;align-items:center;padding:4px 0 12px}
+ .chh>.tile{width:40px;height:40px;border-radius:10px}
+ .chh .chn1{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.chh .chn1 h1{font-size:19px}
+ .chh .chn1>.fine,.chh .chm>.fine{display:none}
+ .chh .desc{margin:2px 0 0;font-size:13px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+ .chh .cha,.chead .cha{grid-column:1/-1;width:auto;display:flex;gap:6px}
+ .chh .cha .btn,.chead .cha .btn{flex:0 0 auto;height:32px;padding:0 14px;border-radius:999px;font-size:13px}
+ .chh .cha .btn.p{flex:1}
+ .board .tagbar{display:none}
+ .plist .pr .rtags,.plist .pr .tc .rtags{display:none}
+ .plist .pr{padding:8px 4px;row-gap:3px}
+}
+@media (max-width:640px){
+ .plist .pr .tc .chn{display:none}
+ .cols .kwb{display:none}
+ .tagh .x{display:none}
+}
+.wform fieldset,.wform details{min-width:0;max-width:100%}
+.wfl .chips,.wtags .tsug .chips{position:relative}
