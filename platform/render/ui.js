@@ -102,7 +102,8 @@ export function boardHead(l){
  return html`<li class="pr ph" aria-hidden="true"><span class="no">${s.colNo}</span><span class="tc"><span class="tt">${s.colTitle}</span></span><span class="nick">${s.colAuthor}</span><span class="num w">${s.colDate}</span><span class="num v">${s.colViews}</span><span class="num u">${s.colUp}</span></li>`;
 }
 
-const LOGO=html`<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="20" fill="#c6f24e"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#15171a" stroke-width="9" stroke-linecap="round"/><circle cx="48" cy="15" r="5.5" fill="#15171a"/></svg>`;
+/** The Nerulio mark (src/logo.js: the favicon, the tool pages and the brand PNGs use the same shape). */
+const LOGO=html`<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#c6f24e"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#15171a" stroke-width="8.5" stroke-linecap="round"/><circle cx="47.5" cy="16.5" r="5" fill="#15171a"/></svg>`;
 const CHEV=html`<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`;
 
 /** The menu column (desktop) and the drawer (mobile): pages, the channels, and the file and game tools,
@@ -136,11 +137,11 @@ export function channelSheet(l){
 }
 
 /** The share image of a page: its own card when it has one (a site path or an absolute URL on the site),
- * else the site card of the language. @param {{l:string,canonical:string,ogImage?:{url:string}|null}} o */
+ * else the portal card of the language (tools/brand-assets.py). @param {{l:string,canonical:string,ogImage?:{url:string}|null}} o */
 export function ogImageUrl(o){
  const origin=new URL(o.canonical).origin;
  if(o.ogImage?.url){const u=new URL(o.ogImage.url,origin);if(u.origin===origin)return u.href;}
- return `${origin}/assets/social/${o.l==='ko'?'ko':'en'}-home.png`;
+ return `${origin}/assets/social/${o.l==='ko'?'ko':'en'}-portal.png`;
 }
 
 /**
@@ -176,7 +177,7 @@ ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 ${o.ogImage?.alt?html`<meta property="og:image:alt" content="${o.ogImage.alt}">
 `:''}<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 ${verifyMeta(o.verify)}
 ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="${o.feedTitle||'RSS'}">
 `:''}
