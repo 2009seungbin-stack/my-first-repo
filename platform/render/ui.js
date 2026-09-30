@@ -11,6 +11,8 @@ import {FILE_TOOLS,GAME_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 
 export const CSS_HREF='/src/platform/n2.css';
+/** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
+export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
 /** Applies the saved theme before the first paint (white by default) and runs the dark-mode button and
  * the menu drawer; a classic script, so it blocks rendering only for its own few hundred bytes. */
@@ -186,6 +188,7 @@ ${verifyMeta(o.verify)}
 ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="${o.feedTitle||'RSS'}">
 `:''}
 <script src="${THEME_SRC}"></script>
+<link rel="stylesheet" href="${FONTS_HREF}">
 <link rel="stylesheet" href="${CSS_HREF}">
 <script type="module" src="${ISLANDS_SRC}"></script>
 <script src="/src/hit.js" defer></script>

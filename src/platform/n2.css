@@ -25,7 +25,7 @@
 *{box-sizing:border-box}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .n2 [hidden]{display:none!important}
-body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR','Noto Sans KR',system-ui,-apple-system,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body.n2{margin:0;background:var(--bg);font-family:SUIT,system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
 .n2 a{color:inherit;text-decoration:none}
 .n2 a:hover{text-decoration:underline}
 .n2 h1,.n2 h2,.n2 h3{margin:0}
@@ -40,7 +40,7 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .rail .rh{display:flex;border-radius:12px}.rail .rsep{width:30px;height:2px;border-radius:1px;background:var(--line);flex:none}
 .rail .tile{width:42px;height:42px;border-radius:21px;font-size:13px;font-weight:900}.rail .tile.ch-hw{font-size:12px}
 .n2 .rail a:hover{text-decoration:none;filter:brightness(.97)}
-.rail .rt{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--brand);display:flex;align-items:center;justify-content:center;font:700 10px/1 ui-monospace,'JetBrains Mono',monospace}
+.rail .rt{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--brand);display:flex;align-items:center;justify-content:center;font:700 10px/1 'JetBrains Mono',ui-monospace,monospace}
 .lnav{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line);padding:14px 10px 20px;display:flex;flex-direction:column;gap:2px;font-size:14.5px}
 .lnh{display:flex;align-items:center;padding:0 6px 12px}.lnh .brand svg{display:none}.lnx{display:none}
 .brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:19px;letter-spacing:-.5px;color:var(--ink)}
@@ -51,10 +51,10 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .lg summary{list-style:none;cursor:pointer;height:40px;padding:0 10px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px}
 .lg summary::-webkit-details-marker{display:none}
 .lg .chev{color:var(--brand);transition:transform .15s;flex:none}.lg[open]>summary .chev{transform:rotate(90deg)}
-.lgn{margin-left:auto;font:500 11px/1 ui-monospace,'JetBrains Mono',monospace;color:var(--mute)}
+.lgn{margin-left:auto;font:500 11px/1 'JetBrains Mono',ui-monospace,monospace;color:var(--mute)}
 .lg ul{list-style:none;margin:0;padding:2px 0 8px 12px;display:flex;flex-direction:column;gap:1px}
 .lg li a{min-height:34px;padding:0 8px;border-radius:7px;display:flex;align-items:center;gap:10px;color:var(--ink2);font-size:14px}
-.lg .ic{width:38px;flex:none;font:700 10px/1 ui-monospace,'JetBrains Mono',monospace;color:var(--brand)}
+.lg .ic{width:38px;flex:none;font:700 10px/1 'JetBrains Mono',ui-monospace,monospace;color:var(--brand)}
 .lg a.all{color:var(--brand);font-weight:700;font-size:13px}
 .lg .tile.sm{width:22px;height:22px;border-radius:6px;font-size:10px}
 .lch{display:none}
@@ -464,7 +464,7 @@ dialog.signin h2{font-size:16px;margin:0 0 4px}
 dialog.signin p{margin:0 0 14px;color:var(--mute);font-size:13px}
 dialog.signin .x{margin-top:12px;width:100%;justify-content:center}
 /* Authors: anonymous (유동) "ㅇㅇ (a3F9)" muted with a monospace daily ID; members (고정닉) with ✓. */
-.nick.anon{color:var(--mute)}.nick.anon .aid{font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--mute2)}
+.nick.anon{color:var(--mute)}.nick.anon .aid{font-size:11px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--mute2)}
 .meta1 .nick.anon{color:var(--mute)}
 .nick.mem{font-weight:600}.nick.mem .ck{font-size:10px;color:var(--ok);margin-left:3px}
 /* Writing without an account: nickname + password row under the textarea, notices, the human check. */
@@ -662,8 +662,8 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .rnews,.rev,.rbest{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;font-size:14px}
 .rnews li{display:flex;flex-direction:column;gap:1px}.rnews time{font-size:11.5px;color:var(--mute)}.rnews a{font-weight:700;line-height:1.4}
 .rev li{display:flex;align-items:center;gap:8px;min-width:0}.rev a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rev .dday{flex:none;font:700 11px/1 ui-monospace,'JetBrains Mono',monospace;color:var(--warn);background:var(--warn-bg);padding:4px 6px;border-radius:4px}
-.rbest li{display:flex;gap:10px;min-width:0}.rbest .rk{width:16px;flex:none;font:700 13px/1.4 ui-monospace,'JetBrains Mono',monospace;color:var(--brand)}
+.rev .dday{flex:none;font:700 11px/1 'JetBrains Mono',ui-monospace,monospace;color:var(--warn);background:var(--warn-bg);padding:4px 6px;border-radius:4px}
+.rbest li{display:flex;gap:10px;min-width:0}.rbest .rk{width:16px;flex:none;font:700 13px/1.4 'JetBrains Mono',ui-monospace,monospace;color:var(--brand)}
 .rbest a{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rfoot{margin:0;padding:0 4px;font-size:12px;color:var(--mute);line-height:1.8}
 .mstat{display:none;gap:6px;font-size:12.5px}
@@ -720,7 +720,7 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .ptier{margin-left:auto;margin-bottom:6px;font-size:12px;font-weight:800;color:var(--brand);background:var(--brand-soft);padding:4px 10px;border-radius:999px}
 .pstat{margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .pstat div{background:var(--soft);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column-reverse;gap:2px}
-.pstat dt{font-size:12px;color:var(--mute)}.pstat dd{margin:0;font:700 20px/1.2 ui-monospace,'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.pstat dt{font-size:12px;color:var(--mute)}.pstat dd{margin:0;font:700 20px/1.2 'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
 .ptags{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;font-weight:700}.ptags .ftag{color:var(--brand)}
 .pcom .pcb{margin:0;font-size:15px;line-height:1.55}.pcom .fm a{font-weight:700;color:var(--ink2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
