@@ -486,13 +486,19 @@ test('share cards: one per service × state × language, 1200×630, and the stat
  assert.equal(statusCardPath('service:claude-code','warn','ko'),null,'other services keep the site card');
  assert.equal(statusCardPath('service:claude','maybe','ko'),null);
  assert.equal(cardLabel('warn','ko'),'리포트 급증');assert.equal(cardLabel('unk','ko'),'지금 안 돼요?','no claim without data');
- assert.equal(ogImageUrl({l:'ko',canonical:'https://nerulio.com/ko/x',ogImage:{url:'https://evil.example/a.png'}}),'https://nerulio.com/assets/social/ko-home.png','only our own origin');
+ assert.equal(ogImageUrl({l:'ko',canonical:'https://nerulio.com/ko/x',ogImage:{url:'https://evil.example/a.png'}}),'https://nerulio.com/assets/social/ko-portal.png','only our own origin');
  const get=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  const claude=await get('/ko/ai/claude/status');
  assert(claude.includes('<meta property="og:image" content="https://nerulio.com/assets/social/ko-status-claude-warn.png">')&&claude.includes('<meta property="og:image:alt" content="Claude · 리포트 급증">'),'a spike of reports: the spike card');
  assert((await get('/en/ai/gemini-app/status')).includes('/assets/social/en-status-gemini-app-unk.png'),'no status collector for Gemini: the question card');
- assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-home.png'));
- assert((await get('/ko/ai/claude/')).includes('/assets/social/ko-home.png'),'other pages keep the site card');
+ assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-portal.png'));
+ assert((await get('/ko/ai/claude/')).includes('/assets/social/ko-portal.png'),'other pages keep the site card');
+ // The portal home names the site for search engines (not the game asset studio): WebSite + Organization with the logo.
+ const home=await get('/'),ld=JSON.parse((home.match(/<script type="application\/ld\+json">(.*?)<\/script>/)||[])[1]||'{}');
+ const site=ld['@graph']?.find(x=>x['@type']==='WebSite'),org=ld['@graph']?.find(x=>x['@type']==='Organization');
+ assert.equal(site?.name,'Nerulio');assert.equal(site?.url,'https://nerulio.com/');assert(!/studio/i.test(JSON.stringify(site.alternateName)),'no studio in the site name');
+ assert.equal(org?.logo?.url,'https://nerulio.com/assets/brand/nerulio-logo-512.png');
+ assert(!(await get('/?sort=new')).includes('application/ld+json'),'only the canonical home carries it');
 });
 
 test('status feed: official incidents and user-report spikes, each start and end, labelled apart',{skip:!sqliteAvailable},async()=>{

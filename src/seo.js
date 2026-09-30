@@ -1,5 +1,5 @@
 import {CAPABILITIES,mayPromote} from './capabilities.js';
-import {BRAND} from './brand.js';
+import {BRAND,siteGraph} from './brand.js';
 import {LOCALES,t} from './i18n.js';
 import {INTENTS} from './intents.js';
 import {labels,guide} from './content.js';
@@ -64,15 +64,16 @@ const HOME_APP={
 };
 /** Home: WebSite (the site name Google shows: "Nerulio"), Organization (name, url, square logo) and the
  * studio itself as a free DeveloperApplication named Nerulio. `neutral`: served at / (x-default). */
-export const SITE_ALTERNATE_NAMES=Object.freeze(['Nerulio Game Studio','Nerulio game asset studio']);
-export const LOGO_PATH='assets/brand/nerulio-logo-512.png';
+export {SITE_ALTERNATE_NAMES,LOGO_PATH} from './brand.js';
+/** The studio's own name (the SoftwareApplication on the tool home), not the site's. */
+const STUDIO_ALTERNATE_NAME='Nerulio Game Studio';
 function homeStructuredData(locale,siteURL,neutral=false){
  const [,featureList]=HOME_APP[locale]||HOME_APP.en;
  const nodes=[];
- const app={'@context':'https://schema.org','@type':'SoftwareApplication',name:BRAND.name,alternateName:SITE_ALTERNATE_NAMES[0],description:t('intent.home.description',{},locale),applicationCategory:'DeveloperApplication',applicationSubCategory:'2D game asset tool',operatingSystem:'Web',inLanguage:locale,isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList};
+ const app={'@context':'https://schema.org','@type':'SoftwareApplication',name:BRAND.name,alternateName:STUDIO_ALTERNATE_NAME,description:t('intent.home.description',{},locale),applicationCategory:'DeveloperApplication',applicationSubCategory:'2D game asset tool',operatingSystem:'Web',inLanguage:locale,isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList};
  if(siteURL){
-  const root=new URL('./',siteURL).href,org={'@type':'Organization','@id':root+'#organization',name:BRAND.name,url:root,logo:{'@type':'ImageObject',url:new URL(LOGO_PATH,siteURL).href,width:512,height:512}};
-  nodes.push({'@context':'https://schema.org','@type':'WebSite','@id':root+'#website',name:BRAND.name,alternateName:[...SITE_ALTERNATE_NAMES],url:root,inLanguage:locale,publisher:{'@id':root+'#organization'}});
+  const root=new URL('./',siteURL).href,{site,org}=siteGraph(root,locale);
+  nodes.push({'@context':'https://schema.org',...site});
   nodes.push({'@context':'https://schema.org',...org});
   app.url=new URL(pagePath('',neutral?null:locale),siteURL).href;app.screenshot=new URL('assets/studio/sprite-frame.webp',siteURL).href;app.publisher={'@id':root+'#organization'};
  }

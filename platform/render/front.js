@@ -8,6 +8,9 @@ import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,
 import {loadRail,renderRail,statusStrip} from './rail.js';
 import {icon,EMPTY_ART} from './icons.js';
 import {buttonsHTML} from '../../src/signin-brands.js';
+import {siteGraph} from '../../src/brand.js';
+/** WebSite + Organization as one JSON-LD graph. @param {string} root @param {string} l */
+const siteJsonld=(root,l)=>{const {site,org}=siteGraph(root,l);return {'@context':'https://schema.org','@graph':[site,org]};};
 import {boardTime,compact} from './format.js';
 import {frontPosts,excerptsOf} from '../db/channel.js';
 import {CHANNELS,channelById,channelPath} from '../channels.js';
@@ -51,7 +54,9 @@ export function renderFront(m,site){
  const title=ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티와 파일 도구':'Nerulio — community for AI, games, PC, creator tools and anime, plus file tools';
  const other=ko?'en':'ko';
  return page({l,title,description:ko?'AI 서비스 상태와 새 소식, 게임·PC·창작 도구·애니 채널의 인기 글, 그리고 서버에 올리지 않는 파일·게임 도구.':'AI service status and news, popular posts from game, PC, creator-tool and anime channels, and file and game tools that never upload your files.',canonical:site.origin+home+(m.sort==='new'?'?sort=new':''),noindex:m.sort==='new',
-  alternates:m.sort==='new'?{}:{[l]:site.origin+home,[other]:site.origin+homeUrl(other),'x-default':site.origin+homeUrl('ko')},channels:m.channels,homeOn:true,body,verify:m.sort==='hot'?site.verify:null});
+  alternates:m.sort==='new'?{}:{[l]:site.origin+home,[other]:site.origin+homeUrl(other),'x-default':site.origin+homeUrl('ko')},channels:m.channels,homeOn:true,body,verify:m.sort==='hot'?site.verify:null,
+  // The site's name and logo for search engines: the portal is the home now, not the game asset studio.
+  jsonld:m.sort==='hot'?siteJsonld(site.origin+'/',l):null});
 }
 
 /** @param {any} db @param {{l:string,now:number,period:string,channel?:string|null,channels?:{name:string,href:string,id?:string}[]}} o */
