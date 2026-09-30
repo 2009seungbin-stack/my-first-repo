@@ -706,6 +706,8 @@ async function main(){
   const open=()=>{if(!form.classList.contains('min'))return;form.classList.remove('min');ta.rows=3;};
   form.addEventListener('focusin',open);for(const a of $$('[data-reply]'))a.addEventListener('click',open);
  }
+ // A link to #info (or a heading inside it) opens the tag page's folded facts.
+ const openInfo=()=>{const d=$('details.tinfo');if(!d)return;const t=location.hash.length>1&&document.getElementById(decodeURIComponent(location.hash.slice(1)));if(t&&(t===d||d.contains(t))){d.open=true;t.scrollIntoView();}};openInfo();addEventListener('hashchange',openInfo);
  // One ⋯ menu open at a time; a click elsewhere or Esc closes it.
  document.addEventListener('click',e=>{for(const d of $$('details.cmore[open]'))if(!d.contains(/** @type {Node} */(e.target)))d.open=false;});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')for(const d of $$('details.cmore[open]')){d.open=false;$('summary',d)?.focus();}});

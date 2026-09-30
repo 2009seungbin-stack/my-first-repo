@@ -941,3 +941,21 @@ body.n2{background:var(--page)}
 @media (max-width:1000px){.cols .g2>.box+.box{border-left:0;padding-left:0;border-top:1px solid var(--line2)}}
 .hd2{background:none;border-bottom:1px solid var(--line);padding-left:4px;padding-right:4px}
 .cols thead th,.cols tr.th th{background:none;border-bottom:1px solid var(--line)}
+/* tag pages: the posts lead; the facts fold under the header (details.tinfo) */
+.tinfo{border-bottom:1px solid var(--line)}
+.tinfo>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 4px;border-radius:10px}
+.tinfo>summary::-webkit-details-marker{display:none}
+.tinfo>summary:hover{background:var(--hover)}
+.tinfo>summary:focus-visible{outline:2px solid var(--accent-line);outline-offset:2px}
+.tis{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;min-width:0}.tis .i{color:var(--brand)}.tis b{font-size:15px}
+.tio{margin-left:auto;display:inline-flex;color:var(--ink2);transition:transform .15s}
+.tinfo[open]>summary .tio{transform:rotate(180deg)}
+.tib{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start;padding:6px 0 18px}
+.tim,.tiw{min-width:0;display:flex;flex-direction:column;gap:12px}
+.tib .box{background:none;border:0;border-radius:0;overflow:visible}
+.tib .bh{border-bottom:0;padding:10px 4px 6px;min-height:0}
+.tib .g2>.box+.box{border-left:1px solid var(--line2);padding-left:14px}
+.tib thead th,.tib tr.th th{background:none;border-bottom:1px solid var(--line)}
+.tiw{border-left:1px solid var(--line);padding-left:16px}
+@media (max-width:1000px){.tib{grid-template-columns:minmax(0,1fr)}.tiw{border-left:0;padding-left:0;border-top:1px solid var(--line)}.tib .g2>.box+.box{border-left:0;padding-left:0;border-top:1px solid var(--line2)}}
+@media (prefers-reduced-motion:reduce){.tio{transition:none}}

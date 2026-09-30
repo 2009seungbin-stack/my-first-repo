@@ -226,10 +226,14 @@ def main():
                 assert pg.locator(f'.plist a.tt[href="{e2e_post}"]').count() == 1, f'{tag_page} lists the new post'
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(500)
             posts_before = pg.locator('.plist .pr').count()
+            # the tag's posts lead; its facts (and the patch vote) fold under the header
+            assert pg.locator('details.tinfo').count() == 1 and not pg.locator('[data-island=compat-vote]').first.is_visible(), 'facts start folded'
+            pg.locator('details.tinfo > summary').click()
             for _ in range(2): pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_timeout(500)
             assert pg.locator('[data-island=compat-vote] button.on').count() == 1 and pg.locator('.vmore').count() == 1, 'a click is a vote with a link to a detailed report'
             works_n = pg.locator('[data-tally] [data-n=works]').inner_text()
-            pg.reload(); pg.wait_for_timeout(700)
+            pg.goto(B + '/ko/games/caves-of-qud/#info'); pg.reload(); pg.wait_for_timeout(700)
+            assert pg.locator('details.tinfo[open]').count() == 1, '#info opens the facts'
             assert pg.locator('.plist .pr').count() == posts_before, 'votes never create posts'
             assert pg.locator('[data-island=compat-vote] button.on').count() == 1, 'my vote stays highlighted after a reload'
             assert pg.locator('[data-tally] [data-n=works]').inner_text() == works_n, 'the live count matched the server'
@@ -254,7 +258,7 @@ def main():
             assert pg.request.get(B + post_url).status == 200, 'restored'
             # 정보 제안: a member suggests a value, the moderator accepts it
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(400)
-            pg.locator('details.prop summary').click()
+            pg.locator('details.tinfo > summary').click(); pg.locator('details.prop summary').click()
             opt = pg.locator('form[data-island=propose] select[name=property] option[data-type=date]').first.get_attribute('value')
             pg.select_option('form[data-island=propose] select[name=property]', opt)
             pg.fill('form[data-island=propose] input[name=value]', '2026-10-20'); pg.fill('form[data-island=propose] input[name=sourceUrl]', 'https://example.com/notice')
