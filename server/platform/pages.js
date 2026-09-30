@@ -42,6 +42,7 @@ import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,p
 import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {RAIL_SERVICES} from '../../platform/render/rail.js';
+import {maybeRefreshStatus} from './status-refresh.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
 const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status/feed\\.xml|status|local-llm|feed\\.xml))?)?)$`);
@@ -272,6 +273,8 @@ export async function handlePlatformPage(request,env,ctx,site){
   return res;
  }
  if(!matchPlatformRoute(path))return null;
+ // Page views keep the AI status fresh when the scheduled collectors run late (status-refresh.js).
+ maybeRefreshStatus(env,ctx,site);
  const cache=/** @type {any} */(globalThis).caches?.default;
  const key=new Request(request.url,{method:'GET'});
  const hit=cache?await cache.match(key):null;
