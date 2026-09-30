@@ -21,6 +21,8 @@ const avatar=a=>a.bot?html`<span class="av bot" aria-hidden="true">${icon('gear'
 
 /** Best comment: most upvotes, at least 5, and ahead of the runner-up. */
 export const BEST_COMMENT_MIN=5;
+/** The comment search box shows on posts with at least this many comments. */
+export const COMMENT_SEARCH_MIN=30;
 
 /** @param {any} db @param {string} channel @param {number} no @param {{l:string,now:number,channels?:{name:string,href:string,id?:string}[]}} o */
 export async function loadPost(db,channel,no,o){
@@ -52,10 +54,28 @@ export function renderPost(m,site){
  const best=accepted||top.length<3?null:top[0]&&top[0].up>=BEST_COMMENT_MIN&&(!top[1]||top[0].up>top[1].up)?top[0]:null;
  /** @type {Map<string|null,typeof m.comments>} */const kids=new Map();
  for(const c of m.comments){const k=c.parent_id;kids.set(k,[...(kids.get(k)||[]),c]);}
- const comment=(/** @type {(typeof m.comments)[number]} */ c,/** @type {number} */ depth,/** @type {boolean} */ pinned=false)=>html`<li class="co${depth?' re':''}${pinned?' bestc':''}${c.deleted?' del':''}" id="${pinned?'best-':''}c-${c.id}"><div class="h">${avatar(c)}${pinned&&accepted&&c.id===accepted.id?html`<span class="bb ok">${l==='ko'?'✓ 채택된 답변':'✓ Accepted answer'}</span>`:pinned?html`<span class="bb">${s.bestComment}</span>`:''}${author({author_name:c.author_name,author_tier:c.author_tier,anon_id:c.anon_id},l)}${(c.anon_id?c.anon_id===p.anon_id&&c.author_name===p.author_name:c.author_id===p.author_id)?html`<span class="op">${s.op}</span>`:''}<span class="fine">${boardTime(c.created_at,now,l)}</span></div>
-<div class="cb">${c.deleted?s.deletedComment:raw(renderMarkdown(c.body_md))}</div><div class="a"><a class="cv" href="#c-${c.id}" data-vote-comment="${c.id}">${icon('up',14)}<span class="sr-only">${s.up}</span><b>${c.up}</b></a>${c.deleted?'':html`<a href="#comment-form" data-reply="${c.id}" data-name="${authorText(c,'')}">${s.reply}</a>`}<a href="/${l}/community/report?target=comment:${c.id}">${s.flag}</a>${!c.deleted&&p.kind==='question'&&!pinned?html`<button class="lnk" type="button" data-accept="${c.id}" hidden>${l==='ko'?'답변 채택':'Accept'}</button>`:''}${c.deleted?'':c.anon_id?html`<button class="lnk" type="button" data-anon-edit="comment:${c.id}" hidden>${l==='ko'?'수정':'Edit'}</button><button class="lnk" type="button" data-anon-delete="comment:${c.id}" hidden>${l==='ko'?'삭제':'Delete'}</button>`:html`<button class="lnk" type="button" data-edit-comment="${c.id}" hidden>${l==='ko'?'수정':'Edit'}</button><button class="lnk" type="button" data-own-comment="${c.id}" hidden>${l==='ko'?'삭제':'Delete'}</button>`}</div></li>`;
+ const ko=l==='ko';
+ /** @param {(typeof m.comments)[number]} c */
+ const isOp=c=>c.anon_id?c.anon_id===p.anon_id&&c.author_name===p.author_name:c.author_id===p.author_id;
+ /** Replies under a comment, all levels (the "답글 N개" count). @param {string} id @returns {number} */
+ const under=id=>(kids.get(id)||[]).reduce((n,x)=>n+1+under(x.id),0);
+ // The ⋯ menu: report, and (shown by the islands to whoever may use them) accept, edit and delete.
+ const menu=(/** @type {(typeof m.comments)[number]} */ c,/** @type {boolean} */ pinned)=>html`<details class="cmore"><summary aria-label="${ko?'더보기':'More'}">${icon('dots',18)}</summary><div class="cmenu"><a href="/${l}/community/report?target=comment:${c.id}">${icon('flag',15)}${s.flag}</a>${!c.deleted&&p.kind==='question'&&!pinned?html`<button class="lnk" type="button" data-accept="${c.id}" hidden>${icon('check',15)}${ko?'답변 채택':'Accept'}</button>`:''}${c.deleted?'':c.anon_id?html`<button class="lnk" type="button" data-anon-edit="comment:${c.id}" hidden>${icon('pencil',15)}${ko?'수정':'Edit'}</button><button class="lnk" type="button" data-anon-delete="comment:${c.id}" hidden>${icon('xCircle',15)}${ko?'삭제':'Delete'}</button>`:html`<button class="lnk" type="button" data-edit-comment="${c.id}" hidden>${icon('pencil',15)}${ko?'수정':'Edit'}</button><button class="lnk" type="button" data-own-comment="${c.id}" hidden>${icon('xCircle',15)}${ko?'삭제':'Delete'}</button>`}</div></details>`;
+ // Reddit-style thread: the avatar and the header on one line, the body and the actions indented under
+ // the name, replies nested inside their parent (three levels; deeper replies continue on the third) with
+ // a thread line from the parent's avatar down to each reply.
+ const MAXD=3;
+ const comment=(/** @type {(typeof m.comments)[number]} */ c,/** @type {number} */ depth,/** @type {boolean} */ pinned=false)=>{
+  const nested=!pinned&&depth<MAXD-1?thread(c.id,depth+1):[];
+  const score=c.up-c.down;
+  return html`<li class="co${depth?' re':''}${pinned?' bestc':''}${c.deleted?' del':''}${nested.length?' hk':''}" id="${pinned?'best-':''}c-${c.id}" data-score="${score}" data-t="${c.created_at}"${pinned?'':html` data-replies="${under(c.id)}"`}><div class="h">${avatar(c)}${pinned&&accepted&&c.id===accepted.id?html`<span class="bb ok">${ko?'✓ 채택된 답변':'✓ Accepted answer'}</span>`:pinned?html`<span class="bb">${s.bestComment}</span>`:''}${author({author_name:c.author_name,author_tier:c.author_tier,anon_id:c.anon_id},l)}${isOp(c)?html`<span class="op">${s.op}</span>`:''}<span class="dot" aria-hidden="true">•</span><time class="fine" datetime="${new Date(c.created_at).toISOString()}">${boardTime(c.created_at,now,l)}</time></div>
+<div class="cbody"><div class="cb">${c.deleted?s.deletedComment:raw(renderMarkdown(c.body_md))}</div><div class="a"><span class="cvote"><a class="cv" href="#c-${c.id}" data-vote-comment="${c.id}" data-value="1" aria-label="${s.up}">${icon('up',16)}</a><b>${score}</b><a class="cv dn" href="#c-${c.id}" data-vote-comment="${c.id}" data-value="-1" aria-label="${s.down}">${icon('down',16)}</a></span>${c.deleted?'':html`<a class="ca" href="#comment-form" data-reply="${c.id}" data-name="${authorText(c,'')}">${icon('bubble',16)}<span>${ko?'답글 달기':'Reply'}</span></a>`}<a class="ca" href="${url}#c-${c.id}" data-share-comment>${icon('share',16)}<span>${s.share}</span></a>${menu(c,pinned)}</div></div>${nested.length?html`<ol class="kids">${nested}</ol>`:''}</li>`;
+ };
  /** @param {string|null} parent @param {number} depth @returns {unknown[]} */
- const thread=(parent,depth)=>(kids.get(parent)||[]).flatMap(c=>[comment(c,Math.min(depth,2)),...thread(c.id,depth+1)]);
+ const thread=(parent,depth)=>(kids.get(parent)||[]).flatMap(c=>[comment(c,Math.min(depth,MAXD-1)),...(depth>=MAXD-1?thread(c.id,depth+1):[])]);
+ const nComments=m.comments.filter(x=>!x.deleted).length;
+ // Sorting and search run in the browser (islands); the server order is oldest first.
+ const sortBar=html`<div class="csort"><label class="csel" hidden data-comment-sort><span>${ko?'정렬 기준:':'Sort by:'}</span><select aria-label="${ko?'댓글 정렬':'Sort comments'}"><option value="old">${s.byOrder}</option><option value="top">${s.byTop}</option><option value="new">${s.byNew}</option></select>${icon('chevDown',16)}</label>${nComments>=COMMENT_SEARCH_MIN?html`<label class="csearch" hidden data-comment-search>${icon('search',16)}<input type="search" placeholder="${ko?'댓글 검색':'Search comments'}" aria-label="${ko?'댓글 검색':'Search comments'}"></label>`:''}</div>`;
  const rep=m.report;
  // 정보 제안 from this post: the post becomes the evidence linked to the proposal.
  const propose=e?proposeForm(e,l,typeDef(e.vertical,e.type)?.props||[],p.id):'';
@@ -78,9 +98,9 @@ ${facts}<div class="pbody">${raw(renderMarkdown(p.body_md))}</div>${vstate}
 <div class="vote" data-island="post-vote" data-post="${p.id}"${rep?.kind==='compat'?html` data-report="${JSON.stringify({kind:'compat',entityId:rep.entity_id,targetId:rep.target_id,subjectVersion:rep.subject_version||undefined,targetVersion:rep.target_version||undefined,result:rep.result})}"`:''}><button class="up" type="button" disabled>${icon('up',18)}<b>${p.up}</b><span>${s.up}</span></button>${rep?.kind==='compat'?html`<button type="button" disabled><b>0</b><span>${s.sameHere}</span></button><button type="button" disabled><b>0</b><span>${s.notRepro}</span></button>`:html`<button type="button" disabled>${icon('down',18)}<b>${p.down}</b><span>${s.down}</span></button>`}</div>
 <div class="pact">${p.anon_id?html`<span class="own" data-island="anon-own" data-target="discussion:${p.id}" hidden><button class="btn" type="button" data-anon-edit="discussion:${p.id}">${l==='ko'?'수정':'Edit'}</button><button class="btn" type="button" data-anon-delete="discussion:${p.id}">${l==='ko'?'삭제':'Delete'}</button></span>`:''}<span class="own" data-island="own-post" data-post="${p.id}" hidden><button class="btn" type="button" data-edit>${l==='ko'?'수정':'Edit'}</button><button class="btn" type="button" data-delete>${l==='ko'?'삭제':'Delete'}</button></span><button class="btn" type="button" data-island="share">${icon('share',16)}<span>${s.share}</span></button><a class="btn" href="${url}">${icon('link',16)}<span>${s.copyLink}</span></a><a class="btn" href="/${l}/community/report?target=discussion:${p.id}">${icon('flag',16)}<span>${s.flag}</span></a></div></article>
 ${propose?html`<section class="box">${propose}</section>`:''}
-<section class="box" id="comments"><div class="cmh">${s.commentsN(m.comments.filter(x=>!x.deleted).length)}<span class="srt"><span>${s.byOrder}</span></span></div>
+<section class="box" id="comments"><h2 class="cmh">${s.commentsN(nComments)}</h2>
 <form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea>${anonFields(l,url)}</div><button class="btn p" type="submit">${s.submit}</button></form>
-<ol class="cl">${accepted?comment(accepted,0,true):best?comment(best,0,true):''}${thread(null,0)}</ol></section>
+${nComments?sortBar:''}<ol class="cl">${accepted?comment(accepted,0,true):best?comment(best,0,true):''}${thread(null,0)}</ol></section>
 <section class="box"><div class="cmh">${s.channelList(name)}</div><ol class="plist">${boardHead(l)}${m.around.map(x=>postRow(x,{l,now,current:x.id===p.id}))}</ol><div class="pager"><a class="btn" href="${base}">${s.moreList}</a></div></section>`;
  const wrapped=html`<div class="front postv"><div class="mainc">${body}</div><div class="side">${renderRail(m.rail,l)}</div></div>`;
  const description=plainExcerpt(p.body_md,150)||p.title;

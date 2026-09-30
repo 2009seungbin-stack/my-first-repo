@@ -824,3 +824,71 @@ body.n2{background:var(--page)}
 .msc{border:0;border-radius:0}.msc+.msc{border-left:1px solid var(--line)}
 .nb.c{border-top:0;height:28px}
 @media (max-width:1000px){.hq{background:none}.hq:focus-within{background:var(--soft)}}
+
+/* comments v5 (Reddit-style thread): avatar + name · 작성자 · time on one line, body and actions under the
+   name, replies nested in their parent with a thread line from the parent's avatar that bends into each
+   reply (and into "답글 N개 더 보기"). No lines between comments — the thread line groups them.
+   --av avatar size, --ind indent per level; the line sits at the avatar's centre. */
+.cl{--av:32px;--ind:40px;display:flex;flex-direction:column;gap:22px;padding:6px 4px 20px}
+.cl .co{--tl:var(--line);position:relative;padding:0 0 0 var(--ind);border:0;background:none}
+.cl .co:has(>.tl:hover){--tl:var(--mute)}
+.cl .co .h{position:relative;min-height:var(--av);display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;font-size:12.5px}
+.cl .co .h .av{position:absolute;left:calc(-1 * var(--ind));top:0;width:var(--av);height:var(--av)}
+.cl .co .h .fine{margin-left:0;font-size:12.5px}.cl .co .dot{color:var(--mute);font-size:10px}
+.cl .co .nick{font-weight:700}
+.cl .co .op{background:none;border:0;padding:0;color:var(--brand);font-size:12.5px;font-weight:800}
+.cl .co .h[data-fold]:not([data-fold=""])::after{content:attr(data-fold);color:var(--mute);font-size:12px}
+.cl .co .cb{margin:2px 0 2px;font-size:14.5px;line-height:1.6}
+.cbody{position:relative}
+.cl .co .a{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin-left:-8px;font-size:12.5px;font-weight:700;color:var(--mute)}
+.cvote{display:inline-flex;align-items:center}
+.cvote b{min-width:1.4em;text-align:center;color:var(--ink2);font-weight:800;font-variant-numeric:tabular-nums}
+.cl .cv,.cl .ca,.cmore>summary{height:32px;min-width:32px;padding:0 8px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--mute);font-weight:700}
+.cl .cv{padding:0;width:32px}
+.n2 .cl .cv:hover,.n2 .cl .ca:hover,.cmore>summary:hover{background:var(--soft);color:var(--ink);text-decoration:none}
+.cl .cv.on{color:var(--brand)}.cl .cv.dn.on{color:var(--hot)}
+.cmore{position:relative}
+.cmore>summary{list-style:none;cursor:pointer}.cmore>summary::-webkit-details-marker{display:none}
+.cmenu{position:absolute;z-index:6;top:34px;left:0;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(10,14,20,.14);padding:4px;display:flex;flex-direction:column}
+.cmenu a,.cmenu .lnk{height:38px;padding:0 10px;border-radius:6px;display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink2);text-decoration:none;text-align:left;width:100%}
+.n2 .cmenu a:hover,.cmenu .lnk:hover{background:var(--hover);text-decoration:none}
+.cmenu [hidden]{display:none}
+/* the thread line */
+.kids{--ptl:var(--tl);list-style:none;margin:0;padding:0}
+.kids>li{position:relative;padding-top:14px}
+.cl .co.hk>.cbody::before{content:"";position:absolute;left:calc(var(--av)/2 - var(--ind));top:0;bottom:0;border-left:1px solid var(--tl)}
+.cl .kids>li::before{content:"";position:absolute;left:calc(var(--av)/2 - var(--ind));top:0;width:calc(var(--ind) - var(--av)/2 - 4px);height:calc(14px + var(--av)/2);border:0;border-left:1px solid var(--ptl);border-bottom:1px solid var(--ptl);border-bottom-left-radius:12px;background:none}
+.cl .kids>li:not(:last-child)::after{content:"";position:absolute;left:calc(var(--av)/2 - var(--ind));top:0;bottom:0;border-left:1px solid var(--ptl)}
+.kids>li.more{padding-top:8px}
+.cl .kids>li.more::before{height:calc(8px + 16px)}
+.kids>li.more .lnk{height:32px;display:inline-flex;align-items:center;gap:8px;margin-left:calc(var(--av)/2 - 16px);text-decoration:none;font-size:13px;font-weight:700;color:var(--mute)}
+.kids>li.more .lnk:hover{color:var(--ink)}.kids>li.more .lnk .i{color:var(--ink2)}
+/* folding by the line */
+.tl{position:absolute;z-index:1;left:0;top:calc(var(--av) + 2px);bottom:0;width:var(--av);border:0;padding:0;background:none;cursor:pointer}
+.tl:focus-visible{outline:2px solid var(--accent-line);outline-offset:-2px;border-radius:6px}
+.cl .co.fold>.cbody,.cl .co.fold>.kids{display:none}
+.cl .co.fold>.tl{top:0;height:var(--av);bottom:auto;border-radius:50%}
+.cl .co.fold>.tl::after{content:"+";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:color-mix(in srgb,var(--page) 70%,transparent);color:var(--ink);font-size:20px;font-weight:600}
+.cl .co.miss{display:none}
+.cl .co.bestc{padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:0}
+.cl .co .bb{align-self:center}
+/* sort and search */
+.csort{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;padding:4px 4px 10px;font-size:13px;color:var(--mute)}
+.csel{position:relative;display:inline-flex;align-items:center;gap:6px}
+.csel select{appearance:none;-webkit-appearance:none;border:0;background:none;font:inherit;font-weight:800;color:var(--ink);padding:6px 20px 6px 0;cursor:pointer}
+.csel .i{position:absolute;right:0;pointer-events:none;color:var(--ink2)}
+.csearch{height:38px;border:1px solid var(--line);border-radius:999px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;color:var(--mute)}
+.csearch:focus-within{border-color:var(--accent-line)}
+.csearch input{border:0;outline:0;background:none;font:inherit;color:var(--ink);width:10em;min-width:0}
+/* the composer: one pill until it is used */
+.cform{flex-wrap:wrap}
+.cform textarea{border-radius:16px}
+.cform.min textarea{flex:none;height:46px;min-height:46px;resize:none;overflow:hidden;border-radius:999px;padding:12px 20px;line-height:20px;font-size:15px;cursor:text}
+.cform.min .anonf,.cform.min>.btn,.cform.min .replying{display:none}
+.cform>.btn.p{border-radius:999px;padding:0 18px;height:36px}
+.n2 h2.cmh{font-size:16px;font-weight:800}
+@media (max-width:640px){
+ .cl{--av:26px;--ind:32px;padding-left:0;padding-right:0}
+ .cl .ca span{display:none}.cl .ca{padding:0;width:32px}
+ .cl .co .cb{font-size:14.5px}
+}

@@ -10,14 +10,14 @@ import {buttonsHTML,validReturn} from '../signin-brands.js';
 const L=document.documentElement.lang==='en'?'en':document.documentElement.lang==='ja'?'ja':'ko';
 const T={
  ko:{login:'로그인',signInTitle:'로그인하고 참여하기',signInNote:'글·댓글·구독·추천·신고는 로그인하면 할 수 있어요. 읽기는 로그인 없이 됩니다.',signInClose:'닫기',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
-  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'댓글 입력',followed:'구독했어요. 바뀐 것과 새 글은 내 레이더에 모입니다.',unfollowed:'구독을 취소했어요.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기',
+  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'대화에 참여해보세요',followed:'구독했어요. 바뀐 것과 새 글은 내 레이더에 모입니다.',unfollowed:'구독을 취소했어요.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기',
   challenge:'사람인지 확인할게요. 잠시만 기다려 주세요.',challengeFailed:'사람 확인이 끝나지 않았어요. 다시 시도해 주세요.',close:'닫기',needPassword:'비밀번호(4~32자)를 입력해 주세요. 나중에 수정·삭제할 때 필요해요.',
   noBotCheck:'테스트 환경이라 봇 확인이 꺼져 있어요. 대신 로그인 없이 쓰는 한도가 더 낮아요.',anonOff:'로그인 없이 쓰기는 아직 준비 중이에요. 로그인하면 쓸 수 있어요.',
   pwTitle:'비밀번호 확인',pwLabel:'글을 쓸 때 정한 비밀번호',pwOk:'확인',deleted:'삭제했어요.',posted:'등록했어요.',held:'등록했어요. 금지어 검사로 운영자 확인 뒤에 보입니다.',hiddenNow:'신고가 접수되어 이 글은 확인 전까지 숨겨졌어요.',
   imgTooMany:n=>`이미지는 글 하나에 ${n}장까지예요.`,imgFail:'이미지를 올리지 못했어요.',imgBadType:'이 형식은 읽을 수 없어요. JPEG·PNG·WebP로 저장해 올려 주세요.',imgUploading:'이미지를 올리는 중이에요. 끝나면 등록해 주세요.',imgRemove:'이미지 빼기',imgAlt:'이미지',
   reportNeedsLogin:'구조화 리포트는 로그인하고 쓸 수 있어요. 다른 말머리로는 로그인 없이 쓸 수 있어요.',editSave:'수정 저장'},
  en:{login:'Sign in',signInTitle:'Sign in to take part',signInNote:'Posts, comments, follows, votes and reports need an account. Reading does not.',signInClose:'Close',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
-  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Write a comment',followed:'Following. Changes and posts go to My Radar.',unfollowed:'Unfollowed.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post',
+  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Join the conversation',followed:'Following. Changes and posts go to My Radar.',unfollowed:'Unfollowed.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post',
   challenge:'Checking that you are human. One moment, please.',challengeFailed:'The human check did not finish. Please try again.',close:'Close',needPassword:'Enter a password (4–32 characters). You need it to edit or delete later.',
   noBotCheck:'Test deployment: the bot check is off, so the limits for writing without an account are lower.',anonOff:'Writing without an account is not available yet. Sign in to write.',
   pwTitle:'Password',pwLabel:'The password you set when writing',pwOk:'OK',deleted:'Deleted.',posted:'Posted.',held:'Posted. It shows after a moderator checks it (blocked-word filter).',hiddenNow:'Reported: this is hidden until a moderator checks it.',
@@ -522,10 +522,13 @@ async function main(){
    });
   });
  }
- // Comment votes
+ // Comment votes: ⇧ score ⇩ (a second click on the same arrow takes the vote back)
+ const paintCv=(box,v)=>{for(const x of $$('[data-vote-comment]',box))x.classList.toggle('on',Number(x.dataset.value||1)===v);};
+ for(const box of $$('.cvote')){const a=$('[data-vote-comment]',box);if(a&&st.votes?.[a.dataset.voteComment])paintCv(box,st.votes[a.dataset.voteComment]);}
  for(const a of $$('[data-vote-comment]')){
-  a.addEventListener('click',async e=>{e.preventDefault();const id=a.dataset.voteComment,cur=st.votes?.[id]||0;
-   const r=await write('/votes',{kind:'comment',id,value:cur===1?0:1},signedIn,{anon:true});if(!r)return;st.votes[id]=cur===1?0:1;const n=a.querySelector('b');if(n)n.textContent=String(r.up);else a.textContent=`▲ ${r.up}`;a.classList.toggle('on',cur!==1);});
+  a.addEventListener('click',async e=>{e.preventDefault();const id=a.dataset.voteComment,v=Number(a.dataset.value||1),cur=st.votes?.[id]||0,next=cur===v?0:v;
+   const r=await write('/votes',{kind:'comment',id,value:next},signedIn,{anon:true});if(!r)return;st.votes=st.votes||{};st.votes[id]=next;
+   const box=a.closest('.cvote'),n=box&&$('b',box);if(n)n.textContent=String(r.up-r.down);if(box)paintCv(box,next);});
  }
 
  // Compat strip (game → Korean patch), driver issue, rollout
@@ -692,6 +695,62 @@ async function main(){
    btn.disabled=false;
    if(r){af?.remember();if(r.held)toastNext(T.held);ta.value='';location.hash=`c-${r.id}`;location.reload();}
   });
+ }
+
+ // The comment thread: a one-line composer that opens on focus, share links, long reply lists folded to
+ // two ("답글 N개 더 보기"), a thread line that folds a comment, sort (kept in this browser) and search.
+ const cl=$('ol.cl');
+ if(form){
+  const ta=$('textarea',form);
+  if(!ta.value)form.classList.add('min');
+  const open=()=>{if(!form.classList.contains('min'))return;form.classList.remove('min');ta.rows=3;};
+  form.addEventListener('focusin',open);for(const a of $$('[data-reply]'))a.addEventListener('click',open);
+ }
+ // One ⋯ menu open at a time; a click elsewhere or Esc closes it.
+ document.addEventListener('click',e=>{for(const d of $$('details.cmore[open]'))if(!d.contains(/** @type {Node} */(e.target)))d.open=false;});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')for(const d of $$('details.cmore[open]')){d.open=false;$('summary',d)?.focus();}});
+ for(const a of $$('[data-share-comment]'))a.addEventListener('click',async e=>{e.preventDefault();const u=new URL(a.getAttribute('href')||'',location.href).href;try{await navigator.clipboard.writeText(u);toast(T.copied);}catch{location.hash=u.split('#')[1]||'';}});
+ if(cl){
+  const KEEP=2,items=ol=>[...ol.children].filter(x=>x.classList.contains('co')&&!x.classList.contains('bestc'));
+  const lists=()=>[cl,...$$('ol.kids',cl)];
+  const replyWord=n=>L==='ko'?`답글 ${n}개 더 보기`:`${n} more ${n===1?'reply':'replies'}`;
+  // Show the first two replies of a long list; the rest wait behind one button.
+  const clamp=ol=>{
+   $(':scope>li.more',ol)?.remove();const xs=items(ol);
+   if(ol===cl||ol.dataset.open||searching||xs.length<=KEEP+1){for(const x of xs)x.hidden=false;return;}
+   const rest=xs.slice(KEEP);let n=0;for(const x of rest){x.hidden=true;n+=1+Number(x.dataset.replies||0);}
+   const li=document.createElement('li');li.className='more';const b=document.createElement('button');b.type='button';b.className='lnk';
+   b.innerHTML='<svg class="i" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>';
+   b.append(replyWord(n));b.addEventListener('click',()=>{ol.dataset.open='1';clamp(ol);rest[0]?.querySelector('.cv')?.focus();});li.append(b);ol.append(li);
+  };
+  let searching=false;
+  // Sort: oldest (server order), top score, newest — each list keeps its own replies under it.
+  const order=v=>{for(const ol of lists()){const xs=items(ol),more=$(':scope>li.more',ol);
+   xs.sort((a,b)=>v==='top'?(Number(b.dataset.score)-Number(a.dataset.score))||(Number(a.dataset.t)-Number(b.dataset.t)):v==='new'?Number(b.dataset.t)-Number(a.dataset.t):Number(a.dataset.t)-Number(b.dataset.t));
+   ol.append(...xs);if(more)ol.append(more);}lists().forEach(clamp);};
+  const sel=$('[data-comment-sort] select');
+  if(sel){$('[data-comment-sort]').hidden=false;let v='old';try{v=localStorage.getItem('n2-csort')||'old';}catch{}if(![...sel.options].some(o=>o.value===v))v='old';sel.value=v;
+   sel.addEventListener('change',()=>{try{localStorage.setItem('n2-csort',sel.value);}catch{}order(sel.value);});order(v);}
+  else lists().forEach(clamp);
+  // A link to a folded reply opens its list.
+  const target=location.hash.startsWith('#c-')&&document.getElementById(location.hash.slice(1));
+  if(target)for(let x=target;x&&x!==cl;x=x.parentElement)if(x.tagName==='OL'&&x.classList.contains('kids')&&!x.dataset.open){x.dataset.open='1';clamp(x);}
+  // The thread line folds a comment and its replies.
+  for(const li of $$('li.co.hk',cl)){
+   const b=document.createElement('button');b.type='button';b.className='tl';
+   const n=1+Number(li.dataset.replies||0),lab=()=>li.classList.contains('fold')?(L==='ko'?`펼치기 (${n}개)`:`Expand (${n})`):(L==='ko'?'이 댓글 접기':'Collapse thread');
+   b.setAttribute('aria-expanded','true');b.setAttribute('aria-label',lab());
+   b.addEventListener('click',()=>{const f=li.classList.toggle('fold');b.setAttribute('aria-expanded',String(!f));b.setAttribute('aria-label',lab());li.querySelector(':scope>.h').dataset.fold=f?(L==='ko'?`댓글 ${n}개 접힘`:`${n} hidden`):'';});
+   li.prepend(b);
+  }
+  // Search: comments whose text or name matches, with the replies they sit in.
+  const box=$('[data-comment-search]');
+  if(box){box.hidden=false;const q=$('input',box);let t=0;
+   q.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{
+    const w=q.value.trim().toLowerCase();searching=!!w;
+    for(const li of $$('li.co',cl))li.classList.remove('miss');
+    if(w){const hit=li=>{const own=`${$(':scope>.h',li)?.textContent||''} ${$(':scope>.cbody>.cb',li)?.textContent||''}`.toLowerCase().includes(w);const sub=$$(':scope>ol.kids>li.co',li).map(hit).some(Boolean);if(!own&&!sub)li.classList.add('miss');return own||sub;};[...cl.children].filter(x=>x.classList.contains('co')).forEach(hit);}
+    lists().forEach(clamp);},150);});}
  }
 
  // Write page: channel, 말머리, 0–3 tags, then the post.

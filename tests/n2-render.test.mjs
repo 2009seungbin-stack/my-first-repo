@@ -125,6 +125,9 @@ test('post page: meta, threaded comments with the best comment on top, board aro
  assert.equal(m.entity?.id,entity.id,'the first tag scopes the post');
  const out=String(renderPost(m,SITE));
  assert(out.includes('댓글 2')&&out.includes('class="co re"'));
+ assert(/class="co hk"[^>]*>[\s\S]*?<ol class="kids"><li class="co re"/.test(out),'the reply is nested in its parent (thread line)');
+ assert(out.includes('data-value="-1"')&&out.includes('class="cmore"')&&out.includes('data-share-comment'),'⇧ score ⇩, share and the ⋯ menu');
+ assert(!out.includes('data-comment-search'),'no comment search on a short thread');
  assert(!out.includes('class="co bestc"'),'with two comments the best one is not pinned twice');
  const withThree={...m,comments:[...m.comments,{...m.comments[0],id:'c-extra',parent_id:null,up:0}]};
  assert(String(renderPost(withThree,SITE)).includes('class="co bestc"'),'with three or more the best comment is pinned on top');

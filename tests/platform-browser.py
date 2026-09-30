@@ -85,7 +85,7 @@ def anon_flow(b, errors):
     assert a.request.get(B + post_url).status == 200, 'restored'
     # phone width: the anonymous fields fit
     cp, ph = ctx('203.0.113.99', viewport={'width': 390, 'height': 900})
-    ph.goto(B + post_url); ph.wait_for_selector('#comment-form [data-anon-fields]:not([hidden])')
+    ph.goto(B + post_url); ph.click('#comment-form textarea'); ph.wait_for_selector('#comment-form [data-anon-fields]:not([hidden])')
     w = ph.evaluate('document.documentElement.scrollWidth'); assert w <= 390, f'anon comment box scrolls sideways ({w})'
     for c in (ca, cm, cp): c.close()
 
@@ -211,6 +211,12 @@ def main():
             pg.fill('#comment-form textarea', '첫 댓글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             pg.locator('[data-reply]').first.click(); pg.fill('#comment-form textarea', '답글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             assert pg.locator('.co.re').count() == 1, 'reply is threaded'
+            assert pg.locator('.cl > li.co.hk > ol.kids > li.co.re').count() == 1, 'the reply sits inside its parent (thread line)'
+            assert pg.locator('li.co.hk > button.tl').count() == 1, 'the thread line folds the comment'
+            pg.locator('li.co.hk > button.tl').click(); assert not pg.locator('.co.re').is_visible(), 'folded'
+            pg.locator('li.co.hk > button.tl').click(); assert pg.locator('.co.re').is_visible(), 'unfolded'
+            # edit and delete live in the ⋯ menu
+            pg.locator('li.co.hk > .cbody .cmore > summary').click()
             pg.locator('[data-edit-comment]').first.click(); pg.wait_for_timeout(500)
             pg.fill('.cedit textarea', '첫 댓글 (수정)'); pg.click('.cedit button[type=submit]'); pg.wait_for_timeout(1200)
             assert '첫 댓글 (수정)' in pg.locator('.cl').inner_text(), 'own comment edited in place'
