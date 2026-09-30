@@ -694,7 +694,8 @@ async function anonRoute(key,body,x){
   case 'POST /reports':{
    // "안 돼요" on a status page without an account: a bare outage click (no text, never a post), behind
    // the same bot check, ban and vote limits as an anonymous vote. One per daily ID (the network, as for
-   // votes) per service per clock hour; a repeated click answers counted:false and writes nothing.
+   // votes) per service per clock hour; a repeated click answers counted:false and writes nothing. The row
+   // keeps that day's key (env.who) so a spike can count different people (status-signal.js).
    only(body,['kind','entityId','result','env','turnstileToken']);
    const e=await entity(db,/** @type {string} */(body.entityId));
    if(e.type!=='service')throw new ApiError('LOGIN_REQUIRED');
@@ -705,7 +706,7 @@ async function anonRoute(key,body,x){
    if(!await takeDaily(db,`issue:${e.id}:${ident.key}`,hourKey(now),1))return {status:200,body:{vote:true,counted:false}};
    await daily('v',L.votesPerDay);
    const id=randomToken(12);
-   await db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue',?,?,'broken',?,?,?)").bind(id,e.id,JSON.stringify(env),ANON_USER,now,now).run();
+   await db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue',?,?,'broken',?,?,?)").bind(id,e.id,JSON.stringify({...env,who:ident.key.slice(0,16)}),ANON_USER,now,now).run();
    watchAfterReport(x,e.id);
    return {status:201,body:{id,vote:true,counted:true,...strict}};
   }

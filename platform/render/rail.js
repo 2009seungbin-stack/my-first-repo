@@ -57,11 +57,13 @@ export async function loadRail(db,o){
  return {now,status,news,best};
 }
 
-/** A compact "안 돼요" beside a service: one tap reports it (islands, with or without an account); without
- * JavaScript it opens the status page's report box. @param {{id:string,short:string,entity:any}} x @param {string} l @param {boolean} [compact] */
+/** A compact report button beside a service: one tap says "it's not working for me" (islands, with or
+ * without an account); without JavaScript it opens the status page's report box. Labelled 제보, not
+ * "안 돼요": beside the status word "안 돼요" read like the service's state (2026-09-30).
+ * @param {{id:string,short:string,entity:any}} x @param {string} l @param {boolean} [compact] */
 export function outageButton(x,l,compact=false){
- const ko=l==='ko',label=ko?`${x.short} 안 돼요 알리기`:`Report ${x.short} not working`;
- return html`<a class="nb${compact?' c':''}" href="${channelUrl(l,x.entity)}status#report" data-outage="${x.id}" aria-label="${label}" title="${label}" rel="nofollow">${icon(REPORT_ICON,compact?14:15)}<span>${ko?'안 돼요':'Down'}</span></a>`;
+ const ko=l==='ko',label=ko?`${x.short}가 안 되면 제보`:`Report ${x.short} not working`;
+ return html`<a class="nb${compact?' c':''}" href="${channelUrl(l,x.entity)}status#report" data-outage="${x.id}" aria-label="${label}" title="${label}" rel="nofollow">${icon(REPORT_ICON,compact?14:15)}<span>${ko?'제보':'Report'}</span></a>`;
 }
 
 /** @param {Awaited<ReturnType<typeof loadRail>>} r @param {string} l */

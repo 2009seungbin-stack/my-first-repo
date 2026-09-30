@@ -690,7 +690,9 @@ test('"안 돼요" without an account: one tap on a service, once per network pe
  const r=await click(a);
  assert.equal(r.status,201);assert.equal(r.json.counted,true);assert.equal(r.json.check,'none','strict mode says so');
  const row=h.db.raw.prepare("SELECT kind,entity_id,user_id,result,env,comment FROM community_reports WHERE id=?").get(r.json.id);
- assert.deepEqual({...row},{kind:'issue',entity_id:'service:svc',user_id:'anon',result:'broken',env:'{"symptom":"down","platform":"mobile"}',comment:null});
+ const {who,...env}=JSON.parse(row.env);
+ assert.deepEqual({...row,env},{kind:'issue',entity_id:'service:svc',user_id:'anon',result:'broken',env:{symptom:'down',platform:'mobile'},comment:null});
+ assert.match(who,/^[0-9a-f]{16}$/,'the day\'s network key (a hash, never the address), so a spike counts different people');
  const again=await click(h.browser('203.0.113.99'),{env:{symptom:'slow'}});
  assert.equal(again.status,200);assert.equal(again.json.counted,false,'same network (the daily ID), same hour: counted once');
  assert.equal(h.db.raw.prepare("SELECT COUNT(*) AS n FROM community_reports WHERE kind='issue'").get().n,1);

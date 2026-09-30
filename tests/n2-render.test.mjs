@@ -300,7 +300,7 @@ test('status, history and write pages render; status is only for services',{skip
  assert(html.includes('<title>Claude(클로드) 지금 안 돼요? 실시간 장애·접속 오류 확인 | Nerulio</title>'),'the title is what people search when it breaks');
  assert(html.includes('사용자 리포트 <time')&&html.includes('공식 상태 아직 확인 전'),'freshness: when reports were counted, and that the official status was never checked');
  assert(!html.includes('정상'),'no "정상" without a recent official check');
- assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
+ assert(!html.includes('사용자 리포트 급증'),'a few sample clicks are not a spike: 급증 needs SPIKE.minReports different people in an hour');
  assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
  // With a reference rate, USD plan prices get "≈ ₩" and the rate's date.
  await d.prepare("INSERT INTO fx_rates (base,quote,rate,as_of,source_url,fetched_at) VALUES ('USD','KRW',1400,'2026-09-25','https://www.ecb.europa.eu/',?)").bind(NOW).run();
@@ -311,7 +311,7 @@ test('status, history and write pages render; status is only for services',{skip
  assert(pro.includes('연간 결제 시 월 $17')&&!pro.includes('with annual billing'),'Korean pages show the Korean price note');
  assert(proEn.includes('with annual billing'),'English pages keep the official text');
  const ch=await (await get('/ko/ai/claude/')).text();
- assert(ch.includes('사용자 리포트 급증'),'the channel status box says what the status page says');
+ assert(!ch.includes('사용자 리포트 급증')&&/리포트 \d+건\/24시간/.test(ch),'the channel status box says what the status page says: a count, not a spike');
  assert(!ch.includes('>확인 전<'),'no bare "not checked" when users are reporting');
  assert.equal(await get('/ko/hardware/rtx-5070/status'),null,'no status page for a GPU');
  const hist=await (await get('/ko/hardware/rtx-5070/history')).text();
@@ -423,7 +423,7 @@ test('works hub shows this week\'s broadcasts by weekday in Korea time',{skip:!s
 
 test('community rules page and the wiki box\'s last-checked date',{skip:!sqliteAvailable},async()=>{
  {const {renderPolicy}=await import('../platform/render/policy.js');const out=String(renderPolicy({l:'ko'},SITE));
-  assert(out.includes('id="ratings"')&&out.includes('3배 이상')&&out.includes('60일마다'),'the formulas behind the numbers are published');}
+  assert(out.includes('id="ratings"')&&out.includes('5배 이상')&&out.includes('5건 이상')&&out.includes('60일마다'),'the formulas behind the numbers are published');}
  const d=await seeded();
  const go=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  const pol=await go('/ko/community/policy');
@@ -489,7 +489,10 @@ test('share cards: one per service × state × language, 1200×630, and the stat
  assert.equal(cardLabel('warn','ko'),'리포트 급증');assert.equal(cardLabel('unk','ko'),'지금 안 돼요?','no claim without data');
  assert.equal(ogImageUrl({l:'ko',canonical:'https://nerulio.com/ko/x',ogImage:{url:'https://evil.example/a.png'}}),'https://nerulio.com/assets/social/ko-portal.png','only our own origin');
  const get=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ // Five different networks (signed out) clicked in the last hour: a spike, and the spike card.
+ for(let i=0;i<5;i++)await d.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue','service:claude',?,'broken','anon',?,?)").bind(`spike-${i}`,JSON.stringify({who:`net${i}`}),NOW-(i+1)*6e4,NOW-(i+1)*6e4).run();
  const claude=await get('/ko/ai/claude/status');
+ assert(claude.includes('사용자 리포트 급증'));
  assert(claude.includes('<meta property="og:image" content="https://nerulio.com/assets/social/ko-status-claude-warn.png">')&&claude.includes('<meta property="og:image:alt" content="Claude · 리포트 급증">'),'a spike of reports: the spike card');
  assert((await get('/en/ai/gemini-app/status')).includes('/assets/social/en-status-gemini-app-unk.png'),'no status collector for Gemini: the question card');
  assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-portal.png'));
@@ -509,15 +512,17 @@ test('share cards: one per service × state × language, 1200×630, and the stat
 test('status feed: official incidents and user-report spikes, each start and end, labelled apart',{skip:!sqliteAvailable},async()=>{
  const {spikeEpisodes,SPIKE}=await import('../platform/status-signal.js');const H=36e5;
  const now=Date.UTC(2026,8,28,6,30);
- const at=(hoursAgo,n)=>Array.from({length:n},(_,i)=>({created_at:Math.floor(now/H)*H-hoursAgo*H+i*1000}));
+ const at=(hoursAgo,n,one)=>Array.from({length:n},(_,i)=>({created_at:Math.floor(now/H)*H-hoursAgo*H+i*1000,user_id:one?'u1':`u${i}`}));
  // Quiet week (1 per day), a 3-hour spike two days ago, one now.
  const quiet=Array.from({length:20},(_,i)=>({created_at:now-(i+3)*864e5+7*H}));
- const eps=spikeEpisodes([...quiet,...at(50,4),...at(49,6),...at(48,SPIKE.minReports),...at(0,5)],now);
+ const eps=spikeEpisodes([...quiet,...at(50,5),...at(49,6),...at(48,SPIKE.minReports),...at(0,5)],now);
  assert.equal(eps.length,2);
  assert.equal(eps[0].start,Math.floor(now/H)*H-50*H);assert.equal(eps[0].end,Math.floor(now/H)*H-47*H);assert.equal(eps[0].peak,6);
  assert.equal(eps[1].end,null,'the spike going on now has no end');
  assert.deepEqual(spikeEpisodes(quiet,now),[],'a quiet week has no spike');
  assert.deepEqual(spikeEpisodes([...quiet,...at(10,2)],now),[],'fewer than SPIKE.minReports is never a spike');
+ assert.deepEqual(spikeEpisodes([...quiet,...at(10,9,true)],now),[],'one person clicking again and again is never a spike');
+ assert.deepEqual(spikeEpisodes([...quiet,...at(10,9).map(r=>({...r,user_id:'anon',env:{who:'k1'}}))],now),[],'nor one network signed out');
  assert.equal(matchPlatformRoute('/ko/ai/claude/status/feed.xml').page,'status-feed');
  const d=await seeded();
  await d.prepare("INSERT INTO events (id,entity_id,kind,title,starts_at,ends_at,date_precision,region,url,status,verification,created_at,updated_at) VALUES (9901,NULL,'other',?,?,?,'time','*','https://status.claude.com/incidents/abc','ended','OFFICIAL',?,?)").bind(JSON.stringify({en:'Elevated errors on Claude.ai'}),NOW-5*H,NOW-4*H,NOW,NOW).run();

@@ -1041,3 +1041,8 @@ body.n2{background:var(--page)}
 .n2 .msi:hover{text-decoration:none;background:var(--line)}
 .msi .svs{margin-left:2px;font-size:12px}
 .side .box.login b{font-size:14px}
+/* 제보 (report) beside a service: a quiet outline button a step away from the status word, so it never
+   reads as the service's state; red only on hover. */
+.svc .nb{height:30px;padding:0 10px;border-radius:999px;color:var(--ink2);border-color:var(--line);font-weight:700;margin-left:6px}
+.n2 .svc .nb:hover{color:var(--bad);border-color:var(--bad);background:var(--bad-bg)}
+.svc .nb.on{color:var(--ok);border-color:var(--ok)}
