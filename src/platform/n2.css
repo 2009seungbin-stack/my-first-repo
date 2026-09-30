@@ -1022,3 +1022,22 @@ body.n2{background:var(--page)}
 }
 .wform fieldset,.wform details{min-width:0;max-width:100%}
 .wfl .chips,.wtags .tsug .chips{position:relative}
+
+/* v7 declutter (2026-09-30, "PC·모바일 둘 다 난잡하다"): the channel bar holds the channels only (홈, 전체 베스트
+   and 한글패치 모음 are in the menu) with 전체 채널 beside it, never under it; feed cards say channel · time;
+   the phone status strip is one line; no schedule or notes in the right column. */
+.chbar{display:flex;align-items:stretch}
+.chbar>.cr{flex:1;min-width:0}
+.chbar>.allch{flex:none;display:inline-flex;align-items:center;gap:6px;padding:0 16px;font-size:13.5px;font-weight:700;color:var(--mute);border-left:1px solid var(--line);white-space:nowrap}
+.n2 .chbar>.allch:hover{color:var(--ink);text-decoration:none;background:var(--hover)}
+@media (max-width:640px){.chbar>.allch{width:48px;padding:0;justify-content:center;color:var(--ink2)}.chbar>.allch span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
+.fm{gap:6px}.fm .dot{color:var(--mute)}
+.fti .mh{font-size:12px;vertical-align:2px;margin-right:6px}
+.mstat{display:none;align-items:center;gap:4px;padding:0 0 8px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;font-size:13px}
+.mstat::-webkit-scrollbar{display:none}
+@media (max-width:1000px){.mstat{display:flex}}
+.msl{flex:none;display:inline-flex;align-items:center;gap:5px;font-weight:800;color:var(--ink2);padding-right:4px}.msl .i{color:var(--brand)}
+.msi{flex:none;display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 10px;border-radius:999px;background:var(--soft);color:var(--ink)}
+.n2 .msi:hover{text-decoration:none;background:var(--line)}
+.msi .svs{margin-left:2px;font-size:12px}
+.side .box.login b{font-size:14px}

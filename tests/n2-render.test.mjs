@@ -178,7 +178,7 @@ test('member profile: nickname, tier, totals of what they wrote under it, never 
  assert.equal(again?.posts,2,'ㅇㅇ posts are not counted');assert.equal(again?.ups,72);
  const res=await go(url);assert.equal(res.status,200);
  const out=await res.text();
- assert(out.includes('<h1 id="prof-h">코드장인</h1>')&&out.includes('◆ 신뢰')&&out.includes('<dd>72</dd>'));
+ assert(out.includes('<h1 id="prof-h">코드장인</h1>')&&/class="ptier">[\s\S]*?신뢰/.test(out)&&out.includes('<dd>72</dd>'),'name, tier badge and totals');
  assert(!out.includes('익명으로 쓴 글'));assert(out.includes('<meta name="robots" content="noindex,follow">'));
  assert((await (await go(url+'?tab=comments')).text()).includes('비교 프롬프트 공유 가능할까요?'));
  assert.equal(await go('/ko/community/u/'+encodeURIComponent('없는사람')),null);
@@ -466,7 +466,8 @@ test('"안 돼요" everywhere it matters: at the top of the status page, beside 
  assert(hero.includes('id="report" data-island="outage-report" data-entity="service:claude"')&&hero.includes('class="stbig"')&&hero.includes('Claude 안 돼요'),'the one-tap report is in the first box');
  assert.equal((st.match(/data-island="outage-report"/g)||[]).length,1,'one report box');
  const home=await get('/');
- for(const s of ['claude','chatgpt','gemini-app'])assert.equal((home.match(new RegExp(`data-outage="service:${s}"`,'g'))||[]).length,2,`${s}: on the right column and the phone strip`);
+ for(const s of ['claude','chatgpt','gemini-app'])assert.equal((home.match(new RegExp(`data-outage="service:${s}"`,'g'))||[]).length,1,`${s}: 안 돼요 on the right column; the phone strip links to the status page`);
+ assert(/<nav class="mstat"[^>]*>.*href="\/ko\/ai\/claude\/status"/.test(home),'the phone strip is one line of links to the status pages');
  assert(home.includes('href="/ko/ai/claude/status#report"'),'without JavaScript it opens the report box');
  assert((await get('/en/')).includes('aria-label="Report Claude not working"'));
 });
