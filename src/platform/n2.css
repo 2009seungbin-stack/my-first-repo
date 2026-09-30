@@ -35,14 +35,9 @@ body.n2{margin:0;background:var(--bg);font-family:SUIT,system-ui,-apple-system,'
 .pad{padding:10px 12px}
 
 /* shell: icon column + menu column (desktop), top bar, content; under 1100px the menu is a drawer */
-.app{display:grid;grid-template-columns:64px 232px minmax(0,1fr);min-height:100vh}
-.rail{position:sticky;top:0;height:100vh;background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 0;overflow-y:auto;scrollbar-width:none}
-.rail .rh{display:flex;border-radius:12px}.rail .rsep{width:30px;height:2px;border-radius:1px;background:var(--line);flex:none}
-.rail .tile{width:42px;height:42px;border-radius:21px;font-size:13px;font-weight:900}.rail .tile.ch-hw{font-size:12px}
-.n2 .rail a:hover{text-decoration:none;filter:brightness(.97)}
-.rail .rt{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--brand);display:flex;align-items:center;justify-content:center;font:700 10px/1 'JetBrains Mono',ui-monospace,monospace}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
 .lnav{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line);padding:14px 10px 20px;display:flex;flex-direction:column;gap:2px;font-size:14.5px}
-.lnh{display:flex;align-items:center;padding:0 6px 12px}.lnh .brand svg{display:none}.lnx{display:none}
+.lnh{display:flex;align-items:center;padding:0 6px 12px}.lnx{display:none}
 .brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:19px;letter-spacing:-.5px;color:var(--ink)}
 .n2 .lnav a:hover,.n2 .lnav summary:hover{text-decoration:none;background:var(--hover)}
 .ln{height:38px;padding:0 10px;border-radius:8px;display:flex;align-items:center;gap:10px;font-weight:700;color:var(--ink2)}
@@ -81,13 +76,12 @@ body.n2{margin:0;background:var(--bg);font-family:SUIT,system-ui,-apple-system,'
 .cr a.on{color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent)}
 .cr .sep{width:1px;height:16px;background:var(--line);margin:0 6px;flex:none}
 .scrim{display:none}
-@media (max-width:1180px){.app{grid-template-columns:232px minmax(0,1fr)}.rail{display:none}}
 @media (max-width:1000px){
  .app{display:block}
  .lnav{position:fixed;z-index:30;left:0;top:0;bottom:0;height:auto;width:min(318px,86vw);transform:translateX(-102%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.2)}
  .lnav:target,body.drawer .lnav{transform:none}
  .app:has(.lnav:target)~.scrim,body.drawer .scrim{display:block;position:fixed;inset:0;z-index:25;background:var(--scrim)}
- .lnh .brand svg{display:block}.lnx{display:inline-flex;margin-left:auto;width:44px;height:44px;align-items:center;justify-content:center;color:var(--ink2)}
+ .lnx{display:inline-flex;margin-left:auto;width:44px;height:44px;align-items:center;justify-content:center;color:var(--ink2)}
  .lch{display:block}
  .top{padding:0 12px;height:56px;gap:4px}
  .top .menu{display:inline-flex}.top .brand{display:flex;font-size:18px}.top .brand svg{width:28px;height:28px}
@@ -727,7 +721,6 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 /* icons (platform/render/icons.js): line icons in the text color */
 .n2 svg.i{flex:none;display:inline-block;vertical-align:-3px}
 .tile .i{width:55%;height:55%;min-width:14px;min-height:14px;max-width:26px;max-height:26px}
-.rail .tile .i,.rail .rt .i{width:20px;height:20px}
 .ln .i{color:var(--mute)}.ln.on .i{color:var(--brand)}
 .lg .ic{width:26px;display:inline-flex;align-items:center}.lg .ic .i{color:var(--brand)}
 .nick .ck,.nick .tb{display:inline-flex;align-items:center;margin-left:3px;vertical-align:-1px}
@@ -762,7 +755,6 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
    column, the post and the profile sit on the page itself and are divided by 1px lines — no filled or bordered
    cards. Pills (votes, comments, sort) stay as the only filled shapes. */
 body.n2{background:var(--page)}
-.rail,.lnav,.chbar{background:var(--page)}
 .top{background:color-mix(in srgb,var(--page) 92%,transparent)}
 .hq{background:var(--soft);border-color:transparent;border-radius:999px}
 .thm{border-color:transparent;background:none;border-radius:50%}
@@ -892,3 +884,25 @@ body.n2{background:var(--page)}
  .cl .ca span{display:none}.cl .ca{padding:0;width:32px}
  .cl .co .cb{font-size:14.5px}
 }
+
+/* v6 identity (2026-09-30, owner pick "B 스레드"): the thread — the line that joins a comment to its
+   replies — runs down the home feed and bends into each post, and brackets the right column. The same
+   curve (radius 14px) everywhere. Selected tabs keep the lime underline. --th thread x. */
+:root{--th-c:var(--line);--th-hi:var(--accent-line)}
+/* the thread down the feed */
+.feed{--th:14px}
+.feed>li{position:relative}
+.feed>li+li{border-top:0}
+.feed>li::before{content:"";position:absolute;left:var(--th);top:0;width:32px;height:calc(4px + 12px + 11px);border-left:1.5px solid var(--th-c);border-bottom:1.5px solid var(--th-c);border-bottom-left-radius:14px}
+.feed>li:not(:last-child)::after{content:"";position:absolute;left:var(--th);top:0;bottom:0;border-left:1.5px solid var(--th-c)}
+.feed>li:hover::before{border-color:var(--th-hi)}
+.feed .fc{margin:4px 0 4px calc(var(--th) + 24px);padding-left:12px}
+.pcom.feed>li::before,.pcom.feed>li::after{display:none}.pcom.feed .fc{margin-left:0}
+/* the right column in one bracket */
+.rrail{position:relative;padding-left:20px}
+.rrail::before{content:"";position:absolute;left:0;top:4px;bottom:44px;width:14px;border:1.5px solid var(--th-c);border-right:0;border-radius:14px 0 0 14px}
+.rrail .rbox{border-bottom:0}
+.rrail .rfoot{padding-left:4px}
+.side .box.login{border-bottom:0;padding-left:24px}
+@media (max-width:1000px){.rrail{padding-left:0}.rrail::before{display:none}.side .box.login{padding-left:4px}}
+@media (max-width:640px){.feed{--th:6px}.feed .fc{margin-left:calc(var(--th) + 20px);padding-left:8px;padding-right:6px}.feed>li::before{width:24px}}

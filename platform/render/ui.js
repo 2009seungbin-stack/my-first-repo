@@ -105,13 +105,6 @@ export function boardHead(l){
 const LOGO=html`<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="20" fill="#c6f24e"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#15171a" stroke-width="9" stroke-linecap="round"/><circle cx="48" cy="15" r="5.5" fill="#15171a"/></svg>`;
 const CHEV=html`<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`;
 
-/** The icon column (desktop): home and the channels. @param {string} l */
-function shellRail(l){
- const lang=l==='ko'?'ko':'en';
- return html`<nav class="rail" aria-label="${l==='ko'?'채널 바로가기':'Channel shortcuts'}"><a class="rh" href="${homeUrl(l)}" aria-label="${l==='ko'?'Nerulio 홈':'Nerulio home'}">${LOGO}</a><span class="rsep" aria-hidden="true"></span>
-${CHANNELS.filter(c=>c.inBar).map(c=>html`<a class="tile ch-${c.id}" href="${channelPath(l,c.id)}" title="${c.names[lang]}" aria-label="${c.names[lang]}">${icon(CHANNEL_ICON[c.id],20)}</a>`)}<span class="rsep" aria-hidden="true"></span>
-<a class="rt" href="#nav-file" title="${l==='ko'?'파일 도구':'File tools'}" aria-label="${l==='ko'?'파일 도구':'File tools'}">${icon('folder',20)}</a><a class="rt" href="#nav-game" title="${l==='ko'?'게임 도구':'Game tools'}" aria-label="${l==='ko'?'게임 도구':'Game tools'}">${icon('gamepad',20)}</a></nav>`;
-}
 /** The menu column (desktop) and the drawer (mobile): pages, the channels, and the file and game tools,
  * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean}} o */
 function shellNav(o){
@@ -122,7 +115,7 @@ function shellNav(o){
 <nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn,'home')}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
 <details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
 <span class="lsep" aria-hidden="true"></span>
-${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,true)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}
+${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}
 <p class="lnote fine">${ko?'도구는 파일을 서버에 올리지 않고 이 기기에서 처리해요.':'Tools process files on this device; nothing is uploaded.'}</p></aside>`;
 }
 
@@ -197,7 +190,6 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 <body class="n2">
 <a class="skip" href="#main">${o.l==='ko'?'본문 바로가기':'Skip to content'}</a>
 <div class="app">
-${shellRail(o.l)}
 ${shellNav(o)}
 <div class="col">
 <header class="top hd"><a class="menu" href="#lnav" data-drawer-open aria-controls="lnav" aria-label="${o.l==='ko'?'메뉴·도구 열기':'Open menu and tools'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>

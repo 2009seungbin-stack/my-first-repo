@@ -26,7 +26,8 @@ test('shell: portal home addresses, profile links, dark-mode button and the menu
  const out=String(page({l:'ko',title:'t',description:'d',canonical:'https://nerulio.com/ko/community/ai/',channels:[],body:'<p>x</p>'}));
  assert(out.indexOf('/src/platform/theme.js')<out.indexOf('/src/platform/n2.css'),'the theme applies before the stylesheet paints');
  assert(out.includes('data-theme-toggle')&&out.includes('id="lnav"')&&out.includes('data-drawer-open'));
- assert(out.includes('<details class="lg" id="nav-file" open>')&&out.includes('<details class="lg" id="nav-game">'),'file tools open, game tools folded');
+ assert(out.includes('<details class="lg" id="nav-file">')&&out.includes('<details class="lg" id="nav-game">'),'both tool groups start folded')
+ assert(!out.includes('class="rail"'),'no icon column: the channels are in the channel bar');
  assert(!out.includes('data-theme="dark"'),'white unless the reader chose dark');
  const css=await readFile(new URL('../src/platform/n2.css',import.meta.url),'utf8');
  assert(!css.includes('prefers-color-scheme:dark'),'the OS setting does not turn the pages dark');
