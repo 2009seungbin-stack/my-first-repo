@@ -26,7 +26,8 @@ test('shell: portal home addresses, profile links, dark-mode button and the menu
  const out=String(page({l:'ko',title:'t',description:'d',canonical:'https://nerulio.com/ko/community/ai/',channels:[],body:'<p>x</p>'}));
  assert(out.indexOf('/src/platform/theme.js')<out.indexOf('/src/platform/n2.css'),'the theme applies before the stylesheet paints');
  assert(out.includes('data-theme-toggle')&&out.includes('id="lnav"')&&out.includes('data-drawer-open'));
- assert(out.includes('<details class="lg" id="nav-file" open>')&&out.includes('<details class="lg" id="nav-game">'),'file tools open, game tools folded');
+ assert(out.includes('<details class="lg" id="nav-file">')&&out.includes('<details class="lg" id="nav-game">'),'both tool groups start folded')
+ assert(!out.includes('class="rail"'),'no icon column: the channels are in the channel bar');
  assert(!out.includes('data-theme="dark"'),'white unless the reader chose dark');
  const css=await readFile(new URL('../src/platform/n2.css',import.meta.url),'utf8');
  assert(!css.includes('prefers-color-scheme:dark'),'the OS setting does not turn the pages dark');
@@ -52,4 +53,17 @@ test('icons: every name used by the menu, channels, tiers and status exists; ava
  const svg=String(icon('eye'));assert(svg.includes('aria-hidden="true"')&&svg.includes('stroke="currentColor"'));
  assert.throws(()=>icon('nope'));
  assert.equal(String(identicon('코드장인')),String(identicon('코드장인')));assert.notEqual(String(identicon('코드장인')),String(identicon('측정러')));
+});
+
+test('fonts: SUIT and JetBrains Mono are served from this site, every file the CSS names exists',async()=>{
+ const {access}=await import('node:fs/promises');
+ const out=String(page({l:'ko',title:'t',description:'d',canonical:'https://nerulio.com/',channels:[],body:''}));
+ assert(out.indexOf('/src/platform/fonts.css')>0&&out.indexOf('/src/platform/fonts.css')<out.indexOf('/src/platform/n2.css'),'fonts before the stylesheet');
+ const css=await readFile(new URL('../src/platform/fonts.css',import.meta.url),'utf8');
+ const urls=[...css.matchAll(/url\((\/assets\/fonts\/[^)]+)\)/g)].map(m=>m[1]);
+ assert(urls.length>=50,'SUIT is split into chunks');
+ for(const u of urls)await access(new URL('..'+u,import.meta.url));
+ assert(!/https?:/.test(css.replace(/\/\*[\s\S]*?\*\//g,'')),'no font CDN (font-src \'self\')');
+ const n2=await readFile(new URL('../src/platform/n2.css',import.meta.url),'utf8');
+ assert(/body\.n2\{[^}]*font-family:SUIT,/.test(n2));
 });

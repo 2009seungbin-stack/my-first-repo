@@ -11,6 +11,8 @@ import {FILE_TOOLS,GAME_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 
 export const CSS_HREF='/src/platform/n2.css';
+/** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
+export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
 /** Applies the saved theme before the first paint (white by default) and runs the dark-mode button and
  * the menu drawer; a classic script, so it blocks rendering only for its own few hundred bytes. */
@@ -100,16 +102,10 @@ export function boardHead(l){
  return html`<li class="pr ph" aria-hidden="true"><span class="no">${s.colNo}</span><span class="tc"><span class="tt">${s.colTitle}</span></span><span class="nick">${s.colAuthor}</span><span class="num w">${s.colDate}</span><span class="num v">${s.colViews}</span><span class="num u">${s.colUp}</span></li>`;
 }
 
-const LOGO=html`<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="20" fill="#c6f24e"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#15171a" stroke-width="9" stroke-linecap="round"/><circle cx="48" cy="15" r="5.5" fill="#15171a"/></svg>`;
+/** The Nerulio mark (src/logo.js: the favicon, the tool pages and the brand PNGs use the same shape). */
+const LOGO=html`<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#c6f24e"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#15171a" stroke-width="8.5" stroke-linecap="round"/><circle cx="47.5" cy="16.5" r="5" fill="#15171a"/></svg>`;
 const CHEV=html`<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`;
 
-/** The icon column (desktop): home and the channels. @param {string} l */
-function shellRail(l){
- const lang=l==='ko'?'ko':'en';
- return html`<nav class="rail" aria-label="${l==='ko'?'채널 바로가기':'Channel shortcuts'}"><a class="rh" href="${homeUrl(l)}" aria-label="${l==='ko'?'Nerulio 홈':'Nerulio home'}">${LOGO}</a><span class="rsep" aria-hidden="true"></span>
-${CHANNELS.filter(c=>c.inBar).map(c=>html`<a class="tile ch-${c.id}" href="${channelPath(l,c.id)}" title="${c.names[lang]}" aria-label="${c.names[lang]}">${icon(CHANNEL_ICON[c.id],20)}</a>`)}<span class="rsep" aria-hidden="true"></span>
-<a class="rt" href="#nav-file" title="${l==='ko'?'파일 도구':'File tools'}" aria-label="${l==='ko'?'파일 도구':'File tools'}">${icon('folder',20)}</a><a class="rt" href="#nav-game" title="${l==='ko'?'게임 도구':'Game tools'}" aria-label="${l==='ko'?'게임 도구':'Game tools'}">${icon('gamepad',20)}</a></nav>`;
-}
 /** The menu column (desktop) and the drawer (mobile): pages, the channels, and the file and game tools,
  * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean}} o */
 function shellNav(o){
@@ -120,7 +116,7 @@ function shellNav(o){
 <nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn,'home')}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
 <details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
 <span class="lsep" aria-hidden="true"></span>
-${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,true)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}
+${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}
 <p class="lnote fine">${ko?'도구는 파일을 서버에 올리지 않고 이 기기에서 처리해요.':'Tools process files on this device; nothing is uploaded.'}</p></aside>`;
 }
 
@@ -141,11 +137,11 @@ export function channelSheet(l){
 }
 
 /** The share image of a page: its own card when it has one (a site path or an absolute URL on the site),
- * else the site card of the language. @param {{l:string,canonical:string,ogImage?:{url:string}|null}} o */
+ * else the portal card of the language (tools/brand-assets.py). @param {{l:string,canonical:string,ogImage?:{url:string}|null}} o */
 export function ogImageUrl(o){
  const origin=new URL(o.canonical).origin;
  if(o.ogImage?.url){const u=new URL(o.ogImage.url,origin);if(u.origin===origin)return u.href;}
- return `${origin}/assets/social/${o.l==='ko'?'ko':'en'}-home.png`;
+ return `${origin}/assets/social/${o.l==='ko'?'ko':'en'}-portal.png`;
 }
 
 /**
@@ -181,11 +177,12 @@ ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 ${o.ogImage?.alt?html`<meta property="og:image:alt" content="${o.ogImage.alt}">
 `:''}<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 ${verifyMeta(o.verify)}
 ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="${o.feedTitle||'RSS'}">
 `:''}
 <script src="${THEME_SRC}"></script>
+<link rel="stylesheet" href="${FONTS_HREF}">
 <link rel="stylesheet" href="${CSS_HREF}">
 <script type="module" src="${ISLANDS_SRC}"></script>
 <script src="/src/hit.js" defer></script>
@@ -194,7 +191,6 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 <body class="n2">
 <a class="skip" href="#main">${o.l==='ko'?'본문 바로가기':'Skip to content'}</a>
 <div class="app">
-${shellRail(o.l)}
 ${shellNav(o)}
 <div class="col">
 <header class="top hd"><a class="menu" href="#lnav" data-drawer-open aria-controls="lnav" aria-label="${o.l==='ko'?'메뉴·도구 열기':'Open menu and tools'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>

@@ -54,6 +54,11 @@ const P=/** @type {Record<string,string>} */({
  diamond:'<path d="M12 3 21 12 12 21 3 12Z"/>',
  pen:'<path d="M15.5 4.5 19.5 8.5 8.5 19.5H4.5v-4Z"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
+ dots:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+ chevDown:'<path d="m6 9 6 6 6-6"/>',
+ plusCircle:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+ minusCircle:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
  wifiOff:'<path d="M3 3l18 18"/><path d="M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 4.4-2.6M14.6 10.3A10 10 0 0 1 19 12.9M2 9.4a15 15 0 0 1 4.3-2.8M11 5.1A15 15 0 0 1 22 9.4"/><circle cx="12" cy="19.5" r=".6"/>',
  rss:'<path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.2"/>',
 });

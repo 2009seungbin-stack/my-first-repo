@@ -85,7 +85,7 @@ def anon_flow(b, errors):
     assert a.request.get(B + post_url).status == 200, 'restored'
     # phone width: the anonymous fields fit
     cp, ph = ctx('203.0.113.99', viewport={'width': 390, 'height': 900})
-    ph.goto(B + post_url); ph.wait_for_selector('#comment-form [data-anon-fields]:not([hidden])')
+    ph.goto(B + post_url); ph.click('#comment-form textarea'); ph.wait_for_selector('#comment-form [data-anon-fields]:not([hidden])')
     w = ph.evaluate('document.documentElement.scrollWidth'); assert w <= 390, f'anon comment box scrolls sideways ({w})'
     for c in (ca, cm, cp): c.close()
 
@@ -211,6 +211,12 @@ def main():
             pg.fill('#comment-form textarea', '첫 댓글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             pg.locator('[data-reply]').first.click(); pg.fill('#comment-form textarea', '답글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             assert pg.locator('.co.re').count() == 1, 'reply is threaded'
+            assert pg.locator('.cl > li.co.hk > ol.kids > li.co.re').count() == 1, 'the reply sits inside its parent (thread line)'
+            assert pg.locator('li.co.hk > button.tl').count() == 1, 'the thread line folds the comment'
+            pg.locator('li.co.hk > button.tl').click(); assert not pg.locator('.co.re').is_visible(), 'folded'
+            pg.locator('li.co.hk > button.tl').click(); assert pg.locator('.co.re').is_visible(), 'unfolded'
+            # edit and delete live in the ⋯ menu
+            pg.locator('li.co.hk > .cbody .cmore > summary').click()
             pg.locator('[data-edit-comment]').first.click(); pg.wait_for_timeout(500)
             pg.fill('.cedit textarea', '첫 댓글 (수정)'); pg.click('.cedit button[type=submit]'); pg.wait_for_timeout(1200)
             assert '첫 댓글 (수정)' in pg.locator('.cl').inner_text(), 'own comment edited in place'
@@ -220,10 +226,14 @@ def main():
                 assert pg.locator(f'.plist a.tt[href="{e2e_post}"]').count() == 1, f'{tag_page} lists the new post'
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(500)
             posts_before = pg.locator('.plist .pr').count()
+            # the tag's posts lead; its facts (and the patch vote) fold under the header
+            assert pg.locator('details.tinfo').count() == 1 and not pg.locator('[data-island=compat-vote]').first.is_visible(), 'facts start folded'
+            pg.locator('details.tinfo > summary').click()
             for _ in range(2): pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_timeout(500)
             assert pg.locator('[data-island=compat-vote] button.on').count() == 1 and pg.locator('.vmore').count() == 1, 'a click is a vote with a link to a detailed report'
             works_n = pg.locator('[data-tally] [data-n=works]').inner_text()
-            pg.reload(); pg.wait_for_timeout(700)
+            pg.goto(B + '/ko/games/caves-of-qud/#info'); pg.reload(); pg.wait_for_timeout(700)
+            assert pg.locator('details.tinfo[open]').count() == 1, '#info opens the facts'
             assert pg.locator('.plist .pr').count() == posts_before, 'votes never create posts'
             assert pg.locator('[data-island=compat-vote] button.on').count() == 1, 'my vote stays highlighted after a reload'
             assert pg.locator('[data-tally] [data-n=works]').inner_text() == works_n, 'the live count matched the server'
@@ -248,7 +258,7 @@ def main():
             assert pg.request.get(B + post_url).status == 200, 'restored'
             # 정보 제안: a member suggests a value, the moderator accepts it
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(400)
-            pg.locator('details.prop summary').click()
+            pg.locator('details.tinfo > summary').click(); pg.locator('details.prop summary').click()
             opt = pg.locator('form[data-island=propose] select[name=property] option[data-type=date]').first.get_attribute('value')
             pg.select_option('form[data-island=propose] select[name=property]', opt)
             pg.fill('form[data-island=propose] input[name=value]', '2026-10-20'); pg.fill('form[data-island=propose] input[name=sourceUrl]', 'https://example.com/notice')

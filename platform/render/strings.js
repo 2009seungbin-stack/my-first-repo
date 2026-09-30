@@ -18,7 +18,7 @@ const S={
   sourceChecked:(/** @type {string} */ d)=>`${d} 확인`,
   // post view
   list:'목록',editedAt:(/** @type {string} */ t)=>`(수정 ${t})`,up:'추천',down:'비추천',views:'조회',comments:'댓글',share:'공유',copyLink:'링크 복사',flag:'신고',
-  commentsN:(/** @type {number} */ n)=>`댓글 ${n}`,byOrder:'등록순',byNew:'최신순',byTop:'추천순',writeComment:'댓글 입력',submit:'등록',reply:'답글',op:'글쓴이',bestComment:'베스트',deletedComment:'삭제된 댓글입니다.',
+  commentsN:(/** @type {number} */ n)=>`댓글 ${n}`,byOrder:'등록순',byNew:'최신순',byTop:'추천순',writeComment:'대화에 참여해보세요',submit:'등록',reply:'답글',op:'글쓴이',bestComment:'베스트',deletedComment:'삭제된 댓글입니다.',
   channelList:(/** @type {string} */ n)=>`${n} 채널 글 목록`,moreList:'목록 더 보기',
   report:{target:'대상',version:'버전',result:'결과',env:'환경',metrics:'측정값'},
   sameHere:'나도 같아요',notRepro:'재현 안 됨',
@@ -71,7 +71,7 @@ const S={
   bestRule:'★ Best: 10+ upvotes and 70%+ upvote ratio within 24 hours',
   sourceChecked:(/** @type {string} */ d)=>`checked ${d}`,
   list:'List',editedAt:(/** @type {string} */ t)=>`(edited ${t})`,up:'Up',down:'Down',views:'views',comments:'comments',share:'Share',copyLink:'Copy link',flag:'Report',
-  commentsN:(/** @type {number} */ n)=>`${n} comments`,byOrder:'Oldest',byNew:'Newest',byTop:'Top',writeComment:'Write a comment',submit:'Post',reply:'Reply',op:'OP',bestComment:'Best',deletedComment:'This comment was deleted.',
+  commentsN:(/** @type {number} */ n)=>`${n} comments`,byOrder:'Oldest',byNew:'Newest',byTop:'Top',writeComment:'Join the conversation',submit:'Post',reply:'Reply',op:'OP',bestComment:'Best',deletedComment:'This comment was deleted.',
   channelList:(/** @type {string} */ n)=>`More in ${n}`,moreList:'More posts',
   report:{target:'Target',version:'Version',result:'Result',env:'Setup',metrics:'Measured'},
   sameHere:'Same here',notRepro:'Can’t reproduce',

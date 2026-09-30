@@ -5,6 +5,7 @@
  * (docs/n2/CHANNELS.md). The URL is the same as when every entity had its own board. */
 import {html} from './html.js';
 import {t} from './strings.js';
+import {icon} from './icons.js';
 import {page,box,nameOf,channelUrl,postHref,postRow,boardHead,kindChip,monogram,TILE,officialLinks,signInUrl,channelName} from './ui.js';
 import {compact} from './format.js';
 import {pickFact,factsFor,boardPosts,channelStats,recentTitles,contentCounts,relatedChannels,koAlias,tagChildren,SORTS} from '../db/channel.js';
@@ -114,7 +115,12 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  const partsBox=m.parts.length?box({title:l==='ko'?'하위 태그':'Parts'},html`<p class="pad tagl">${m.parts.map(x=>html`<a class="rtag" href="${channelUrl(l,x)}">${nameOf(x,l)}</a>`)}</p><p class="pad fine">${l==='ko'?'관계 데이터(요금제·기능·모델 …)로 묶여서 위 태그 글에 함께 나와요.':'Linked by relations (plans, features, models …), so their posts show above too.'}</p>`):'';
  const bestBox=m.tagBest.length?box({title:l==='ko'?`★ ${name} 태그 념글`:`★ Best tagged ${name}`},html`<ol class="rows">${m.tagBest.map(p=>html`<li><a class="tt" href="${postHref(l,p)}">${kindChip(p.kind,l,p.channel_id)}${p.title}</a><span class="up">▲ ${p.up}</span></li>`)}</ol>`):'';
  const rel=m.relatedList.length?box({title:s.related},html`<ul class="rows">${m.relatedList.map(r=>{const pd=/** @type {any} */(PREDICATES)[r.predicate];const how=pd?label(r.dir==='out'?pd:pd.inverse,l):'';return html`<li><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)}</a><span class="fine">${how}</span></li>`;})}</ul>`):'';
- const body=html`${header}<div class="cols"><main class="mainc">${m.panel.top(m.data,ctx)}${trending}${boardBox}</main><aside class="side">${wiki}${m.panel.side?.(m.data,ctx)}${partsBox}${bestBox}${rel}${tools}</aside></div>`;
+ // The tag's posts are the page; the facts (status, models, plans, the wiki, votes on a patch) fold under
+ // the header and open on a tap (#info opens them from a link). Folded text is still in the page for search.
+ const top=m.panel.top(m.data,ctx),sideInfo=m.panel.side?.(m.data,ctx)||'';
+ const info=html`<details class="tinfo" id="info"><summary><span class="tis">${icon('news',18)}<b>${ko?`${name} 정보`:`About ${name}`}</b><span class="fine">${ko?'공식 정보 · 상태 · 변경 기록 · 위키':'Official facts · status · changes · wiki'}</span></span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}<span class="tio">${icon('chevDown',18)}</span></summary>
+<div class="tib"><div class="tim">${top}</div><div class="tiw">${wiki}${sideInfo}${partsBox}</div></div></details>`;
+ const body=html`${header}${info}<div class="cols"><main class="mainc">${trending}${boardBox}</main><aside class="side">${bestBox}${rel}${tools}</aside></div>`;
  // The Korean spelling people type ("클로드") goes into the title and description too.
  // A feature is named with its product in the title ("음성" → "ChatGPT 음성"): the bare word is ambiguous.
  const parent=e.type==='feature'?m.relatedList.find(r=>r.predicate==='part_of'&&r.dir==='out')?.entity:null;
