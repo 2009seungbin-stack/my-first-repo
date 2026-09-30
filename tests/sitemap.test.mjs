@@ -148,3 +148,10 @@ test('every page links the favicon set Google can show next to results (48 px mu
  }
  for(const f of ['favicon.ico','favicon-96.png','favicon-192.png','apple-touch-icon.png'])assert(existsSync(new URL('../assets/brand/'+f,import.meta.url)),f);
 });
+
+test('live check: an escaped & in canonical/og:url is the same URL (HTML attribute encoding)',()=>{
+ const url='https://nerulio.com/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070';
+ const html='<link rel="canonical" href="https://nerulio.com/ko/hardware/?type=gpu&amp;vs=rtx-4070,rtx-5070"><meta property="og:url" content="https://nerulio.com/ko/hardware/?type=gpu&amp;vs=rtx-4070,rtx-5070">';
+ assert.deepEqual(pageProblems(url,{status:200,html},'https://nerulio.com/'),[]);
+ assert.deepEqual(pageProblems(url,{status:200,html:html.replaceAll('rtx-5070','rtx-5080')},'https://nerulio.com/').length,2,'a different URL is still caught');
+});

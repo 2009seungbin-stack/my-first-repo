@@ -11,7 +11,10 @@ import {configuration} from './site-config.mjs';
  *                                                    i.e. the deploy of this push has finished
  *
  * .github/workflows/indexnow.yml runs it after every production deploy. Exits nonzero on any problem. */
-const attr=(tag,name)=>tag.match(new RegExp(`\\s${name}="([^"]*)"`,'i'))?.[1]??null;
+/** An attribute's value as a browser reads it: `&amp;` in href="…?a=1&amp;b=2" is "&" (valid HTML, not a
+ * different URL). */
+const unescapeAttr=(/** @type {string} */ v)=>v.replace(/&(amp|quot|#39|lt|gt);/g,(_,e)=>({amp:'&',quot:'"','#39':"'",lt:'<',gt:'>'})[e]);
+const attr=(tag,name)=>{const v=tag.match(new RegExp(`\\s${name}="([^"]*)"`,'i'))?.[1];return v==null?null:unescapeAttr(v);};
 const tags=(html,re)=>[...html.matchAll(re)].map(m=>m[0]);
 /** Problems of one live sitemap page: status, noindex, canonical/og:url/hreflang origin, edge rewrites. */
 export function pageProblems(url,{status,headers={},html=''},siteURL){
