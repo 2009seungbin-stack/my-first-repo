@@ -557,8 +557,16 @@ def scenario_social(browser):
         page.locator('[data-identities] [data-linked-provider="github"]').wait_for(timeout=15000)
         ok('social: 연결된 로그인 shows GitHub (not removable while it is the only one) and a Discord link button',page.locator('[data-unlink="github"]').is_disabled() and page.locator('[data-link-provider="discord"] .sib-discord').inner_text().strip()=='Discord 연결하기')
         page.screenshot(path=str(SHOTS/'account-linked-ko.png'),full_page=True)
-        with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('[data-link-provider="discord"] a').click()
-        page.locator('[data-identities] [data-linked-provider="discord"]').wait_for(timeout=15000)
+        context.tracing.start(screenshots=True,snapshots=True,sources=True)
+        try:
+            with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('[data-link-provider="discord"] a').click()
+            page.locator('[data-identities] [data-linked-provider="discord"]').wait_for(timeout=15000)
+        except Exception:
+            print('LINK DEBUG',page.url,page.locator('#accountBody').inner_text(),page.locator('#accountStatus').inner_text(),flush=True)
+            print('LINK DB',stack.sql(f"SELECT provider FROM user_identities WHERE user_id='{gh[0]['id']}'"),flush=True)
+            context.tracing.stop(path=str(OUT/'social-link-trace.zip'))
+            raise
+        else:context.tracing.stop()
         ok('social: Discord linked to the same account, with a confirmation','Discord를 연결했어요' in page.locator('#accountStatus').inner_text() and len(stack.sql(f"SELECT 1 FROM user_identities WHERE user_id='{gh[0]['id']}'"))==2)
         page.on('dialog',lambda d:d.accept())
         page.click('[data-unlink="discord"]');page.locator('[data-identities] [data-link-provider="discord"]').wait_for(timeout=15000)

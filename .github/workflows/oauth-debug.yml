@@ -1,0 +1,31 @@
+name: OAuth reproduction
+on:
+  pull_request:
+    paths: [tests/service-browser.py, .github/workflows/oauth-debug.yml]
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install -r requirements-test.txt
+          python -m playwright install --with-deps chromium
+      - run: |
+          for attempt in $(seq 1 8); do
+            SERVICE_SCENARIOS=social python tests/service-browser.py > "test-results/social-$attempt.log" 2>&1 || { cat "test-results/social-$attempt.log"; exit 1; }
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oauth-reproduction
+          path: test-results/
+          retention-days: 7
