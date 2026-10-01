@@ -478,6 +478,9 @@ class MockProvider:
         self.users={'github':{'id':4242,'login':'e2e-octo','name':'E2E Octo'},
                     'discord':{'id':'515151515151','username':'e2e_nelly','global_name':'E2E Nelly','email':'nelly@example.test','verified':True}}
         class H(http.server.BaseHTTPRequestHandler):
+            # Match the providers' persistent HTTP transport. Every response below, including
+            # redirects, supplies Content-Length so workerd can reuse a connection safely.
+            protocol_version='HTTP/1.1'
             def log_message(self,*a):pass
             def send(self,code,body=None,headers=()):
                 mock.requests.append({'method':self.command,'path':urllib.parse.urlparse(self.path).path,'status':code})
@@ -511,7 +514,7 @@ class MockProvider:
                 mock.tokens.append(provider);self.send(200,{'access_token':'mock-token-'+uuid.uuid4().hex,'token_type':'bearer','scope':grant['scope']})
         self.server=http.server.ThreadingHTTPServer(('127.0.0.1',0),H);self.url=f'http://127.0.0.1:{self.server.server_address[1]}'
         threading.Thread(target=self.server.serve_forever,daemon=True).start()
-    def close(self):self.server.shutdown()
+    def close(self):self.server.shutdown();self.server.server_close()
 
 def scenario_social(browser):
     """PLATFORM + SERVICE_API build (like the preview): a member signs in with GitHub and another with Discord
@@ -601,8 +604,8 @@ def scenario_social(browser):
         context.close()
     except Exception:
         print('OAuth mock requests:',json.dumps(mock.requests),flush=True)
-        print('OAuth identities:',stack.sql('SELECT provider FROM user_identities'),flush=True)
         try:
+            print('OAuth identities:',stack.sql('SELECT provider FROM user_identities'),flush=True)
             print('OAuth final page:',page.url,page.locator('body').inner_text(),flush=True)
             context.tracing.stop(path=str(OUT/'social-link-trace.zip'))
             stack.log.flush();shutil.copyfile(stack.dir/'wrangler.log',OUT/'social-wrangler.log')
