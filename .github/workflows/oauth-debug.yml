@@ -20,6 +20,7 @@ jobs:
           python -m pip install -r requirements-test.txt
           python -m playwright install --with-deps chromium
       - run: |
+          mkdir -p test-results
           for attempt in $(seq 1 8); do
             SERVICE_SCENARIOS=social python tests/service-browser.py > "test-results/social-$attempt.log" 2>&1 || { cat "test-results/social-$attempt.log"; exit 1; }
           done
