@@ -474,12 +474,13 @@ class MockProvider:
     client secret, the redirect URI and the PKCE verifier, and each code works once."""
     def __init__(self):
         import http.server, threading
-        self.codes={};self.deny=set();self.tokens=[];mock=self
+        self.codes={};self.deny=set();self.tokens=[];self.requests=[];mock=self
         self.users={'github':{'id':4242,'login':'e2e-octo','name':'E2E Octo'},
                     'discord':{'id':'515151515151','username':'e2e_nelly','global_name':'E2E Nelly','email':'nelly@example.test','verified':True}}
         class H(http.server.BaseHTTPRequestHandler):
             def log_message(self,*a):pass
             def send(self,code,body=None,headers=()):
+                mock.requests.append({'method':self.command,'path':urllib.parse.urlparse(self.path).path,'status':code})
                 data=json.dumps(body).encode() if body is not None else b''
                 self.send_response(code)
                 for k,v in headers:self.send_header(k,v)
@@ -533,6 +534,7 @@ def scenario_social(browser):
         post=stack.url+'/ko/community/ai/1'
         # --- GitHub, from the comment box of a post
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url;log=[]
+        context.tracing.start(screenshots=True,snapshots=True,sources=True)
         page=context.new_page();instrument(page,log)
         page.goto(post,wait_until='networkidle')
         page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form a[data-signin]')
@@ -557,16 +559,8 @@ def scenario_social(browser):
         page.locator('[data-identities] [data-linked-provider="github"]').wait_for(timeout=15000)
         ok('social: 연결된 로그인 shows GitHub (not removable while it is the only one) and a Discord link button',page.locator('[data-unlink="github"]').is_disabled() and page.locator('[data-link-provider="discord"] .sib-discord').inner_text().strip()=='Discord 연결하기')
         page.screenshot(path=str(SHOTS/'account-linked-ko.png'),full_page=True)
-        context.tracing.start(screenshots=True,snapshots=True,sources=True)
-        try:
-            with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('[data-link-provider="discord"] a').click()
-            page.locator('[data-identities] [data-linked-provider="discord"]').wait_for(timeout=15000)
-        except Exception:
-            print('LINK DEBUG',page.url,page.locator('#accountBody').inner_text(),page.locator('#accountStatus').inner_text(),flush=True)
-            print('LINK DB',stack.sql(f"SELECT provider FROM user_identities WHERE user_id='{gh[0]['id']}'"),flush=True)
-            context.tracing.stop(path=str(OUT/'social-link-trace.zip'))
-            raise
-        else:context.tracing.stop()
+        with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('[data-link-provider="discord"] a').click()
+        page.locator('[data-identities] [data-linked-provider="discord"]').wait_for(timeout=15000)
         ok('social: Discord linked to the same account, with a confirmation','Discord를 연결했어요' in page.locator('#accountStatus').inner_text() and len(stack.sql(f"SELECT 1 FROM user_identities WHERE user_id='{gh[0]['id']}'"))==2)
         page.on('dialog',lambda d:d.accept())
         page.click('[data-unlink="discord"]');page.locator('[data-identities] [data-link-provider="discord"]').wait_for(timeout=15000)
@@ -574,6 +568,7 @@ def scenario_social(browser):
         context.close()
         # --- Discord, from the community front page box, on a phone
         context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url;log=[]
+        context.tracing.start(screenshots=True,snapshots=True,sources=True)
         page=context.new_page();instrument(page,log)
         page.goto(stack.url+'/ko/community/',wait_until='networkidle')
         box=page.locator('.box.login')
@@ -593,6 +588,7 @@ def scenario_social(browser):
         # --- denied consent: a Korean message and a retry that works
         mock.deny.add('github')
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url
+        context.tracing.start(screenshots=True,snapshots=True,sources=True)
         page=context.new_page();page.goto(stack.url+'/ko/account/?return=%2Fko%2Fcommunity%2Fai%2F1',wait_until='networkidle')
         with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('.sibs .sib-github').click()
         err=page.locator('.service-error');err.wait_for(timeout=15000)
@@ -603,6 +599,15 @@ def scenario_social(browser):
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
         ok('social: the retry signs in and comes back to the original page',page.url==post)
         context.close()
+    except Exception:
+        print('OAuth mock requests:',json.dumps(mock.requests),flush=True)
+        print('OAuth identities:',stack.sql('SELECT provider FROM user_identities'),flush=True)
+        try:
+            print('OAuth final page:',page.url,page.locator('body').inner_text(),flush=True)
+            context.tracing.stop(path=str(OUT/'social-link-trace.zip'))
+            stack.log.flush();shutil.copyfile(stack.dir/'wrangler.log',OUT/'social-wrangler.log')
+        except Exception as diagnostic:print('OAuth diagnostics:',str(diagnostic),flush=True)
+        raise
     finally:
         stack.close();mock.close()
 
