@@ -474,12 +474,16 @@ class MockProvider:
     client secret, the redirect URI and the PKCE verifier, and each code works once."""
     def __init__(self):
         import http.server, threading
-        self.codes={};self.deny=set();self.tokens=[];mock=self
+        self.codes={};self.deny=set();self.tokens=[];self.requests=[];mock=self
         self.users={'github':{'id':4242,'login':'e2e-octo','name':'E2E Octo'},
                     'discord':{'id':'515151515151','username':'e2e_nelly','global_name':'E2E Nelly','email':'nelly@example.test','verified':True}}
         class H(http.server.BaseHTTPRequestHandler):
+            # Match the providers' persistent HTTP transport. Every response below, including
+            # redirects, supplies Content-Length so workerd can reuse a connection safely.
+            protocol_version='HTTP/1.1'
             def log_message(self,*a):pass
             def send(self,code,body=None,headers=()):
+                mock.requests.append({'method':self.command,'path':urllib.parse.urlparse(self.path).path,'status':code})
                 data=json.dumps(body).encode() if body is not None else b''
                 self.send_response(code)
                 for k,v in headers:self.send_header(k,v)
@@ -510,7 +514,7 @@ class MockProvider:
                 mock.tokens.append(provider);self.send(200,{'access_token':'mock-token-'+uuid.uuid4().hex,'token_type':'bearer','scope':grant['scope']})
         self.server=http.server.ThreadingHTTPServer(('127.0.0.1',0),H);self.url=f'http://127.0.0.1:{self.server.server_address[1]}'
         threading.Thread(target=self.server.serve_forever,daemon=True).start()
-    def close(self):self.server.shutdown()
+    def close(self):self.server.shutdown();self.server.server_close()
 
 def scenario_social(browser):
     """PLATFORM + SERVICE_API build (like the preview): a member signs in with GitHub and another with Discord
@@ -533,6 +537,7 @@ def scenario_social(browser):
         post=stack.url+'/ko/community/ai/1'
         # --- GitHub, from the comment box of a post
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url;log=[]
+        context.tracing.start(screenshots=True,snapshots=True,sources=True)
         page=context.new_page();instrument(page,log)
         page.goto(post,wait_until='networkidle')
         page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form a[data-signin]')
@@ -566,6 +571,7 @@ def scenario_social(browser):
         context.close()
         # --- Discord, from the community front page box, on a phone
         context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url;log=[]
+        context.tracing.start(screenshots=True,snapshots=True,sources=True)
         page=context.new_page();instrument(page,log)
         page.goto(stack.url+'/ko/community/',wait_until='networkidle')
         box=page.locator('.box.login')
@@ -585,6 +591,7 @@ def scenario_social(browser):
         # --- denied consent: a Korean message and a retry that works
         mock.deny.add('github')
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url
+        context.tracing.start(screenshots=True,snapshots=True,sources=True)
         page=context.new_page();page.goto(stack.url+'/ko/account/?return=%2Fko%2Fcommunity%2Fai%2F1',wait_until='networkidle')
         with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('.sibs .sib-github').click()
         err=page.locator('.service-error');err.wait_for(timeout=15000)
@@ -595,6 +602,15 @@ def scenario_social(browser):
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
         ok('social: the retry signs in and comes back to the original page',page.url==post)
         context.close()
+    except Exception:
+        print('OAuth mock requests:',json.dumps(mock.requests),flush=True)
+        try:
+            print('OAuth identities:',stack.sql('SELECT provider FROM user_identities'),flush=True)
+            print('OAuth final page:',page.url,page.locator('body').inner_text(),flush=True)
+            context.tracing.stop(path=str(OUT/'social-link-trace.zip'))
+            stack.log.flush();shutil.copyfile(stack.dir/'wrangler.log',OUT/'social-wrangler.log')
+        except Exception as diagnostic:print('OAuth diagnostics:',str(diagnostic),flush=True)
+        raise
     finally:
         stack.close();mock.close()
 
