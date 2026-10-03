@@ -7,6 +7,7 @@
  * password; the server adds today's ID) when the deployment allows it: /api/v2/state says how (anon, uploads).
  * The Turnstile check runs in the /verify/ frame (its own CSP) only when a write asks for it. */
 import {buttonsHTML,validReturn} from '../signin-brands.js';
+import {mountHardwareTools} from '../hardware/islands.js';
 const L=document.documentElement.lang==='en'?'en':document.documentElement.lang==='ja'?'ja':'ko';
 const T={
  ko:{login:'로그인',signInTitle:'로그인하고 참여하기',signInNote:'글·댓글·구독·추천·신고는 로그인하면 할 수 있어요. 읽기는 로그인 없이 됩니다.',signInClose:'닫기',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
@@ -391,6 +392,7 @@ async function channels(signedIn){
 }
 
 async function main(){
+ mountHardwareTools();
  const entity=$('[data-entity]')?.dataset.entity||'';
  const post=$('[data-post]')?.dataset.post||'';
  const q=new URLSearchParams();if(entity)q.set('entity',entity);if(post)q.set('post',post);

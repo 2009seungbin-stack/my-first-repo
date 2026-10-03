@@ -12,6 +12,7 @@ import {estimateLlmMemory} from '../estimates/llm-memory.js';
 import {badge} from './ui.js';
 import {verticalOf,typeDef} from '../verticals/index.js';
 import {label} from '../labels.js';
+import {hardwareToolLinks} from './hardware-tools.js';
 
 export const HUB_PAGE_SIZE=60;
 /** @param {any} db @param {string} vertical @param {{l:string,now?:number,type?:string|null,org?:string|null,sort?:string|null,vs?:string|null,page?:number,channels?:{name:string,href:string}[]}} o */
@@ -56,7 +57,7 @@ export async function loadHub(db,vertical,o){
 /** @param {NonNullable<Awaited<ReturnType<typeof loadHub>>>} m @param {{origin:string}} site */
 export function renderHub(m,site){
  const {l,v,vertical}=m,ko=l==='ko',base=`/${l}/${vertical}/`;
- const tabs=html`<nav class="ftabs" aria-label="${ko?'종류':'Type'}"><a href="${base}"${!m.type?html` class="on" aria-current="page"`:''}>${ko?'전체':'All'}</a>${v.hubTypes.filter(t=>m.counts[t]).map(t=>html`<a href="${base}?type=${t}"${m.type===t?html` class="on" aria-current="page"`:''}>${label(/** @type {any} */(typeDef(vertical,t)).plural,l)} <span class="fine">${m.counts[t]}</span></a>`)}</nav>`;
+ const tabs=html`${vertical==='hardware'?hardwareToolLinks(l):''}<nav class="ftabs" aria-label="${ko?'종류':'Type'}"><a href="${base}"${!m.type?html` class="on" aria-current="page"`:''}>${ko?'전체':'All'}</a>${v.hubTypes.filter(t=>m.counts[t]).map(t=>html`<a href="${base}?type=${t}"${m.type===t?html` class="on" aria-current="page"`:''}>${label(/** @type {any} */(typeDef(vertical,t)).plural,l)} <span class="fine">${m.counts[t]}</span></a>`)}</nav>`;
  const groups=m.groups.map(g=>box({title:label(/** @type {any} */(typeDef(vertical,g.type)).plural,l),note:!m.type&&g.total>g.rows.length?html`<a href="${base}?type=${g.type}">${ko?`${g.total}개 모두 보기 ›`:`All ${g.total} ›`}</a>`:`${g.total}`},
   html`<ul class="hubg">${g.rows.map(r=>html`<li><span class="tile sm ${TILE[vertical]||''}" aria-hidden="true">${monogram(r.entity,l)}</span><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)}</a>${r.posts?html`<span class="fine">${ko?'글':'posts'} ${compact(r.posts,l)}</span>`:''}</li>`)}</ul>`));
  const total=m.type?m.counts[m.type]||0:0,last=Math.ceil(total/HUB_PAGE_SIZE);

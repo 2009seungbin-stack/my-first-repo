@@ -73,6 +73,9 @@ export async function emitService(dist,config,head){
  await cp(new URL('server/',root),path.join(worker,'server'),{recursive:true});
  // Platform renderers/repositories (server/platform/pages.js imports them; they run only with PLATFORM=on).
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
+ // Shared market definitions and the compact benchmark aggregate are imported by PC tool SSR.
+ await mkdir(path.join(worker,'src','hardware'),{recursive:true});await cp(new URL('src/hardware/market.js',root),path.join(worker,'src','hardware','market.js'));
+ await mkdir(path.join(worker,'data','hardware'),{recursive:true});await cp(new URL('data/hardware/blender.js',root),path.join(worker,'data','hardware','blender.js'));
  // The status collectors run from the Worker too when the schedule is late (server/platform/status-refresh.js).
  await mkdir(path.join(worker,'collectors'),{recursive:true});for(const d of ['_runtime.js','_ai-shared','claude-status','openai-status'])await cp(new URL(`collectors/${d}`,root),path.join(worker,'collectors',d),{recursive:true});
  await mkdir(path.join(worker,'src'),{recursive:true});for(const f of ['quota.js','signin-brands.js','brand.js'])await cp(new URL(`src/${f}`,root),path.join(worker,'src',f));
