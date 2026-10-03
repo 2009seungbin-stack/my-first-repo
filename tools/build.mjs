@@ -89,7 +89,7 @@ export function entry(html,route='',siteURL='',config={}){
   // No AdSense loader there (client:'' above): it is a redirect page without content of its own.
   if(neutralHome)return languageEntryPage({base,headHTML});
   const dep=toolDepth(landing||intent.path,locale);
-  return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML:withDepth(contentHTML,dep.sections),landing,answer:dep.answer}):homePage({locale,prefix,base,headHTML,contentHTML});
+  return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML:withDepth(contentHTML,dep.sections),landing,answer:dep.answer}):homePage({locale,prefix,base,headHTML,contentHTML,platform:config.platform});
  }
  let out=html.replace('<base href="./">',`<base href="${base}">`).replace(/<html lang="[^"]*"/,`<html lang="${locale}"`);
  out=out.replace(/<title>[\s\S]*?<\/title>/,`<title>${escape(title)}</title>`);

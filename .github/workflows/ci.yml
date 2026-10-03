@@ -35,6 +35,8 @@ jobs:
         run: |
           npm run typecheck
           python tests/platform-browser.py
+          python tests/hardware-benchmarks-test.py
+          python tests/hardware-tools-browser.py
       - name: Decoded image quality and PDF preservation benchmarks
         run: |
           npm run benchmark

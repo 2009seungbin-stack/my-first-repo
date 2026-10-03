@@ -26,3 +26,8 @@ export const GAME_TOOLS=Object.freeze(/** @type {NavTool[]} */([
 export const toolHref=(l,x)=>`/${l}/${x.path}/`;
 /** Every tool (the former home page of the static site). @param {string} l */
 export const toolsHome=l=>`/${l}/tools/`;
+/** Worker-rendered PC utilities, separate from the static file/game tool registry. */
+export const PC_TOOLS=Object.freeze(/** @type {NavTool[]} */([
+ {id:'used-prices',path:'hardware/used-prices',ic:'USED',svg:'chip',ko:'국가별 중고 시세',en:'Used prices by country'},
+ {id:'performance',path:'hardware/performance',ic:'BENCH',svg:'chip',ko:'GPU·CPU 성능 비교',en:'GPU / CPU performance'},
+]));

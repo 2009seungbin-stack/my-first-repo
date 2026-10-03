@@ -15,6 +15,8 @@ function relabel(){
   const id=a.dataset.tool;a.href=toolURL(id);a.querySelector('b').textContent=t(`intent.${id}.title`);a.querySelector('small').textContent=t(`intent.${id}.description`);
   a.dataset.search=[t(`intent.${id}.title`),t(`intent.${id}.description`),...(SEARCH_TERMS[id]||[]),id,INTENTS[id].path].join(' ').toLowerCase();
  }
+ for(const a of document.querySelectorAll('[data-pc-tool]')){const l=locale()==='ko'?'ko':'en';a.href='/'+l+'/'+a.dataset.path+'/';a.querySelector('b').textContent=a.dataset[l==='ko'?'titleKo':'titleEn'];a.querySelector('small').textContent=l==='ko'?'국가별 가격과 실측 성능 비교':'Country prices and measured performance';a.dataset.search=[a.dataset.titleKo,a.dataset.titleEn,a.dataset.path,'gpu cpu 중고 시세 성능 가격 used price benchmark'].join(' ').toLowerCase();}
+ const pcHeading=document.querySelector('[data-pc-heading]');if(pcHeading)pcHeading.textContent=locale()==='ko'?'PC 도구':'PC tools';
  for(const h of document.querySelectorAll('[data-cat]'))h.textContent=text('cat.'+h.dataset.cat);
  for(const a of document.querySelectorAll('[data-tool-link]'))a.href=toolURL(a.dataset.toolLink);
  for(const a of document.querySelectorAll('[data-hub-link]'))a.href=pagePrefix()+'game/'+(a.dataset.hubLink?'#hub-'+a.dataset.hubLink:'');
@@ -29,7 +31,7 @@ function relabel(){
 }
 function filter(){
  const words=($('#toolQuery')?.value||'').toLowerCase().split(/\s+/).filter(Boolean);let shown=0;
- for(const a of document.querySelectorAll('.tool-card[data-tool]')){const hit=words.every(w=>a.dataset.search.includes(w));a.hidden=!hit;if(hit)shown++;}
+ for(const a of document.querySelectorAll('.tool-card[data-tool],.tool-card[data-pc-tool]')){const hit=words.every(w=>a.dataset.search.includes(w));a.hidden=!hit;if(hit)shown++;}
  for(const s of document.querySelectorAll('.directory section,.directory .gh-group'))s.hidden=!s.querySelector('.tool-card:not([hidden])');
  // folded groups (all game tools, other file tools) open by themselves when a search hits inside them
  for(const d of document.querySelectorAll('#directory details')){const hit=!!d.querySelector('.tool-card:not([hidden])');if(d.id==='file-tools')d.hidden=!hit;if(words.length&&hit)d.open=true;}

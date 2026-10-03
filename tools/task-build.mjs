@@ -1,3 +1,4 @@
+import {PC_TOOLS} from '../platform/tools-nav.js';
 import {BRAND} from '../src/brand.js';
 import {logoMark} from '../src/logo.js';
 import {LOCALES,LANGUAGE_NAMES,t} from '../src/i18n.js';
@@ -56,7 +57,7 @@ function homeShell({locale,base,title,description,headHTML,body}){
  return `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0f1114"><meta name="description" content="${esc(description)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><base href="${base}"><title>${esc(title)}</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="src/game-site.css"><link rel="stylesheet" href="src/game-home.css">${homePreload(locale)}<script type="module" src="src/task/shell.js"></script>${headHTML}
 </head><body class="task-page home-page game-home" data-gs>${body}<div class="gh-dropover" aria-hidden="true"><div><strong data-ui="gh.dragTitle">${esc(ui(locale,'gh.dragTitle'))}</strong><span data-ui="dropHint">${esc(ui(locale,'dropHint'))}</span></div></div><div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input id="fileInput" type="file" multiple hidden></body></html>`;
 }
-export function homePage({locale,prefix,base,headHTML,contentHTML}){
+export function homePage({locale,prefix,base,headHTML,contentHTML,platform=false}){
  const title=`${BRAND.name} — ${ui(locale,'homeTitle')}`,description=ui(locale,'homeLead');
  const u=(key,tag='span',cls='')=>`<${tag}${cls?` class="${cls}"`:''} data-ui="${key}">${esc(ui(locale,key))}</${tag}>`;
  const studioHref=ws=>`${prefix}game/studio/${ws?'?ws='+ws:''}`;
@@ -94,9 +95,10 @@ ${row('pixel',shotFig('pixel','pixelCaption',1600,980),go('pixel','openPixel'),{
  // one row of links to its sections (src/task/home.js re-prefixes them on a language switch).
  const hubLink=(key,anchor)=>`<a class="gs-link" data-hub-link="${anchor}" href="${prefix}game/${anchor?'#hub-'+anchor:''}" data-ui="gh.${key}">${esc(ui(locale,'gh.'+key))}</a>`;
  const hubLinks=`<nav class="gh-hub-links" aria-labelledby="hubLinksTitle"><h3 id="hubLinksTitle" data-ui="gh.hubLinks">${esc(ui(locale,'gh.hubLinks'))}</h3><p>${[['hubEngines','engines'],['hubFormats','formats'],['hubFixes','fixes'],['hubCompare','compare'],['hubAll','']].map(([k,a])=>hubLink(k,a)).join('')}</p></nav>`;
+ const pc=platform?`<section class="gh-group" data-pc-group><h3 data-pc-heading>${locale==='ko'?'PC 도구':'PC tools'}</h3><ul>${PC_TOOLS.map(x=>`<li><a class="tool-card" data-pc-tool="${x.id}" data-path="${x.path}" data-title-ko="${esc(x.ko)}" data-title-en="${esc(x.en)}" href="/${locale==='ko'?'ko':'en'}/${x.path}/"><b>${esc(locale==='ko'?x.ko:x.en)}</b><small>${locale==='ko'?'국가별 가격과 실측 성능 비교':'Country prices and measured performance'}</small></a></li>`).join('')}</ul></section>`:'';
  const index=`<section class="gs-section gh-index" id="tools" aria-labelledby="toolsTitle"><div class="gs-wrap"><header class="gh-index-head"><div><h2 class="gs-h2" id="toolsTitle" data-ui="gh.tools">${esc(ui(locale,'gh.tools'))}</h2>${u('gh.toolsLead','p','gs-lead')}</div><label class="gh-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="tool-query" id="toolQuery" type="search" placeholder="${esc(ui(locale,'search'))}" aria-label="${esc(ui(locale,'searchLabel'))}" autocomplete="off"></label></header>
 <div class="directory" id="directory"><section class="gh-dir-game" aria-labelledby="toolsTitle"><div class="gh-groups">${groups.map(([g,ids])=>`<div class="gh-group" data-group="${g}">${groupName(g)}<ul>${ids.map(card).join('')}</ul></div>`).join('')}</div></section>
-${hubLinks}
+${hubLinks}${pc}
 <details class="file-tools" id="file-tools"><summary><b data-ui="gh.fileTools">${esc(ui(locale,'gh.fileTools'))}</b><small data-ui="gh.fileToolsLead">${esc(ui(locale,'gh.fileToolsLead'))}</small></summary><div class="gh-groups is-files">${files.map(([cat,ids])=>`<section class="gh-group"><h3 data-cat="${cat}">${esc(ui(locale,'cat.'+cat))}</h3><ul>${ids.map(card).join('')}</ul></section>`).join('')}</div></details>
 <p class="no-result" id="noResult" hidden></p></div></div></section>`;
  const body=`${header}<main class="page game-home-main" id="home" data-ad-exclude><span id="main"></span>${hero}${flow}${engines}${index}</main><div id="siteContent" class="gh-content gs-footgrid">${withFooterBrand(contentHTML,locale,prefix)}</div>`;

@@ -12,6 +12,7 @@ import {channelBestThreshold,BEST_RULE} from '../community.js';
 import {channelById,channelPath,writePath,flairLabel,FEATURED_TAGS,patchCollectionPath} from '../channels.js';
 import {typeDef,verticalOf} from '../verticals/index.js';
 import {label} from '../labels.js';
+import {hardwareToolLinks} from './hardware-tools.js';
 import {dayStart} from './channel.js';
 
 export const BOARD_PAGE_SIZE=30;
@@ -67,7 +68,7 @@ export function renderBoard(m,site){
  const v=ch.vertical?verticalOf(ch.vertical):null;
  const typeText=Object.entries(m.types).sort((a,b)=>b[1]-a[1]).map(([type,n])=>{const td=ch.vertical?typeDef(ch.vertical,type):null;return `${td?label(td.label,l):type} ${n}`;}).join(' · ');
  const tagTotal=Object.values(m.types).reduce((a,b)=>a+b,0);
- const head=html`<section class="box chh chead">${channelTile(ch.id,l)}<div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1>${ch.vertical?html`<span class="fine">${ko?`태그 ${compact(tagTotal,l)}개`:`${compact(tagTotal,l)} tags`}${typeText?` · ${typeText}`:''}</span>`:html`<span class="fine">${ko?'모든 태그 선택 가능':'Any tag'}</span>`}</div>
+ const head=html`${ch.id==='hw'?hardwareToolLinks(l):''}<section class="box chh chead">${channelTile(ch.id,l)}<div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1>${ch.vertical?html`<span class="fine">${ko?`태그 ${compact(tagTotal,l)}개`:`${compact(tagTotal,l)} tags`}${typeText?` · ${typeText}`:''}</span>`:html`<span class="fine">${ko?'모든 태그 선택 가능':'Any tag'}</span>`}</div>
 <span class="fine">${s.today} ${compact(m.counts.today,l)} · ${s.posts} ${compact(m.counts.total,l)}${v?html` · <a href="/${l}/${ch.vertical}/">${ko?'태그 모음':'All tags'} ›</a>`:''}</span><p class="desc">${ch.desc[lang]}${ch.id==='games'?html` · <a href="${patchCollectionPath(l)}">${ko?'한글패치 모음':'Korean patches'} ›</a>`:''}</p></div>
 <div class="cha">${ch.inBar?html`<button type="button" class="btn pin" data-pin="${ch.id}" aria-pressed="false"><span class="p0">${ko?'고정':'Pin'}</span><span class="p1">✓ ${ko?'고정됨':'Pinned'}</span></button>`:''}<a class="btn p" href="${writePath(l,ch.id,{tag:m.tag?.id||null,kind:m.kind&&m.kind!=='notice'?m.kind:null})}">${s.write}</a></div></section>`;
  const tabs=html`<nav class="mtabs" aria-label="${ko?'말머리':'Flairs'}"><a href="${q({kind:null,page:null})}"${!m.kind?html` class="on" aria-current="page"`:''}>${s.all}</a>${ch.flairs.map(k=>html`<a rel="nofollow" href="${q({kind:k,page:null})}"${m.kind===k?html` class="on" aria-current="page"`:''}>${flairLabel(ch.id,k,l)}</a>`)}</nav>`;

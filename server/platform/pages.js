@@ -34,6 +34,8 @@ import {renderPolicy} from '../../platform/render/policy.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
 import {channelFeed,radarFeed,boardFeed,statusFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
+import {renderUsedPrices,renderPerformance} from '../../platform/render/hardware-tools.js';
+import {MARKETS} from '../../src/hardware/market.js';
 import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
@@ -56,9 +58,11 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,name?:string,page:'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
+ const tool=new RegExp(`^/(${L})/hardware/(used-prices|performance)/$`).exec(pathname);
+ if(tool)return {l:tool[1],page:/** @type {'used-prices'|'performance'} */(tool[2]),slug:tool[2],vertical:'hardware'};
  // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
  if(pathname==='/')return {l:'ko',page:'front'};
  if(pathname==='/en/')return {l:'en',page:'front'};
@@ -86,6 +90,8 @@ export function matchPlatformRoute(pathname){
 const hasOwn=(/** @type {object} */ o,/** @type {string} */ k)=>Object.prototype.hasOwnProperty.call(o,k);
 /** Allowed parameters per page with their canonical form (null = drop). */
 const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} */({
+ 'used-prices':{country:v=>MARKETS.some(m=>m.id===v)?v:null,q:v=>v.trim().slice(0,80)||null},
+ performance:{type:v=>v==='cpu'||v==='gpu'?v:null,country:v=>MARKETS.some(m=>m.id===v)?v:null,a:v=>/^[a-f0-9]{16}$/.test(v)?v:null,b:v=>/^[a-f0-9]{16}$/.test(v)?v:null},
  channel:{kind:v=>hasOwn(POST_KINDS,v)?v:null,sort:v=>SORTS.includes(/** @type {any} */(v))&&v!=='new'?v:null,best:v=>v==='1'?'1':null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null,sub:v=>v==='0'?'0':null},
  board:{kind:v=>hasOwn(POST_KINDS,v)?v:null,tag:v=>ENTITY_ID.test(v)?v:null,sort:v=>SORTS.includes(/** @type {any} */(v))&&v!=='new'?v:null,best:v=>v==='1'?'1':null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null,
   platform:v=>/^[a-z0-9_-]{2,20}$/.test(v)?v:null,genre:v=>/^[A-Za-z0-9][A-Za-z0-9 &'-]{1,39}$/.test(v)?v:null},
@@ -102,6 +108,7 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
 });
 /** The canonical search string for a page: known params only, valid values only, fixed order. @param {string} page @param {URLSearchParams} q */
 export function canonicalQuery(page,q){
+ if(page==='performance'&&q.get('reset')==='1'){q=new URLSearchParams(q);q.delete('a');q.delete('b');}
  const spec=PARAMS[page]||{},out=new URLSearchParams();
  for(const k of Object.keys(spec)){const raw=q.get(k);if(raw===null)continue;const v=spec[k](raw);if(v!==null)out.set(k,v);}
  // Commas stay literal (a GPU pair is ?vs=a,b in links, canonicals and sitemaps alike), and so do the
@@ -142,6 +149,10 @@ export async function renderPlatformPage(request,env,site){
  if(search!==(given?`?${given}`:''))return redirect(new URL(url.pathname+search,url).href);
  const q=new URLSearchParams(search);
  const bar=()=>channelBar(db,l,now);
+ if(route.page==='used-prices'||route.page==='performance'){
+  const o={l,origin:s.origin,tool:route.slug||'',query:search,q,channels:await bar()};
+  return html(String(route.slug==='used-prices'?renderUsedPrices(o):renderPerformance(o)));
+ }
  switch(route.page){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,sort:q.get('sort')||'hot',channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',channel:q.get('ch'),channels:await bar()}),s)));
@@ -228,7 +239,7 @@ export async function renderSitemap(db,vertical,origin){
  const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
  // The comparison tables, and (in the AI file) the community front and the Radar.
  // The community front, its 전체 베스트 and every channel board are in the AI file (the first one).
- const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
+ const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
  if(vertical==='ai'){
   const home={ko:`${origin}/`,en:`${origin}/en/`};
   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);
