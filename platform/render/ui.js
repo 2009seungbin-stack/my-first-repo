@@ -11,7 +11,7 @@ import {FILE_TOOLS,GAME_TOOLS,PC_TOOLS,toolHref,toolsHome} from '../tools-nav.js
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
-export const CSS_HREF='/src/platform/n2.css?v=20261003-pc-tools';
+export const CSS_HREF='/src/platform/n2.css?v=20261004-corner-radius';
 /** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
 export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
