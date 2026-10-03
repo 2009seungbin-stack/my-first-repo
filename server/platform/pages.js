@@ -91,7 +91,7 @@ export function matchPlatformRoute(pathname){
 const hasOwn=(/** @type {object} */ o,/** @type {string} */ k)=>Object.prototype.hasOwnProperty.call(o,k);
 /** Allowed parameters per page with their canonical form (null = drop). */
 const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} */({
- 'used-prices':{country:v=>MARKETS.some(m=>m.id===v)?v:null,q:v=>v.trim().slice(0,80)||null},
+ 'used-prices':{country:v=>MARKETS.some(m=>m.id===v)?v:null,q:v=>v.trim().slice(0,80)||null,basis:v=>v==='sold'||v==='asking'?v:null,days:v=>['7','30','90'].includes(v)?v:null},
  performance:{type:v=>v==='cpu'||v==='gpu'?v:null,country:v=>MARKETS.some(m=>m.id===v)?v:null,a:v=>/^[a-f0-9]{16}$/.test(v)?v:null,b:v=>/^[a-f0-9]{16}$/.test(v)?v:null},
  channel:{kind:v=>hasOwn(POST_KINDS,v)?v:null,sort:v=>SORTS.includes(/** @type {any} */(v))&&v!=='new'?v:null,best:v=>v==='1'?'1':null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null,sub:v=>v==='0'?'0':null},
  board:{kind:v=>hasOwn(POST_KINDS,v)?v:null,tag:v=>ENTITY_ID.test(v)?v:null,sort:v=>SORTS.includes(/** @type {any} */(v))&&v!=='new'?v:null,best:v=>v==='1'?'1':null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null,

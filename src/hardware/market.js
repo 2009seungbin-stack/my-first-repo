@@ -18,12 +18,14 @@ export function marketLinks(country,query){
  const m=marketOf(country),q=query.trim().slice(0,80);
  if(!q)return [];
  if(m.id==='KR')return [
+  {name:'기글하드웨어 장터',kind:'mixed',url:'https://gigglehd.com/gg/index.php?mid=bbs&category=14058'},
   {name:'중고나라',kind:'asking',url:`https://web.joongna.com/search/${encodeURIComponent(q)}`},
   {name:'번개장터',kind:'asking',url:`https://m.bunjang.co.kr/search/products?q=${encodeURIComponent(q)}`},
  ];
  if(m.id==='JP')return [{name:'Mercari',kind:'mixed',url:`https://jp.mercari.com/search?keyword=${encodeURIComponent(q)}`}];
  const base=`https://${m.ebay}/sch/i.html?_nkw=${encodeURIComponent(q)}&LH_ItemCondition=3000`;
- return [{name:'eBay',kind:'asking',url:base},{name:'eBay',kind:'sold',url:base+'&LH_Sold=1&LH_Complete=1'}];
+ const community=m.id==='US'?[{name:'HardForum 장터',kind:'mixed',url:'https://hardforum.com/forums/for-sale-trade.17/'}]:m.id==='FR'?[{name:'Hardware.fr 장터',kind:'mixed',url:'https://forum.hardware.fr/hfr/AchatsVentes/Hardware/liste_sujet-1.htm'}]:[];
+ return [...community,{name:'eBay',kind:'asking',url:base},{name:'eBay',kind:'sold',url:base+'&LH_Sold=1&LH_Complete=1'}];
 }
 /** Parse ONE price, using the selected market's separators. Reject negatives, ranges, titles,
  * invalid grouping, extra decimal places and ambiguous lists instead of guessing.

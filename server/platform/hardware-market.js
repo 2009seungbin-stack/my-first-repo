@@ -6,9 +6,10 @@
 import {MARKETS,marketOf,quantile} from '../../src/hardware/market.js';
 import {allowRequest} from '../ratelimit.js';
 import {readBody} from '../http.js';
+import {communitySnapshot} from '../../platform/hardware-community.js';
 
-/** @typedef {{id:string,title:string,url:string,price:number,shipping:number|null,currency:string}} Listing */
-/** @typedef {{status:string,country:string,query:string,source:string|null,observedAt:string|null,items:Listing[],excluded:number,summary:null|{count:number,median:number,q1:number,q3:number},cached:boolean}} Snapshot */
+/** @typedef {{id:string,title:string,url:string,price:number,shipping:number|null,currency:string,source?:string,basis?:string}} Listing */
+/** @typedef {{status:string,country:string,query:string,source:string|null,observedAt:string|null,items:Listing[],excluded:number,summary:null|{count:number,median:number,q1:number,q3:number},cached:boolean,community?:boolean,basis?:string,days?:number}} Snapshot */
 /** @type {Map<string,{value:Snapshot,until:number}>} */ const snapshots=new Map();
 /** @type {Map<string,Promise<Snapshot>>} */ const pending=new Map();
 /** @type {Map<string,{secret:string,token:string,until:number}>} */ const tokens=new Map();
@@ -26,11 +27,11 @@ export function comparableTitle(title,query){
  const flat=(/** @type {string} */ s)=>s.toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
  if(/(?:laptop|notebook|desktop|gaming\s*pc|complete\s*(?:pc|system)|motherboard|bundle|for\s*parts|parts\s*only|not\s*working|broken|defective|empty\s*box|box\s*only|wanted|buying|sealed|brand\s*new|노트북|데스크탑|완본체|본체|메인보드|세트|고장|불량|부품용|박스만|삽니다|구매합니다|미개봉)/i.test(title))return false;
  // 4060 does not match 4060 Ti, 5600 does not match 5600X, and 4060 does not match 40600.
- const model=query.match(/(?:RTX|GTX|RX)\s*(\d{3,4})(?:\s*(Ti|Super|XTX|XT))?|Arc\s*([AB]\d{3})|Ryzen\s*(?:[3579]\s*)?(\d{4,5}(?:X3D|X|G|F)?)|(?:Core\s*)?(i[3579][ -]\d{4,5}[A-Z]*)|Core\s*Ultra\s*[579]\s*(\d{3}[A-Z]*)/i);
+ const model=query.match(/(?:RTX|GTX|RX)\s*(\d{3,4})(?:\s*(Ti\s*Super|Ti|Super|XTX|XT|GRE))?|Arc\s*([AB]\d{3})|Ryzen\s*(?:[3579]\s*)?(\d{4,5}(?:X3D|X|G|F)?)|(?:Core\s*)?(i[3579][ -]\d{4,5}[A-Z]*)|Core\s*Ultra\s*[579]\s*(\d{3}[A-Z]*)/i);
  if(!model)return false;
  const family=model[1]?model[0].match(/^(RTX|GTX|RX)/i)?.[0]||'':model[3]?'Arc':model[4]?'Ryzen':'';
  const product=model[1]?model[1]+(model[2]||''):model[3]||model[4]||model[5]||model[6];
- const found=title.match(new RegExp(family?`${family}\\s*(?:[3579]\\s+)?([AB]?\\d{3,5}(?:\\s*(?:X3D|XTX|SUPER|TI|XT|X|G|F))?)(?![A-Z0-9])`:model[5]?'(i[3579][ -]\\d{4,5}[A-Z]*)\\b':'(\\d{3}[A-Z]*)\\b', 'i'));
+ const found=title.match(new RegExp(family?`${family}\\s*(?:[3579]\\s+)?([AB]?\\d{3,5}(?:\\s*(?:TI\\s*SUPER|X3D|XTX|SUPER|TI|XT|GRE|X|G|F))?)(?![A-Z0-9])`:model[5]?'(i[3579][ -]\\d{4,5}[A-Z]*)\\b':'(\\d{3}[A-Z]*)\\b', 'i'));
  if(!found||flat(found[1])!==flat(product))return false;
  const capacity=query.match(/\b(\d{1,2})\s*GB\b/i);
  if(capacity&&!new RegExp(`\\b${capacity[1]}\\s*GB\\b`,'i').test(title))return false;
@@ -91,6 +92,9 @@ export async function marketSnapshot(request,env,deps={}){
  if(!MARKETS.some(m=>m.id===country))return empty(country,query,'invalid_query');
  if(!query)return empty(country,query,'idle');
  if(!hardwareQuery(query))return empty(country,query,'invalid_query');
+ const community=await communitySnapshot(env.DB,country,query,u.searchParams,deps.now??Date.now(),comparableTitle);
+ if(community)return community;
+ if(u.searchParams.get('basis')==='sold')return empty(country,query,'not_connected');
  if(!marketOf(country).ebay||env.EBAY_BROWSE_APPROVED!=='on'||!env.EBAY_APP_ID||!env.EBAY_CERT_ID)return empty(country,query,'not_connected');
  const now=deps.now??Date.now(),key=[country,query.toLowerCase(),env.EBAY_APP_ID,env.EBAY_PRICE_STATS_APPROVED==='on'].join('|'),hit=snapshots.get(key);
  if(hit&&hit.until>now)return {...hit.value,cached:true};

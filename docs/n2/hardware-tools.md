@@ -2,8 +2,8 @@
 
 Routes (Worker, PLATFORM=on): `/{ko,en}/hardware/used-prices/` and
 `/{ko,en}/hardware/performance/`. Linked from the PC board, hardware hub, tool menu,
-tool directory and hardware sitemap. No production D1 migration is required. Marketplace retrieval
-needs provider credentials and permission; benchmark comparison does not.
+tool directory and hardware sitemap. Community collection uses additive migration 0015 and the existing
+D1 collector credentials. No marketplace API keys or user-entered prices are needed.
 
 ## Country-specific used prices
 
@@ -14,10 +14,20 @@ server, with asking prices, source links, shipping cost (or unknown), retrieval 
 empty/failure/not-connected states. The search works without browser JavaScript. Credentials never
 reach browser code. No bulk-download API is provided.
 
-**Operational state on 2026-10-03: no live marketplace is connected.** The eBay adapter is implemented
-and tested with synthetic upstream responses in US/GB/DE/FR/CA/AU. Authenticated production data has
-not been verified. KR and JP require a licensed source; they have no implemented adapter.
-Do not describe this change as live automatic collection.
+Community sources: KR/KRW Giggle Hardware market category, US/USD HardForum public RSS,
+FR/EUR Hardware.fr public sale first posts. Countries group communities/currencies, not verified
+seller residence. The scheduled collector checks robots, bounds traffic, avoids protected endpoints,
+and persists normalized facts and observed price/status revisions. Search reads D1 without crawling.
+The UI separates asking/sold and 7/30/90-day observation windows. A sold result needs a prior asking
+observation; old already-sold archive entries are excluded. Three-day verification freshness applies;
+source failure hides prices. Same-model capacity/shipping basis and at least five items are required
+for a community median. Reposts/cross-site duplicates cannot be reliably removed without identity
+tracking and are explicitly disclosed. See [community-used-market.md](community-used-market.md).
+
+Live local collection on 2026-10-03 verified all three sources. The operational workflow uses existing
+PLATFORM_COLLECTORS and D1 secrets, runs hourly, and installs the idempotent additive market schema.
+Production rollout verification is tracked in the PR; this document alone does not prove deployment.
+The eBay adapter below remains an optional fallback for other countries, unconfigured in this project.
 
 Cloudflare Pages setup (server environment only):
 - `EBAY_APP_ID` and `EBAY_CERT_ID`: production application keyset stored as secrets.
