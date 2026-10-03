@@ -58,3 +58,23 @@ Or download the documented archive manually and run:
 Refresh is manual; no scheduled collector is claimed. Never replace the pinned version without
 checking coverage and updating the methodology. The generated `data/hardware/blender.js` bundles
 with the Worker; user comparisons do not trigger upstream requests.
+
+## Tool UI and GPU photographs
+
+Tools reuse the portal's `chh` channel header, `mtabs` underline navigation, `cols` main/wiki layout
+and `mt` comparison table. Main controls and measurements remain 14–15px or larger; two products
+stay side by side on phones. Methodology, number-format details and image credits use native
+details/summary. The rendering-only scope and automatic-feed status remain visible.
+
+`platform/hardware-photos.js` maps five exact desktop GPU models to licensed real-board images:
+RTX 3060, RTX 4060, RTX 4090, RX 6600 XT and Arc A770. Only explicit search aliases are accepted;
+Ti, Laptop, D and different-memory aliases do not inherit another model's picture. Missing photos
+are labelled in the comparison instead of substituting an unrelated card. These are labelled retail
+board examples, not the actual measured submissions or an assertion of the submission's VRAM.
+
+`assets/hardware/photos.json` records each source, author, license URL, downloaded thumbnail,
+dimensions, byte count and SHA-256. Assets are unedited Wikimedia 960px thumbnails; their licenses
+are separate from the site's code license. The UI's expandable credits link each author to the file
+description and each license to its terms, with the original video link for the RTX 4060 still.
+The RTX 4060 Commons file declares CC BY 3.0; its external-license review remains pending there.
+No manufacturer-media blanket permission or manufacturer endorsement is claimed.
