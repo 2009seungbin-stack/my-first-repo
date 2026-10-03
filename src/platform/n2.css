@@ -1116,3 +1116,6 @@ body.n2{background:var(--page)}
  .hw-layout>.side{display:flex;gap:12px}.hw-layout>.side .hw-section+.hw-section{border-top:1px solid var(--line);padding-top:14px}
  [data-island="hardware-value"] .hw-form>label{flex-basis:calc(50% - 5px)!important;flex-grow:1}[data-island="hardware-value"] .hw-form .btn{margin-left:auto}
 }
+
+/* Automatically fetched listings use the channel row rhythm. */
+.hw-listings{list-style:none;margin:16px 0;padding:0}.hw-listings li{padding:14px 0;border-bottom:1px solid var(--line)}.hw-listings a{display:flex;justify-content:space-between;align-items:start;gap:20px;font-size:15px;line-height:1.6}.hw-listings a span{overflow-wrap:anywhere;min-width:0}.hw-listings a strong{white-space:nowrap;font-size:17px;color:var(--ink)}.hw-listings .hw-help{margin:4px 0 0}@media(max-width:600px){.hw-listings a{flex-direction:column;gap:4px}.hw-listings a strong{font-size:18px}}

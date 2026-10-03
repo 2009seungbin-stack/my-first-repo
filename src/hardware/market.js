@@ -1,6 +1,6 @@
 // @ts-check
 /** Country = the selected local marketplace and its currency, not the seller's location.
- * External links open public searches. Prices are supplied by the reader, never invented. */
+ * External links open public searches; automatic feeds run only on the server. */
 export const MARKETS=Object.freeze([
  {id:'KR',ko:'한국',en:'South Korea',currency:'KRW',locale:'ko-KR',ebay:null},
  {id:'JP',ko:'일본',en:'Japan',currency:'JPY',locale:'ja-JP',ebay:null},

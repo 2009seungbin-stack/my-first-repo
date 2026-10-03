@@ -36,6 +36,7 @@ import {channelFeed,radarFeed,boardFeed,statusFeed} from '../../platform/render/
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
 import {renderUsedPrices,renderPerformance} from '../../platform/render/hardware-tools.js';
 import {MARKETS} from '../../src/hardware/market.js';
+import {marketSnapshot} from './hardware-market.js';
 import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
@@ -151,7 +152,10 @@ export async function renderPlatformPage(request,env,site){
  const bar=()=>channelBar(db,l,now);
  if(route.page==='used-prices'||route.page==='performance'){
   const o={l,origin:s.origin,tool:route.slug||'',query:search,q,channels:await bar()};
-  return html(String(route.slug==='used-prices'?renderUsedPrices(o):renderPerformance(o)));
+  const response=html(String(route.slug==='used-prices'?renderUsedPrices({...o,market:await marketSnapshot(request,env)}):renderPerformance(o)));
+  // Keep page caching from extending the five-minute marketplace snapshot lifetime.
+  if(route.slug==='used-prices')response.headers.set('cache-control','no-store');
+  return response;
  }
  switch(route.page){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,sort:q.get('sort')||'hot',channels:await bar()}),s)));
@@ -288,7 +292,7 @@ export async function handlePlatformPage(request,env,ctx,site){
  maybeRefreshStatus(env,ctx,site);
  const cache=/** @type {any} */(globalThis).caches?.default;
  const key=new Request(request.url,{method:'GET'});
- const hit=cache?await cache.match(key):null;
+ const hit=cache&&matchPlatformRoute(path)?.page!=='used-prices'?await cache.match(key):null;
  if(hit)return hit;
  let res;
  try{res=await renderPlatformPage(request,env,site);}

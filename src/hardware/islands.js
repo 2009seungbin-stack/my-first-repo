@@ -1,24 +1,8 @@
-import {priceSummary,parsePrice,localMoney} from './market.js';
+import {parsePrice} from './market.js';
 
 export function mountHardwareTools(){
  const ko=document.documentElement.lang==='ko';
  for(const f of document.querySelectorAll('[data-hw-enable]'))f.disabled=false;
- const root=document.querySelector('[data-island="used-prices"]');
- if(root){
-  const form=root.querySelector('form'),result=root.querySelector('[data-price-result]'),country=root.dataset.country;
-  const empty=()=>{result.textContent=ko?'확인한 가격을 입력하면 결과가 여기에 표시됩니다.':'Your calculated results will appear here.';};
-  form.addEventListener('reset',empty);form.addEventListener('input',empty);
-  form.addEventListener('submit',e=>{
-   e.preventDefault();const data=new FormData(form),s=priceSummary(String(data.get('prices')||''),country);result.replaceChildren();
-   if(s.error){result.textContent=s.error==='empty'?(ko?'가격을 입력하세요.':'Enter prices.'):s.error==='limit'?(ko?'가격은 최대 200개입니다.':'Use up to 200 prices.'):(ko?`${s.lines.join(', ')}번째 입력값을 확인하세요. 한 줄에 현지 형식의 가격 하나를 넣으세요.`:`Check entries ${s.lines.join(', ')}. Use one price per line in local number format.`);return;}
-   const heading=document.createElement('h3');heading.textContent=data.get('basis')==='sold'?(ko?'입력한 판매 완료 표시 가격':'Your sold displayed prices'):(ko?'입력한 판매 중 호가':'Your active asking prices');result.append(heading);
-   const grid=document.createElement('dl');grid.className='hw-stats';
-   for(const [label,value] of [[ko?'중앙값':'Median',localMoney(s.median,country)],[ko?'중앙 50% 범위 (Q1–Q3)':'Central 50% (Q1–Q3)',`${localMoney(s.q1,country)} – ${localMoney(s.q3,country)}`],[ko?'최솟값–최댓값':'Minimum–maximum',`${localMoney(s.min,country)} – ${localMoney(s.max,country)}`],[ko?'입력한 표본':'Your sample',String(s.count)]]){
-    const box=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;box.append(dt,dd);grid.append(box);
-   }result.append(grid);
-   const note=document.createElement('p');note.className='fine';note.textContent=(s.count<5?(ko?'표본이 적습니다. ':'Small sample. '):'')+(ko?'입력 표본 기준 · 이상값 자동 제외 없음 · 시장 전체의 확정 시세가 아닙니다.':'Based on your inputs · no automatic outlier removal · not a definitive market price.');result.append(note);
-  });
- }
  const value=document.querySelector('[data-island="hardware-value"]');
  if(value){
   const form=value.querySelector('form'),result=value.querySelector('[data-value-result]');
