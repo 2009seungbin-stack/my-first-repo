@@ -5,6 +5,21 @@ import {renderUsedPrices,renderPerformance} from '../platform/render/hardware-to
 import {canonicalQuery,matchPlatformRoute,renderPlatformPage,renderSitemap} from '../server/platform/pages.js';
 import DATA from '../data/hardware/blender.js';
 import {D1Shim} from './d1-shim.mjs';
+import {GPU_PHOTOS,gpuPhoto} from '../platform/hardware-photos.js';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+
+test('retail GPU photos match exact models and VRAM aliases, never laptop or Ti variants',()=>{
+ for(const p of GPU_PHOTOS)assert.equal(gpuPhoto(p.model),p);
+ for(const name of ['RTX 4060','RTX 4060 8GB','NVIDIA GeForce RTX 4060','AMD Radeon RX 6600 XT','Radeon RX 6600 XT'])assert(gpuPhoto(name),name);
+ for(const name of ['RTX 4060 Ti','RTX 4060 16GB','RTX 3060 8GB','NVIDIA GeForce RTX 4090 D','NVIDIA GeForce RTX 4090 Laptop GPU','Arc A770 8GB','GTX 1060','Ryzen 5600'])assert.equal(gpuPhoto(name),null,name);
+ const provenance=JSON.parse(readFileSync(new URL('../assets/hardware/photos.json',import.meta.url),'utf8'));
+ for(const p of GPU_PHOTOS){const record=provenance.find(r=>'/'+r.asset===p.src);assert(record);assert(record.author&&record.licenseUrl&&record.source);const bytes=readFileSync(new URL('../'+record.asset,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex'),record.sha256);}
+ const options={l:'ko',origin:'https://nerulio.com',channels:[],query:'',tool:'performance',q:new URLSearchParams()};
+ const rendered=String(renderPerformance(options));assert(rendered.includes('/assets/hardware/rtx-3060.jpg')&&rendered.includes('/assets/hardware/rtx-4060.png'));assert(rendered.includes('scope="row"')&&rendered.includes('사진 출처·라이선스'));
+ const noPhoto=DATA.devices.find(d=>d.name==='NVIDIA GeForce RTX 4090 Laptop GPU');assert(noPhoto);
+ const laptop=String(renderPerformance({...options,q:new URLSearchParams('a='+noPhoto.id+'&b='+noPhoto.id)}));assert(!laptop.includes('/assets/hardware/rtx-4090.jpg'));assert(laptop.includes('실물 사진 준비 중'));
+});
 
 test('local prices: decimal/grouping precision, explicit foreign currencies and malformed inputs',()=>{
  for(const [country,input,expected] of [['KR','₩250,000원',250000],['JP','¥25,000',25000],['US','$1,234.50 USD',1234.5],['DE','1.234,50 EUR',1234.5],['FR','1\u202f234,50 €',1234.5],['FR','€1 234,50',1234.5],['CA','CA$123.45',123.45],['AU','A$123.45',123.45],['GB','£123.45',123.45]])assert.equal(parsePrice(input,country),expected,`${country} ${input}`);
@@ -33,7 +48,7 @@ test('benchmark snapshot integrity: provenance, positive medians, no CPU/GPU con
  assert.equal(new Set(DATA.devices.map(d=>d.id)).size,DATA.devices.length);
  for(const d of DATA.devices){assert(d.samples>=3);assert(Number.isFinite(d.score)&&d.score>0);assert.equal(d.type,d.backend==='CPU'?'cpu':'gpu');}
  const options={l:'ko',origin:'https://nerulio.com',channels:[],query:'',tool:'performance',q:new URLSearchParams('type=cpu')};const cpu=String(renderPerformance(options));
- assert(cpu.includes('AMD Ryzen 5 5600')&&cpu.includes('AMD Ryzen 5 7600'));assert(!cpu.includes('NVIDIA GeForce RTX 4060'));
+ assert(cpu.includes('Ryzen 5 5600')&&cpu.includes('Ryzen 5 7600'));assert(!cpu.includes('NVIDIA GeForce RTX 4060'));
  assert(cpu.includes('게임 FPS')&&cpu.includes(DATA.asOf)&&cpu.includes('중앙값'));
  const invalid=String(renderPerformance({...options,q:new URLSearchParams('type=cpu&a=63d8da86df4eb55f')}));assert(invalid.includes('측정 결과가 없습니다'));
  const used=String(renderUsedPrices({...options,tool:'used-prices',q:new URLSearchParams('country=KR&q=<img src=x onerror=alert(1)>')}));assert(!used.includes('<img src=x'));assert(used.includes('&lt;img'));

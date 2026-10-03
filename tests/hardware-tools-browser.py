@@ -44,6 +44,21 @@ def run():
                 pg.fill('textarea[name=prices]', '100\n-200');pg.locator('.hw-price-form button[type=submit]').click();assert '2번째' in pg.locator('[data-price-result]').inner_text()
                 pg.goto(base + '/ko/hardware/performance/')
                 assert 'RTX 3060' in pg.locator('.hw-comparison').inner_text() and 'RTX 4060' in pg.locator('.hw-comparison').inner_text()
+                photos = pg.locator('.hw-comparison .hw-photo img')
+                assert photos.count() == 2
+                for img in photos.all():
+                    img.wait_for(state='visible')
+                    assert img.evaluate('(el)=>el.complete && el.naturalWidth >= 960'), img.get_attribute('src')
+                pg.evaluate('scrollTo(0,0)'); pg.screenshot(path=str(output / 'performance-gpu-desktop.png'), full_page=True)
+                pg.locator('.hw-credits summary').click()
+                assert 'CC BY-SA 4.0' in pg.locator('.hw-credits').inner_text() and 'CC BY 3.0' in pg.locator('.hw-credits').inner_text()
+                pg.locator('.hw-credits summary').click()
+                for model, asset in [('RX 6600 XT','rx-6600-xt.jpg'),('Arc(TM) A770','arc-a770.jpg'),('RTX 4090 · OPTIX','rtx-4090.jpg')]:
+                    option = pg.locator('select[name=a] option').filter(has_text=model).first
+                    pg.select_option('select[name=a]', option.get_attribute('value'))
+                    pg.locator('.hw-compare-action button').click()
+                    assert asset in pg.locator('.hw-comparison img').first.get_attribute('src')
+                    assert pg.locator('.hw-comparison img').first.evaluate('(el)=>el.complete && el.naturalWidth >= 960')
                 pg.fill('[data-hw-filter=a]', 'RTX 4070');assert pg.locator('select[name=a] option').count() < 20
                 pg.fill('[data-hw-filter=a]', 'no-such-device');assert not pg.locator('[data-hw-filter=a]').evaluate('(el)=>el.checkValidity()')
                 pg.fill('[data-hw-filter=a]', '')
@@ -57,16 +72,25 @@ def run():
                         pg.goto(base + f'/{l}/hardware/{tool}/')
                         assert pg.locator('h1').is_visible()
                         assert pg.evaluate('document.documentElement.scrollWidth<=innerWidth'), (l, tool, 'desktop overflow')
+                        pg.evaluate('scrollTo(0,0)'); pg.screenshot(path=str(output / f'{tool}-{l}-desktop.png'), full_page=True)
                         pg.set_viewport_size({'width':390, 'height':844});pg.evaluate('scrollTo(0,0)');pg.wait_for_timeout(300)
                         assert pg.evaluate('document.documentElement.scrollWidth<=innerWidth'), (l, tool, 'mobile overflow')
+                        if tool == 'performance':
+                            assert pg.locator('.hw-comparison .hw-photo img').count() == 2
+                            assert pg.locator('.hw-comparison').evaluate('(el)=>getComputedStyle(el).display') == 'table'
+                        pg.locator('.thm').click(); assert pg.locator('html').get_attribute('data-theme') == 'dark'
+                        pg.screenshot(path=str(output / f'{tool}-{l}-dark-mobile.png'), full_page=True)
+                        pg.locator('.thm').click()
                         pg.screenshot(path=str(output / f'{tool}-{l}-mobile.png'), full_page=True)
+                        pg.set_viewport_size({'width':320, 'height':720});pg.wait_for_timeout(100)
+                        assert pg.evaluate('document.documentElement.scrollWidth<=innerWidth'), (l, tool, 'small phone overflow')
                         pg.set_viewport_size({'width':1440, 'height':900});pg.wait_for_timeout(300)
                 nojs = b.new_context(java_script_enabled=False); plain = nojs.new_page()
                 plain.goto(base + '/en/hardware/used-prices/?country=GB&q=RTX+4060');assert plain.locator('textarea[name=prices]').is_disabled();assert plain.locator('.hw-market-links a').count() == 2
                 plain.goto(base + '/en/hardware/performance/?type=cpu');assert 'Ryzen 5 5600' in plain.locator('.hw-comparison').inner_text()
                 nojs.close();ctx.close();b.close()
                 assert not errors, errors
-            print('Hardware tools browser: 8 markets, price validation, CPU/GPU switching, value, SSR and ko/en desktop/mobile passed')
+            print('Hardware tools browser: 8 markets, prices, CPU/GPU, value, decoded photos, credits, SSR, ko/en desktop, 390/320px phones and dark mode passed')
         finally:
             proc.terminate();proc.wait(timeout=10)
 

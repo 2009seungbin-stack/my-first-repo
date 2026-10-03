@@ -28,7 +28,7 @@ import {isModeratorRequest} from '../../server/platform/api.js';
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 const VERIFY_HTML=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Verification</title><style>html,body{margin:0;background:transparent}body{display:flex;justify-content:center;padding:4px}</style><script type="module" src="/src/verify-page.js"></script></head><body><div id="turnstile"></div></body></html>`;
 const VERIFY_CSP="default-src 'none'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";
-const TYPES=/** @type {Record<string,string>} */({'.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.html':'text/html; charset=utf-8','.json':'application/json'});
+const TYPES=/** @type {Record<string,string>} */({'.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.html':'text/html; charset=utf-8','.json':'application/json'});
 
 export async function createDevServer({port=8788,now=Date.now()}={}){
  const db=D1Shim.migrated();
