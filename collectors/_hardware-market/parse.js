@@ -9,7 +9,7 @@ export function modelMatches(s){
  return [...s.matchAll(re)].map(m=>({model:m[0].replace(/라이젠/,'Ryzen').replace(/\s+/g,' ').replace(/^(RTX|GTX|RX)\s*(\d)/i,'$1 $2').replace(/\b(TI|SUPER|XTX|XT)\b/gi,x=>({ti:'Ti',super:'Super',xtx:'XTX',xt:'XT'}[x.toLowerCase()])).trim(),index:m.index,end:m.index+m[0].length}));
 }
 export const modelKey=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
-const unwanted=/(?:\b(?:WTB|WTT|wanted|buying|BNIB|NIB|sealed|brand new|laptop|notebook|gaming PC|computer|bundle|combo|for parts|broken|defective)\b|\[ACH\]|\[ECH\]|\b(?:neuf|scellé|portable|lot indissociable)\b|삽니다|구매|구해|노트북|본체|세트|셋트|일괄|미개봉|불량|고장|박스만)/i;
+const unwanted=/(?:\b(?:WTB|WTT|wanted|buying|BNIB|NIB|sealed|brand new|laptop|notebook|gaming PC|computer|bundle|combo|for parts|broken|defective|waterblock|water block|wb|bracket|backplate|heatsink|riser|fan only|cooler only)\b|\[ACH\]|\[ECH\]|\b(?:neuf|scellé|portable|lot indissociable|bo[iî]te (?:seule|vide)|carton seul)\b|삽니다|구매|구해|노트북|본체|세트|셋트|일괄|미개봉|불량|고장|박스만|워터블[럭록]|브라켓|지지대|라이저|방열판|쿨러만)/i;
 const boundary=/^(?:[-=]{5,}|.*\b(?:CORSAIR Frame|bo[iî]tier|écran|ecran|alimentation|Ram DDR|Corsair Vengeance|sodimm|NVMe|case for sale|SSD|HDD|motherboard|mainboard|mobo)\b|.*(?:메인보드|케이스 판매|램 판매))/i;
 function prices(s,currency){
  let matches;
@@ -30,11 +30,12 @@ export function parseItems({title,body,source,postId,url,country,currency}){
  if(block)blocks.push(block);
  const items=[],seen=new Set();let excluded=0;
  for(const b of blocks){
-  const section=b.lines.join('\n').slice(0,2000),p=prices(section,currency);
+  const section=b.lines.join('\n'),p=prices(section,currency);
   const titleModels=modelMatches(title),titleForItem=titleModels.length===1&&modelKey(titleModels[0].model)===modelKey(b.model)?title:'';
   const capacities=[...new Set([...(section+'\n'+titleForItem).matchAll(/\b(\d{1,2})\s*(?:GB|Go)\b|(\d{1,2})\s*기가/gi)].map(m=>m[1]||m[2]))],cap=capacities[0]||'';
   const foreign=/\b(?:CAD|AUD|JPY|GBP)\b|(?:CA|AU|C|A)\$|£|¥|円/i.test(section)||currency!=='EUR'&&/€|\bEUR\b/i.test(section)||currency!=='USD'&&/\$|\bUSD\b/i.test(section)||currency!=='KRW'&&/원|\bKRW\b/i.test(section);
-  if(b.ambiguous||foreign||capacities.length>1||section.includes('\ufffd')||unwanted.test(section)||/(?:\b(?:[2-9]\s*(?:cards|GPUs|pieces)|pair|each|MSRP|retail|paid|original price)\b|[2-9]\s*(?:개|대)|개당|구입가|구매가|정가|희망.*교환)/i.test(section)||p.length!==1){excluded++;continue;}
+  const range=/\d\s*(?:[-–—]|to|à)\s*\d[\d,. ]*\s*(?:€|euros?\b|[만천]?원)/i.test(section)||/(?:^|[\s:])[-–—]\s*\d[\d,. ]*\s*(?:€|euros?\b|[만천]?원)/i.test(section);
+  if(b.ambiguous||section.length>2000||range||foreign||capacities.length>1||section.includes('\ufffd')||unwanted.test(section)||/(?:\b(?:[2-9]\s*(?:cards|GPUs|pieces)|pair|each|MSRP|retail|paid|original price)\b|[2-9]\s*(?:개|대)|개당|구입가|구매가|정가|희망.*교환)/i.test(section)||p.length!==1){excluded++;continue;}
   const key=modelKey(b.model)+'|'+cap;if(seen.has(key)){excluded++;continue;}seen.add(key);
   const basis=/(?:\bSOLD\b|^vendu(?:e)?\b|vendu(?:e)?\s+(?:à|hors)|판매\s*완료|판완|등반완료|정복됨|등산\s*완|^완[)\]])/im.test(title+'\n'+section)?'sold':'asking';
   items.push({id:`${source}:${postId}:${key}`,source,postId,url,country,currency,model:b.model,capacity:cap,price:p[0],shipping:/\bshipped\b|(?:배송|택배)비\s*포함|택포|\binclus\b|€\s*in\b/i.test(section)?0:null,basis});

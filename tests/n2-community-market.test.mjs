@@ -35,6 +35,7 @@ test('money grouping and decimals are strict; malformed tokens cannot become sma
  assert.equal(parsed({body:'RTX 5080 $1,23',currency:'USD'}).items.length,0);
  assert.equal(parsed({body:'RTX 4060 27,00원',currency:'KRW'}).items.length,0);
  assert.equal(parsed({body:'RTX 4060 8GB / 16GB 270€'}).items.length,0);
+ for(const body of ['RTX 4060 100–200€','RTX 4060 -100€','RTX 4060 5-10만원','RTX 4060 waterblock 100€','RTX 4060 100€\n'+'details '.repeat(300)+'200€'])assert.equal(parsed({body,currency:body.includes('만원')?'KRW':'EUR'}).items.length,0,body.slice(0,50));
  assert.equal(parsed({body:'RTX 5080 CA$1600',currency:'USD'}).items.length,0);
  assert.equal(parsed({body:'RTX 4060 270€ or $300',currency:'EUR'}).items.length,0);
  const korean=parsed({title:'사파이어 RX570 4GB',body:'RX570\n택배비 포함 9만원',currency:'KRW'}).items[0];assert.equal(korean.capacity,'4');assert.equal(korean.shipping,0);
