@@ -13,6 +13,7 @@ import {POLICY_ROUTES,policies} from '../src/policies.js';
 import {normalizeSiteURL} from '../src/seo.js';
 import {secureResponse,adCSP} from '../tools/ads-worker.mjs';
 import {AUDIO_LAB_PATH} from '../tools/audio-lab-build.mjs';
+import {PREFLIGHT_PATHS} from '../tools/preflight-build.mjs';
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
 const origin='https://fileforge.example.test/';
 // Synthetic fixture, never deployed or sent to Google.
@@ -62,7 +63,7 @@ test('canonical aliases consolidate and query combinations never enter sitemap',
  for(const [alias,id]of Object.entries(ALIASES))assert(entry(html,`ja/${alias}`,origin).includes(`rel="canonical" href="${origin}ja/${INTENTS[id].path}/"`));
  const xml=sitemap(origin);for(const [,url]of xml.matchAll(/<loc>([^<]+)<\/loc>/g))assert(!url.includes('?'));assert(!/\/(?:ko|en|ja)\/png-to-webp\//.test(xml),'top-level aliases never enter the sitemap');
  assert(xml.includes(`${origin}en/${AUDIO_LAB_PATH}/`));
- assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).filter(mayPromote).length+LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent)).length+POLICY_ROUTES.length+3)*3+1,'intents, landings, policies, Audio Lab, the SFX generator and the /game/ hub in ko/en/ja, plus / (x-default of the home page)');
+ assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).filter(mayPromote).length+LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent)).length+POLICY_ROUTES.length+3+PREFLIGHT_PATHS.length)*3+1,'intents, landings, policies, Audio Lab, SFX, game hub and Preflight in ko/en/ja, plus the home x-default');
  for(const l of ['en','ko','ja','x-default'])assert(xml.includes(`hreflang="${l}"`));
 });
 test('reading content follows the full workspace, and disabled ads leave no boxes',()=>{

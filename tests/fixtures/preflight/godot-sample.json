@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "vertical": "godot",
+  "name": "Demo Godot stack",
+  "generatedAt": "2026-10-05T00:00:00Z",
+  "sample": true,
+  "host": {
+    "name": "Godot",
+    "version": "4.6"
+  },
+  "platform": "windows",
+  "architecture": "x86_64",
+  "components": [
+    {
+      "id": "demo-godot-0",
+      "name": "Demo Steam Bridge",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-1",
+      "name": "Demo Dialogue Kit",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Dialogue Tool",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-2",
+      "name": "Demo Terrain Kit",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Terrain Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-3",
+      "name": "Demo Render Helper",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Rendering Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-4",
+      "name": "Demo Editor Tools",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Editor Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-5",
+      "name": "Demo Export Helper",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Export Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-6",
+      "name": "Demo Asset Pack",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Asset Dependency",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-7",
+      "name": "Demo Input Helper",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-8",
+      "name": "Demo Legacy Add-on",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-9",
+      "name": "Demo Unverified Terrain",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Terrain Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-10",
+      "name": "Demo Native Extension",
+      "vendor": "Fictional Demo Vendor",
+      "category": "GDExtension",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-11",
+      "name": "Demo Retired Tool",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Editor Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-12",
+      "name": "Demo Native Runtime",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Native Library",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-13",
+      "name": "Demo Export Templates",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Export Template",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-14",
+      "name": "Demo Shader Pack",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Rendering Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-godot-15",
+      "name": "Demo Navigation Tools",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    }
+  ],
+  "target": {
+    "version": "4.7",
+    "platform": "windows",
+    "architecture": "x86_64",
+    "renderer": "forward_plus",
+    "language": "gdscript"
+  }
+}

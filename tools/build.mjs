@@ -29,11 +29,12 @@ import {gameHead} from './game-seo-build.mjs';
 import {sfxPage} from './sfx-build.mjs';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
 import {AUDIO_LAB_PATH,audioLabPage} from './audio-lab-build.mjs';
+import {PREFLIGHT_PATHS,preflightPage} from './preflight-build.mjs';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
 // /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
-export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',AUDIO_LAB_PATH].map(r=>`${l}/${r}`)])];
+export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',...PREFLIGHT_PATHS,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',AUDIO_LAB_PATH,...PREFLIGHT_PATHS].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Cloudflare Email Address Obfuscation (on for the nerulio.com zone) rewrites anything shaped like
  * an address at the edge: "hero@2x.json" was served as "[email protected]" with a /cdn-cgi link that 404s.
@@ -62,6 +63,7 @@ export function entry(html,route='',siteURL='',config={}){
  // PLATFORM=on: the tool home is built at /ko/tools/ and /en/tools/ (the portal owns / and /en/; src/seo.js pagePath).
  if(config.platform&&parts.path==='tools'&&PORTAL_LOCALES.includes(parts.locale))parts.path='';
  const locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
+ if(PREFLIGHT_PATHS.includes(parts.path))return preflightPage({locale,path:parts.path,siteURL,preview:config.preview,platform:config.platform,base:'../'.repeat(route.split('/').filter(Boolean).length)||'./'});
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
  if(parts.path==='game/sfx-generator')return sfxPage({locale,base,siteURL});
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);

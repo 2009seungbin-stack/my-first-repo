@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nerulio.com/src/preflight/scanner.schema.json",
+  "title": "Nerulio Scanner Inventory v1",
+  "description": "Inventory input only. Imported compatibility conclusions are ignored and recomputed locally.",
+  "type": "object",
+  "required": ["schemaVersion", "vertical", "platform", "architecture", "host", "components"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "vertical": {"enum": ["obs", "studio", "blender", "godot"]},
+    "name": {"type": "string", "maxLength": 1024},
+    "sample": {"type": "boolean"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "platform": {"$ref": "#/$defs/platform"},
+    "architecture": {"$ref": "#/$defs/architecture"},
+    "host": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "version": {"type": "string", "maxLength": 80}
+      }
+    },
+    "components": {"type": "array", "maxItems": 10000, "items": {"$ref": "#/$defs/component"}},
+    "target": {"$ref": "#/$defs/target"}
+  },
+  "$defs": {
+    "platform": {"enum": ["windows", "macos", "linux"]},
+    "architecture": {"enum": ["x86_64", "arm64", "x86", "universal"]},
+    "component": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_.:-]{1,160}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "version": {"type": "string", "maxLength": 80},
+        "vendor": {"type": "string", "maxLength": 1024},
+        "category": {"type": "string", "maxLength": 1024},
+        "critical": {"type": "boolean", "default": true},
+        "ignored": {"type": "boolean", "default": false},
+        "sample": {"type": "boolean", "default": false},
+        "native": {"type": "boolean"},
+        "platform": {"$ref": "#/$defs/platform"},
+        "architecture": {"$ref": "#/$defs/architecture"},
+        "installPath": {"type": "string", "maxLength": 1024},
+        "installType": {"type": "string", "maxLength": 1024},
+        "builtForHost": {"type": "string", "maxLength": 80},
+        "dependencies": {
+          "type": "array", "maxItems": 100,
+          "items": {
+            "type": "object", "required": ["componentId"],
+            "properties": {
+              "componentId": {"type": "string", "minLength": 1, "maxLength": 160},
+              "versionRange": {"type": "string", "maxLength": 1024},
+              "optional": {"type": "boolean", "default": false}
+            }
+          }
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": ["version", "platform", "architecture"],
+      "properties": {
+        "version": {"type": "string", "maxLength": 80},
+        "platform": {"$ref": "#/$defs/platform"},
+        "architecture": {"$ref": "#/$defs/architecture"},
+        "osVersion": {"type": "string", "maxLength": 80},
+        "renderer": {"type": "string", "maxLength": 1024},
+        "language": {"type": "string", "maxLength": 1024},
+        "daw": {"type": "string", "maxLength": 1024},
+        "formats": {"type": "array", "maxItems": 20, "items": {"type": "string", "maxLength": 1024}},
+        "runtimes": {"type": "object", "maxProperties": 20, "additionalProperties": {"type": "string", "maxLength": 80}}
+      }
+    }
+  }
+}

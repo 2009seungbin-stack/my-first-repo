@@ -60,9 +60,9 @@ test('fonts: SUIT and JetBrains Mono are served from this site, every file the C
  const out=String(page({l:'ko',title:'t',description:'d',canonical:'https://nerulio.com/',channels:[],body:''}));
  assert(out.indexOf('/src/platform/fonts.css')>0&&out.indexOf('/src/platform/fonts.css')<out.indexOf('/src/platform/n2.css'),'fonts before the stylesheet');
  const css=await readFile(new URL('../src/platform/fonts.css',import.meta.url),'utf8');
- const urls=[...css.matchAll(/url\((\/assets\/fonts\/[^)]+)\)/g)].map(m=>m[1]);
+ const urls=[...css.matchAll(/url\((\.\.\/\.\.\/assets\/fonts\/[^)]+)\)/g)].map(m=>m[1]);
  assert(urls.length>=50,'SUIT is split into chunks');
- for(const u of urls)await access(new URL('..'+u,import.meta.url));
+ for(const u of urls)await access(new URL(u,new URL('../src/platform/fonts.css',import.meta.url)));
  assert(!/https?:/.test(css.replace(/\/\*[\s\S]*?\*\//g,'')),'no font CDN (font-src \'self\')');
  const n2=await readFile(new URL('../src/platform/n2.css',import.meta.url),'utf8');
  assert(/body\.n2\{[^}]*font-family:SUIT,/.test(n2));

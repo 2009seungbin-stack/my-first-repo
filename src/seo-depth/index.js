@@ -21,6 +21,7 @@ import characterCounter from './character-counter.js';
 import sfx from './sfx.js';
 import storeArt from './store-art.js';
 import audioLab from './audio-lab.js';
+import preflight from './preflight.js';
 import webtoonManga from './webtoon-manga.js';
 import {mayPromote} from '../capabilities.js';
 import pixelAvatar from './pixel-avatar.js';
@@ -45,9 +46,10 @@ export const GROUPS=Object.freeze({
  'store-art':['game/store-art-pack'],
  'character-counter':['character-counter'],
  'audio-lab':['audio-lab'],
+ 'preflight':['preflight','preflight/obs','preflight/studio','preflight/blender','preflight/godot'],
  ...(mayPromote('webtoon-manga-toolkit')?{'webtoon-manga':['image/webtoon-manga-toolkit']}:{})
 });
-const FILES={'sprite-core':spriteCore,'sprite-engines':spriteEngines,'sprite-formats':spriteFormats,pack,'pixel-fix':pixelFix,'pixel-edit':pixelEdit,'pixel-convert':pixelConvert,'tile-core':tileCore,'tile-engines':tileEngines,'texture-pbr':texturePbr,'texture-normals':textureNormals,ui,'tools-image':toolsImage,'tools-media':toolsMedia,'character-counter':characterCounter,'audio-lab':audioLab,'webtoon-manga':webtoonManga,'pixel-avatar':pixelAvatar,sfx,'store-art':storeArt};
+const FILES={'sprite-core':spriteCore,'sprite-engines':spriteEngines,'sprite-formats':spriteFormats,pack,'pixel-fix':pixelFix,'pixel-edit':pixelEdit,'pixel-convert':pixelConvert,'tile-core':tileCore,'tile-engines':tileEngines,'texture-pbr':texturePbr,'texture-normals':textureNormals,ui,'tools-image':toolsImage,'tools-media':toolsMedia,'character-counter':characterCounter,'audio-lab':audioLab,preflight,'webtoon-manga':webtoonManga,'pixel-avatar':pixelAvatar,sfx,'store-art':storeArt};
 export const DEPTH=Object.freeze(Object.assign({},...Object.values(FILES)));
 export const groupFile=Object.freeze(FILES);
 /** The intent types (docs/SEO-CONTENT-MODEL.md §Types). */

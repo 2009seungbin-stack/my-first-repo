@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "vertical": "blender",
+  "name": "Demo Blender stack",
+  "generatedAt": "2026-10-05T00:00:00Z",
+  "sample": true,
+  "host": {
+    "name": "Blender",
+    "version": "4.5 LTS"
+  },
+  "platform": "windows",
+  "architecture": "x86_64",
+  "components": [
+    {
+      "id": "demo-blender-0",
+      "name": "Demo Mesh Toolkit",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-1",
+      "name": "Demo UV Toolkit",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-2",
+      "name": "Demo Scatter Pack",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Geometry Node Pack",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-3",
+      "name": "Demo Node Library",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Geometry Node Pack",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-4",
+      "name": "Demo Render Bridge",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Render Engine",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-5",
+      "name": "Demo Asset Shelf",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Asset Library",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-6",
+      "name": "Demo Export Tool",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Export Tool",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-7",
+      "name": "Demo Pipeline Script",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Pipeline Tool",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-8",
+      "name": "Demo Legacy Add-on",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-9",
+      "name": "Demo Unverified Rig",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Add-on",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-10",
+      "name": "Demo Native Renderer",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Render Engine",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-11",
+      "name": "Demo Retired API Tool",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Python Tool",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-12",
+      "name": "Demo Python Runtime",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Python Tool",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-13",
+      "name": "Demo Model Library",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Asset Library",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-14",
+      "name": "Demo Godot Export Tool",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Export Tool",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-blender-15",
+      "name": "Demo External Converter",
+      "vendor": "Fictional Demo Vendor",
+      "category": "External CLI",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    }
+  ],
+  "target": {
+    "version": "5.2 LTS",
+    "platform": "windows",
+    "architecture": "x86_64",
+    "runtimes": {
+      "Python": "3.13"
+    }
+  }
+}

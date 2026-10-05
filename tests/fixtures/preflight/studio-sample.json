@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "vertical": "studio",
+  "name": "Demo macOS stack",
+  "generatedAt": "2026-10-05T00:00:00Z",
+  "sample": true,
+  "host": {
+    "name": "macOS",
+    "version": "15"
+  },
+  "platform": "macos",
+  "architecture": "arm64",
+  "components": [
+    {
+      "id": "demo-studio-0",
+      "name": "Demo Session DAW",
+      "vendor": "Fictional Demo Vendor",
+      "category": "DAW",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-1",
+      "name": "Demo Equalizer",
+      "vendor": "Fictional Demo Vendor",
+      "category": "VST3",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-2",
+      "name": "Demo Compressor",
+      "vendor": "Fictional Demo Vendor",
+      "category": "AU",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-3",
+      "name": "Demo Reverb",
+      "vendor": "Fictional Demo Vendor",
+      "category": "VST3",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-4",
+      "name": "Demo Tape Color",
+      "vendor": "Fictional Demo Vendor",
+      "category": "VST3",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-5",
+      "name": "Demo Synth AU",
+      "vendor": "Fictional Demo Vendor",
+      "category": "AU",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-6",
+      "name": "Demo Meter AAX",
+      "vendor": "Fictional Demo Vendor",
+      "category": "AAX",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-7",
+      "name": "Demo MIDI Router",
+      "vendor": "Fictional Demo Vendor",
+      "category": "MIDI Tool",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-8",
+      "name": "Demo License Service",
+      "vendor": "Fictional Demo Vendor",
+      "category": "License Manager",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-9",
+      "name": "Demo Unverified Piano",
+      "vendor": "Fictional Demo Vendor",
+      "category": "VST3",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-10",
+      "name": "Demo Interface Driver",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Driver",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-11",
+      "name": "Demo Retired VST2",
+      "vendor": "Fictional Demo Vendor",
+      "category": "VST2",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-12",
+      "name": "Demo Control Panel",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Control Software",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-13",
+      "name": "Demo Standalone Synth",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Standalone Application",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-14",
+      "name": "Demo System Audio",
+      "vendor": "Fictional Demo Vendor",
+      "category": "System Extension",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-studio-15",
+      "name": "Demo Firmware",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Hardware Firmware",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    }
+  ],
+  "target": {
+    "version": "26",
+    "platform": "macos",
+    "architecture": "arm64",
+    "formats": [
+      "AU",
+      "VST3"
+    ]
+  }
+}

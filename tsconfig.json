@@ -11,6 +11,6 @@
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["platform/**/*.js", "server/platform/**/*.js", "server/oauth/**/*.js", "src/signin-brands.js", "src/admin/**/*.js"],
+  "include": ["platform/**/*.js", "server/platform/**/*.js", "server/oauth/**/*.js", "src/signin-brands.js", "src/admin/**/*.js", "src/preflight/**/*.js", "src/preflight/**/*.d.ts"],
   "exclude": ["src/admin/sw.js"]
 }

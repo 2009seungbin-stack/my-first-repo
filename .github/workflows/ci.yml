@@ -37,6 +37,8 @@ jobs:
           python tests/platform-browser.py
           python tests/hardware-benchmarks-test.py
           python tests/hardware-tools-browser.py
+      - name: Preflight real HTTP, evidence, local storage and report exports
+        run: python tests/preflight-browser.py
       - name: Decoded image quality and PDF preservation benchmarks
         run: |
           npm run benchmark
