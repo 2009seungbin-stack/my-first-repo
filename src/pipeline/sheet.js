@@ -128,7 +128,7 @@ export function splitSheet(data,w,h,p){
   const rect={x:Math.max(0,x0-pad),y:Math.max(0,y0-pad),w:0,h:0};rect.w=Math.min(w,x1+pad+1)-rect.x;rect.h=Math.min(h,y1+pad+1)-rect.y;
   const cell=cropRect(data,w,h,rect);
   // Another sticker reaching into this box: paint it with the backdrop (or clear it).
-  for(let y=0;y<rect.h;y++){const sy=Math.min(sh-1,Math.floor((y+rect.y)*scale));for(let x=0;x<rect.w;x++){const o=own[sy*sw+Math.min(sw-1,Math.floor((x+rect.x)*scale))];if(o&&o!==k+1){const i=(y*rect.w+x)*4;if(backdrop){cell[i]=backdrop[0];cell[i+1]=backdrop[1];cell[i+2]=backdrop[2];cell[i+3]=255;}else cell[i+3]=0;}}}
+  for(let y=0;y<rect.h;y++){const sy=Math.min(sh-1,Math.floor((y+rect.y)*scale));for(let x=0;x<rect.w;x++){const q=sy*sw+Math.min(sw-1,Math.floor((x+rect.x)*scale)),o=own[q];if(o!==k+1&&(o||fg[q])){const i=(y*rect.w+x)*4;if(backdrop){cell[i]=backdrop[0];cell[i+1]=backdrop[1];cell[i+2]=backdrop[2];cell[i+3]=255;}else cell[i+3]=0;}}}
   return {...rect,data:cell};
  });
  return {cells:out,cols:Math.max(...rows.map(r=>r.length)),rows:rows.length,method:'auto',backdrop};
