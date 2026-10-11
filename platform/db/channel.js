@@ -351,8 +351,9 @@ export async function excerptsOf(db,ids,n=140){
 /* ---------- AI 창작: recipes, remixes, images (migrations/0015) ---------- */
 
 /** Alt texts that mark the source image of a post (the "원본" of a before/after pair). The workbench inserts
- * ![원본](/u/…) for it; every other image is a result. */
-export const SOURCE_ALT=/^(원본|before|source|原本|元画像)$/i;
+ * ![원본](/u/…) (English pages: ![Original](/u/…)) for it and ![결과](/u/…) for results; every image not marked
+ * as the source is a result. */
+export const SOURCE_ALT=/^(원본|before|source|original|原本|元画像)$/i;
 const IMG_REF=/!\[([^\]\n]{0,200})\]\(\/u\/([a-z0-9]{8,64})\/(?:thumb|medium|full)\.(?:webp|png|jpg)\)/g;
 const MIME_EXT=/** @type {Record<string,string>} */({'image/webp':'webp','image/png':'png','image/jpeg':'jpg'});
 /** @typedef {{id:string,url:string,w:number,h:number,source:boolean}} PostImage */

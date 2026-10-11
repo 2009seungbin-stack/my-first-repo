@@ -14,7 +14,7 @@ import {boardTime} from './format.js';
 import {frontPosts,withCards} from '../db/channel.js';
 import {CHANNELS,channelById,channelPath,makePath,recipesPath} from '../channels.js';
 import {MAKE_TOOLS,makeHref} from '../tools-nav.js';
-import {summarize} from '../recipe.js';
+import {summaryLine} from '../recipe.js';
 
 /** What the site is, for titles, descriptions and JSON-LD (the home, the recipe lists). */
 export const SITE_WHAT=Object.freeze({
@@ -46,12 +46,10 @@ export async function loadFront(db,o){
  return {l:o.l,now:o.now,sort,posts:await withCards(db,posts),rail,channels:o.channels||[]};
 }
 
-/** A recipe in one line: its steps by name (시트 나누기 → 배경 지우기 → 흰 테두리 → LINE 스탬프). @param {any} recipe @param {string} l */
+/** A recipe in one line (platform/recipe.js summaryLine: 시트 나누기 → 배경 지우기 → 흰 테두리 6px → LINE 스탬프 370×320).
+ * A stored recipe was validated when it was posted; a row that cannot be summarised shows nothing. @param {any} recipe @param {string} l */
 export function recipeLine(recipe,l){
- let s;try{s=summarize(recipe,l);}catch{return '';}
- const names=(s?.steps||[]).map(x=>x.name).filter(Boolean);
- if(s?.preset&&!names.includes(s.preset))names.push(s.preset);
- return names.join(' → ');
+ try{return summaryLine(recipe,l);}catch{return '';}
 }
 /** The size line of a result image: "370×320 ×24". @param {{w:number,h:number}} img @param {number} n */
 const sizeLabel=(img,n)=>`${img.w&&img.h?`${img.w}×${img.h}`:''}${n>1?` ×${n}`:''}`.trim();

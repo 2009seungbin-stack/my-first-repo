@@ -157,7 +157,7 @@ test('portal home (AI 창작, mockup 1): upload strip, the seven boards\' feed w
  // A recipe post: before/after images, the recipe in one line, 내 사진으로 해보기, ↑ 댓글 리믹스, the AI chip.
  const line=m.posts.find(p=>p.id==='demo-aic-1');assert(line&&line.media?.before&&line.media?.after&&line.recipe,'demo-aic-1 has its images and recipe');
  assert(out.includes('<span class="lab">원본</span>')&&/<span class="lab mono">370×320 ×6<\/span>/.test(out),'before/after with the result size and count');
- assert(out.includes('시트 나누기 → 배경 지우기 → 자르기 → 흰 테두리 → 규격 맞추기 → 내보내기'),'the recipe in one line (summarize)');
+ assert(out.includes('시트 나누기 → 배경 지우기 → 자르기 → 흰 테두리 7px → LINE 스탬프 370×320'),'the recipe in one line (summaryLine)');
  assert(out.includes('href="/ko/make/?recipe=demo-aic-1"')&&out.includes('내 사진으로 해보기'));
  assert(out.includes('class="mh ai">AI 생성<')&&out.includes('리믹스 2'),'AI chip and the remix count (two remixes of demo-aic-1)');
  // The curved thread down the feed stays (CSS .feed>li::before); text posts show their first lines.

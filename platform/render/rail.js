@@ -8,7 +8,7 @@ import {postHref} from './ui.js';
 import {trendingRecipes} from '../db/channel.js';
 import {trendsPath,makePath} from '../channels.js';
 import {MAKE_TOOLS,makeHref} from '../tools-nav.js';
-import {PRESETS} from '../recipe.js';
+import * as RECIPE from '../recipe.js';
 import {icon} from './icons.js';
 
 const DAY=864e5;
@@ -30,11 +30,13 @@ export const TRENDS=Object.freeze(/** @type {Trend[]} */([
 ]));
 /** Korean day (YYYY-MM-DD) of a time: recipe_try_days rows are per KST day. @param {number} t */
 export const kstDate=t=>new Date(t+9*3600e3).toISOString().slice(0,10);
-/** A preset's name and size for the rail and the boards (the workbench's own names when platform/recipe.js
- * has the preset). @param {string} slug @param {string} l */
+/** A preset's short name and size for the rail and the boards: the menu's name (tools-nav.js) and the size of
+ * the preset's fit spec in platform/recipe.js (FIT_SPECS), else the preset's own spec line.
+ * @param {string} slug @param {string} l */
 export function presetLabel(slug,l){
- const lang=l==='ko'?'ko':'en',p=PRESETS.find(x=>x.slug===slug),t=MAKE_TOOLS.find(x=>x.slug===slug);
- return {slug,name:p?.names?.[lang]||t?.[lang]||slug,spec:p?.spec||t?.spec||''};
+ const lang=l==='ko'?'ko':'en',p=/** @type {any} */(RECIPE).PRESETS?.find((/** @type {any} */ x)=>x.slug===slug),t=MAKE_TOOLS.find(x=>x.slug===slug);
+ const fit=p?.fit?/** @type {any} */(RECIPE).FIT_SPECS?.[p.fit]:null;
+ return {slug,name:t?.[lang]||p?.names?.[lang]||slug,spec:fit?`${fit.w}×${fit.h}`:t?.spec||p?.spec||''};
 }
 
 /** @param {any} db @param {{now:number}} o */
@@ -59,7 +61,7 @@ export function presetsBox(l){
 export function trendsBox(r,l){
  const ko=l==='ko',lang=ko?'ko':'en';
  const rows=[...TRENDS.slice(0,3).map(x=>({href:`${trendsPath(l)}#${x.id}`,name:x[lang],where:x.where[lang]})),
-  ...r.tried.map(p=>({href:postHref(l,p),name:p.title,where:ko?`해보기 ${p.week}`:`${p.week} tries`}))];
+  ...(r.tried||[]).map(p=>({href:postHref(l,p),name:p.title,where:ko?`해보기 ${p.week}`:`${p.week} tries`}))];
  return html`<section class="rbox" aria-labelledby="rail-trends"><div class="rbh"><h2 id="rail-trends"><span class="hot">${icon('trend',16)}</span>${ko?'이번 주 유행':'Trending this week'}</h2><a href="${trendsPath(l)}">${ko?'유행 모음':'All trends'} ›</a></div>
 <ol class="rtrend">${rows.map((x,i)=>html`<li><a href="${x.href}"><span class="rk mono">${i+1}</span><span class="rn">${x.name}</span><span class="rw">${x.where}</span></a></li>`)}</ol></section>`;
 }

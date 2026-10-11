@@ -241,7 +241,7 @@ test('post page (mockup 3): AI chip, image grid with 원본 and ZIP, recipe card
  // Recipe card: header with counts and the two actions, ① 만들기 (generator, prompt + copy), ② 다듬기 (numbered steps).
  const card=out.slice(out.indexOf('<section class="rcard"'),out.indexOf('</section>',out.indexOf('<section class="rcard"')));
  assert(card.includes('해보기 96 · 리믹스 2')&&card.includes('href="/api/v2/recipes/demo-aic-1" download="nerulio-recipe-demo-aic-1.json"')&&card.includes('class="btn p" href="/ko/make/?recipe=demo-aic-1"'));
- assert(card.includes('① 만들기')&&card.includes('제미나이 · 이 단계는 외부 서비스에서 해요')&&card.includes('id="prompt-demo-aic-1"')&&card.includes('data-copy="#prompt-demo-aic-1"'));
+ assert(card.includes('① 만들기')&&card.includes('제미나이 (나노바나나) · 이 단계는 외부 서비스에서 해요')&&card.includes('id="prompt-demo-aic-1"')&&card.includes('data-copy="#prompt-demo-aic-1"'));
  const steps=summarize(JSON.parse(String((await pages()).raw.prepare("SELECT recipe_json FROM discussions WHERE id='demo-aic-1'").get().recipe_json)),'ko').steps;
  assert(card.includes(`② 다듬기`)&&card.includes(`${steps.length}단계`));
  for(const [i,s] of steps.entries())assert(card.includes(`<span class="rn mono">${i+1}</span><b>${s.name}</b>`),s.name);
@@ -299,7 +299,7 @@ test('레시피 모음 and 이번 주 유행: recipe posts most tried first, han
 test('write page: the image consent, the AI fields, the workbench\'s recipe slot; policy: the AI rules in Korean and English',{skip},async()=>{
  const w=await text('/ko/community/pfp/write');
  assert(w.includes('name="consent" value="1" data-consent')&&w.includes('href="/ko/community/policy#ai"'));
- assert(w.includes('<select name="generator">')&&w.includes('value="gemini">제미나이<')&&w.includes('name="prompt"')&&w.includes('name="ai" value="1"'));
+ assert(w.includes('<select name="generator">')&&w.includes('value="gemini">제미나이 (나노바나나)<')&&w.includes('name="prompt"')&&w.includes('name="ai" value="1"'));
  assert(w.includes('data-recipe-draft hidden'),'filled from sessionStorage when opened from the workbench');
  const pol=await text('/ko/community/policy');
  const ai=pol.slice(pol.indexOf('id="ai"'),pol.indexOf('</section>',pol.indexOf('id="ai"')));

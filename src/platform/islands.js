@@ -288,7 +288,9 @@ function aiDraft(wf,ti,ta){
  const box=$('[data-recipe-draft]',wf),sum=$('[data-recipe-summary]',box||wf);
  const steps=Array.isArray(d.recipe?.steps)?d.recipe.steps:[];
  const names=OP_NAMES[L==='ko'?'ko':'en'];
- if(box&&d.recipe){box.hidden=false;if(sum)sum.textContent=`${steps.length}${L==='ko'?'단계':' steps'}: ${steps.map(x=>names[x?.op]||x?.op).join(' → ')}`;}
+ if(box&&d.recipe){box.hidden=false;if(sum)sum.textContent=`${steps.length}${L==='ko'?'단계':' steps'}: ${steps.map(x=>names[x?.op]||x?.op).join(' → ')}`;
+  // The workbench's own summary line (src/pipeline/recipe.js, the module platform/recipe.js re-exports).
+  import('../pipeline/recipe.js').then(R=>{const v=R.validateRecipe(d.recipe);if(v.ok&&sum)sum.textContent=`${v.recipe.steps.length}${L==='ko'?'단계':' steps'}: ${R.summaryLine(v.recipe,L)}`;}).catch(()=>{});}
  const gen=$('select[name="generator"]',wf),pr=$('textarea[name="prompt"]',wf);
  const g=d.generator||d.recipe?.source?.generator,p=d.prompt||d.recipe?.source?.prompt;
  if(gen&&g&&[...gen.options].some(o=>o.value===g))gen.value=g;

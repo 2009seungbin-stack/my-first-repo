@@ -15,7 +15,7 @@ export const MAKE_TOOLS=Object.freeze(/** @type {MakeTool[]} */([
  {slug:'telegram-sticker',svg:'smile',ko:'텔레그램 스티커',en:'Telegram sticker',spec:'512×512'},
  {slug:'round-pfp',svg:'user',ko:'원형 프사',en:'Round profile picture',spec:'800×800'},
  {slug:'phone-wallpaper',svg:'phone',ko:'폰 배경화면',en:'Phone wallpaper',spec:'1206×2622'},
- {slug:'ai-pixel-fix',svg:'pixel',ko:'AI 도트 정리',en:'AI pixel-art fix',spec:'64×64'},
+ {slug:'ai-pixel-fix',svg:'pixel',ko:'AI 도트 정리',en:'AI pixel-art fix',spec:'1px ×8'},
 ]));
 /** A preset landing of the workbench. @param {string} l @param {{slug:string}} x */
 export const makeHref=(l,x)=>`/${l}/make/${x.slug}/`;

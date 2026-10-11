@@ -15,7 +15,8 @@ import {COMPAT_STATUS_LABEL,label} from '../labels.js';
 import {confirmationsNeeded} from '../community.js';
 import {proposeForm} from './channel.js';
 import {channelPath,postPath,writePath,makePath,isReadOnly} from '../channels.js';
-import {summarize} from '../recipe.js';
+import {summarize,GENERATOR_NAMES} from '../recipe.js';
+export {GENERATOR_NAMES};
 import {typeDef} from '../verticals/index.js';
 import {loadRail,renderRail} from './rail.js';
 import {icon,identicon} from './icons.js';
@@ -151,8 +152,6 @@ function postJsonLd(m,url,s){
   interactionStatistic:{'@type':'InteractionCounter',interactionType:'https://schema.org/LikeAction',userInteractionCount:p.up},comment:comments.slice(0,10).map(asComment)};
 }
 
-/** Generators by name (the recipe's source.generator). */
-export const GENERATOR_NAMES=Object.freeze(/** @type {Record<string,{ko:string,en:string}>} */({chatgpt:{ko:'ChatGPT',en:'ChatGPT'},gemini:{ko:'제미나이',en:'Gemini'},midjourney:{ko:'미드저니',en:'Midjourney'},sd:{ko:'Stable Diffusion',en:'Stable Diffusion'},novelai:{ko:'NovelAI',en:'NovelAI'},other:{ko:'기타 AI',en:'Other AI'}}));
 /** Steps that run an AI model in the browser (marked "AI 모델" on the recipe card). */
 const MODEL_OPS=new Set(['bg.remove','upscale']);
 const EXT_NAME=/** @type {Record<string,string>} */({webp:'WebP',png:'PNG',jpg:'JPEG'});

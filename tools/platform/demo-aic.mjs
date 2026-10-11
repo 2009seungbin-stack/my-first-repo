@@ -7,7 +7,7 @@
 import {deflateSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {createPost} from '../../platform/community.js';
-import {RECIPE_SCHEMA} from '../../platform/recipe.js';
+import {RECIPE_SCHEMA,validateRecipe} from '../../platform/recipe.js';
 
 const MIN=6e4,HOUR=36e5,DAY=864e5;
 
@@ -53,8 +53,13 @@ function character(w,h,o){
 
 /* ---------- posts ---------- */
 const USERS=[['demo:a1','감자칩'],['demo:a2','뭉게'],['demo:a3','pixelpan'],['demo:a4','멍멍'],['demo:a5','디코장'],['demo:a6','노을'],['demo:a7','바탕화면장인'],['demo:a8','운영자']];
-/** A recipe in the contract's shape (platform/recipe.js validates the real one). @param {string} generator @param {string} prompt @param {[string,Record<string,unknown>][]} steps @param {{w:number,h:number,count?:number}} result @param {'single'|'sheet'} [expect] */
-const recipe=(generator,prompt,steps,result,expect='single')=>({schema:RECIPE_SCHEMA,source:{generator,prompt,ai:true},input:{expect},steps:steps.map(([op,p])=>({op,v:1,p})),result:{w:result.w,h:result.h,frames:1,count:result.count||1}});
+/** A recipe as the workbench stores it: validated (every parameter written out) by platform/recipe.js.
+ * @param {string} generator @param {string} prompt @param {[string,Record<string,unknown>][]} steps @param {{w:number,h:number,count?:number}} result @param {'single'|'sheet'} [expect] */
+function recipe(generator,prompt,steps,result,expect='single'){
+ const v=validateRecipe({schema:RECIPE_SCHEMA,source:{generator,...(prompt?{prompt}:{}),ai:true},input:{expect},steps:steps.map(([op,p])=>({op,v:1,p})),result:{w:result.w,h:result.h,frames:1,count:result.count||1}});
+ if(!v.ok)throw Error(`demo recipe: ${/** @type {any} */(v).error}`);
+ return /** @type {any} */(v).recipe;
+}
 const COLORS=['#e07a5f','#f2a541','#7fb069','#5aa9e6','#8e7dbe','#c4411d'];
 /** @typedef {{id:string,ch:string,kind:string,title:string,body:string,author:string,anon?:string|null,ago:number,up:number,views:number,tries?:number,recipe?:any,generator?:string,prompt?:string,remixOf?:string,images?:{w:number,h:number,color:string,bg?:string,source?:boolean,mood?:number,pixel?:number}[],comments?:[string,string,number,number?][],best?:boolean,pinned?:boolean}} DemoPost */
 /** @type {DemoPost[]} */
@@ -62,32 +67,32 @@ const POSTS=[
  {id:'demo-aic-1',ch:'sticker',kind:'line',title:'나노바나나 피규어로 LINE 스탬프 24개 한 번에 뽑음',author:'demo:a1',anon:'118.235',ago:420,up:41,views:640,tries:96,
   body:'제미나이로 캐릭터 시트 한 장 뽑고 여기서 나눠서 LINE 규격까지 맞췄어요. 표정 24개 다 짝수 크기 맞고 여백 10px 들어갔어요. 레시피 그대로 쓰면 자기 시트로 똑같이 돼요.',
   generator:'gemini',prompt:'첨부한 캐릭터로 표정 24개를 6×4 격자에 그려줘. 흰 배경, 캐릭터마다 간격 넉넉하게, 두꺼운 외곽선, 귀여운 피규어 느낌.',
-  recipe:recipe('gemini','첨부한 캐릭터로 표정 24개를 6×4 격자에 그려줘. 흰 배경, 캐릭터마다 간격 넉넉하게, 두꺼운 외곽선, 귀여운 피규어 느낌.',[['sheet.split',{cols:6,rows:4}],['bg.remove',{edge:'refine'}],['crop',{fit:'subject',margin:0.08}],['sticker.border',{width:6}],['fit',{preset:'line.sticker',w:370,h:320}],['export',{format:'png',zip:true}]],{w:370,h:320,count:24},'sheet'),
+  recipe:recipe('gemini','첨부한 캐릭터로 표정 24개를 6×4 격자에 그려줘. 흰 배경, 캐릭터마다 간격 넉넉하게, 두꺼운 외곽선, 귀여운 피규어 느낌.',[['sheet.split',{mode:'auto',cols:6,rows:4}],['bg.remove',{mode:'ai',refine:true}],['crop',{mode:'subject',margin:0.08}],['sticker.border',{width:0.018}],['fit',{preset:'line.sticker'}],['export',{format:'png',pack:'zip',maxBytes:1000000}]],{w:370,h:320,count:24},'sheet'),
   images:[{w:480,h:360,color:'#e07a5f',bg:'#cfd6de',source:true},...COLORS.map((c,i)=>({w:370,h:320,color:c,mood:i%2?-1:1}))],
   comments:[['demo:a6','시트 나누기가 그림 사이 간격 좁아도 잘 잘리네요. 제 건 5×4였는데 자동으로 잡힘',6],['demo:a1','격자 인식이 애매하면 단계 1에서 칸 수 직접 넣으면 돼요',3,1],['demo:a5','디코용으로 해보기 했는데 마지막 단계만 디스코드 128로 바꾸니까 바로 됨',2]]},
  {id:'demo-aic-2',ch:'pfp',kind:'tip',title:'지브리 프사 테두리 하얗게 뜨는 거 이렇게 해결',author:'demo:a2',ago:38,up:33,views:420,tries:61,
   body:'ChatGPT로 만든 지브리풍 그림을 원형으로 자르면 가장자리가 하얗게 뜨는데, 배경 지우기에서 가장자리 다듬기를 켜고 자르면 깔끔해요.',
   generator:'chatgpt',prompt:'이 사진을 지브리 스튜디오 느낌의 따뜻한 수채화 그림으로 바꿔줘. 배경은 단순하게.',
-  recipe:recipe('chatgpt','이 사진을 지브리 스튜디오 느낌의 따뜻한 수채화 그림으로 바꿔줘. 배경은 단순하게.',[['bg.remove',{edge:'refine'}],['crop',{shape:'circle',fit:'face'}],['upscale',{scale:2}],['fit',{preset:'pfp.round',w:800,h:800}]],{w:800,h:800}),
+  recipe:recipe('chatgpt','이 사진을 지브리 스튜디오 느낌의 따뜻한 수채화 그림으로 바꿔줘. 배경은 단순하게.',[['bg.remove',{mode:'ai',refine:true}],['crop',{mode:'subject',ratio:'1:1',shape:'circle',margin:0.06}],['upscale',{scale:2,engine:'ai'}],['fit',{preset:'pfp.square'}]],{w:800,h:800}),
   images:[{w:400,h:400,color:'#7fb069',bg:'#d9c7b0',source:true},{w:400,h:400,color:'#7fb069'}]},
  {id:'demo-aic-3',ch:'pixel',kind:'fix',title:'챗GPT 도트가 픽셀 크기 제각각일 때 정리 전후',author:'demo:a3',anon:'61.74',ago:60,up:29,views:380,tries:44,
   body:'AI 도트는 한 픽셀 크기가 들쭉날쭉해요. AI 도트 정리로 격자에 맞추고 16색으로 줄인 뒤 8배로 키웠어요.',
   generator:'chatgpt',prompt:'16비트 RPG 스타일의 귀여운 마법사 캐릭터 도트, 정면, 단색 배경.',
-  recipe:recipe('chatgpt','16비트 RPG 스타일의 귀여운 마법사 캐릭터 도트, 정면, 단색 배경.',[['pixel.snap',{grid:'auto'}],['palette',{colors:16}],['upscale',{scale:8,mode:'nearest'}]],{w:512,h:512}),
+  recipe:recipe('chatgpt','16비트 RPG 스타일의 귀여운 마법사 캐릭터 도트, 정면, 단색 배경.',[['pixel.snap',{scale:0,colors:16}],['upscale',{scale:8,engine:'pixel',maxSide:2048}],['export',{format:'png'}]],{w:512,h:512}),
   images:[{w:384,h:384,color:'#3d5a80',bg:'#e6dccb',source:true,pixel:6},{w:384,h:384,color:'#3d5a80',pixel:12}]},
  {id:'demo-aic-4',ch:'sticker',kind:'kakao',title:'우리 집 강아지 표정 6종 카톡용으로',author:'demo:a4',ago:25,up:19,views:211,remixOf:'demo-aic-1',
   body:'위 LINE 레시피로 해보고 마지막만 카톡 360으로 바꿨어요. 강아지 사진은 제 강아지예요.',generator:'gemini',
-  recipe:recipe('gemini','',[['sheet.split',{cols:3,rows:2}],['bg.remove',{edge:'refine'}],['sticker.border',{width:6}],['fit',{preset:'kakao.static',w:360,h:360}]],{w:360,h:360,count:6},'sheet'),
+  recipe:recipe('gemini','',[['sheet.split',{mode:'auto',cols:3,rows:2}],['bg.remove',{mode:'auto'}],['sticker.border',{width:0.018}],['fit',{preset:'kakao.static'}],['export',{maxBytes:150000}]],{w:360,h:360,count:6},'sheet'),
   images:[{w:360,h:360,color:'#f2a541'},{w:360,h:360,color:'#f2a541',mood:-1},{w:360,h:360,color:'#e9c46a'}]},
  {id:'demo-aic-5',ch:'sticker',kind:'question',title:'흰 테두리 두께 몇 px이 제일 자연스러움?',author:'demo:a6',anon:'211.36',ago:70,up:5,views:388,
   body:'6px로 했는데 작은 화면에서 좀 두꺼워 보여요. 다들 몇으로 하세요?',comments:[['demo:a1','LINE은 6~8px, 디스코드 128이면 3px 정도가 좋았어요',4]]},
  {id:'demo-aic-6',ch:'sticker',kind:'discord',title:'디코 서버 이모지 128로 맞춤 (리믹스)',author:'demo:a5',ago:300,up:22,views:301,remixOf:'demo-aic-1',generator:'gemini',
   body:'레시피 마지막 단계만 디스코드 128로 바꿨어요.',
-  recipe:recipe('gemini','',[['sheet.split',{cols:6,rows:4}],['bg.remove',{edge:'refine'}],['sticker.border',{width:3}],['fit',{preset:'discord.emoji',w:128,h:128}]],{w:128,h:128,count:24},'sheet'),
+  recipe:recipe('gemini','',[['sheet.split',{mode:'auto',cols:6,rows:4}],['bg.remove',{mode:'ai',refine:true}],['sticker.border',{width:0.02}],['fit',{preset:'discord.emoji'}],['export',{maxBytes:256000}]],{w:128,h:128,count:24},'sheet'),
   images:[{w:128,h:128,color:'#5aa9e6'},{w:128,h:128,color:'#8e7dbe'}]},
  {id:'demo-aic-7',ch:'wall',kind:'phone',title:'화보 컷 아이폰 17 배경화면으로 키움',author:'demo:a7',ago:200,up:15,views:260,tries:12,generator:'chatgpt',
   body:'본인 사진으로 만든 화보 컷을 고화질로 키워 아이폰 17 해상도에 맞췄어요.',prompt:'내 사진을 잡지 화보 느낌으로, 부드러운 자연광, 단색 배경.',
-  recipe:recipe('chatgpt','내 사진을 잡지 화보 느낌으로, 부드러운 자연광, 단색 배경.',[['upscale',{scale:2}],['fit',{preset:'wall.iphone17',w:1206,h:2622,mode:'cover'}]],{w:1206,h:2622}),
+  recipe:recipe('chatgpt','내 사진을 잡지 화보 느낌으로, 부드러운 자연광, 단색 배경.',[['upscale',{scale:2,engine:'ai'}],['fit',{preset:'wall.iphone17'}],['export']],{w:1206,h:2622}),
   images:[{w:300,h:650,color:'#8e7dbe',bg:'#efe6f6'}]},
  {id:'demo-aic-8',ch:'howto',kind:'question',title:'챗GPT 캐릭터 시트 배경 회색 남는 문제',author:'demo:a3',anon:'61.74',ago:1500,up:17,views:402,
   body:'시트를 나누고 배경을 지워도 캐릭터 사이에 회색이 조금씩 남아요. 어떻게 하세요?',comments:[['demo:a2','프롬프트에 "완전한 흰 배경"을 넣고, 배경 지우기에서 가장자리 다듬기를 켜 보세요',9]]},
