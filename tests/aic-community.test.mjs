@@ -271,7 +271,7 @@ test('board (mockup 2): channel head, 말머리 tabs, 규격 row, the Kakao note
  assert(out.includes('카카오 스토어는 AI 이모티콘을 받지 않아요 — 카톡 규격은 대화용'));
  assert(out.includes('href="/ko/community/sticker/?sort=tries"')&&out.includes('많이 해본 순')&&out.includes('★ 념글'));
  assert(/<span class="pth chk" aria-hidden="true"><img src="\/u\/[0-9a-f]{24}\/full\.png" alt="" width="36" height="36"/.test(out),'36px thumbnails');
- assert(out.includes('<span class="rcb">레시피</span>')&&/<span class="cmt">\[3\]<\/span>/.test(out),'레시피 badge and [댓글]');
+ assert(out.includes('<span class="rbadge">레시피</span>')&&/<span class="cmt">\[3\]<\/span>/.test(out),'레시피 badge and [댓글]');
  const tries=await text('/ko/community/sticker/?sort=tries');
  assert(tries.includes('noindex')&&tries.indexOf('나노바나나 피규어로')<tries.indexOf('우리 집 강아지')+1e9);
  // An archived board says so, offers no write button, and its write page sends the writer to 자유.

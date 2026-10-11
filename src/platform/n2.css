@@ -1184,7 +1184,7 @@ body.n2{background:var(--page)}
 .pr .pth{width:36px;height:36px;border-radius:var(--radius-md);border:1px solid var(--line);flex:none;overflow:hidden;display:inline-flex}
 .pr .pth img{width:100%;height:100%;object-fit:contain}
 .plist .pr.hth{min-height:46px}
-.rcb{display:inline-block;font-size:11px;font-weight:700;color:var(--brand);border:1px solid var(--accent-line);border-radius:var(--radius-sm);padding:0 5px;margin-left:6px;vertical-align:1px}
+.rbadge{display:inline-block;font-size:11px;font-weight:700;color:var(--brand);border:1px solid var(--accent-line);border-radius:var(--radius-sm);padding:0 5px;margin-left:6px;vertical-align:1px}
 /* posts: images, the recipe card, remixes, the phone bar */
 .remixof{display:flex;align-items:center;gap:6px;margin:8px 0 0;font-size:13px;color:var(--mute)}.remixof a{color:var(--brand);font-weight:700}
 .rsrc{margin:4px 4px 10px;max-width:277px}.rsrc img{display:block;width:100%;height:auto;border-radius:var(--radius-md);border:1px solid var(--line)}
@@ -1247,12 +1247,13 @@ body.n2{background:var(--page)}
  .upstrip{padding:12px;gap:10px}.upstrip .btn{display:none}.upstrip strong{font-size:14px}.upstrip .upt span{font-size:12px}
  .fimg{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.fi{aspect-ratio:1}
  .fimg.one{max-width:50%}
- .frc{padding:8px 0}.frc .btn.sm{height:36px}
+ .frc{padding:8px 0}.frc .btn.sm{height:44px}
+ /* touch targets ≥ 44px on phones (contract §1) */
+ .pchips a,.specrow a,.chipsrow a,.n2 .fa .up,.n2 .fa .cm,.n2 .fa .rx,.rch .btn,.mbar .mup{min-height:44px;height:auto}
  .rgrid{padding:12px;gap:8px}.rgrid.c6{grid-template-columns:repeat(3,minmax(0,1fr))}
  .rxgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.rxgrid b,.rxgrid .fine{display:none}
  .rsteps li{flex-wrap:wrap;gap:4px 10px}.rsteps b{width:auto}.rsteps .rd{flex:1 1 100%;padding-left:32px;font-size:13px}
  .rch{padding:10px 12px}.rcard .rcb{padding:12px}
- .rch .btn{height:36px}
  .postv.hasbar{padding-bottom:84px}
  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:7;gap:8px;align-items:center;padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));background:var(--page);border-top:1px solid var(--line)}
  .mbar .mup{height:48px;padding:0 14px;border:1px solid var(--btn-line);border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:14px}
