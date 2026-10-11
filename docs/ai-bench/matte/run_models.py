@@ -31,7 +31,7 @@ items=[c for c in matte_cases(corpus) if ids is None or c['id'] in ids]
 for name in names:
     f,S,(mean,std),div,post=SPECS[name]
     prov=['CPUExecutionProvider'] if os.environ.get('MATTE_CPU') else ['DmlExecutionProvider','CPUExecutionProvider']
-    so=ort.SessionOptions();so.graph_optimization_level=ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+    so=ort.SessionOptions();so.graph_optimization_level=ort.GraphOptimizationLevel.ORT_ENABLE_BASIC;so.log_severity_level=3
     sess=ort.InferenceSession(str(M/f),so,providers=prov);inp=sess.get_inputs()[0];fp16='float16' in inp.type
     od=out/name;od.mkdir(parents=True,exist_ok=True);raw=od/'raw';raw.mkdir(exist_ok=True)
     times={}

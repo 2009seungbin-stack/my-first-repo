@@ -22,7 +22,7 @@ sys.path.insert(0,str(Path(__file__).parent));from cases import matte_cases
 def load_pred(path,src):
     im=Image.open(path)
     if im.size!=src.shape[1::-1]:im=im.resize(src.shape[1::-1],Image.BILINEAR)
-    if im.mode in('RGBA','LA'):a=np.asarray(im.convert('RGBA'),np.float32);return a[...,3]/255,a[...,:3]
+    if im.mode in('RGBA','LA') or (im.mode=='P' and 'transparency' in im.info):a=np.asarray(im.convert('RGBA'),np.float32);return a[...,3]/255,a[...,:3]
     return np.asarray(im.convert('L'),np.float32)/255,src
 def pieces(mask):
     lab,n=ndi.label(mask);
@@ -35,17 +35,22 @@ def score_case(root,c,pred_path):
     a,rgb=load_pred(pred_path,src);valid=~ign
     T=t>=.5;P=a>=.5;inter=(T&P&valid).sum();union=((T|P)&valid).sum()
     h,w=t.shape;band_r=max(3,int(.006*np.hypot(h,w)))
-    edge=T^ndi.binary_erosion(T,iterations=1);band=ndi.binary_dilation(edge,iterations=band_r)&valid
+    d_out=ndi.distance_transform_edt(~T);d_in=ndi.distance_transform_edt(T)
+    band=((T&(d_in<=band_r+1))|(~T&(d_out<=band_r)))&valid
     opened=ndi.binary_opening(T,structure=np.ones((5,5)));thin=T&~opened&valid
     r={'iou':float(inter/max(union,1)),'mae':float(np.abs(a-t)[valid].mean()*100),'edge':float(np.abs(a-t)[band].mean()*100) if band.any() else 0.0,
        'thin':float((P&thin).sum()/thin.sum()) if thin.sum()>=50 else None,'islands':max(0,pieces(P&valid)-pieces(T&valid))}
     if c['group']!='anime':
         fgp=root/'fg'/f"{c['id'].split('@')[0]}.png";fg=np.asarray(Image.open(fgp).convert('RGB'),np.float32)
-        outside=ndi.binary_dilation(T,iterations=6)&~ndi.binary_dilation(t>0.02,iterations=1)&valid
+        outside=(~T)&(d_out<=6)&(ndi.distance_transform_edt(t<=0.02)>1)&valid
         lum=(a[...,None]*rgb).mean(2)
         r['halo']=float(lum[outside].mean()) if outside.any() else 0.0
         r['recomp']=float(np.abs(a[...,None]*rgb-t[...,None]*fg)[band].mean()) if band.any() else 0.0
     return r
+def one(args):
+    root,c,p=args
+    if not p.exists():return {'id':c['id'],'group':c['group'],'missing':True}
+    return {'id':c['id'],'group':c['group'],**score_case(root,c,p)}
 def aggregate(rows):
     out={}
     for g in ['anime','sheet','scene','all']:
@@ -59,13 +64,10 @@ def aggregate(rows):
     return out
 if __name__=='__main__':
     root,outd=Path(sys.argv[1]),Path(sys.argv[2]);cases=matte_cases(root)
+    from concurrent.futures import ProcessPoolExecutor
+    pool=ProcessPoolExecutor(6)
     for m in sys.argv[3:]:
-        rows=[]
-        for c in cases:
-            p=outd/m/(c['id'].replace('@','_')+'.png')
-            if not p.exists():p=outd/m/(c['id']+'.png')
-            if not p.exists():rows.append({'id':c['id'],'group':c['group'],'missing':True});continue
-            rows.append({'id':c['id'],'group':c['group'],**score_case(root,c,p)})
+        rows=list(pool.map(one,[(root,c,outd/m/(c['id']+'.png')) for c in cases]))
         ok=[r for r in rows if not r.get('missing')];agg=aggregate(ok)
         (outd/m/'scores.json').write_text(json.dumps({'model':m,'missing':len(rows)-len(ok),'aggregate':agg,'cases':rows},indent=1))
         print(m,'missing',len(rows)-len(ok),json.dumps(agg))

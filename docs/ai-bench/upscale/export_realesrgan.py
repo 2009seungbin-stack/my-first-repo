@@ -41,3 +41,12 @@ for name,mk in MODELS.items():
     x=torch.rand(1,3,64,64)
     torch.onnx.export(m,x,str(d/f'{name}.onnx'),input_names=['input'],output_names=['output'],dynamic_axes={'input':{2:'h',3:'w'},'output':{2:'H',3:'W'}},opset_version=17,dynamo=False)
     print(name,'ok',(d/f'{name}.onnx').stat().st_size)
+# Real-ESRGAN's own CLI runs realesr-general-x4v3 with --denoise_strength 0.5 by default: the weights are
+# interpolated with realesr-general-wdn-x4v3 (deep network interpolation). Export that mix too (dni0.5).
+a,b=d/'realesr-general-x4v3.pth',d/'realesr-general-wdn-x4v3.pth'
+if a.exists() and b.exists():
+    for s in (0.5,0.75):
+        sa=torch.load(a,map_location='cpu',weights_only=True);sb=torch.load(b,map_location='cpu',weights_only=True)
+        sa=sa.get('params',sa);sb=sb.get('params',sb);m=SRVGGNetCompact(num_conv=32)
+        m.load_state_dict({k:s*sa[k]+(1-s)*sb[k] for k in sa});m.eval();n=f'realesr-general-x4v3-dni{s}'
+        torch.onnx.export(m,torch.rand(1,3,64,64),str(d/f'{n}.onnx'),input_names=['input'],output_names=['output'],dynamic_axes={'input':{2:'h',3:'w'},'output':{2:'H',3:'W'}},opset_version=17,dynamo=False);print(n,'ok')

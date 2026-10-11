@@ -53,7 +53,7 @@ async function cutout(file,source,o,{signal,progress,onQuick}){
  else if(o.quality==='fast')canvas=await ai('quick');
  else{
   const {modelCached}=await import('../onnx-engine.js');
-  if(onQuick&&!await modelCached({...AI_MODELS.matte,file:'onnx/model.onnx'})){
+  if(onQuick&&!await modelCached(AI_MODELS.matte)){
    const first=await ai('quick');await onQuick(first);
    try{canvas=await ai('best');Im.release(first);}
    catch(e){if(e?.name==='AbortError'||signal?.aborted){Im.release(first);throw e;}canvas=first;canvas.fellBack=true;}// offline or blocked: the first pass stands

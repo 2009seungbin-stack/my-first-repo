@@ -1,11 +1,17 @@
 /** Optional standalone ORT runtime. Called only inside processing workers. */
-let runtime;
-export async function ort(){
- runtime??=await import('https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.webgpu.min.mjs');
- // Threads need SharedArrayBuffer (cross-origin isolation, see ai-host.js). Measured on 16 cores:
- // 8 threads ran a Swin2SR tile 4.3× faster than 1; 16 was no faster.
- runtime.env.wasm.numThreads=self.crossOriginIsolated?Math.max(1,Math.min(8,(navigator.hardwareConcurrency||2)-1)):1;runtime.env.wasm.wasmPaths='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/';return runtime;
+const runtimes=new Map();let runtime;
+/** ONNX Runtime Web. `version` pins another release for one model when the default has a regression for it
+ * (ORT 1.30.0 fails BEN2's fp16 LayerNorm shader on WebGPU; 1.29.0 runs it: docs/ai-bench/RESULTS.md). */
+export async function ort(version=ORT_VERSION){
+ if(!runtimes.has(version))runtimes.set(version,(async()=>{
+  const rt=await import(`https://cdn.jsdelivr.net/npm/onnxruntime-web@${version}/dist/ort.webgpu.min.mjs`);
+  // Threads need SharedArrayBuffer (cross-origin isolation, see ai-host.js). Measured on 16 cores:
+  // 8 threads ran a Swin2SR tile 4.3× faster than 1; 16 was no faster.
+  rt.env.wasm.numThreads=self.crossOriginIsolated?Math.max(1,Math.min(8,(navigator.hardwareConcurrency||2)-1)):1;rt.env.wasm.wasmPaths=`https://cdn.jsdelivr.net/npm/onnxruntime-web@${version}/dist/`;return rt;
+ })());
+ runtime=await runtimes.get(version);return runtime;
 }
+export const ORT_VERSION='1.30.0';
 /** ORT's WASM build throws raw C++ exception pointers (plain numbers); never show those as the reason. */
 export function runtimeError(error,device){
  if(typeof error==='number')return `ONNX Runtime ${device} internal failure (code ${error})${device==='webgpu'?'; the GPU device or shader compiler may be unavailable':''}`;
