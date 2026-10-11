@@ -64,6 +64,10 @@ test('sticker.border grows the canvas and rings the silhouette with the colour',
  const ring=new Uint8ClampedArray(w*h*4);for(let y=5;y<35;y++)for(let x=5;x<35;x++){if(x>12&&x<27&&y>12&&y<27)continue;ring[(y*w+x)*4+3]=255;}
  const rr=stickerBorder(ring,w,h,{px:1,color:[255,255,255],shadow:false});
  assert.equal(rr.data[((20+rr.pad)*rr.w+20+rr.pad)*4+3],255);
+ // A tiny dot far outside the cut is dropped instead of getting its own ring.
+ const W2=80,dot=new Uint8ClampedArray(W2*W2*4);for(let y=10;y<50;y++)for(let x=10;x<50;x++)dot[(y*W2+x)*4+3]=255;dot[(70*W2+70)*4+3]=255;
+ const rd=stickerBorder(dot,W2,W2,{px:3,color:[255,255,255],shadow:false});
+ assert.equal(rd.data[((70+rd.pad)*rd.w+70+rd.pad)*4+3],0);
 });
 
 test('crop as intent: subject + margin + ratio, never outside an opaque photo',()=>{

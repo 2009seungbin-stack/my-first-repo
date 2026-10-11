@@ -32,6 +32,26 @@ function enclosed(mask,w,h){
  for(let i=0;i<out.length;i++)out[i]=!mask[i]&&!seen[i]?1:0;
  return out;
 }
+/** Bits floating outside the cut (sparkle dots, backdrop specks a sheet left behind) would each get their own
+ * little ring: pieces farther than 2 × the border from the main silhouette and under 0.5 % of its area are
+ * removed from the picture and the mask. Closer pieces join the silhouette through the grown border. */
+function dropFloaters(src,mask,W,H,r){
+ const lab=new Int32Array(W*H),areas=[0],stack=[];
+ for(let s=0;s<lab.length;s++){if(!mask[s]||lab[s])continue;const id=areas.length;let a=0;lab[s]=id;stack.push(s);
+  while(stack.length){const i=stack.pop();a++;const x=i%W;for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,i-W,i+W])if(j>=0&&j<lab.length&&mask[j]&&!lab[j]){lab[j]=id;stack.push(j);}}
+  areas.push(a);}
+ if(areas.length<3)return;
+ const big=areas.indexOf(Math.max(...areas)),total=areas.reduce((a,b)=>a+b,0);
+ const main=new Uint8Array(W*H);for(let i=0;i<main.length;i++)main[i]=areas[lab[i]]>=.005*total?1:0;
+ const d2=distanceSquared(main,W,H),lim=(2*r)**2;
+ const far=new Set();for(let i=0;i<lab.length;i++){const l=lab[i];if(l&&l!==big&&areas[l]<.005*total&&d2[i]>lim)far.add(l);}
+ // A piece is dropped only when all of it is far.
+ for(let i=0;i<lab.length;i++){const l=lab[i];if(far.has(l)&&d2[i]<=lim)far.delete(l);}
+ if(!far.size)return;
+ for(let i=0;i<lab.length;i++)if(far.has(lab[i])){mask[i]=0;src[i*4+3]=0;}
+ // and their soft rims
+ for(let i=0;i<lab.length;i++)if(!mask[i]&&src[i*4+3]&&src[i*4+3]<128){const x=i%W;let near=false;for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,i-W,i+W])if(j>=0&&j<lab.length&&far.has(lab[j])){near=true;break;}if(near)src[i*4+3]=0;}
+}
 /** Separable box blur of an alpha plane (3 passes ≈ Gaussian). */
 function blurPlane(a,w,h,r){
  if(r<1)return a;let src=Float32Array.from(a),tmp=new Float32Array(w*h);
@@ -52,6 +72,7 @@ export function stickerBorder(data,w,h,{px,color,shadow}){
  const src=blank(W,H);for(let y=0;y<h;y++)src.set(data.subarray(y*w*4,(y+1)*w*4),((y+pad)*W+pad)*4);
  const mask=new Uint8Array(W*H);for(let i=0;i<mask.length;i++)mask[i]=src[i*4+3]>=128?1:0;
  const holes=enclosed(mask,W,H);for(let i=0;i<mask.length;i++)if(holes[i])mask[i]=1;
+ if(r>0)dropFloaters(src,mask,W,H,r);
  const d2=distanceSquared(mask,W,H);
  // Border alpha: 1 inside the grown silhouette, a linear ramp over the last pixel (sub-pixel distance).
  const borderA=new Float32Array(W*H);
