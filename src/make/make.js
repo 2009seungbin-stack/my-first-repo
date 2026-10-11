@@ -99,11 +99,11 @@ async function run(){
   const prev=await pipe.run(S.input,S.recipe,{preview:true,signal,onStep,stem:stemName()});
   if(v!==version)return;S.prev=prev;noteAdapt(prev);paintView();paintStatus();paintAdapt();paintFile();
   S.fullStep=null;const full=await pipe.run(S.input,S.recipe,{preview:false,signal,stem:stemName(),onStep:ev=>{if(v!==version)return;if(ev.status==='error')onStep(ev);else{S.fullStep=ev.status==='run'?ev.index:null;if(ev.status!=='run')S.progress='';paintCheck();}}});
-  if(v!==version)return;S.full=full;S.fullBusy=false;paintView();paintDownload();
+  if(v!==version)return;S.full=full;S.fullBusy=false;paintView();paintDownload();root.dataset.runs=String(Number(root.dataset.runs||0)+1);
   if(S.mode==='remix'&&S.original&&!S.tried){S.tried=true;api.tried(S.original.id);}
  }catch(e){
   if(e?.name==='AbortError'||v!==version)return;
-  S.fullBusy=false;S.error={step:e.step??null,message:String(e.message||e)};
+  S.fullBusy=false;S.error={step:e.step??null,message:String(e.message||e)};root.dataset.runs=String(Number(root.dataset.runs||0)+1);
   if(e.step!=null)S.status[e.step]={status:'error',error:S.error.message};
   paintStatus();paintDownload();paintView();
  }

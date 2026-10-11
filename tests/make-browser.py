@@ -64,7 +64,11 @@ def errors_of(pg, sink):
     pg.on('console', lambda m: sink.append(f'{pg.url}: {m.text}') if m.type == 'error' and 'status of 404' not in m.text else None)
 
 def wait_files(pg, timeout=120000):
-    pg.wait_for_function('()=>{const c=document.querySelector("[data-check]");return c&&(c.classList.contains("ok")||c.classList.contains("bad")||/파일|file/.test(c.textContent))}', timeout=timeout)
+    """Wait for the next finished full-size run (the island counts them on #make[data-runs]), so a check
+    never reads the badge of the run before a change."""
+    n = pg.evaluate('()=>window.__mkSeen||0')
+    pg.wait_for_function('n=>Number(document.getElementById("make").dataset.runs||0)>n', arg=n, timeout=timeout)
+    pg.evaluate('()=>{window.__mkSeen=Number(document.getElementById("make").dataset.runs||0)}')
 
 def download(pg, selector='[data-download]'):
     with pg.expect_download(timeout=120000) as d:
@@ -134,6 +138,15 @@ def main():
             name, data = download(pg); z = zipfile.ZipFile(io.BytesIO(data)); f01 = z.read('01.png')
             assert b'acTL' in f01, 'animated sticker is an APNG'
             results.append('step add/settings: motion → APNG')
+            # Caption (bundled SUIT, browser text) and WebP (browser encoder) on one picture.
+            pg.goto(f'{B}/ko/make/discord-emoji/'); pg.set_input_files('[data-file-input]', one); wait_files(pg)
+            pg.locator('.mk-chip', has_text='글자 넣기').first.click()
+            pg.locator('[data-settings] input[type=text]').fill('고마워요'); pg.locator('[data-settings] input[type=text]').press('Enter'); pg.locator('[data-settings] h2').click()
+            pg.wait_for_function('()=>/고마워요/.test([...document.querySelectorAll(".mk-step .fine")].map(e=>e.textContent).join(" "))'); wait_files(pg)
+            pg.locator('.mk-step', has_text='저장 형식').locator('.mk-sb').click()
+            pg.locator('[data-settings] button', has_text='WebP').click(); wait_files(pg)
+            name, data = download(pg); assert name.endswith('.webp') and data[:4] == b'RIFF' and data[8:12] == b'WEBP', name
+            results.append(f'caption + WebP export: {name} {len(data)} B')
 
             # ---------------------------------------------------------------- Kakao / Discord / Telegram on one picture
             for slug, check in [('kakao-emoticon', lambda w, h, n: (w, h) == (360, 360) and n <= 150_000), ('discord-emoji', lambda w, h, n: (w, h) == (128, 128) and n <= 256_000), ('telegram-sticker', lambda w, h, n: max(w, h) == 512 and min(w, h) <= 512 and n <= 512_000)]:
