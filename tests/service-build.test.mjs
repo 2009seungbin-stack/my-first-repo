@@ -113,6 +113,8 @@ test('platform build: PLATFORM=on routes the channel/community prefixes to the W
   assert.match(await read('_worker.js/server/build-info.js'),/"platform":true/);
   assert.match(await read('_worker.js/server/build-info.js'),/"naver":"naverT0ken123"/,'the Worker gets the ownership tokens for the portal home');
   assert((await read('_worker.js/platform/render/channel.js')).includes('renderChannel'));
+  const robots=await read('robots.txt');
+  assert(robots.includes('Disallow: /*/write$\nDisallow: /*/write?\n')&&robots.includes('Allow: /\n'),'write forms stay out of the crawl, everything else stays open');
   assert((await read('src/platform/n2.css')).includes('.pr{'));
   assert(routes.include.includes('/sitemap-n2-*'));
   assert((await read('sitemap.xml')).includes('sitemap-n2-games.xml'),'entity sitemaps are listed in the index');
