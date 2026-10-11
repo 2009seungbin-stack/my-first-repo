@@ -128,7 +128,7 @@ ${recipe?html`<div class="mbar"><span class="mup" data-mbar-up>${icon('up',16)}<
  const description=plainExcerpt(p.body_md,150)||p.title;
  // A post exists in the language it was written in: that URL is canonical and the only one indexed.
  const own=site.origin+postPath(p.locale==='en'?'en':'ko',m.channel,p.channel_no);
- return page({l,title:`${p.title} - ${s.channel(name)} | Nerulio`,description,canonical:own,ogImage:m.media?.after?{url:m.media.after.url,alt:p.title}:null,
+ return page({l,title:`${p.title} - ${s.channel(name)} | Nerulio`,description,canonical:own,mhead:{title:s.channel(name),back:base},ogImage:m.media?.after?{url:m.media.after.url,alt:p.title}:null,
   alternates:{[p.locale==='en'?'en':'ko']:own},noindex:p.locale!==l,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:e?{name:nameOf(e,l),id:e.id}:null,body:wrapped,
   jsonld:postJsonLd(m,site.origin+url,s)});

@@ -108,5 +108,6 @@ export function renderBoard(m,site){
  const title=m.bestPage?(ko?`${name} 념글 — Nerulio AI 창작 커뮤니티`:`Best in ${name} — Nerulio AI creation community`):(ko?`${name} 채널 — Nerulio AI 창작 커뮤니티`:`${name} — Nerulio AI creation community`);
  const description=ko?`${name} 채널: ${ch.desc.ko}. AI로 만든 이미지와 다듬는 레시피를 나누는 Nerulio 게시판.`:`${name}: ${ch.desc.en}. A Nerulio board for AI images and the recipes that finish them.`;
  return page({l,title,description,canonical:site.origin+(filtered?q({}):path),alternates:{[l]:site.origin+path,[other]:site.origin+otherPath,'x-default':site.origin+channelPath('en',ch.id)+(m.bestPage?'best':'')},
-  noindex:filtered,channels:m.channels.map(c=>({...c,on:c.href===base&&!(ch.id==='games'&&m.kind==='patch')})),patchOn:ch.id==='games'&&m.kind==='patch',body,feed:`${base}feed.xml`});
+  // Archived boards stay reachable but leave the index (their posts stay indexable).
+  noindex:filtered||ro,channels:m.channels.map(c=>({...c,on:c.href===base&&!(ch.id==='games'&&m.kind==='patch')})),patchOn:ch.id==='games'&&m.kind==='patch',body,feed:`${base}feed.xml`});
 }

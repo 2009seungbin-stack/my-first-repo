@@ -11,7 +11,7 @@ import {MAKE_TOOLS,makeHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
-export const CSS_HREF='/src/platform/n2.css?v=20261011-ai-community';
+export const CSS_HREF='/src/platform/n2.css?v=20261011-ai-community-2';
 /** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
 export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
@@ -144,6 +144,14 @@ export function channelSheet(l){
 <p class="fine shf">${ko?'로그인 없이 고정한 채널은 이 브라우저에 저장되고, 로그인하면 계정으로 옮겨져요.':'Pins without an account stay in this browser and move to your account when you sign in.'}</p></dialog>`;
 }
 
+/** The post page's phone header (mockup 7): a 44px back arrow (the channel board; the islands go back in history
+ * when the reader came from this site), the channel name, a 44px share button (navigator.share, else copy the
+ * link). Shown only at ≤ 640px (n2.css .has-mhead). @param {string} l @param {{title:string,back:string}} m */
+function mobileHeader(l,m){
+ const ko=l==='ko';
+ return html`<header class="mhead"><a class="mback" href="${m.back}" data-back aria-label="${ko?'뒤로':'Back'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><strong class="mtitle">${m.title}</strong><button type="button" class="mshare" data-island="share" aria-label="${ko?'공유':'Share'}">${icon('share',20)}</button></header>`;
+}
+
 /** The share image of a page: its own card when it has one (a site path or an absolute URL on the site),
  * else the portal card of the language (tools/brand-assets.py). @param {{l:string,canonical:string,ogImage?:{url:string}|null}} o */
 export function ogImageUrl(o){
@@ -158,7 +166,9 @@ export function ogImageUrl(o){
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
  *  verify?:{google?:string,naver?:string,bing?:string}|null,
  *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,recipesOn?:boolean,trendsOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,feedTitle?:string,ogType?:string,
- *  ogImage?:{url:string,alt?:string}|null}} o `ogImage` = a 1200×630 share card of this page (a site path), instead of the site card.
+ *  ogImage?:{url:string,alt?:string}|null,mhead?:{title:string,back:string}|null}} o `ogImage` = a 1200×630 share card of this page (a site path), instead of the site card.
+ * `mhead` = the compact phone header of a post (mockup 7): back to `back` (or history.back() from this site), the title, share;
+ *  at ≤ 640px it replaces the site header and the channel bar.
  */
 export function page(o){
  const s=t(o.l);
@@ -200,8 +210,8 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 <a class="skip" href="#main">${o.l==='ko'?'본문 바로가기':'Skip to content'}</a>
 <div class="app">
 ${shellNav(o)}
-<div class="col">
-<header class="top hd"><a class="menu" href="#lnav" data-drawer-open aria-controls="lnav" aria-label="${o.l==='ko'?'메뉴·도구 열기':'Open menu and tools'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+<div class="col${o.mhead?' has-mhead':''}">
+${o.mhead?mobileHeader(o.l,o.mhead):''}<header class="top hd"><a class="menu" href="#lnav" data-drawer-open aria-controls="lnav" aria-label="${o.l==='ko'?'메뉴·도구 열기':'Open menu and tools'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
 <a class="brand" href="${homeUrl(o.l)}">${LOGO}<span>nerulio</span></a>
 <form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>
 <button type="button" class="thm" data-theme-toggle aria-pressed="false" aria-label="${o.l==='ko'?'다크 모드':'Dark mode'}" title="${o.l==='ko'?'다크 모드':'Dark mode'}"><svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>

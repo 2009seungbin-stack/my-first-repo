@@ -25,7 +25,7 @@ def wait_up(proc):
         try:
             urllib.request.urlopen(B + '/', timeout=2); return
         except Exception:
-            if proc.poll() is not None: raise SystemExit('dev server exited: ' + proc.stdout.read())
+            if proc.poll() is not None: raise SystemExit('dev server exited')
             time.sleep(0.5)
     raise SystemExit('dev server did not start')
 
@@ -57,6 +57,21 @@ def pages_at(b, width, height, errors):
     # Lines, not surfaces: chips are outlined (no fill).
     chip = pg.evaluate("""()=>{const s=getComputedStyle(document.querySelector('.ph1tags .mh'));return {bg:s.backgroundColor,bw:s.borderTopWidth,r:s.borderTopLeftRadius}}""")
     ok(f'{width}px post: 말머리 chip outlined, radius 4', chip['bg'] in ('rgba(0, 0, 0, 0)', 'transparent') and chip['bw'] == '1px' and chip['r'] == '4px', str(chip))
+    hd = pg.evaluate("[getComputedStyle(document.querySelector('.mhead')).display,getComputedStyle(document.querySelector('.top.hd')).display]")
+    if width < 600:
+        ok('390px post: the compact header replaces the site header', hd[0] == 'flex' and hd[1] == 'none', str(hd))
+        sizes = pg.evaluate("['.mhead .mback','.mhead .mshare'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]})")
+        ok('390px post: back and share are 44px', all(w >= 44 and h >= 44 for w, h in sizes), str(sizes))
+        ok('390px post: the header names the channel', pg.locator('.mhead .mtitle').inner_text() == '이모티콘·스티커 채널')
+        # back: from a page of this site it goes back in history; opened directly it goes to the board.
+        pg.goto(B + '/ko/community/recipes/'); pg.goto(B + '/ko/community/sticker/1', referer=B + '/ko/community/recipes/')
+        pg.click('.mhead .mback'); pg.wait_for_url(B + '/ko/community/recipes/')
+        ok('390px post: back returns to the previous page of this site', pg.url == B + '/ko/community/recipes/')
+        pg.goto(B + '/ko/community/sticker/1'); pg.click('.mhead .mback'); pg.wait_for_url(B + '/ko/community/sticker/')
+        ok('390px post: opened directly, back goes to the channel board', pg.url == B + '/ko/community/sticker/')
+        pg.goto(B + '/ko/community/sticker/1')
+    else:
+        ok('1440px post: the full site header stays', hd[0] == 'none' and hd[1] != 'none', str(hd))
     if width < 600:
         bar = pg.locator('.mbar')
         ok('390px recipe post: the bottom bar with ↑ and 내 사진으로 해보기', bar.is_visible() and bar.locator('a.btn.p').bounding_box()['height'] >= 44)
@@ -117,7 +132,7 @@ def flows(b, errors):
     o.close(); c.close()
 
 def main():
-    proc = subprocess.Popen(['node', 'tools/platform/dev-server.mjs', str(PORT)], cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
+    proc = subprocess.Popen(['node', 'tools/platform/dev-server.mjs', str(PORT)], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         wait_up(proc)
         errors = []

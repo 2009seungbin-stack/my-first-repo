@@ -1050,6 +1050,8 @@ async function main(){
   }catch{toast(T.error);}
   b.disabled=false;
  });
+ // The post's phone header: back goes back in history when the reader came from this site, else to the board.
+ for(const a of $$('[data-back]'))a.addEventListener('click',e=>{let same=false;try{same=!!document.referrer&&new URL(document.referrer).origin===location.origin;}catch{}if(same&&history.length>1){e.preventDefault();history.back();}});
  for(const b of $$('[data-island="share"]')){
   b.addEventListener('click',async()=>{
    const url=location.href.split('#')[0];

@@ -252,6 +252,10 @@ test('post page (mockup 3): AI chip, image grid with 원본 and ZIP, recipe card
  assert(rx.includes('리믹스 2')&&rx.includes('리믹스로 올리기')&&(rx.match(/<li><a href="\/ko\/community\/sticker\/\d+">/g)||[]).length===2);
  assert(/class="co hk"[^>]*>[\s\S]*?<ol class="kids"><li class="co re"/.test(out),'replies nest under their parent (the curved connector, CSS .cl .kids>li::before)');
  assert(out.includes('<div class="mbar">')&&out.includes('class="front postv hasbar"'));
+ // Phones (mockup 7): the compact header — back to the board, the channel, share — replaces the site header.
+ assert(out.includes('<div class="col has-mhead">')&&/<header class="mhead"><a class="mback" href="\/ko\/community\/sticker\/" data-back aria-label="뒤로">/.test(out));
+ assert(out.includes('<strong class="mtitle">이모티콘·스티커 채널</strong>')&&out.includes('class="mshare" data-island="share" aria-label="공유"'));
+ assert(!(await text('/ko/community/sticker/')).includes('class="mhead"'),'boards keep the site header');
  // The right column: the recipe's tools and similar recipes before trends, sizes and rules.
  const side=out.slice(out.indexOf('<div class="side">'));
  assert(side.includes('이 레시피에 쓴 도구')&&side.indexOf('이 레시피에 쓴 도구')<side.indexOf('이번 주 유행'));
@@ -277,6 +281,9 @@ test('board (mockup 2): channel head, 말머리 tabs, 규격 row, the Kakao note
  // An archived board says so, offers no write button, and its write page sends the writer to 자유.
  const games=await text('/ko/community/games/');
  assert(games.includes('보관된 채널 · 새 글은 받지 않아요')&&!games.includes('/ko/community/games/write'));
+ assert(games.includes('<meta name="robots" content="noindex,follow">'),'archived board lists leave the index');
+ assert(!out.includes('noindex'),'the AI 창작 boards are indexed');
+ const oldPost=await get('/ko/community/games/1');if(oldPost.status===200)assert(!(await oldPost.text()).includes('noindex'),'archived posts stay indexable');
  assert.equal((await get('/ko/community/games/write')).status,302);
 });
 
