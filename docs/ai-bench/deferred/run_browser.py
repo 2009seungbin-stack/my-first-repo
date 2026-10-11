@@ -8,7 +8,7 @@ Each output folder gets run.json: browser version, backend, per-case time and th
 import sys,os,json,base64,subprocess,time,socket,urllib.request,argparse
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path.insert(0,str(HERE/'matte'))
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2];sys.path.insert(0,str(HERE.parent/'matte'))
 CORPUS=Path(os.environ.get('AI300','C:/Users/2009s/nerulio-asset-corpus/ai-300'))
 ap=argparse.ArgumentParser();ap.add_argument('kind');ap.add_argument('a');ap.add_argument('b',nargs='?');ap.add_argument('c',nargs='?')
 ap.add_argument('--wasm',action='store_true');ap.add_argument('--ids');ap.add_argument('--headed',action='store_true');args=ap.parse_args()
@@ -42,7 +42,7 @@ try:
         log={'browser':ctx.browser.version if ctx.browser else 'chrome','gpu':gpu,'options':opts,'cases':{}}
         for i,(cid,path) in enumerate(jobs):
             key=f'{cid}{path.suffix}';files[key]=path
-            r=page.evaluate("async a=>(await import('/tests/ai-bench-browser.mjs')).job(a)",{'kind':'matte' if args.kind=='matte' else 'sr','data':base64.b64encode(path.read_bytes()).decode(),'options':opts})
+            r=page.evaluate("async a=>(await import('/docs/ai-bench/deferred/ai-bench-browser.mjs')).job(a)",{'kind':'matte' if args.kind=='matte' else 'sr','data':base64.b64encode(path.read_bytes()).decode(),'options':opts})
             (out/f'{cid}.png').write_bytes(base64.b64decode(r.pop('png')));log['cases'][cid]=r
             print(i+1,len(jobs),cid,round(r['ms']),(r.get('report') or {}).get('backend'),flush=True)
         ctx.close()

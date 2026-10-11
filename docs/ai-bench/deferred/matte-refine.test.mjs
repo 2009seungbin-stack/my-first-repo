@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {boxFilter,resizePlane,guidedAlpha,detectBackdrop,sheetEdges,estimateForeground,refineMatte} from '../src/matte-refine.js';
+import {boxFilter,resizePlane,guidedAlpha,detectBackdrop,sheetEdges,estimateForeground,refineMatte} from './matte-refine.js';
 
 // A sticker on a white sheet: dark disc (radius R) with a 1-px anti-aliased rim, centred in a W x W image.
 function sticker(W=96,R=28,ink=[20,40,200]){

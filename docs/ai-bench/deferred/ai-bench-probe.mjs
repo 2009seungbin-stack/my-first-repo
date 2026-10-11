@@ -1,5 +1,5 @@
 // Worker for tests/ai-bench-browser.mjs probe(): session create + timed runs of one pinned model on one backend.
-import {ort,modelBytes} from '../src/onnx-engine.js';
+import {ort,modelBytes} from '../../../src/onnx-engine.js';
 async function runtime(version){
  if(!version)return ort();
  const rt=await import(`https://cdn.jsdelivr.net/npm/onnxruntime-web@${version}/dist/ort.webgpu.min.mjs`);

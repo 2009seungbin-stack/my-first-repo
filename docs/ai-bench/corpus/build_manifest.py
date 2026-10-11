@@ -7,7 +7,7 @@ from collections import Counter
 from PIL import Image
 ROOT=Path(sys.argv[1]);SRC=ROOT/'_src'
 rows=[]
-for f in ('diffusiondb-picked.json','commons-picked.json','dalle3-toonout-picked.json'):rows+=json.loads((SRC/f).read_text('utf-8'))
+for f in ('diffusiondb-picked.json','commons-picked.json','dalle3-toonout-picked.json','oga-picked.json'):rows+=json.loads((SRC/f).read_text('utf-8'))
 EXCLUDE={
  'wc-chatgpt-01':'chart','wc-chatgpt-04':'diagram','wc-chatgpt-08':'labelled diagram','wc-chatgpt-10':'infographic','wc-chatgpt-17':'logo/text card',
  'wc-chatgpt-19':'chart','wc-icon-12':'infographic','wc-gemini-08':'UI screenshot','wc-chatgpt-05':'body-focused photo','wc-chatgpt-06':'likeness of a historical person',
@@ -54,11 +54,12 @@ for r in rows:
         else:r['matte_kind']='sheet';use.append('matte');r['truth']={**prev,'method':'flatbg: known-backdrop matting (build_truth.py)'}
     if r['id'] in VISUAL:use.append('matte-visual')
     if r['id'] in UPK and min(im.size)>=500:use.append('upscale');r['upscale_kind']=UPK[r['id']]
-    if r['id'].startswith(('ddb-pixel','wc-pixel')):use.append('pixel')
+    if r['id'].startswith(('ddb-pixel','wc-pixel','oga-')):use.append('pixel')
     r.setdefault('kind',kh);r['use']=sorted(set(use));items.append(r)
 man={'name':'Nerulio AI-300 (openly licensed AI outputs)','built':'2026-10-11','count':len(items),'excluded':excluded,
  'sources':{'DiffusionDB 2M':'CC0-1.0 - https://huggingface.co/datasets/poloclub/diffusiondb','Wikimedia Commons':'public domain (PD-algorithm and similar) - per-file page in url',
   'DALL-E 3 1M captions':'MIT (dataset) - https://huggingface.co/datasets/ProGamerGov/synthetic-dataset-1m-dalle3-high-quality-captions',
+  'OpenGameArt':'CC0-1.0 - AI-generated pixel art; tool named on each page (url)',
   'ToonOut':'CC-BY-4.0 - https://huggingface.co/datasets/joelseytre/toonout (Muratori, Seytre, Aubourg; arXiv:2509.06839)'},
  'items':items}
 (ROOT/'manifest.json').write_text(json.dumps(man,indent=1,ensure_ascii=False),encoding='utf-8')

@@ -1,8 +1,8 @@
 // AI-300 benchmark driver (runs inside a page; docs/ai-bench/run_browser.py feeds it corpus files through a
 // Playwright route). It calls the real public engines exactly as the product does and returns PNGs + reports.
-import * as Im from '../src/image.js';
-import {removeBackground} from '../src/matting.js';
-import {superResolve} from '../src/super-resolution.js';
+import * as Im from '../../../src/image.js';
+import {removeBackground} from '../../../src/matting.js';
+import {superResolve} from '../../../src/super-resolution.js';
 const png=async c=>{const b=await Im.blobOf(c,'image/png');return new Uint8Array(await b.arrayBuffer());};
 const b64=bytes=>{let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s);};
 /** One job: {kind:'matte'|'sr', data (base64 file bytes) or url, options}. Returns {png (base64), report, ms}. */
