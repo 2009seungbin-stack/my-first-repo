@@ -53,7 +53,11 @@ const S={
  original:null,compare:!!root?.dataset.recipe,face:null,tried:false,st:null,posting:false,adapt:null,
 };
 const pipe=new Pipeline({ai:pageAdapters({onProgress:p=>{S.progress=friendly(p);paintStatus();paintCheck();}})});
-const friendly=p=>{const m=/([\d.]+) MiB \/ ([\d.]+) MiB/.exec(p);if(/download/i.test(p))return t('AI 모델 받는 중','Downloading the AI model')+(m?` ${Math.round(100*Number(m[1])/Number(m[2]))}%`:'');if(/cached model/i.test(p))return t('AI 모델 여는 중','Opening the AI model');if(/infer|tile|refin|matt|run/i.test(p))return t('AI가 처리 중','AI is working');return '';};
+/** Plain progress words for the AI steps; they run on any device (WASM on CPU when there is no usable GPU),
+ * so nothing here suggests a GPU is needed. */
+const AI_NOTE=()=>t('AI 처리 중 · 기기에 따라 오래 걸릴 수 있어요','AI is working · this can take a while on some devices');
+const friendly=p=>{const m=/([\d.]+) MiB \/ ([\d.]+) MiB/.exec(p);if(/download/i.test(p))return t('AI 모델 받는 중 (처음 한 번)','Downloading the AI model (once)')+(m?` ${Math.round(100*Number(m[1])/Number(m[2]))}%`:'');return AI_NOTE();};
+const aiStep=s=>!s.off&&((s.op==='bg.remove'&&s.p.mode!=='color')||(s.op==='upscale'&&s.p.engine==='ai'));
 
 function newRecipe(steps,src){
  const v=validateRecipe({schema:RECIPE_SCHEMA,source:src||{generator:'other',ai:true},input:{expect:steps.some(s=>s.op==='sheet.split')?'sheet':'single'},steps:steps.some(s=>s.op==='export')?steps:[...steps,defaultStep('export')]});
@@ -235,13 +239,13 @@ function paintStatus(){
   const st=S.status[i]||{status:'wait'};
   for(const el of $$(`[data-st="${i}"]`,root)){
    el.className=`mk-st ${st.status}`;
-   el.textContent=st.status==='done'?secs(st.ms||0):st.status==='cached'?t('그대로','same'):st.status==='run'?(S.progress||t('처리 중','working')):st.status==='error'?t('오류','error'):st.status==='off'||s.off?t('꺼짐','off'):'';
-   el.title=st.error||'';
+   el.textContent=st.status==='done'?secs(st.ms||0):st.status==='cached'?t('그대로','same'):st.status==='run'?(S.progress||(aiStep(s)?AI_NOTE():t('처리 중','working'))):st.status==='error'?t('오류','error'):st.status==='off'||s.off?t('꺼짐','off'):'';
+   el.title=st.error||(st.status==='run'?el.textContent:'');
   }
   for(const el of $$(`[data-dot="${i}"]`,root)){const k=s.off?'off':st.status==='done'||st.status==='cached'?'done':st.status==='run'?'run':st.status==='error'?'err':'wait';el.className=`mk-dot ${k}`;el.textContent=k==='done'?'✓':k==='run'?'…':k==='err'?'!':'·';}
-  for(const el of $$(`[data-time="${i}"]`,root))el.textContent=st.status==='done'?secs(st.ms||0):st.status==='cached'?'—':st.status==='run'?(S.progress||t('진행 중','running')):st.status==='error'?t('오류','error'):s.off?t('꺼짐','off'):S.input?t('대기','waiting'):'';
+  for(const el of $$(`[data-time="${i}"]`,root))el.textContent=st.status==='done'?secs(st.ms||0):st.status==='cached'?'—':st.status==='run'?(S.progress||(aiStep(s)?AI_NOTE():t('진행 중','running'))):st.status==='error'?t('오류','error'):s.off?t('꺼짐','off'):S.input?t('대기','waiting'):'';
  }
- const busy=$('[data-busy]',root);if(busy){const running=S.status.some(s=>s.status==='run');busy.hidden=!running;$('[data-busy-text]',busy).textContent=S.progress||t('처리 중…','Working…');}
+ const busy=$('[data-busy]',root);if(busy){const ri=S.status.findIndex(s=>s.status==='run');busy.hidden=ri<0;$('[data-busy-text]',busy).textContent=S.progress||(ri>=0&&steps()[ri]&&aiStep(steps()[ri])?AI_NOTE():t('처리 중…','Working…'));}
  const rs=$('[data-rx-progress]',root);if(rs){const live=steps().filter(s=>!s.off&&s.op!=='export'),done=S.status.filter((s,i)=>!steps()[i]?.off&&steps()[i]?.op!=='export'&&(s.status==='done'||s.status==='cached')).length;rs.textContent=t(`${done} / ${live.length}단계`,`${done} / ${live.length} steps`)+(S.prev?t(` · ${S.prev.doc.items.length}장`,` · ${S.prev.doc.items.length} pictures`):'');}
  if(S.error){const err=$('[data-error]',root);if(err){err.hidden=false;err.textContent=t(`${S.error.step!=null?`${S.error.step+1}단계`:''} 처리하지 못했어요: ${S.error.message}`,`Step ${S.error.step!=null?S.error.step+1:''} failed: ${S.error.message}`);}}
  else{const err=$('[data-error]',root);if(err)err.hidden=true;}
@@ -295,7 +299,7 @@ function paintView(){
 }
 function paintCheck(){
  const el=$('[data-check]',root);if(!el)return;
- const r=S.full;if(!r?.check){const st=S.fullStep!=null?steps()[S.fullStep]:null;el.textContent=S.fullBusy&&S.prev?t('원본 크기로 마무리하는 중…','Finishing at full size…')+(st?` (${S.fullStep+1}${t('단계','.')} ${opName(st.op,L)}${S.progress?` · ${S.progress}`:''})`:''):'';el.className='mk-check';return;}
+ const r=S.full;if(!r?.check){const st=S.fullStep!=null?steps()[S.fullStep]:null;el.textContent=S.fullBusy&&S.prev?t('원본 크기로 마무리하는 중…','Finishing at full size…')+(st?` (${S.fullStep+1}${t('단계','.')} ${opName(st.op,L)}${S.progress?` · ${S.progress}`:aiStep(st)?` · ${AI_NOTE()}`:''})`:''):'';el.className='mk-check';return;}
  const c=r.check,files=r.exported.files,big=Math.max(...files.map(f=>f.bytes.length));
  if(!c.spec){el.textContent=t(`파일 ${files.length}개 · 가장 큰 파일 ${kb(big)}`,`${files.length} file(s) · largest ${kb(big)}`);el.className='mk-check';return;}
  const name=FIT_SPECS[c.spec].names[L];

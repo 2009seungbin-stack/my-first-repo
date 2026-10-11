@@ -110,6 +110,14 @@ Real AI pictures:
   isolated runtime (threads) or WebGPU; not measured there yet.
 - Corpus run of the class-A path: see the table below.
 
+## GPU / AI-model work: deferred (owner decision, 2026-10-11)
+
+`bg.remove` (AI) and `upscale` (AI) stay wired to the existing engines exactly as they are (`src/matting.js`,
+`src/super-resolution.js`, their pinned models, their WebGPU → WASM fallback). No new model, backend or GPU tuning, and no GPU
+benchmarking in the MAKE suites. Both steps work on CPU-only devices through the existing WASM path; the page says
+"AI 처리 중 · 기기에 따라 오래 걸릴 수 있어요" while they run and never implies a GPU is required. The timings above are
+what this machine measured on the dev server, not a target.
+
 ## Known gaps
 
 - No face detector model: FaceDetector (Shape Detection API) only where the browser has it; elsewhere the page asks.
