@@ -546,7 +546,7 @@ def scenario_social(browser):
         page.screenshot(path=str(SHOTS/'signin-sheet-ko.png'))
         with page.expect_navigation(url=re.compile(r'/ko/community/ai/1$'),timeout=30000):sheet.locator('.sib-github').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
-        ok('social: GitHub sign-in returns to the post, signed in with an automatic nickname',page.url==post and page.locator('.hd [data-island="account"]').inner_text().startswith('user-'),page.url)
+        ok('social: GitHub sign-in returns to the post, signed in with an automatic nickname',page.url==post and page.locator('.hd [data-island="account"]:visible').inner_text().startswith('user-'),page.url)
         # The islands restore the draft after the signed-in state (account, alerts) has loaded: wait for it.
         page.wait_for_function('()=>document.querySelector("#comment-form textarea").value==="로그인 전 댓글"',timeout=15000)
         ok('social: the comment typed before signing in is still in the box',page.locator('#comment-form textarea').input_value()=='로그인 전 댓글')
@@ -637,7 +637,7 @@ def scenario_passkey(browser):
         cdp=context.new_cdp_session(page);cdp.send('WebAuthn.enable')
         auth=cdp.send('WebAuthn.addVirtualAuthenticator',{'options':{'protocol':'ctap2','transport':'internal','hasResidentKey':True,'hasUserVerification':True,'isUserVerified':True,'automaticPresenceSimulation':True}})['authenticatorId']
         page.goto(post,wait_until='networkidle')
-        page.locator('.hd [data-island="account"] a[data-signin]').click()
+        page.locator('.hd [data-island="account"] a[data-signin]:visible').click()
         sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
         ok('passkey: with no OAuth provider configured the sheet still opens, 지문으로 로그인 first',sheet.locator('.sib').count()==1 and sheet.locator('.sib-passkey').inner_text().strip()=='지문으로 로그인')
         sheet.locator('details.pk-new summary').click()
@@ -658,8 +658,8 @@ def scenario_passkey(browser):
         page.goto(origin+'/ko/community/me',wait_until='networkidle');page.locator('[data-logout]:not([hidden])').wait_for(timeout=10000)
         with page.expect_navigation(timeout=30000):page.click('[data-logout]')
         page.goto(post,wait_until='networkidle')
-        ok('passkey: signed out',page.locator('.hd [data-island="account"] a[data-signin]').count()==1)
-        page.locator('.hd [data-island="account"] a[data-signin]').click();sheet.wait_for(state='visible',timeout=10000)
+        ok('passkey: signed out',page.locator('.hd [data-island="account"] a[data-signin]:visible').count()==1)
+        page.locator('.hd [data-island="account"] a[data-signin]:visible').click();sheet.wait_for(state='visible',timeout=10000)
         with page.expect_navigation(timeout=60000):sheet.locator('.sib-passkey').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.textContent.trim()==="지문테스터"}',timeout=20000)
         ok('passkey: 지문으로 로그인 (discoverable credential) signs the member back in',True)

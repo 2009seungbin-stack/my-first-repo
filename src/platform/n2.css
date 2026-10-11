@@ -1269,6 +1269,7 @@ body.n2{background:var(--page)}
  .has-mhead>.top.hd,.has-mhead>.chbar{display:none}
  .mhead{display:flex;position:sticky;top:0;z-index:5;height:56px;align-items:center;gap:4px;padding:0 8px;background:color-mix(in srgb,var(--page) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
  .mhead .mback,.mhead .mshare{width:44px;height:44px;flex:none;display:inline-flex;align-items:center;justify-content:center;border:0;background:none;color:var(--ink);cursor:pointer;border-radius:var(--radius-sm)}
+ .mhead .hu .hb.solid{height:44px;max-width:110px}
  .mhead .mtitle{flex:1;min-width:0;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .n2 .mhead a:hover{text-decoration:none}
  /* the header has the channel and the way back: the crumb row keeps only the post's tags */

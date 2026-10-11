@@ -60,8 +60,8 @@ def pages_at(b, width, height, errors):
     hd = pg.evaluate("[getComputedStyle(document.querySelector('.mhead')).display,getComputedStyle(document.querySelector('.top.hd')).display]")
     if width < 600:
         ok('390px post: the compact header replaces the site header', hd[0] == 'flex' and hd[1] == 'none', str(hd))
-        sizes = pg.evaluate("['.mhead .mback','.mhead .mshare'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]})")
-        ok('390px post: back and share are 44px', all(w >= 44 and h >= 44 for w, h in sizes), str(sizes))
+        sizes = pg.evaluate("['.mhead .mback','.mhead .mshare','.mhead .hu .hb'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]})")
+        ok('390px post: back, share and sign-in are 44px', all(w >= 44 and h >= 44 for w, h in sizes), str(sizes))
         ok('390px post: the header names the channel', pg.locator('.mhead .mtitle').inner_text() == '이모티콘·스티커 채널')
         # back: from a page of this site it goes back in history; opened directly it goes to the board.
         pg.goto(B + '/ko/community/recipes/'); pg.goto(B + '/ko/community/sticker/1', referer=B + '/ko/community/recipes/')

@@ -111,7 +111,7 @@ def main():
             assert pg.goto(f'{B}/ko/make/no-such-thing/').status == 404
             r = pg.goto(f'{B}/ko/make/?preset=line.sticker&utm=x'); assert pg.url.endswith('/ko/make/?preset=line.sticker'), 'junk params dropped by redirect'
             assert pg.locator('link[rel=canonical]').get_attribute('href').endswith('/ko/make/line-sticker/') and pg.locator('meta[name=robots]').count() == 1
-            sm = urllib.request.urlopen(B + '/sitemap-n2-ai.xml').read().decode()
+            sm = urllib.request.urlopen(B + '/sitemap-n2-community.xml').read().decode()
             assert '/ko/make/line-sticker/' in sm and '/en/make/kakao-emoticon/' in sm, 'landings are in the sitemap'
             results.append('SSR landings, canonical/hreflang, sitemap')
 

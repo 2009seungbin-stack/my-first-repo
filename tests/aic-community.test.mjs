@@ -253,7 +253,8 @@ test('post page (mockup 3): AI chip, image grid with 원본 and ZIP, recipe card
  assert(/class="co hk"[^>]*>[\s\S]*?<ol class="kids"><li class="co re"/.test(out),'replies nest under their parent (the curved connector, CSS .cl .kids>li::before)');
  assert(out.includes('<div class="mbar">')&&out.includes('class="front postv hasbar"'));
  // Phones (mockup 7): the compact header — back to the board, the channel, share — replaces the site header.
- assert(out.includes('<div class="col has-mhead">')&&/<header class="mhead"><a class="mback" href="\/ko\/community\/sticker\/" data-back aria-label="뒤로">/.test(out));
+ assert(out.includes('<div class="col has-mhead">')&&/<header class="mhead hd"><a class="mback" href="\/ko\/community\/sticker\/" data-back aria-label="뒤로">/.test(out));
+ assert(/<header class="mhead hd">.*?<div class="hu" data-island="account"><a class="hb solid" href="\/ko\/account\/\?return=[^"]+" rel="nofollow" data-signin>로그인<\/a><\/div><button type="button" class="mshare"/s.test(out),'the phone header keeps 로그인 next to share');
  assert(out.includes('<strong class="mtitle">이모티콘·스티커 채널</strong>')&&out.includes('class="mshare" data-island="share" aria-label="공유"'));
  assert(!(await text('/ko/community/sticker/')).includes('class="mhead"'),'boards keep the site header');
  // The right column: the recipe's tools and similar recipes before trends, sizes and rules.

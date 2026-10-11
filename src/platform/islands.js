@@ -463,8 +463,8 @@ async function main(){
  for(const x of $$('[data-unscope]'))x.addEventListener('click',()=>{const f=x.closest('form');$('input[name="in"]',f)?.remove();x.parentElement.remove();const q=$('input[name="q"]',f);if(q){q.placeholder=L==='ko'?'검색':'Search';q.focus();}});
 
  // Account
- const acc=$('[data-island="account"]');
- if(acc&&signedIn&&st.user?.name&&acc.closest('.hd')){acc.innerHTML='';const a=document.createElement('a');a.className='hb solid';a.href=`/${L}/community/me`;a.textContent=st.user.name;acc.append(a);}
+ // (the site header's, and on a phone post the compact header's)
+ if(signedIn&&st.user?.name)for(const acc of $$('.hd [data-island="account"]')){acc.innerHTML='';const a=document.createElement('a');a.className='hb solid';a.href=`/${L}/community/me`;a.textContent=st.user.name;acc.append(a);}
  // Signed in: the comment box no longer says "sign-in needed", and the front page's sign-in box
  // becomes the reader's own channels.
  if(signedIn){
@@ -486,7 +486,7 @@ async function main(){
   const mr=await api(`/my-radar?l=${L}`);
   if(mr.ok){
    const d=mr.data;
-   const nav=$('.hd .hn');
+   const nav=$('.top.hd .hn');
    // The unread count rides on the Radar link (a separate link squeezed the search box on phones).
    const rl=nav&&$('a[href$="/radar/"]',nav);
    if(rl&&d.unread>0){rl.href=`/${L}/radar/#mine`;const b=document.createElement('b');b.className='bdg';b.textContent=String(Math.min(99,d.unread));b.setAttribute('aria-label',(L==='ko'?'새 알림 ':'new alerts ')+d.unread);rl.append(' ',b);}
@@ -920,7 +920,7 @@ async function main(){
   // A GitHub/Discord handle is offered as the nickname; it is used only once the member saves it.
   if(auto&&st.user?.suggest){$('input',nf).value=st.user.suggest;const sg=$('[data-suggested]',nf);if(sg)sg.hidden=false;}
   nf.addEventListener('submit',async e=>{e.preventDefault();const name=$('input',nf).value.trim();const r=await write('/profile',{displayName:name},signedIn);
-   if(r){toast(T.sent);$('[data-autonick]',nf).hidden=true;const h=$('.hd [data-island="account"] a');if(h)h.textContent=name;}});
+   if(r){toast(T.sent);$('[data-autonick]',nf).hidden=true;for(const h of $$('.hd [data-island="account"] a'))h.textContent=name;}});
   const lo=$('[data-logout]',me);lo.hidden=false;
   lo.addEventListener('click',async()=>{
    try{await fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{}'});}catch{}

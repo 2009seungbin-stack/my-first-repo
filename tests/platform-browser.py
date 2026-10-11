@@ -177,7 +177,7 @@ def main():
             pg.goto(B + '/ko/community/'); pg.wait_for_timeout(400)
             assert pg.locator('.box.login .sib').count() == 2, 'front page box: branded buttons'
             pg.goto(B + '/__dev/login?as=e2e&next=/ko/ai/claude/'); pg.wait_for_timeout(600)
-            assert pg.locator('.hd [data-island=account]').inner_text().startswith('user-')
+            assert pg.locator('.hd [data-island=account]:visible').inner_text().startswith('user-')
             pg.locator('[data-island=follow] button').first.click(); pg.wait_for_timeout(500)
             assert '구독 중' in pg.locator('[data-island=follow] button').first.inner_text()
             # 이 태그로 글쓰기: 자유 (the AI channel is archived since 2026-10-11) with the Claude tag picked; add a second tag by search.
@@ -265,7 +265,7 @@ def main():
             assert pg.locator('[data-follows] li').count() >= 1, 'followed channels listed'
             assert pg.locator('[data-posts] li a').count() >= 1 and pg.locator('[data-comments] li a').count() >= 1, 'my posts and comments listed'
             pg.goto(B + '/ko/ai/claude/'); pg.wait_for_timeout(600)
-            assert pg.locator('.hd [data-island=account]').inner_text() == '밤샘테스터'
+            assert pg.locator('.hd [data-island=account]:visible').inner_text() == '밤샘테스터'
             pg.goto(B + '/ko/radar/'); pg.wait_for_timeout(800)
             assert pg.locator('#mine').is_visible(), 'My Radar shows for signed-in readers'
             assert pg.locator('#mine .mr .chn').count() >= 1, 'each item names its channel once'

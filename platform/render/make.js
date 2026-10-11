@@ -152,5 +152,5 @@ function landing(c,p,l){
  const ko=l==='ko',fit=p.fit?FIT_SPECS[p.fit]:null;
  return html`<section class="mk-land mk-land-more" aria-label="${ko?'규격과 만드는 법':'Spec and how-to'}"><div class="mk-land-cols"><div><h2>${ko?'규격':'Spec'}</h2><table class="mk-spec"><tbody>${c.spec.map(([k,v])=>html`<tr><th scope="row">${k}</th><td>${v}</td></tr>`)}</tbody></table><p class="fine">${c.source}${fit?html` <span class="mono">· ${ko?'확인':'checked'} ${fit.rev}</span>`:''}</p></div>
 <div><h2>${ko?'만드는 법':'How'}</h2><ol class="mk-how">${c.how.map(x=>html`<li>${x}</li>`)}</ol></div></div>
-<details class="mk-faq"><summary>${ko?'자주 묻는 질문':'Questions'}</summary>${c.faq.map(([q,a])=>html`<h3>${q}</h3><p>${a}</p>`)}</details></section>`;
+<details class="mk-faq" open><summary>${ko?'자주 묻는 질문':'Questions'}</summary>${c.faq.map(([q,a])=>html`<h3>${q}</h3><p>${a}</p>`)}</details></section>`;
 }
