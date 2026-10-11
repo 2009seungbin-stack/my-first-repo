@@ -10,6 +10,7 @@
  *   /{l}/community/report      신고 form (?target=kind:id)
  *   /{l}/search/               search (?q=&in=entity)
  *   /{l}/radar/                what changed / what is coming (?v=)
+ *   /{l}/make/ · /{l}/make/{preset-slug}/   다듬기 작업대 and its preset landings (?preset= · ?recipe= remix)
  *   /{l}/{vertical}/{slug}/    tag page: facts and the tag's posts in every channel (?kind=&sort=&best=1&page=&sub=0)
  *   /{l}/{vertical}/{slug}/{no} → 301 to the post's channel address (legacy_posts); …/write → 302 to the
  *   channel's write page with the tag; …/history · …/status (…/status/feed.xml) · …/local-llm · …/feed.xml
@@ -47,6 +48,8 @@ import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {RAIL_SERVICES} from '../../platform/render/rail.js';
 import {maybeRefreshStatus} from './status-refresh.js';
+import {renderMake,MAKE_SLUGS} from '../../platform/render/make.js';
+import {presetById} from '../../platform/recipe.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
 const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best|recipes|trends)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status/feed\\.xml|status|local-llm|feed\\.xml))?)?)$`);
@@ -60,11 +63,14 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'profile'|'front'|'home-moved'|'best'|'recipes'|'trends'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'make'|'make-landing'|'used-prices'|'performance'|'profile'|'front'|'home-moved'|'best'|'recipes'|'trends'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  const tool=new RegExp(`^/(${L})/hardware/(used-prices|performance)/$`).exec(pathname);
  if(tool)return {l:tool[1],page:/** @type {'used-prices'|'performance'} */(tool[2]),slug:tool[2],vertical:'hardware'};
+ // 다듬기 작업대 (platform/render/make.js): the workbench and one landing per preset.
+ const mk=/^\/(ko|en)\/make\/(?:([a-z0-9-]{2,40})\/)?$/.exec(pathname);
+ if(mk)return mk[2]?(MAKE_SLUGS.includes(mk[2])?{l:mk[1],page:'make-landing',slug:mk[2]}:null):{l:mk[1],page:'make'};
  // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
  if(pathname==='/')return {l:'ko',page:'front'};
  if(pathname==='/en/')return {l:'en',page:'front'};
@@ -109,6 +115,7 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
  hub:{type:v=>/^[a-z_]{2,20}$/.test(v)?v:null,org:v=>/^[a-z0-9][a-z0-9-]{0,40}$/.test(v)?v:null,sort:v=>v==='cheap'||v==='new'?v:null,vs:v=>/^[a-z0-9][a-z0-9-]{0,60},[a-z0-9][a-z0-9-]{0,60}$/.test(v)&&v.split(',')[0]!==v.split(',')[1]?v.split(',').sort().join(','):null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
  search:{q:v=>v.trim().slice(0,80)||null,in:v=>ENTITY_ID.test(v)?v:null,more:v=>v==='1'?'1':null},
  flag:{target:v=>FLAG_TARGET.test(v)?v:null},
+ make:{preset:v=>presetById(v)?v:null,recipe:v=>/^[A-Za-z0-9_-]{6,40}$/.test(v)?v:null},
 });
 /** The canonical search string for a page: known params only, valid values only, fixed order. @param {string} page @param {URLSearchParams} q */
 export function canonicalQuery(page,q){
@@ -171,6 +178,8 @@ export async function renderPlatformPage(request,env,site){
   case 'search':return html(String(renderSearch(await loadSearch(db,{l,now,q:q.get('q')||'',in:q.get('in'),more:q.get('more')==='1',channels:await bar()}),s)),'private, no-store');
   case 'radar-feed':return xml(await radarFeed(db,l,s.origin));
   case 'radar':return html(String(renderRadar(await loadRadar(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
+  case 'make':return html(String(renderMake({l,preset:q.get('preset'),recipe:q.get('recipe'),channels:await bar()},s)));
+  case 'make-landing':return html(String(renderMake({l,slug:route.slug,channels:await bar()},s)));
  }
  if(route.ch){
   const ch=/** @type {import('../../platform/channels.js').Channel} */(channelById(route.ch));
@@ -290,6 +299,8 @@ export async function communitySitemap(db,origin){
  const home={ko:`${origin}/`,en:`${origin}/en/`};
  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);
  for(const p of ['/community/best/',recipesPath('').slice(1),trendsPath('').slice(1),...OPEN_CHANNELS.map(c=>channelPath('',c.id).slice(1))])pair(p.startsWith('/')?p:`/${p}`);
+ // The workbench and its preset landings (the search front doors for each spec).
+ for(const p of ['/make/',...MAKE_SLUGS.map(x=>`/make/${x}/`)])pair(p);
  const ids=OPEN_CHANNELS.map(c=>c.id);
  const posts=((await db.prepare(`SELECT channel_id,channel_no,locale,last_activity_at,updated_at FROM discussions WHERE status IN ('published','locked') AND author_id NOT LIKE 'system:%' AND channel_id IN (${ids.map(()=>'?').join(',')}) ORDER BY created_at DESC LIMIT ?`).bind(...ids,SITEMAP_POSTS).all()).results||[]);
  for(const r of posts){
