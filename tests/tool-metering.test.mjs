@@ -109,7 +109,10 @@ test('SERVICE_API+PLATFORM+TOOL_METERING=off build: every tool page equals the n
   // sitemap-game.xml lists the home, which moves to /{ko,en}/tools/ with the portal (tests/service-build.test.mjs).
   // (Their <lastmod> follows each page's content hash, and the portal's breadcrumb root is the moved tool home.)
   const noDates=(/** @type {string} */ x)=>x.replace(/<lastmod>[^<]*<\/lastmod>/g,'');
-  for(const f of [...areaSitemaps.filter(f=>f!=='sitemap-game.xml'),'robots.txt'])assert.equal(noDates(await read(off,f)),noDates(await read(plain,f)),f);
+  for(const f of areaSitemaps.filter(f=>f!=='sitemap-game.xml'))assert.equal(noDates(await read(off,f)),noDates(await read(plain,f)),f);
+  // robots.txt only adds the platform's write-form Disallow lines.
+  const writeForms=/^Disallow: \/\*\/write[$?]\n/gm;
+  assert.equal((await read(off,'robots.txt')).replace(writeForms,''),await read(plain,'robots.txt'));
   for(const f of (await readdir(off)).filter(f=>/^sitemap.*\.xml$/.test(f)))assert(!(await read(off,f)).includes('/pricing/'),f);
   for(const l of ['','ko/','en/','ja/'])await assert.rejects(read(off,`${l}pricing/index.html`),`${l}pricing is not built`);
   // The account layer stays: account page (sign-in for the platform), Worker, admin app, verify frame.

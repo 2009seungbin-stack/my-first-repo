@@ -147,7 +147,10 @@ export async function build(options={}){
  // wait until production serves this build before it checks it.
  const commit=(process.env.CF_PAGES_COMMIT_SHA||process.env.GITHUB_SHA||'').trim();
  if(/^[0-9a-f]{7,40}$/.test(commit))await writeFile(path.join(dist,'build.txt'),commit+'\n');
- await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL(SITEMAP_INDEX,siteURL).href+'\n':''}`);
+ // Every channel and entity page links to a write form (…/write, …/write?tag=…); crawlers were spending most
+ // of their requests on those empty noindex forms, so platform builds keep them out of the crawl.
+ const writeForms=config.platform&&!config.preview?'Disallow: /*/write$\nDisallow: /*/write?\n':'';
+ await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${writeForms}${siteURL&&!config.preview?'Sitemap: '+new URL(SITEMAP_INDEX,siteURL).href+'\n':''}`);
  if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
