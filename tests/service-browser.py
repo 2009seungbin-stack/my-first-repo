@@ -729,7 +729,7 @@ def scenario_anon(browser):
         ok('anon: /u/* (community images) reaches the Worker','/u/*' in routes['include'] or routes['include']==['/*'],routes['include'])
         context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url;log=[]
         page=context.new_page();instrument(page,log)
-        page.goto(stack.url+'/ko/community/ai/write?tag=service:e2e-chat',wait_until='networkidle')
+        page.goto(stack.url+'/ko/community/pfp/write?tag=service:e2e-chat',wait_until='networkidle')
         page.locator('[data-anon-fields]:not([hidden])').wait_for(timeout=10000)
         ok('anon: signed out, the write page offers nickname + password and the image picker',page.locator('[data-image-picker]').is_visible() and page.locator('.needlogin').is_hidden())
         page.fill('input[name=anonName]','유동테스터');page.fill('input[name=anonPassword]','e2e-pass')
@@ -738,10 +738,11 @@ def scenario_anon(browser):
         page.locator('dialog.hc iframe').wait_for(timeout=15000)
         ok('anon: the first upload asks for the human check in the /verify/ frame',page.locator('dialog.hc iframe').get_attribute('src').startswith('/verify/?sitekey=1x00000000000000000000AA&action=community'))
         page.wait_for_function('()=>document.querySelector("textarea[name=body]").value.includes("/u/")',timeout=60000)
+        page.check('[data-consent]')  # images need the consent (AI 창작, 2026-10-11)
         page.click('button[type=submit]')
-        page.wait_for_url(re.compile(r'/ko/community/ai/\d+$'),timeout=90000)
+        page.wait_for_url(re.compile(r'/ko/community/pfp/\d+$'),timeout=90000)
         post=page.url
-        ok('anon: the post is in the AI channel with the E2E 챗 tag',page.locator('.crumb .chl').inner_text()=='AI 채널' and page.locator('.crumb .rtag').inner_text()=='E2E 챗')
+        ok('anon: the post is in the 프사·프로필 channel with the E2E 챗 tag',page.locator('.crumb .chl').inner_text()=='프사·프로필 채널' and page.locator('.crumb .rtag').inner_text()=='E2E 챗')
         ok('anon: posted with the nickname and today\'s ID',re.match(r'^유동테스터 \([0-9A-Za-z]{4}\)$',page.locator('.meta1 .nick.anon').inner_text()) is not None,page.locator('.meta1').inner_text())
         page.wait_for_function('()=>{const i=document.querySelector(".pbody img");return i&&i.complete&&i.naturalWidth>0}',timeout=15000)
         src=page.locator('.pbody img').get_attribute('src')
@@ -760,7 +761,7 @@ def scenario_anon(browser):
         rp=context.new_page();instrument(rp,log)
         rp.goto(post,wait_until='networkidle');rp.goto(stack.url+rp.locator('.pact a',has_text='신고').get_attribute('href'),wait_until='networkidle')
         rp.select_option('select[name=reason]','privacy');rp.click('form[data-island=flag-form] button[type=submit]')
-        rp.wait_for_url(re.compile(r'/ko/community/ai/$'),timeout=60000)
+        rp.wait_for_url(re.compile(r'/ko/community/pfp/$'),timeout=60000)
         try:hidden=urllib.request.urlopen(post,timeout=20).status
         except urllib.error.HTTPError as e:hidden=e.code
         try:himg=urllib.request.urlopen(stack.url+src,timeout=20).status
@@ -779,7 +780,7 @@ def scenario_anon(browser):
         ok('anon: restored',urllib.request.urlopen(post,timeout=20).status==200)
         mc.close()
         # The author deletes it by password on another host name than SITE_URL; every cached copy must go.
-        alt=f'http://localhost:{port}';post_path=post[len(stack.url):];board='/ko/community/ai/'
+        alt=f'http://localhost:{port}';post_path=post[len(stack.url):];board='/ko/community/pfp/'
         def get(u):
             try:
                 r=urllib.request.urlopen(u,timeout=20);return r.status,r.read().decode('utf-8','replace'),dict(r.headers)
@@ -797,7 +798,7 @@ def scenario_anon(browser):
         dp.goto(alt+post_path,wait_until='networkidle')
         dp.locator('[data-anon-delete^="discussion:"]').click()
         dp.locator('dialog.pw input').fill('e2e-pass');dp.locator('dialog.pw button[type=submit]').click()
-        dp.wait_for_url(re.compile(r'/ko/community/ai/$'),timeout=60000)
+        dp.wait_for_url(re.compile(r'/ko/community/pfp/$'),timeout=60000)
         rows=stack.sql(f"SELECT u.status,u.removed,d.status AS post FROM uploads u JOIN discussions d ON d.id=u.attached_id WHERE u.id='{src.split('/')[2]}'")
         ok('anon: deleted by its password: the post is deleted and its image removed by the author',rows==[{'status':'deleted','removed':'author','post':'deleted'}],rows)
         after={base:[get(base+post_path)[0],get(base+src)[0],get(base+src+'?v=1')[0],get(base+src.replace('/full.','/thumb.'))[0]] for base in (stack.url,alt)}
@@ -842,7 +843,11 @@ def scenario_channels(browser):
         st,loc=no_redirect(stack.url+'/en/games/e2e-game/1')
         ok('channels: in English too',st==301 and loc.endswith('/en/community/games/1'),(st,loc))
         st,loc=no_redirect(stack.url+'/ko/ai/e2e-chat/write')
-        ok('channels: the old write address answers 302 with the channel and tag picked',st==302 and loc.endswith('/ko/community/ai/write?tag=service:e2e-chat'),(st,loc))
+        ok('channels: the old write address answers 302 to 자유 with the tag picked (the AI channel is archived)',st==302 and loc.endswith('/ko/community/free/write?tag=service:e2e-chat'),(st,loc))
+        st,loc=no_redirect(stack.url+'/ko/community/games/write?tag=game:e2e')
+        ok('channels: an archived board has no write page',st==302 and loc.endswith('/ko/community/free/write?tag=game:e2e'),(st,loc))
+        cols=stack.sql("SELECT id,recipe_json,remix_count,try_count,ai_generated FROM discussions WHERE id='p1';")
+        ok('channels: 0015 applied on top: the AI 창작 columns exist with their defaults',cols and cols[0]['remix_count']==0 and cols[0]['try_count']==0 and cols[0]['ai_generated']==0 and cols[0]['recipe_json'] is None,cols)
         st,loc=no_redirect(stack.url+'/ko/community/best/?v=games')
         ok('channels: best/?v= answers 301 to ?ch=',st==301 and loc.endswith('/ko/community/best/?ch=games'),(st,loc))
         st,_=no_redirect(stack.url+'/ko/ai/e2e-chat/feed.xml')
@@ -855,19 +860,19 @@ def scenario_channels(browser):
         ok('channels: the board folds the 공지 into one row and lists the old posts',page.locator('.pr.nrow').count()==1 and page.locator('.plist a.tt',has_text='예전 글 p3').count()==1)
         page.goto(stack.url+'/ko/community/ai/2',wait_until='networkidle')
         ok('channels: the migrated post keeps its comment and vote',page.locator('.cl').inner_text().find('예전 댓글')>=0 and page.locator('.crumb .rtag').inner_text()=='E2E 챗')
-        page.goto(stack.url+'/ko/community/games/write?tag=game:e2e',wait_until='networkidle')
+        page.goto(stack.url+'/ko/community/sticker/write?tag=game:e2e',wait_until='networkidle')
         page.locator('label.wchip.r',has_text='질문').click()
         page.fill('[data-tag-search]','E2E 챗');page.locator('[data-tag-results] button',has_text='E2E 챗').first.click()
         page.fill('input[name=title]','E2E 채널 글: 게임 + AI 태그');page.fill('textarea[name=body]','두 분야 태그')
-        page.click('button[type=submit]');page.wait_for_url(re.compile(r'/ko/community/games/\d+$'),timeout=60000)
-        ok('channels: the new post continues the channel\'s numbers',page.url.endswith('/ko/community/games/2'),page.url)
+        page.click('button[type=submit]');page.wait_for_url(re.compile(r'/ko/community/sticker/\d+$'),timeout=60000)
+        ok('channels: a new AI 창작 board numbers from 1',page.url.endswith('/ko/community/sticker/1'),page.url)
         for tag_page in ['/ko/games/e2e-game/','/ko/ai/e2e-chat/']:
             page.goto(stack.url+tag_page,wait_until='networkidle')
             ok(f'channels: {tag_page} lists the post of both tags',page.locator('.plist a.tt',has_text='E2E 채널 글').count()==1)
-        page.goto(stack.url+'/ko/community/games/',wait_until='networkidle')
-        page.locator('.chead [data-pin=games]').click();page.wait_for_timeout(800)
+        page.goto(stack.url+'/ko/community/sticker/',wait_until='networkidle')
+        page.locator('.chead [data-pin=sticker]').click();page.wait_for_timeout(800)
         pins=page.evaluate("fetch('/api/v2/pins').then(r=>r.json())")
-        ok('channels: a member\'s pin is kept on the account',pins=={'pins':['games']},pins)
+        ok('channels: a member\'s pin is kept on the account',pins=={'pins':['sticker']},pins)
         context.close()
         m=browser.new_context(viewport={'width':390,'height':844});m._nerulio_base=stack.url;mp=m.new_page();instrument(mp,[])
         mp.goto(stack.url+'/ko/community/ai/',wait_until='networkidle')
