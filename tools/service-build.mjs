@@ -75,8 +75,6 @@ export async function emitService(dist,config,head){
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
  // Shared market definitions and the compact benchmark aggregate are imported by PC tool SSR.
  await mkdir(path.join(worker,'src','hardware'),{recursive:true});await cp(new URL('src/hardware/market.js',root),path.join(worker,'src','hardware','market.js'));
- // The recipe format (platform/recipe.js re-exports it; the browser pipeline imports the same file).
- await mkdir(path.join(worker,'src','pipeline'),{recursive:true});await cp(new URL('src/pipeline/recipe.js',root),path.join(worker,'src','pipeline','recipe.js'));
  await mkdir(path.join(worker,'data','hardware'),{recursive:true});await cp(new URL('data/hardware/blender.js',root),path.join(worker,'data','hardware','blender.js'));
  // The status collectors run from the Worker too when the schedule is late (server/platform/status-refresh.js).
  await mkdir(path.join(worker,'collectors'),{recursive:true});for(const d of ['_runtime.js','_ai-shared','claude-status','openai-status'])await cp(new URL(`collectors/${d}`,root),path.join(worker,'collectors',d),{recursive:true});
