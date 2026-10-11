@@ -1,6 +1,6 @@
 /** Checks a finished export against the official spec of its fit preset (platform/recipe.js FIT_SPECS),
  * reading the files' own headers — what the platform's upload form would see. */
-import {FIT_SPECS} from '../../platform/recipe.js';
+import {FIT_SPECS} from './recipe.js';
 import {probe} from './encode.js';
 
 const LINE_COUNTS=[8,16,24,32,40];

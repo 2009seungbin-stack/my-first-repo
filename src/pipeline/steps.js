@@ -7,7 +7,7 @@
  * src/studio/pixel/converter.js (pixelize, palette), src/studio/pixel/cleanup.js + src/game/pixel-snap.js
  * (pixel.snap), src/game/export/anim.js (GIF), src/game/zlib.js (PNG/APNG deflate). New here: sheet
  * splitting (sheet.js), the die-cut border (border.js), motion loops, the fit presets and byte targets. */
-import {FIT_SPECS,defaultStep} from '../../platform/recipe.js';
+import {FIT_SPECS,defaultStep} from './recipe.js';
 import {adaptiveTolerance,alphaBounds,borderColor,contentBounds,cropRect,blank,fill,hexRGB,over,resize,warp,hasTransparency,mapFrames,withFrames} from './raster.js';
 import {splitSheet} from './sheet.js';
 import {stickerBorder} from './border.js';
@@ -73,7 +73,7 @@ async function bgRemove(doc,p,ctx){
   if(m.mode==='keep'){items.push(p.hard?mapFrames(it,(d,w,h)=>({data:d.map((v,i)=>i%4===3?(v>=128?255:0):v),w,h})):it);continue;}
   if(m.mode==='color'){items.push(mapFrames(it,(d,w,h)=>({data:removeSolid(d,w,h,m.color,tol,{hard:p.hard}),w,h})));continue;}
   if(!ctx?.ai?.bgRemove)throw new NeedsPage('bg.remove');
-  const frames=[];for(const fr of it.frames){let d=await ctx.ai.bgRemove(fr.data,it.w,it.h,{refine:p.refine});if(p.hard){d=new Uint8ClampedArray(d);for(let i=3;i<d.length;i+=4)d[i]=d[i]>=128?255:0;}frames.push({data:d,ms:fr.ms});}
+  const frames=[];for(const fr of it.frames){let d=await ctx.ai.bgRemove(fr.data,it.w,it.h,{refine:p.refine,preview:!!ctx.preview});if(p.hard){d=new Uint8ClampedArray(d);for(let i=3;i<d.length;i+=4)d[i]=d[i]>=128?255:0;}frames.push({data:d,ms:fr.ms});}
   items.push(withFrames(it,it.w,it.h,frames));
  }
  note(ctx,{op:'bg.remove',used});

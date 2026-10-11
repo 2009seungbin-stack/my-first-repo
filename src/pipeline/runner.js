@@ -6,7 +6,7 @@
  *  - the pure steps in one Worker (src/pipeline/worker.js), the page-only steps (AI models, text)
  *    on the page through `ai` adapters (src/pipeline/browser.js); in Node everything runs in-process.
  * Events: onStep({index,op,status:'run'|'done'|'cached'|'error',ms,notes}) for the per-step status list. */
-import {validateRecipe,defaultStep} from '../../platform/recipe.js';
+import {validateRecipe,defaultStep} from './recipe.js';
 import {STEPS,NeedsPage,exportDoc} from './steps.js';
 import {checkSpec} from './specs.js';
 import {hashDoc,hashText,hex8,limitSide} from './raster.js';
@@ -60,12 +60,12 @@ export class Pipeline{
   const signal=o.signal,emit=o.onStep||(()=>{});
   let doc=o.preview?previewDoc(input):input;
   let key=hashText(`${hashDoc(doc)}|${o.preview?'p':'f'}`);
-  const steps=[];
+  const steps=[],docs=[];
   for(const {s,i} of chain){
    abortIf(signal);
    key=hashText(`${hex8(key)}|${s.op}@${s.v}|${JSON.stringify(s.p)}`);
    const k=hex8(key),hit=this.recall(k);
-   if(hit){doc=hit.doc;steps.push({index:i,op:s.op,status:'cached',ms:0,notes:hit.notes});emit(steps[steps.length-1]);continue;}
+   if(hit){doc=hit.doc;docs.push({index:i,doc});steps.push({index:i,op:s.op,status:'cached',ms:0,notes:hit.notes});emit(steps[steps.length-1]);continue;}
    emit({index:i,op:s.op,status:'run'});
    const t0=performance.now(),notes=[];
    const impl=/** @type {any} */(STEPS)[s.op];
@@ -78,6 +78,7 @@ export class Pipeline{
     if(/** @type {any} */(e)?.name==='AbortError')throw e;
     const ev={index:i,op:s.op,status:'error',ms:Math.round(performance.now()-t0),notes,error:String(/** @type {any} */(e)?.message||e)};steps.push(ev);emit(ev);throw Object.assign(Error(ev.error),{step:i,op:s.op});
    }
+   docs.push({index:i,doc});
    const ev={index:i,op:s.op,status:'done',ms:Math.round(performance.now()-t0),notes};steps.push(ev);emit(ev);
    this.remember(k,{doc,notes});
   }
@@ -89,6 +90,6 @@ export class Pipeline{
    exported=r?r.exported:await exportDoc(doc,exp.p,{ai:this.ai},{fitPreset,stem:o.stem||'nerulio'});
    check=checkSpec(exported.files,fitPreset,{zip:exported.pack?.bytes||null});
   }
-  return {doc,steps,exported,check,fitPreset,recipe:v.recipe};
+  return {doc,docs,steps,exported,check,fitPreset,recipe:v.recipe};
  }
 }
