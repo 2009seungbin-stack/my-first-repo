@@ -52,7 +52,7 @@ const S={
  recipe:null,sel:null,item:0,status:[],prev:null,full:null,fullBusy:false,error:null,progress:'',
  original:null,compare:!!root?.dataset.recipe,face:null,tried:false,st:null,posting:false,adapt:null,
 };
-const pipe=new Pipeline({ai:pageAdapters({onProgress:p=>{S.progress=friendly(p);paintStatus();}})});
+const pipe=new Pipeline({ai:pageAdapters({onProgress:p=>{S.progress=friendly(p);paintStatus();paintCheck();}})});
 const friendly=p=>{const m=/([\d.]+) MiB \/ ([\d.]+) MiB/.exec(p);if(/download/i.test(p))return t('AI 모델 받는 중','Downloading the AI model')+(m?` ${Math.round(100*Number(m[1])/Number(m[2]))}%`:'');if(/cached model/i.test(p))return t('AI 모델 여는 중','Opening the AI model');if(/infer|tile|refin|matt|run/i.test(p))return t('AI가 처리 중','AI is working');return '';};
 
 function newRecipe(steps,src){
@@ -98,7 +98,7 @@ async function run(){
  try{
   const prev=await pipe.run(S.input,S.recipe,{preview:true,signal,onStep,stem:stemName()});
   if(v!==version)return;S.prev=prev;noteAdapt(prev);paintView();paintStatus();paintAdapt();paintFile();
-  const full=await pipe.run(S.input,S.recipe,{preview:false,signal,stem:stemName(),onStep:ev=>{if(v!==version)return;if(ev.status==='error')onStep(ev);}});
+  S.fullStep=null;const full=await pipe.run(S.input,S.recipe,{preview:false,signal,stem:stemName(),onStep:ev=>{if(v!==version)return;if(ev.status==='error')onStep(ev);else{S.fullStep=ev.status==='run'?ev.index:null;if(ev.status!=='run')S.progress='';paintCheck();}}});
   if(v!==version)return;S.full=full;S.fullBusy=false;paintView();paintDownload();
   if(S.mode==='remix'&&S.original&&!S.tried){S.tried=true;api.tried(S.original.id);}
  }catch(e){
@@ -295,7 +295,7 @@ function paintView(){
 }
 function paintCheck(){
  const el=$('[data-check]',root);if(!el)return;
- const r=S.full;if(!r?.check){el.textContent=S.fullBusy&&S.prev?t('원본 크기로 마무리하는 중…','Finishing at full size…'):'';el.className='mk-check';return;}
+ const r=S.full;if(!r?.check){const st=S.fullStep!=null?steps()[S.fullStep]:null;el.textContent=S.fullBusy&&S.prev?t('원본 크기로 마무리하는 중…','Finishing at full size…')+(st?` (${S.fullStep+1}${t('단계','.')} ${opName(st.op,L)}${S.progress?` · ${S.progress}`:''})`:''):'';el.className='mk-check';return;}
  const c=r.check,files=r.exported.files,big=Math.max(...files.map(f=>f.bytes.length));
  if(!c.spec){el.textContent=t(`파일 ${files.length}개 · 가장 큰 파일 ${kb(big)}`,`${files.length} file(s) · largest ${kb(big)}`);el.className='mk-check';return;}
  const name=FIT_SPECS[c.spec].names[L];

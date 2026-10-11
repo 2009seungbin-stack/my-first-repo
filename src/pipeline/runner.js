@@ -71,7 +71,7 @@ export class Pipeline{
    const impl=/** @type {any} */(STEPS)[s.op];
    try{
     let out=null;
-    if(!impl.main(s.p)){const r=await this.inWorker({kind:'step',op:s.op,p:s.p,doc},signal).catch(e=>{if(e.name==='NeedsPage')return null;throw e;});if(r){out=r.doc;notes.push(...r.notes);}}
+    if(!impl.main(s.p)||(o.preview&&s.op==='upscale')){const r=await this.inWorker({kind:'step',op:s.op,p:s.p,doc,preview:!!o.preview},signal).catch(e=>{if(e.name==='NeedsPage')return null;throw e;});if(r){out=r.doc;notes.push(...r.notes);}}
     if(!out)out=await impl.run(doc,s.p,{ai:this.ai,report:x=>notes.push(x),preview:!!o.preview});
     doc=out;
    }catch(e){

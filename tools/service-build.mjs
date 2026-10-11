@@ -25,7 +25,7 @@ export function serviceMeta(config){
 export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/admin/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
 /** Server-rendered platform prefixes (PLATFORM=on): the portal home (/ and /en/; /ko/ redirects to /), the
  * community, the vertical channels and community images (/u/). */
-export const PLATFORM_ROUTES=Object.freeze(['/','/ko/','/en/',...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*','/u/*']);
+export const PLATFORM_ROUTES=Object.freeze(['/','/ko/','/en/',...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture','make'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*','/u/*']);
 export function serviceRoutes(config){
  // Traffic statistics (PLATFORM builds): robots.txt and sitemaps always wake the Worker (crawler signal);
  // TRAFFIC_HTML (default on; off to opt out) routes every page like the ads build does (tools/traffic-build.mjs).
@@ -75,6 +75,8 @@ export async function emitService(dist,config,head){
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
  // Shared market definitions and the compact benchmark aggregate are imported by PC tool SSR.
  await mkdir(path.join(worker,'src','hardware'),{recursive:true});await cp(new URL('src/hardware/market.js',root),path.join(worker,'src','hardware','market.js'));
+ // The recipe format (platform/recipe.js re-exports it; the browser pipeline imports the same file).
+ await mkdir(path.join(worker,'src','pipeline'),{recursive:true});await cp(new URL('src/pipeline/recipe.js',root),path.join(worker,'src','pipeline','recipe.js'));
  await mkdir(path.join(worker,'data','hardware'),{recursive:true});await cp(new URL('data/hardware/blender.js',root),path.join(worker,'data','hardware','blender.js'));
  // The status collectors run from the Worker too when the schedule is late (server/platform/status-refresh.js).
  await mkdir(path.join(worker,'collectors'),{recursive:true});for(const d of ['_runtime.js','_ai-shared','claude-status','openai-status'])await cp(new URL(`collectors/${d}`,root),path.join(worker,'collectors',d),{recursive:true});

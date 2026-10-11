@@ -141,7 +141,8 @@ async function upscale(doc,p,ctx){
   if(s<=1.001){items.push(it);note(ctx,{op:'upscale',skipped:'maxSide'});continue;}
   if(p.engine==='pixel'){const k=Math.max(1,Math.floor(s));items.push(mapFrames(it,(d,w,h)=>{const r=scaleNearest({data:d,width:w,height:h},k);return {data:new Uint8ClampedArray(r.data.buffer,r.data.byteOffset,r.data.byteLength),w:r.width,h:r.height};}));continue;}
   const tw=Math.round(it.w*s),th=Math.round(it.h*s);
-  if(p.engine==='smooth'){items.push(mapFrames(it,(d,w,h)=>({data:resize(d,w,h,tw,th),w:tw,h:th})));continue;}
+  // The ≤ 512 px preview shows the size and framing at once; the AI model runs on the full pass only.
+  if(p.engine==='smooth'||(p.engine==='ai'&&ctx?.preview)){if(p.engine==='ai')note(ctx,{op:'upscale',preview:'smooth'});items.push(mapFrames(it,(d,w,h)=>({data:resize(d,w,h,tw,th),w:tw,h:th})));continue;}
   if(!ctx?.ai?.upscale)throw new NeedsPage('upscale');
   const frames=[];for(const f of it.frames){const r=await ctx.ai.upscale(f.data,it.w,it.h);frames.push({data:r.w===tw&&r.h===th?r.data:resize(r.data,r.w,r.h,tw,th),ms:f.ms});}
   items.push(withFrames(it,tw,th,frames));
@@ -230,7 +231,7 @@ export const STEPS=Object.freeze({
  'bg.remove':{run:bgRemove,main:p=>p.mode!=='color'},
  'sheet.split':{run:sheetSplit,main:()=>false},
  crop:{run:crop,main:()=>false},
- upscale:{run:upscale,main:p=>p.engine==='ai'},
+ upscale:{run:upscale,main:p=>p.engine==='ai'},// (the preview pass resizes in the worker: see upscale())
  fit:{run:fit,main:()=>false},
  pixelize:{run:pixelize,main:()=>false},
  palette:{run:palette,main:()=>false},
