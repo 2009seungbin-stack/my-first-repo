@@ -487,8 +487,10 @@ async function start(){
    S.original={id:got.id||id,title:got.title||v.recipe.title||'',channel:got.channel||'sticker',no:got.no,generator:got.generator||v.recipe.source.generator,author:got.author,url:got.channel&&got.no?`/${L}/community/${got.channel}/${got.no}`:null};
    S.recipe=v.recipe;
    // Before an image is picked: the original's steps, waiting.
-   const drop=$('[data-drop]',root),will=$('.mk-will',drop)||drop.appendChild(h('p',{class:'mk-will'}));
-   will.replaceChildren(h('b',{},t('원글 레시피','The original recipe')),' ',summaryLine(v.recipe,L));
+   const drop=$('[data-drop]',root),will=$('[data-rx-preview]',drop)||drop.appendChild(h('div',{class:'mk-will'}));
+   const list=v.recipe.steps.filter(s=>s.op!=='export'&&!s.off);
+   will.replaceChildren(h('p',{class:'mk-rx-ph'},h('b',{},t('원글 레시피','The original recipe')),' ',t(`${list.length}단계`,`${list.length} steps`)),
+    h('ol',{class:'mk-rx-steps'},list.map(s=>h('li',{class:'mk-rx-step'},h('div',{class:'mk-rx-row'},h('span',{class:'mk-dot wait'},'·'),h('span',{class:'mk-sn'},h('strong',{},opName(s.op,L)),h('span',{class:'fine'},stepDetail(s,L,v.recipe.steps,v.recipe.steps.indexOf(s)))))))));
    const back=h('p',{class:'mk-rx-orig'},h('a',{href:S.original.url||'#'},svg(ICON.back,15),t('원글: ','Original: '),S.original.title));drop.prepend(back);
   }
  }else{

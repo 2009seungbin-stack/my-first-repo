@@ -39,6 +39,7 @@
 .mk-pick:focus-within{outline:2px solid var(--accent-line);outline-offset:2px}
 .mk-will{margin:0;font-size:13.5px;color:var(--ink2);text-align:center;max-width:640px;line-height:1.6}
 .mk-will b{color:var(--brand);margin-right:4px}
+.mk-will .mk-rx-steps{width:min(520px,100%);margin:8px auto 0;text-align:left}.mk-rx-ph{margin:0}
 .mk-rx-orig{margin:0;font-size:13.5px}.mk-rx-orig a{display:inline-flex;align-items:center;gap:4px;color:var(--ink2)}
 .mk-presets{list-style:none;margin:0;padding:0;width:min(760px,100%);display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));column-gap:20px}
 .mk-presets a{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:40px;border-bottom:1px solid var(--line2);font-size:14px;color:var(--ink)}

@@ -172,13 +172,14 @@ def main():
                 r2.goto(f'{B}/ko/make/?recipe={RECIPE_ID}')
                 assert r2.locator('meta[name=robots]').count() == 1, 'a remix page is noindex'
                 r2.wait_for_function('()=>/원글 레시피/.test(document.querySelector(".mk-will")?.textContent||"")')
+                assert r2.locator('.mk-will .mk-rx-step').count() == 5 and r2.locator('.mk-presets').count() == 0, 'remix shows the original steps, not presets'
                 r2.screenshot(path=os.path.join(SHOTS, f'remix-{w}-empty.png'), full_page=True)
                 n0 = len(tries)
                 r2.set_input_files('[data-file-input]', s54); wait_files(r2)
                 r2.wait_for_function('()=>!document.querySelector("[data-adapt]").hidden')
                 adapt = r2.locator('[data-adapt]').inner_text()
                 assert '6×4' in adapt and '5×4' in adapt, adapt
-                dots = r2.locator('.mk-dot').all_inner_texts(); assert dots == ['✓'] * 5, dots
+                dots = r2.locator('[data-dot]').all_inner_texts(); assert dots == ['✓'] * 5, dots
                 times = r2.locator('[data-time]').all_inner_texts(); assert all(re.search(r'초|—', t) for t in times), times
                 assert r2.locator('.mk-th').count() == 20, '5×4 → 20 stickers'
                 r2.wait_for_timeout(300); assert len(tries) == n0 + 1, 'POST /recipes/{id}/try once per run'
