@@ -79,6 +79,8 @@ export async function emitService(dist,config,head){
  // The status collectors run from the Worker too when the schedule is late (server/platform/status-refresh.js).
  await mkdir(path.join(worker,'collectors'),{recursive:true});for(const d of ['_runtime.js','_ai-shared','claude-status','openai-status'])await cp(new URL(`collectors/${d}`,root),path.join(worker,'collectors',d),{recursive:true});
  await mkdir(path.join(worker,'src'),{recursive:true});for(const f of ['quota.js','signin-brands.js','brand.js'])await cp(new URL(`src/${f}`,root),path.join(worker,'src',f));
+ // Recipes (platform/recipe.js re-exports src/pipeline/recipe.js: pure, shared with the browser pipeline).
+ await mkdir(path.join(worker,'src','pipeline'),{recursive:true});await cp(new URL('src/pipeline/recipe.js',root),path.join(worker,'src','pipeline','recipe.js'));
  await mkdir(path.join(worker,'tools'),{recursive:true});await cp(new URL('tools/ads-worker.mjs',root),path.join(worker,'tools','ads-worker.mjs'));
  await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',verify:{google:config.searchVerification||'',naver:config.naverVerification||'',bing:config.bingVerification||''},traffic:!!config.traffic,trafficHtml:!!config.trafficHtml,metering:config.metering!==false})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");

@@ -1,5 +1,8 @@
 # Community channels (Nerulio 2.0, owner decision 2026-09-29)
 
+> **2026-10-11:** the bar is now the seven AI 창작 boards (pfp sticker pixel wall howto free notice); the channels
+> below except 자유 and 공지 are archived (read-only, off the bar, URLs kept). See `docs/AI-COMMUNITY.md`.
+
 The community has 7 big channels instead of one board per entity. A post lives in **one channel**, carries
 **one 말머리** of that channel and **0–3 tags**. A tag is any entity (a service, a GPU, a game, a work …) and
 crosses channels: an AI post tagged RTX 5070 also shows on the RTX 5070 page.

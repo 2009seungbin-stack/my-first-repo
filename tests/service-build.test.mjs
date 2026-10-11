@@ -121,6 +121,7 @@ test('platform build: PLATFORM=on routes the channel/community prefixes to the W
   assert(index.includes('sitemap-n2-community.xml')&&index.includes('sitemap-n2-hardware.xml'),'the community and the still-indexed entity sitemaps are listed in the index');
   assert(!index.includes('sitemap-n2-games.xml')&&!index.includes('sitemap-n2-ai.xml'),'the archived verticals (AI 창작 pivot) are not');
   assert((await read('_worker.js/platform/seo.js')).includes('indexable'));
+  assert((await read('_worker.js/src/pipeline/recipe.js')).includes('validateRecipe'),'the Worker validates recipes (platform/recipe.js re-exports it)');
   const site=origin.replace(/\/$/,'');
   // The portal: / and /en/ are Worker pages (/ko/ redirects there); the tool home moves to /ko/tools/ and /en/tools/.
   for(const p of ['/','/ko/','/en/'])assert(routes.include.includes(p),p);
