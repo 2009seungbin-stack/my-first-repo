@@ -210,7 +210,7 @@ def main():
                     f.locator('button[type=submit]').click()
                     r2.wait_for_url(re.compile(r'/ko/community/sticker/42$'), timeout=30000)
                     body = posts[-1]
-                    assert body['remixOf'] == RECIPE_ID and body['ai'] is True and body['consent'] is True and body['channel'] == 'sticker', body
+                    assert body['remixOf'] == RECIPE_ID and body['ai'] is True and body['consent'] is True and body['channel'] == 'sticker' and body['kind'] == 'line', body
                     assert body['generator'] == 'gemini' and body['recipe']['schema'] == 'nerulio.recipe/1'
                     split = body['recipe']['steps'][0]; assert split['op'] == 'sheet.split' and (split['p']['cols'], split['p']['rows']) == (5, 4), split
                     assert body['recipe']['result']['count'] == 20 and len(uploads) == 2 and '/u/' in body['body']

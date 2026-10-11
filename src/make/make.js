@@ -410,7 +410,9 @@ function postPanel(){
 }
 function paintPost(){
  const f=$('[data-post-form]',root);if(!f)return;
- const fit=lastFit(),target=S.original?`${S.original.channel}/${CHANNELS.find(c=>c[0]===S.original.channel)?.[2][0][0]||'share'}`:DEFAULT_TARGET[fit?.p.preset]||(steps().some(s=>s.op==='pixel.snap'||s.op==='pixelize')?'pixel/fix':'pfp/share');
+ const fit=lastFit(),byFit=DEFAULT_TARGET[fit?.p.preset]||(steps().some(s=>s.op==='pixel.snap'||s.op==='pixelize')?'pixel/fix':'pfp/share');
+ // A remix goes to the original's channel, with the 말머리 of the chosen spec when that channel has it.
+ const target=S.original&&CHANNELS.some(c=>c[0]===S.original.channel)?(byFit.startsWith(S.original.channel+'/')?byFit:`${S.original.channel}/${CHANNELS.find(c=>c[0]===S.original.channel)[2][0][0]}`):byFit;
  const sel=f.elements.namedItem('target');if(sel&&!sel.dataset.touched){sel.value=target;sel.addEventListener('change',()=>{sel.dataset.touched='1';},{once:true});}
  if(S.original){const g=f.elements.namedItem('generator');if(g&&!g.dataset.touched&&GENERATORS.includes(S.original.generator))g.value=S.original.generator;}
  const anon=$('[data-anon]',f);

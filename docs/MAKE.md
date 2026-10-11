@@ -108,7 +108,14 @@ Real AI pictures:
 - **Wallpaper (AI ×2 of a 1024×1536 ChatGPT picture → 1206×2622):** spec ✓, 4.3 MB PNG, but 642 s on the dev server
   (headless Chromium, no WebGPU, single-thread WASM because the dev server does not serve `/ai-runtime/`). Production uses the
   isolated runtime (threads) or WebGPU; not measured there yet.
-- Corpus run of the class-A path: see the table below.
+- **Packaging on the AI corpus (Node, 2026-10-12):** 318 pictures ≤ 1.7 MP from `~/nerulio-asset-corpus` (`ai-300` +
+  `ai-sheets`; 74 larger ones skipped for time) × 6 presets: every exported file met its preset's size / even-side / byte limit
+  (kakao 318/318, line 318/318, discord 318/318, telegram 318/318, round pfp 318/318, pixel fix 318/318; largest Kakao file
+  148,773 B of 150,000; largest Telegram 511,195 B of 512,000). This measures sizes and bytes only: `auto` background removal
+  needed the AI model for 1,388 of 2,042 sticker pieces, which Node cannot run, so those pieces were packaged uncut — cut
+  quality is not part of this number. LINE's set-count rule (8/16/24/32/40) depends on the picture and is reported separately.
+  Average time per picture (Node, one thread): Discord 0.1 s, LINE 0.5 s, round pfp 0.5 s, Telegram 1.1 s, Kakao 2.3 s
+  (colour reduction to fit 150 KB), AI pixel fix 7.0 s (`pixel.snap` grid search).
 
 ## GPU / AI-model work: deferred (owner decision, 2026-10-11)
 
