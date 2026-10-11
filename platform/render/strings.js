@@ -4,7 +4,7 @@
 
 const S={
  ko:{
-  search:'채널·태그·글 검색 (예: 클로드, 5070)',searchIn:(/** @type {string} */ n)=>`${n} 태그에서 검색`,
+  search:'레시피·프롬프트·글 검색 (예: 지브리 프사, LINE 스탬프)',searchIn:(/** @type {string} */ n)=>`${n} 태그에서 검색`,
   radar:'레이더',tools:'도구',login:'로그인',write:'글쓰기',home:'홈',allBest:'전체 베스트',allChannels:'전체 채널',
   channel:(/** @type {string} */ n)=>`${n} 채널`,followers:'구독',today:'오늘 글',posts:'글',follow:'구독',following:'✓ 구독 중',alerts:'알림 설정',
   live:'LIVE',wiki:(/** @type {string} */ n)=>`${n} 위키`,history:'기록',edit:'편집',docs:'위키 문서',official:'공식 링크',related:'관련 채널',toolsBox:'도구',
@@ -28,7 +28,7 @@ const S={
   newReports:'새 리포트',openQuestions:'답을 기다리는 질문',popularChannels:'인기 채널',
   loginTitle:'Nerulio에 로그인',loginNote:'채널 구독, 변경 알림, 리포트·댓글 작성. 글 읽기는 로그인 없이 됩니다.',
   continueWith:(/** @type {string} */ p)=>`${p}로 계속`,
-  frontEmpty:'아직 글이 없습니다.',
+  frontEmpty:'아직 글이 없어요. AI로 만든 이미지를 다듬어 첫 글을 올려 보세요.',
   // panels
   panel:{
    status:'서비스 상태',statusSrc:'공식 상태 페이지',noIncident:'보고된 장애 없음',incident:'장애 조사 중',resolved:'해결됨',statusOpen:'상태 페이지 ↗',
@@ -58,7 +58,7 @@ const S={
   kind:{notice:'공지',news:'소식',report:'리포트',patch:'한글패치',question:'질문',guide:'공략',benchmark:'벤치',screenshot:'스샷',free:'자유'},
  },
  en:{
-  search:'Search channels, games, models, GPUs, posts',searchIn:(/** @type {string} */ n)=>`Search in ${n}`,
+  search:'Search recipes, prompts and posts (e.g. Ghibli avatar, LINE sticker)',searchIn:(/** @type {string} */ n)=>`Search in ${n}`,
   radar:'Radar',tools:'Tools',login:'Sign in',write:'Write',home:'Home',allBest:'Best of all',allChannels:'All channels',
   channel:(/** @type {string} */ n)=>n,followers:'followers',today:'posts today',posts:'posts',follow:'Follow',following:'✓ Following',alerts:'Alerts',
   live:'LIVE',wiki:(/** @type {string} */ n)=>`${n} wiki`,history:'History',edit:'Edit',docs:'Wiki pages',official:'Official links',related:'Related channels',toolsBox:'Tools',
@@ -80,7 +80,7 @@ const S={
   newReports:'New reports',openQuestions:'Unanswered questions',popularChannels:'Popular channels',
   loginTitle:'Sign in to Nerulio',loginNote:'Follow channels, get change alerts, post reports and comments. Reading needs no account.',
   continueWith:(/** @type {string} */ p)=>`Continue with ${p}`,
-  frontEmpty:'No posts yet.',
+  frontEmpty:'No posts yet. Finish an AI image and post the first one.',
   panel:{
    status:'Service status',statusSrc:'Official status page',noIncident:'No reported incident',incident:'Investigating',resolved:'Resolved',statusOpen:'Status page ↗',
    statusNote:'From the status page’s incident history · not a live probe',lastChecked:(/** @type {string} */ t)=>`checked ${t}`,

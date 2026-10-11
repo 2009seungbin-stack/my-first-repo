@@ -61,6 +61,17 @@ const P=/** @type {Record<string,string>} */({
  minusCircle:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
  wifiOff:'<path d="M3 3l18 18"/><path d="M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 4.4-2.6M14.6 10.3A10 10 0 0 1 19 12.9M2 9.4a15 15 0 0 1 4.3-2.8M11 5.1A15 15 0 0 1 22 9.4"/><circle cx="12" cy="19.5" r=".6"/>',
  rss:'<path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.2"/>',
+ // AI 창작 (2026-10-11)
+ recipe:'<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+ trend:'<path d="M3.5 17 9 11.5l4 4 7.5-7.5"/><path d="M15 8h5.5v5.5"/>',
+ smile:'<circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5s1.3 1.8 3.5 1.8 3.5-1.8 3.5-1.8M9 9.8h.01M15 9.8h.01"/>',
+ user:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="10" r="3"/><path d="M6.7 18.2c1.2-2 3-3 5.3-3s4.1 1 5.3 3"/>',
+ phone:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/>',
+ help:'<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 0 1 4.9.7c0 1.7-2.5 2.3-2.5 3.8M12 17.2v.1"/>',
+ wand:'<path d="m4 20 11-11M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1ZM19 11l.6 1.4L21 13l-1.4.6L19 15l-.6-1.4L17 13l1.4-.6Z"/>',
+ copy:'<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
+ download:'<path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/>',
+ remix:'<path d="M4 7h11a4 4 0 0 1 0 8H8"/><path d="m11 12-3 3 3 3M4 7l3-3M4 7l3 3"/>',
 });
 /** The one-tap "안 돼요" (outage report) and the status feed. */
 export const REPORT_ICON='wifiOff',FEED_ICON='rss';
@@ -80,7 +91,7 @@ export function icon(name,size=18,cls=''){
 export const ICON_NAMES=Object.freeze([...Object.keys(P),...FILLED]);
 
 /** Channel icons (the tiles on the icon column, the feed and channel headers). */
-export const CHANNEL_ICON=/** @type {Record<string,string>} */({ai:'sparkle',games:'gamepad',hw:'chip',studio:'brush',sub:'starBubble',free:'chat',notice:'megaphone',patch:'pin'});
+export const CHANNEL_ICON=/** @type {Record<string,string>} */({pfp:'user',sticker:'smile',pixel:'pixel',wall:'phone',howto:'help',recipes:'recipe',trends:'trend',ai:'sparkle',games:'gamepad',hw:'chip',studio:'brush',sub:'starBubble',free:'chat',notice:'megaphone',patch:'pin'});
 /** Tier badges: ◇ contributor, ◆ trusted, ⚑ maintainer, ✎ curator. */
 export const TIER_ICON=/** @type {Record<string,string>} */({contributor:'diamond',trusted:'diamondFill',maintainer:'flag',curator:'pen'});
 /** AI status shapes, so the state never rests on color alone. */

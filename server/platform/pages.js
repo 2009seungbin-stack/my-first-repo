@@ -4,6 +4,7 @@
  *   /ko/ · /{l}/community/     → 301 to the portal home
  *   /{l}/community/u/{name}    a member's profile (?tab=comments; noindex)
  *   /{l}/community/best/       전체 베스트 (?period=day|week|month&ch=)
+ *   /{l}/community/recipes/    레시피 모음 (?sort=new&ch=&page=) · /{l}/community/trends/ 이번 주 유행 (AI 창작, 2026-10-11)
  *   /{l}/community/{ch}/       a channel's board (?kind=&tag=&sort=&best=1&page=, 게임: &platform= | &genre=)
  *   /{l}/community/{ch}/{no} · …/write (?tag=&kind=) · …/best · …/feed.xml
  *   /{l}/community/report      신고 form (?target=kind:id)
@@ -20,6 +21,7 @@ import {loadChannel,renderChannel} from '../../platform/render/channel.js';
 import {loadBoard,renderBoard} from '../../platform/render/board.js';
 import {loadPost,renderPost} from '../../platform/render/post.js';
 import {loadFront,renderFront,loadBest,renderBest,BEST_PERIODS} from '../../platform/render/front.js';
+import {loadRecipes,renderRecipes,loadTrends,renderTrends} from '../../platform/render/recipes.js';
 import {loadWrite,renderWrite} from '../../platform/render/write.js';
 import {loadHistory,renderHistory} from '../../platform/render/history.js';
 import {loadStatus,renderStatus} from '../../platform/render/status.js';
@@ -40,14 +42,14 @@ import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
-import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,writePath,channelBarLinks} from '../../platform/channels.js';
+import {CHANNEL_IDS,OPEN_CHANNELS,channelById,channelOfVertical,defaultChannelOf,writableChannel,channelPath,postPath,writePath,channelBarLinks,recipesPath,trendsPath} from '../../platform/channels.js';
 import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {RAIL_SERVICES} from '../../platform/render/rail.js';
 import {maybeRefreshStatus} from './status-refresh.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
-const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status/feed\\.xml|status|local-llm|feed\\.xml))?)?)$`);
+const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best|recipes|trends)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status/feed\\.xml|status|local-llm|feed\\.xml))?)?)$`);
 /** A member's profile: /{l}/community/u/{nickname} (the nickname URL-encoded). */
 const PROFILE=new RegExp(`^/(${L})/community/u/([^/]{1,160})$`);
 export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=60';
@@ -58,7 +60,7 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'profile'|'front'|'home-moved'|'best'|'recipes'|'trends'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  const tool=new RegExp(`^/(${L})/hardware/(used-prices|performance)/$`).exec(pathname);
@@ -79,6 +81,7 @@ export function matchPlatformRoute(pathname){
  }
  if(sub==='feed.xml')return {l,page:'feed',vertical,slug,no:null};
  if(sub==='status/feed.xml')return {l,page:'status-feed',vertical,slug,no:null};
+ if(community&&(best==='recipes'||best==='trends'))return {l,page:best};
  if(community)return {l,page:best?'best':report==='mod'?'mod':report==='me'?'me':report==='transparency'?'transparency':report==='policy'?'policy':report?'flag':'front'};
  if(top)return {l,page:/** @type {'search'|'radar'} */(top)};
  if(!slug)return {l,page:'hub',vertical};
@@ -96,9 +99,10 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
  board:{kind:v=>hasOwn(POST_KINDS,v)?v:null,tag:v=>ENTITY_ID.test(v)?v:null,sort:v=>SORTS.includes(/** @type {any} */(v))&&v!=='new'?v:null,best:v=>v==='1'?'1':null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null,
   platform:v=>/^[a-z0-9_-]{2,20}$/.test(v)?v:null,genre:v=>/^[A-Za-z0-9][A-Za-z0-9 &'-]{1,39}$/.test(v)?v:null},
  'board-best':{page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
- 'board-write':{tag:v=>ENTITY_ID.test(v)?v:null,kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
+ 'board-write':{tag:v=>ENTITY_ID.test(v)?v:null,kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null,remix:v=>/^[\w-]{1,64}$/.test(v)?v:null,from:v=>v==='make'?'make':null},
  'legacy-write':{kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
- front:{sort:v=>v==='new'?'new':null},
+ front:{sort:v=>v==='new'||v==='recipes'?v:null},
+ recipes:{sort:v=>v==='new'?'new':null,ch:v=>OPEN_CHANNELS.some(c=>c.id===v)?v:null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
  profile:{tab:v=>v==='comments'?'comments':null},
  best:{period:v=>hasOwn(BEST_PERIODS,v)&&v!=='day'?v:null,ch:v=>CHANNEL_IDS.includes(/** @type {any} */(v))?v:null},
  radar:{v:v=>VERTICALS.includes(/** @type {any} */(v))?v:null},
@@ -156,6 +160,8 @@ export async function renderPlatformPage(request,env,site){
  switch(route.page){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,sort:q.get('sort')||'hot',channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',channel:q.get('ch'),channels:await bar()}),s)));
+  case 'recipes':return html(String(renderRecipes(await loadRecipes(db,{l,now,sort:q.get('sort'),channel:q.get('ch'),page:Number(q.get('page'))||1,channels:await bar()}),s)));
+  case 'trends':return html(String(renderTrends(await loadTrends(db,{l,now,channels:await bar()}),s)));
   case 'flag':return html(String(renderFlag({l,target:q.get('target'),about:await loadFlagTarget(db,q.get('target'),l),channels:await bar()},s)));
   case 'policy':return html(String(renderPolicy({l,channels:await bar()},s)));
   case 'transparency':return html(String(renderTransparency(await loadTransparency(db,{l,now,channels:await bar()}),s)));
@@ -177,7 +183,10 @@ export async function renderPlatformPage(request,env,site){
    }
    case 'board-best':return html(String(renderBoard(await loadBoard(db,{l,now,channel:ch.id,bestPage:true,page:Number(q.get('page'))||1,channels:await bar()}),s)));
    case 'board-feed':return xml(await boardFeed(db,ch.id,l,s.origin));
-   case 'board-write':return html(String(renderWrite(await loadWrite(db,{l,now,channel:ch.id,tag:q.get('tag'),kind:q.get('kind'),result:q.get('result'),channels:await bar()}),s)));
+   case 'board-write':
+    // An archived channel takes no posts: its write page sends the writer to 자유 (with the tag).
+    if(ch.readOnly)return new Response(null,{status:302,headers:{location:new URL(writePath(l,writableChannel(ch.id),{tag:q.get('tag')}),url).href,'cache-control':'no-store'}});
+    return html(String(renderWrite(await loadWrite(db,{l,now,channel:ch.id,tag:q.get('tag'),kind:q.get('kind'),result:q.get('result'),remix:q.get('remix'),fromMake:q.get('from')==='make',channels:await bar()}),s)));
    case 'board-post':{
     const m=await loadPost(db,ch.id,/** @type {number} */(route.no),{l,now,channels:await bar()});
     if(m)return html(String(renderPost(m,s)));
@@ -203,7 +212,8 @@ export async function renderPlatformPage(request,env,site){
  }
  if(route.page==='legacy-write'){
   const facts=(await factsFor(db,[entity.id])).get(entity.id)||[];
-  return new Response(null,{status:302,headers:{location:new URL(writePath(l,defaultChannelOf(entity,facts),{tag:entity.id,kind:q.get('kind')})+(q.get('result')?`&result=${q.get('result')}`:''),url).href,'cache-control':'no-store'}});
+  const target=writableChannel(defaultChannelOf(entity,facts));
+  return new Response(null,{status:302,headers:{location:new URL(writePath(l,target,{tag:entity.id,kind:target==='free'?null:q.get('kind')})+(q.get('result')&&target!=='free'?`&result=${q.get('result')}`:''),url).href,'cache-control':'no-store'}});
  }
  const channels=await bar();
  switch(route.page){
@@ -223,11 +233,13 @@ const redirect=(/** @type {string} */ to)=>new Response(null,{status:301,headers
 const SITEMAP=/^\/sitemap-n2-([a-z]+)\.xml$/;
 const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Record<string,string>} */({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'})[c]);
 /**
- * Entity sitemap of one vertical: only channels that pass the content gate, both languages with
- * hreflang alternates, lastmod = last visible change or post. Service status pages are listed too.
+ * Entity sitemap of one vertical that is still indexed (platform/seo.js PLATFORM_SITEMAPS): only channels that
+ * pass the content gate, both languages with hreflang alternates, lastmod = last visible change or post.
+ * 'community' is the community file (communitySitemap).
  * @param {any} db @param {string} vertical @param {string} origin
  */
 export async function renderSitemap(db,vertical,origin){
+ if(vertical==='community')return communitySitemap(db,origin);
  // The home status box's services (Claude, ChatGPT, Gemini) are always listed: their status pages are
  // what people land on when the service breaks ("클로드 안 됨"), whatever the content gate says.
  const always=new Set(RAIL_SERVICES.map(x=>x.id));
@@ -237,13 +249,8 @@ export async function renderSitemap(db,vertical,origin){
  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(hub[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(hub.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(hub.en)}"/></url>`);
  // Change histories with real changes (at least 3 besides first sightings) are pages of their own.
  const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
- // The comparison tables, and (in the AI file) the community front and the Radar.
- // The community front, its 전체 베스트 and every channel board are in the AI file (the first one).
- const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
- if(vertical==='ai'){
-  const home={ko:`${origin}/`,en:`${origin}/en/`};
-  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);
- }
+ // The comparison tables (the home, the boards and the recipe lists are in the community file).
+ const extra=({hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]);
  for(const [p] of extra){
   const alt={ko:`${origin}/ko${p}`,en:`${origin}/en${p}`};
   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/></url>`);
@@ -265,6 +272,33 @@ export async function renderSitemap(db,vertical,origin){
    for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/></url>`);
   }
  }
+ return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls.join('')}</urlset>`;
+}
+
+/** How many posts the community sitemap lists (newest first; each in the language it was written in). */
+export const SITEMAP_POSTS=5000;
+/**
+ * The community sitemap (AI 창작 pivot, 2026-10-11): the home, 전체 베스트, 레시피 모음, 이번 주 유행 and the open
+ * boards in both languages; the published posts of the open boards in their own language (people's posts, not
+ * the Radar bot's); and the AI service status pages, which stay indexed while the rest of /{l}/ai/ is archived.
+ * @param {any} db @param {string} origin
+ */
+export async function communitySitemap(db,origin){
+ const urls=[];
+ const pair=(/** @type {string} */ path,/** @type {string|null} */ xdef=null)=>{const alt={ko:`${origin}/ko${path}`,en:`${origin}/en${path}`};
+  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/>${xdef?`<xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(xdef)}"/>`:''}</url>`);};
+ const home={ko:`${origin}/`,en:`${origin}/en/`};
+ for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);
+ for(const p of ['/community/best/',recipesPath('').slice(1),trendsPath('').slice(1),...OPEN_CHANNELS.map(c=>channelPath('',c.id).slice(1))])pair(p.startsWith('/')?p:`/${p}`);
+ const ids=OPEN_CHANNELS.map(c=>c.id);
+ const posts=((await db.prepare(`SELECT channel_id,channel_no,locale,last_activity_at,updated_at FROM discussions WHERE status IN ('published','locked') AND author_id NOT LIKE 'system:%' AND channel_id IN (${ids.map(()=>'?').join(',')}) ORDER BY created_at DESC LIMIT ?`).bind(...ids,SITEMAP_POSTS).all()).results||[]);
+ for(const r of posts){
+  const at=Math.max(Number(r.last_activity_at)||0,Number(r.updated_at)||0);
+  urls.push(`<url><loc>${xmlEsc(origin+postPath(r.locale==='en'?'en':'ko',String(r.channel_id),Number(r.channel_no)))}</loc>${at?`<lastmod>${new Date(at).toISOString().slice(0,10)}</lastmod>`:''}</url>`);
+ }
+ // The status pages people land on when a service breaks ("클로드 안 됨").
+ const svc=(await sitemapEntities(db,'ai')).filter(e=>RAIL_SERVICES.some(x=>x.id===e.id)&&e.index_state!=='noindex');
+ for(const e of svc)pair(channelUrl('',e).slice(1)+'status');
  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls.join('')}</urlset>`;
 }
 

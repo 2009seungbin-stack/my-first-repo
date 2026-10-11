@@ -32,11 +32,12 @@ const TYPES=/** @type {Record<string,string>} */({'.js':'text/javascript; charse
 
 export async function createDevServer({port=8788,now=Date.now()}={}){
  const db=D1Shim.migrated();
+ const bucket=process.env.DEV_UPLOADS==='off'?null:new R2Shim();
  await seedDatabase(db,undefined,now-2*864e5);
- await insertDemoContent(db,now);
+ await insertDemoContent(db,now,{bucket});
  const origin=`http://localhost:${port}`;
  const env={DB:db,SESSION_SECRET:'dev-only-session-secret-0123456789abcdef-0123',NERULIO_ENV:'development',SITE_URL:origin,
-  ...(process.env.DEV_UPLOADS==='off'?{}:{UPLOADS:new R2Shim()}),
+  ...(bucket?{UPLOADS:bucket}:{}),
   ...(process.env.DEV_TURNSTILE==='testing'?{TURNSTILE_SITE_KEY:'1x00000000000000000000AA',TURNSTILE_SECRET_KEY:'1x0000000000000000000000000000000AA'}:{}),
   ...Object.fromEntries(String(process.env.DEV_SIGNIN_PROVIDERS||'').split(',').map(p=>p.trim().toUpperCase()).filter(p=>['GOOGLE','GITHUB','DISCORD'].includes(p)).flatMap(p=>[[`${p}_OAUTH_CLIENT_ID`,`dev-${p.toLowerCase()}`],[`${p}_OAUTH_CLIENT_SECRET`,'dev-placeholder']]))};
  const providers=configuredProviders({oauth:providerCredentials(env)});

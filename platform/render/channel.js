@@ -14,7 +14,7 @@ import {indexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
 import {panelFor} from './panels/index.js';
 import {POST_KINDS,channelBestThreshold,BEST_RULE} from '../community.js';
-import {defaultChannelOf,channelById,channelPath,writePath,flairLabel} from '../channels.js';
+import {defaultChannelOf,writableChannel,channelById,channelPath,writePath,flairLabel} from '../channels.js';
 import {typeDef,verticalOf,propertyDef} from '../verticals/index.js';
 import {label} from '../labels.js';
 import {TZ,dateText,factText} from './format.js';
@@ -88,7 +88,7 @@ export function renderChannel(m,site){
  const header=html`<section class="box chh"><span class="tile ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>
 <div class="chm"><div class="chn1"><h1>${name}${m.alias?html` <span class="ha">${m.alias}</span>`:''}</h1><span class="fine">${subtitle||(v?label(v.label,l):'')} · ${l==='ko'?html`<a href="${channelPath(l,m.home)}">${channelName(m.home,l)} 채널</a>의 태그`:html`a tag of <a href="${channelPath(l,m.home)}">${channelName(m.home,l)}</a>`}${v?html` · <a href="/${l}/${e.vertical}/">${l==='ko'?`${label(v.label,l)} 태그 모음`:`All ${label(v.label,l)} tags`}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
 <span class="fine">${s.followers} <span data-followers="${m.stats.followers}">${compact(m.stats.followers,l)}</span> · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
-<div class="cha" data-island="follow" data-entity="${e.id}" data-tag-name="${name}"><a class="btn" href="${signInUrl(base)}" rel="nofollow" data-signin>${s.follow}</a><a class="btn p" href="${writePath(l,m.home,{tag:e.id})}">${l==='ko'?'이 태그로 글쓰기':'Write with this tag'}</a></div></section>`;
+<div class="cha" data-island="follow" data-entity="${e.id}" data-tag-name="${name}"><a class="btn" href="${signInUrl(base)}" rel="nofollow" data-signin>${s.follow}</a><a class="btn p" href="${writePath(l,writableChannel(m.home),{tag:e.id})}">${l==='ko'?'이 태그로 글쓰기':'Write with this tag'}</a></div></section>`;
  // 말머리 of the tag's home channel (a post from any channel still shows; the tab filters all of them).
  const home=/** @type {import('../channels.js').Channel} */(channelById(m.home));
  // Tag, sort, 념글 and page links are noindex views: nofollow keeps crawlers on the tag pages.
@@ -100,7 +100,7 @@ export function renderChannel(m,site){
  const ko=l==='ko';
  const partsText=m.parts.slice(0,4).map(x=>nameOf(x,l)).join(' · ')+(m.parts.length>4?' …':'');
  const scope=html`<div class="bh tagh"><h2>${ko?`${name} 태그 글`:`Posts tagged ${name}`}</h2><span class="x">${ko?'모든 채널에서':'From every channel'}${m.parts.length?html` · ${m.children?(ko?`하위 태그 포함 (${partsText})`:`with its parts (${partsText})`):(ko?'이 태그만':'this tag only')} · <a rel="nofollow" href="${q({sub:m.children?0:null,page:null})}">${m.children?(ko?'이 태그만 보기':'This tag only'):(ko?'하위 태그 포함':'Include parts')}</a>`:''}</span></div>`;
- const foot=html`<p class="pad tagf"><a href="${channelPath(l,home.id)}?tag=${e.id}">${ko?`${channelName(home.id,l)} 채널에서 ${name} 글 모두 보기`:`All ${name} posts in ${channelName(home.id,l)}`} ›</a><a class="btn p" href="${writePath(l,m.home,{tag:e.id})}">${ko?'이 태그로 글쓰기':'Write with this tag'}</a></p>`;
+ const foot=html`<p class="pad tagf"><a href="${channelPath(l,home.id)}?tag=${e.id}">${ko?`${channelName(home.id,l)} 채널에서 ${name} 글 모두 보기`:`All ${name} posts in ${channelName(home.id,l)}`} ›</a><a class="btn p" href="${writePath(l,writableChannel(m.home),{tag:e.id})}">${ko?'이 태그로 글쓰기':'Write with this tag'}</a></p>`;
  const boardBox=html`<section class="box board" id="board">${scope}${tabs}${sortBar}
 <ol class="plist" aria-label="${ko?`${name} 태그 글`:`Posts tagged ${name}`}">${boardHead(l)}${rows}</ol>
 ${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:(ko?`아직 ${name} 태그를 단 글이 없어요. 첫 글을 써 보세요.`:`No posts tagged ${name} yet. Write the first one.`)}</p>`}${pager}${foot}</section>`;

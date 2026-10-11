@@ -120,24 +120,38 @@ export function rolloutSummary(votes,now){
  * placeholder for a post without tags.
  * `anon` = an anonymous (유동) post: author 'anon' with the typed nickname, the daily ID, the network key
  * and the edit-password hash (server/platform/anon.js).
- * @param {any} db @param {{id:string,channel:string,kind:string,tags?:string[],title:string,body:string,locale:string,authorId:string,changeId?:number|null,reportId?:string|null,hasImage?:boolean,status?:'published'|'hidden',textHash?:string|null,anon?:{name:string,id:string,net:string,pw:string}|null}} p @param {number} now
+ * `ai` = what an AI 창작 post adds (migrations/0015): its validated recipe (JSON text), the post it remixes
+ * (the parent's remix_count is recounted in the same batch), the generator and prompt, the AI-generated flag
+ * and when the writer gave the image consent. Callers validate it (server/platform/api.js).
+ * @param {any} db @param {{id:string,channel:string,kind:string,tags?:string[],title:string,body:string,locale:string,authorId:string,changeId?:number|null,reportId?:string|null,hasImage?:boolean,status?:'published'|'hidden',textHash?:string|null,anon?:{name:string,id:string,net:string,pw:string}|null,
+ *  ai?:{recipeJson?:string|null,remixOf?:string|null,generator?:string|null,prompt?:string|null,generated?:boolean,consentAt?:number|null}|null}} p @param {number} now
  * @returns {Promise<number>} the post's number in its channel
  */
 export async function createPost(db,p,now){
  if(!(p.kind in POST_KINDS))throw Error('unknown post kind');
  if(!channelById(p.channel))throw Error('unknown channel');
  const tags=[...new Set(p.tags||[])].slice(0,TAG_LIMIT),entityId=tags[0]||placeholderEntity(p.channel);
- const a=p.anon||null;
+ const a=p.anon||null,x=p.ai||null;
+ // The 0015 columns only when the post uses them, so system writers (Radar bot, compat reports) work the same
+ // on a database that does not have them yet.
+ const extraCols=x?',recipe_json,remix_of,generator,prompt,ai_generated,consent_at':'';
+ const extraVals=x?[x.recipeJson??null,x.remixOf??null,x.generator??null,x.prompt??null,x.generated?1:0,x.consentAt??null]:[];
  // One transaction: the number goes up and the post takes it, so a failed insert leaves no gap and two
  // writers never share a number.
  const out=await db.batch([
   db.prepare('UPDATE channels SET post_seq=post_seq+1 WHERE id=?').bind(p.channel),
-  db.prepare(`INSERT INTO discussions (id,entity_id,post_no,channel_id,channel_no,kind,flair,title,body_md,locale,author_id,change_id,report_id,has_image,status,anon_name,anon_id,anon_net,anon_pw,text_hash,created_at,updated_at,last_activity_at)
-  SELECT ?,?,COALESCE(MAX(post_no),0)+1,?,(SELECT post_seq FROM channels WHERE id=?),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? FROM discussions WHERE entity_id=? RETURNING channel_no`)
-  .bind(p.id,entityId,p.channel,p.channel,storedKind(p.kind),p.kind,p.title,p.body,p.locale,p.authorId,p.changeId??null,p.reportId??null,p.hasImage?1:0,p.status||'published',a?.name??null,a?.id??null,a?.net??null,a?.pw??null,p.textHash??null,now,now,now,entityId),
-  ...tags.map((t,i)=>db.prepare('INSERT INTO discussion_tags (discussion_id,entity_id,pos,created_at) VALUES (?,?,?,?)').bind(p.id,t,i,now))]);
+  db.prepare(`INSERT INTO discussions (id,entity_id,post_no,channel_id,channel_no,kind,flair,title,body_md,locale,author_id,change_id,report_id,has_image,status,anon_name,anon_id,anon_net,anon_pw,text_hash,created_at,updated_at,last_activity_at${extraCols})
+  SELECT ?,?,COALESCE(MAX(post_no),0)+1,?,(SELECT post_seq FROM channels WHERE id=?),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?${extraVals.map(()=>',?').join('')} FROM discussions WHERE entity_id=? RETURNING channel_no`)
+  .bind(p.id,entityId,p.channel,p.channel,storedKind(p.kind),p.kind,p.title,p.body,p.locale,p.authorId,p.changeId??null,p.reportId??null,p.hasImage?1:0,p.status||'published',a?.name??null,a?.id??null,a?.net??null,a?.pw??null,p.textHash??null,now,now,now,...extraVals,entityId),
+  ...tags.map((t,i)=>db.prepare('INSERT INTO discussion_tags (discussion_id,entity_id,pos,created_at) VALUES (?,?,?,?)').bind(p.id,t,i,now)),
+  ...(x?.remixOf?[remixRecount(db,x.remixOf)]:[])]);
  return Number(out[1]?.results?.[0]?.channel_no);
 }
+/** Recount a post's remix_count from its visible remixes (after a remix is written, hidden, restored or
+ * deleted). @param {any} db @param {string} parentId */
+export const remixRecount=(db,parentId)=>db.prepare("UPDATE discussions SET remix_count=(SELECT COUNT(*) FROM discussions c WHERE c.remix_of=?1 AND c.status IN ('published','locked')) WHERE id=?1").bind(parentId);
+/** The same for whatever post `childId` remixes (no-op when it remixes nothing). @param {any} db @param {string} childId */
+export const remixRecountOfChild=(db,childId)=>db.prepare("UPDATE discussions SET remix_count=(SELECT COUNT(*) FROM discussions c WHERE c.remix_of=discussions.id AND c.status IN ('published','locked')) WHERE id=(SELECT remix_of FROM discussions WHERE id=?)").bind(childId);
 /** Replace a post's tags (edit). The first tag does not move the post: entity_id and post_no stay.
  * @param {any} db @param {string} id @param {string[]} tags @param {number} now */
 export function setTagsStatements(db,id,tags,now){

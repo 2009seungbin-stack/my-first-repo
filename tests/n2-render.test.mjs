@@ -73,7 +73,8 @@ test('AI service channel: status, models with official API prices, plans in the 
  assert(out.includes('rel="canonical" href="https://nerulio.com/ko/ai/claude/"'));
  assert(out.includes('hreflang="en" href="https://nerulio.com/en/ai/claude/"'));
  assert(/class="pr[^"]*"><span class="no">\d+<\/span><span class="tc"><a class="tt" href="\/ko\/community\/ai\/\d+">/.test(out),'tag rows link to posts in their channel');
- assert(out.includes('Claude 태그 글')&&out.includes('href="/ko/community/ai/write?tag=service:claude"'),'이 태그 글 and the write button with the channel and tag picked');
+ assert(out.includes('Claude 태그 글')&&out.includes('href="/ko/community/free/write?tag=service:claude"'),'이 태그 글, and the write button with the tag picked in 자유 (the AI channel is archived)');
+ assert(out.includes('<meta name="robots" content="noindex,follow">'),'AI entity pages are archived for search since the AI 창작 pivot');
 });
 
 test('game channel: latest Steam update, Korean patch compatibility, official Korean',{skip:!sqliteAvailable},async()=>{
@@ -101,10 +102,10 @@ test('studio and IP channels render their panels from seed data',{skip:!sqliteAv
 });
 
 test('filtered/paged board views are noindex and keep the filter in links',{skip:!sqliteAvailable},async()=>{
- const {out}=await channel('ai','claude',{kind:'question',sort:'top'});
+ const {out}=await channel('hardware','rtx-5070',{kind:'question',sort:'top'});
  assert(out.includes('<meta name="robots" content="noindex,follow">'));
- assert(out.includes('href="/ko/ai/claude/?kind=question&amp;sort=top"')||out.includes('kind=question'));
- const plain=(await channel('ai','claude')).out;
+ assert(out.includes('href="/ko/hardware/rtx-5070/?kind=question&amp;sort=top"')||out.includes('kind=question'));
+ const plain=(await channel('hardware','rtx-5070')).out;
  assert(!plain.includes('noindex'));
 });
 
@@ -137,24 +138,49 @@ test('post page: meta, threaded comments with the best comment on top, board aro
  assert.equal(await loadPost(d,'ai',999999,{l:'ko',now:NOW}),null);
 });
 
-test('portal home: one feed of people\'s posts (인기 · 최신), AI status, Radar news and the best on the right',{skip:!sqliteAvailable},async()=>{
+test('portal home (AI 창작, mockup 1): upload strip, the seven boards\' feed with before/after and recipes, trends, sizes and rules on the right',{skip:!sqliteAvailable},async()=>{
  const d=await seeded();
- const m=await loadFront(d,{l:'ko',now:NOW});
+ const {channelBarLinks}=await import('../platform/channels.js');
+ const m=await loadFront(d,{l:'ko',now:NOW,channels:channelBarLinks('ko')});
  const out=String(renderFront(m,SITE));
  assert.equal(m.sort,'hot');
- assert(m.posts.length>=8&&m.posts.every(p=>!p.bot),'the feed has members\' and ㅇㅇ posts, not the Radar bot');
+ const open=['pfp','sticker','pixel','wall','howto','free','notice'];
+ assert(m.posts.length>=6&&m.posts.every(p=>!p.bot&&open.includes(p.channel_id)),'the feed has people\'s posts of the AI 창작 boards only (the archived channels stay off the home)');
  const score=(/** @type {any} */ p)=>p.up-p.down+2*p.comments,week=m.posts.filter(p=>p.created_at>=NOW-7*864e5);
  assert(week.every((p,i)=>i===0||score(week[i-1])>=score(p)),'popular = votes and comments, this week first');
+ assert(out.includes('<title>Nerulio — AI 창작 커뮤니티: AI로 만든 이미지를 다듬고 레시피를 공유</title>'),'the title says what the site is now');
  assert(out.includes('<link rel="canonical" href="https://nerulio.com/">'),'the Korean home is the site root');
  assert(out.includes('hreflang="en" href="https://nerulio.com/en/"')&&out.includes('hreflang="x-default" href="https://nerulio.com/"'));
- assert(out.includes('5070 vs 4070 SUPER')&&out.includes('class="fx"'),'cards show the first lines');
- assert(out.includes('AI 서비스 상태')&&['Claude','ChatGPT','Gemini'].every(n=>out.includes(`<b>${n}</b>`)));
- assert(m.rail.news.every(p=>p.bot),'news lists Radar bot posts only');
- assert(out.includes('파일 도구')&&out.includes('게임 도구')&&out.includes('href="/ko/image/compress/"')&&out.includes('href="/ko/tools/"'),'the menu lists the tools');
+ // Upload strip into the workbench, tabs 인기 · 최신 · 념글 · 레시피만, the lime 다듬고 올리기.
+ assert(out.includes('class="upstrip" href="/ko/make/"')&&out.includes('AI로 만든 이미지 올려서 바로 다듬기'));
+ assert(out.includes('href="/?sort=new"')&&out.includes('href="/ko/community/best/"')&&out.includes('href="/?sort=recipes"')&&/class="btn p" href="\/ko\/make\/"/.test(out));
+ // A recipe post: before/after images, the recipe in one line, 내 사진으로 해보기, ↑ 댓글 리믹스, the AI chip.
+ const line=m.posts.find(p=>p.id==='demo-aic-1');assert(line&&line.media?.before&&line.media?.after&&line.recipe,'demo-aic-1 has its images and recipe');
+ assert(out.includes('<span class="lab">원본</span>')&&/<span class="lab mono">370×320 ×6<\/span>/.test(out),'before/after with the result size and count');
+ assert(out.includes('시트 나누기 → 배경 지우기 → 자르기 → 흰 테두리 7px → LINE 스탬프 370×320'),'the recipe in one line (summaryLine)');
+ assert(out.includes('href="/ko/make/?recipe=demo-aic-1"')&&out.includes('내 사진으로 해보기'));
+ assert(out.includes('class="mh ai">AI 생성<')&&out.includes('리믹스 2'),'AI chip and the remix count (two remixes of demo-aic-1)');
+ // The curved thread down the feed stays (CSS .feed>li::before); text posts show their first lines.
+ assert(out.includes('<ol class="feed">')&&out.includes('class="fx"'));
+ // Right column: login, 이번 주 유행 (picked + tried this week), 규격 바로 맞추기, 지켜 주세요; no AI status box.
+ assert(out.includes('로그인하면 구독·알림·고정닉')&&out.includes('이번 주 유행')&&out.includes('피규어 사진 → 스티커')&&out.includes('href="/ko/community/trends/#ghibli-pfp"'));
+ assert(out.includes('규격 바로 맞추기')&&out.includes('href="/ko/make/line-sticker/"')&&out.includes('370×320')&&out.includes('지켜 주세요')&&out.includes('실제 사람 사진은 본인 것만'));
+ assert(!out.includes('AI 서비스 상태')&&!out.includes('data-outage'),'the old portal\'s status box left the home');
+ // The menu: 홈 · 전체 베스트 · 레시피 모음 · 이번 주 유행 and 다듬기 도구; Radar, 한글패치 and the tool groups left it.
+ assert(out.includes('href="/ko/community/recipes/"')&&out.includes('href="/ko/community/trends/"')&&out.includes('id="nav-make" open')&&out.includes('href="/ko/make/ai-pixel-fix/"')&&out.includes('href="/ko/tools/"'));
+ assert(!out.includes('id="nav-file"')&&!out.includes('id="nav-game"')&&!out.includes('id="nav-pc"')&&!out.includes('href="/ko/radar/"')&&!out.includes('한글패치 모음'));
+ // The channel bar: the seven boards in order.
+ const bar=out.slice(out.indexOf('data-channel-links'),out.indexOf('</span>',out.indexOf('data-channel-links')));
+ assert.deepEqual([...bar.matchAll(/data-ch="([a-z]+)"/g)].map(x=>x[1]),open);
+ const ld=JSON.parse((out.match(/<script type="application\/ld\+json">(.*?)<\/script>/)||[])[1]||'{}');
+ assert.match(ld['@graph'].find(x=>x['@type']==='WebSite').description,/AI로 만든|ChatGPT/);
  const latest=await loadFront(d,{l:'ko',now:NOW,sort:'new'});
  assert(latest.posts.every((p,i)=>i===0||latest.posts[i-1].created_at>=p.created_at),'최신 = newest first');
  assert(String(renderFront(latest,SITE)).includes('<meta name="robots" content="noindex,follow">'),'the latest tab is not a second indexed home');
- // The home is the site root now, so it carries the search engines' ownership tags (not the other pages).
+ const recipes=await loadFront(d,{l:'ko',now:NOW,sort:'recipes'});
+ assert(recipes.posts.length&&recipes.posts.every(p=>p.has_recipe),'레시피만');
+ assert(recipes.posts.every((p,i)=>i===0||recipes.posts[i-1].tries>=p.tries),'most tried first');
+ // The home is the site root, so it carries the search engines' ownership tags (not the other pages).
  const v={google:'g00gleT0ken',naver:'naverT0ken123',bing:'',};
  const withTags=String(renderFront(m,{...SITE,verify:v}));
  assert(withTags.includes('<meta name="google-site-verification" content="g00gleT0ken">')&&withTags.includes('<meta name="naver-site-verification" content="naverT0ken123">')&&!withTags.includes('msvalidate.01'));
@@ -261,12 +287,19 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  assert(/<title>[^<]*RTX 4070 vs [^<]*RTX 5070 비교/.test(vs)&&vs.includes('<link rel="canonical" href="https://nerulio.com/ko/hardware/?type=gpu&amp;vs=rtx-4070,rtx-5070"'),'the pair is its own page');
  assert(/4070 vs [^<]*5070/.test(vs),'two cards side by side');
  assert(vs.includes('class="mt vs"'));
- // Every channel is open: an entity page writes into its default channel with the tag picked.
+ // The entity channels are archived (2026-10-11): an entity page writes into 자유 with the tag picked.
  const studio=await (await go('/ko/studio/ableton-live/')).text();
- assert(!studio.includes('준비 중')&&studio.includes('href="/ko/community/studio/write?tag=app:ableton-live"'),'studio tags are open too');
+ assert(!studio.includes('준비 중')&&studio.includes('href="/ko/community/free/write?tag=app:ableton-live"'),'tags still take posts, in 자유');
  const lw=await go('/ko/studio/ableton-live/write');
- assert.equal(lw.status,302);assert.equal(lw.headers.get('location'),'https://nerulio.com/ko/community/studio/write?tag=app:ableton-live');
- assert((await (await go('/ko/hardware/rtx-5070/')).text()).includes('href="/ko/community/hw/write?tag=gpu:rtx-5070"'));
+ assert.equal(lw.status,302);assert.equal(lw.headers.get('location'),'https://nerulio.com/ko/community/free/write?tag=app:ableton-live');
+ assert((await (await go('/ko/hardware/rtx-5070/')).text()).includes('href="/ko/community/free/write?tag=gpu:rtx-5070"'));
+ const aw=await go('/ko/community/hw/write?tag=gpu:rtx-5070');
+ assert.equal(aw.status,302,'an archived board has no write page');assert.equal(aw.headers.get('location'),'https://nerulio.com/ko/community/free/write?tag=gpu:rtx-5070');
+ // The AI 창작 lists and their parameters.
+ assert.deepEqual(matchPlatformRoute('/ko/community/recipes/'),{l:'ko',page:'recipes'});assert.deepEqual(matchPlatformRoute('/en/community/trends/'),{l:'en',page:'trends'});
+ for(const p of ['/ko/community/recipes/','/ko/community/recipes/?sort=new&ch=sticker','/ko/community/trends/','/en/community/recipes/','/?sort=recipes','/ko/community/sticker/?sort=tries','/ko/community/sticker/write?remix=demo-aic-1&from=make'])assert.equal((await go(p)).status,200,p);
+ assert.equal((await go('/ko/community/recipes/?ch=games&x=1')).headers.get('location'),'https://nerulio.com/ko/community/recipes/','archived channels are not a filter of the recipe list');
+ assert.equal((await go('/ko/community/sticker/write?from=elsewhere')).headers.get('location'),'https://nerulio.com/ko/community/sticker/write');
  // Old post URLs answer 301 to the post's channel address; an unknown number goes to the tag page.
  const old=await d.prepare("SELECT l.post_no,d.channel_no FROM legacy_posts l JOIN discussions d ON d.id=l.discussion_id WHERE l.entity_id='service:claude' ORDER BY l.post_no LIMIT 1").first();
  if(old){const r2=await go(`/ko/ai/claude/${old.post_no}`);assert.equal(r2.status,301);assert.equal(r2.headers.get('location'),`https://nerulio.com/ko/community/ai/${old.channel_no}`);}
@@ -316,11 +349,16 @@ test('status, history and write pages render; status is only for services',{skip
  assert.equal(await get('/ko/hardware/rtx-5070/status'),null,'no status page for a GPU');
  const hist=await (await get('/ko/hardware/rtx-5070/history')).text();
  assert(hist.includes('변경 기록')&&hist.includes('출처'));
- const w=await (await get('/ko/community/games/write?tag=game:steam-333640&kind=report')).text();
- assert(w.includes('구조화 리포트')&&w.includes('noindex')&&w.includes('data-island="write-form"')&&w.includes('value="game:steam-333640"'));
- const w2=await (await get('/ko/community/ai/write?tag=service:claude')).text();
- assert(!w2.includes('구조화 리포트'),'no report form where there is nothing to report on');
- assert(!w2.includes('value="patch"'),'한글패치 tag only on game channels');
+ const gw=await get('/ko/community/games/write?tag=game:steam-333640&kind=report');
+ assert.equal(gw.status,302,'the archived 게임 board takes no posts');assert.equal(gw.headers.get('location'),'https://nerulio.com/ko/community/free/write?tag=game:steam-333640');
+ const w=await (await get('/ko/community/sticker/write?tag=service:claude')).text();
+ assert(w.includes('noindex')&&w.includes('data-island="write-form"')&&w.includes('value="service:claude"'));
+ assert(!w.includes('구조화 리포트'),'no report form where there is nothing to report on');
+ assert(!w.includes('value="patch"')&&w.includes('value="line"'),'the sticker board\'s 말머리');
+ assert(w.includes('name="consent"')&&w.includes('전연령 · 실존 인물은 본인 또는 허락받은 성인이에요'),'the image consent');
+ assert(w.includes('name="generator"')&&w.includes('name="prompt"')&&w.includes('data-recipe-draft'),'the AI fields and the workbench\'s recipe slot');
+ const rw=await (await get('/ko/community/sticker/write?remix=demo-aic-1&from=make')).text();
+ assert(rw.includes('name="remixOf" value="demo-aic-1"')&&rw.includes('data-from-make')&&rw.includes('리믹스 원본'),'a remix keeps the post it remixes');
 });
 
 test('content gate: thin name-only channels are noindex and left out of the entity sitemaps',{skip:!sqliteAvailable},async()=>{
@@ -399,7 +437,7 @@ test('AI hub: plan and model price comparison tables from official facts',{skip:
  const go=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  const plans=await go('/ko/ai/?type=plan');
  assert(plans.includes('AI 요금제 비교')&&plans.includes('Claude Pro')&&plans.includes('$20'));
- assert(!plans.includes('noindex'),'the comparison is indexable');
+ assert(plans.includes('<meta name="robots" content="noindex,follow">'),'the AI vertical is archived for search (2026-10-11)');
  const gpus=await go('/ko/hardware/?type=gpu');
  assert(gpus.includes('그래픽카드 VRAM·스펙 비교')&&gpus.includes('/ko/hardware/rtx-5070/local-llm'));
  const models=await go('/ko/ai/?type=model');
@@ -465,11 +503,10 @@ test('"안 돼요" everywhere it matters: at the top of the status page, beside 
  const hero=st.slice(st.indexOf('class="box sthero'),st.indexOf('</section>',st.indexOf('class="box sthero')));
  assert(hero.includes('id="report" data-island="outage-report" data-entity="service:claude"')&&hero.includes('class="stbig"')&&hero.includes('Claude 안 돼요'),'the one-tap report is in the first box');
  assert.equal((st.match(/data-island="outage-report"/g)||[]).length,1,'one report box');
+ // Since the AI 창작 pivot the home has no service status box; the status pages keep the report box.
  const home=await get('/');
- for(const s of ['claude','chatgpt','gemini-app'])assert.equal((home.match(new RegExp(`data-outage="service:${s}"`,'g'))||[]).length,1,`${s}: 안 돼요 on the right column; the phone strip links to the status page`);
- assert(/<nav class="mstat"[^>]*>.*href="\/ko\/ai\/claude\/status"/.test(home),'the phone strip is one line of links to the status pages');
- assert(home.includes('href="/ko/ai/claude/status#report"'),'without JavaScript it opens the report box');
- assert((await get('/en/')).includes('aria-label="Report Claude not working"'));
+ assert(!home.includes('data-outage')&&!home.includes('class="mstat"'),'no status box or strip on the AI 창작 home');
+ assert((await get('/en/ai/claude/status')).includes('data-island="outage-report"'));
 });
 
 test('share cards: one per service × state × language, 1200×630, and the status page picks the one for its state',{skip:!sqliteAvailable},async()=>{
@@ -506,7 +543,7 @@ test('share cards: one per service × state × language, 1200×630, and the stat
  // Production passes SITE_URL with its trailing slash: no address may come out as "https://nerulio.com//…".
  const slash=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com/',now:()=>NOW})).text();
  for(const p of ['/','/ko/community/ai/','/ko/ai/claude/'])assert(!(await slash(p)).includes('nerulio.com//'),p);
- assert(!(await (await handlePlatformPage(new Request('https://nerulio.com/sitemap-n2-ai.xml'),{DB:d},{},{origin:'https://nerulio.com/'})).text()).includes('nerulio.com//'),'sitemap');
+ assert(!(await (await handlePlatformPage(new Request('https://nerulio.com/sitemap-n2-community.xml'),{DB:d},{},{origin:'https://nerulio.com/'})).text()).includes('nerulio.com//'),'sitemap');
 });
 
 test('status feed: official incidents and user-report spikes, each start and end, labelled apart',{skip:!sqliteAvailable},async()=>{

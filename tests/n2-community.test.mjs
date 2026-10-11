@@ -33,10 +33,11 @@ test('★ best rule, tiers and writable kinds',()=>{
  assert.equal(computeTier({...base,accepted_contributions:30,rejected_contributions:1},NOW),'trusted');
  assert.equal(computeTier({...base,accepted_contributions:30,strikes:1},NOW),'contributor');
  assert.equal(computeTier({...base,tier:'maintainer'},NOW),'maintainer');
- assert.ok(writableKinds('games').includes('patch'));
- assert.ok(!writableKinds('ai').includes('patch'));
- assert.ok(!writableKinds('games').includes('notice')&&writableKinds('games').includes('news'),'소식 is a 게임 말머리; 공지 is staff-only');
- assert.ok(writableKinds('games',{staff:true}).includes('notice'));
+ assert.ok(writableKinds('sticker').includes('line')&&writableKinds('pixel').includes('fix'));
+ assert.ok(!writableKinds('pfp').includes('patch'));
+ assert.ok(!writableKinds('sticker').includes('notice'),'공지 is staff-only');
+ assert.ok(writableKinds('sticker',{staff:true}).includes('notice'));
+ assert.deepEqual(writableKinds('games'),[],'the archived 게임 channel takes no posts');
 });
 
 test('rollout summary never shows a percentage for tiny cells and separates new accounts',()=>{

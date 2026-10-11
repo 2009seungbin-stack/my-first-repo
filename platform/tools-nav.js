@@ -1,9 +1,24 @@
 // @ts-check
-/** The file and game tools listed in the platform's left menu (파일 도구 / 게임 도구). The tools are the
- * static site's pages (src/intents.js paths); this short list keeps the Worker free of the tool
- * registry. tests/n2-shell.test.mjs checks every id and path against src/intents.js. */
+/** Tools linked from the platform's left menu. Since the AI 창작 pivot (2026-10-11) the menu holds one group,
+ * 다듬기 도구: the workbench's preset landings (/{l}/make/<slug>/, MAKER's platform/render/make.js) and
+ * "도구 전체 보기" (/{l}/tools/). The file, game and PC tool lists stay (their pages keep working and other
+ * pages link them); tests/n2-shell.test.mjs checks every id and path against src/intents.js. */
 
 /** @typedef {{id:string,path:string,ic:string,svg:string,ko:string,en:string}} NavTool */
+/** @typedef {{slug:string,svg:string,ko:string,en:string,spec:string}} MakeTool */
+/** 다듬기 도구: the workbench presets people come for, in menu order (AI-COMMUNITY-CONTRACT.md §3). `spec` is
+ * the size shown beside the name (the preset's own spec in platform/recipe.js PRESETS when it has one). */
+export const MAKE_TOOLS=Object.freeze(/** @type {MakeTool[]} */([
+ {slug:'kakao-emoticon',svg:'smile',ko:'카톡 이모티콘',en:'KakaoTalk emoticon',spec:'360×360'},
+ {slug:'line-sticker',svg:'smile',ko:'LINE 스탬프',en:'LINE sticker',spec:'370×320'},
+ {slug:'discord-emoji',svg:'smile',ko:'디스코드 이모지',en:'Discord emoji',spec:'128×128'},
+ {slug:'telegram-sticker',svg:'smile',ko:'텔레그램 스티커',en:'Telegram sticker',spec:'512×512'},
+ {slug:'round-pfp',svg:'user',ko:'원형 프사',en:'Round profile picture',spec:'800×800'},
+ {slug:'phone-wallpaper',svg:'phone',ko:'폰 배경화면',en:'Phone wallpaper',spec:'1206×2622'},
+ {slug:'ai-pixel-fix',svg:'pixel',ko:'AI 도트 정리',en:'AI pixel-art fix',spec:'1px ×8'},
+]));
+/** A preset landing of the workbench. @param {string} l @param {{slug:string}} x */
+export const makeHref=(l,x)=>`/${l}/make/${x.slug}/`;
 export const FILE_TOOLS=Object.freeze(/** @type {NavTool[]} */([
  {id:'compress',path:'image/compress',ic:'IMG',svg:'compress',ko:'이미지 압축',en:'Compress image'},
  {id:'convert',path:'image/convert',ic:'JPG',svg:'convert',ko:'이미지 형식 변환',en:'Convert image'},

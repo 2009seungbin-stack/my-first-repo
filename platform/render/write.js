@@ -1,8 +1,12 @@
 // @ts-check
-/** Write page (/{l}/community/{channel}/write?tag=&kind=): the channel, its 말머리, 0–3 tags (from an
- * entity page the channel and tag come picked), then nickname/password without an account, title, body and
- * images. On a game or an app tag the 리포트/호환 말머리 turns into a structured report (ProtonDB-style:
- * what, which versions, result, setup), which feeds the community verdict. The islands send the form. */
+/** Write page (/{l}/community/{channel}/write?tag=&kind=&remix=&from=make): the channel, its 말머리, 0–3 tags
+ * (from an entity page the channel and tag come picked), then nickname/password without an account, title, body
+ * and images; for AI 창작 posts the AI used, the prompt and the "AI 생성" mark (optional), and the image consent
+ * (전연령 · 실존 인물은 본인/허락받은 성인), which the API requires when images are attached. Opened from the
+ * workbench (?from=make) the form picks up the recipe the workbench left in this tab (sessionStorage
+ * "nerulio:recipe-draft", docs/AI-COMMUNITY.md) and sends it with the post — the same server validation as the
+ * workbench's own POST /api/v2/posts. On a game or an app tag the 리포트/호환 말머리 turns into a structured report.
+ * The islands send the form. */
 import {icon} from './icons.js';
 import {html} from './html.js';
 import {t} from './strings.js';
@@ -10,11 +14,12 @@ import {page,nameOf,signInUrl} from './ui.js';
 import {anonFields} from './post.js';
 import {related,versionsOf,entitiesByIds,popularTags} from '../db/channel.js';
 import {LIMITS} from '../community.js';
-import {CHANNELS,channelById,channelPath,writePath,writableFlairs,flairLabel,FEATURED_TAGS,TAG_LIMIT} from '../channels.js';
+import {CHANNELS,channelById,channelPath,postPath,writePath,writableFlairs,flairLabel,FEATURED_TAGS,TAG_LIMIT} from '../channels.js';
+import {GENERATOR_NAMES} from './post.js';
 import {verticalOf} from '../verticals/index.js';
 import {label} from '../labels.js';
 
-/** @param {any} db @param {{l:string,now:number,channel:string,tag?:string|null,kind?:string|null,result?:string|null,channels?:{name:string,href:string,id?:string}[]}} o */
+/** @param {any} db @param {{l:string,now:number,channel:string,tag?:string|null,kind?:string|null,result?:string|null,remix?:string|null,fromMake?:boolean,channels?:{name:string,href:string,id?:string}[]}} o */
 export async function loadWrite(db,o){
  const ch=/** @type {import('../channels.js').Channel} */(channelById(o.channel));
  const tag=o.tag?(await entitiesByIds(db,[o.tag])).get(o.tag)||null:null;
@@ -30,8 +35,11 @@ export async function loadWrite(db,o){
  const ids=new Set(used.map(e=>e.id));
  const featured=[...(await entitiesByIds(db,(FEATURED_TAGS[ch.id]||[]).filter(id=>!ids.has(id)))).values()];
  const suggest=[...used,...featured].filter(e=>e.id!==tag?.id).slice(0,8);
+ // A remix: the post it remixes (published, with a recipe).
+ const remix=o.remix?await db.prepare("SELECT id,title,channel_id,channel_no FROM discussions WHERE id=? AND status='published' AND recipe_json IS NOT NULL").bind(o.remix).first():null;
  return {ch,tag,subjects,versions,subjectVersion,suggest,result:['works','works_with_issues','broken'].includes(String(o.result))?String(o.result):'works',l:o.l,
-  kind:o.kind&&ch.flairs.includes(o.kind)?o.kind:null,channels:o.channels||[]};
+  kind:o.kind&&ch.flairs.includes(o.kind)?o.kind:null,channels:o.channels||[],fromMake:!!o.fromMake,
+  remix:remix?{id:String(remix.id),title:String(remix.title),channel:String(remix.channel_id),no:Number(remix.channel_no)}:null};
 }
 
 /** @param {Awaited<ReturnType<typeof loadWrite>>} m @param {{origin:string}} site */
@@ -53,7 +61,7 @@ export function renderWrite(m,site){
  const from=tag?html`<p class="wfrom"><b>${nameOf(tag,l)}</b> ${ko?`페이지에서 왔어요. 채널(${name})과 태그(${nameOf(tag,l)})를 미리 골라 뒀어요. 바꿔도 돼요.`:`— the channel (${name}) and the tag are picked for you. Change them if you like.`}</p>`:'';
  // One line each, like a phone form: the channel folds into the heading, 말머리 is one scrolling row, tags
  // fold away (open when the page came with a tag), title and body come right after.
- const channels=html`<details class="wsec wch"><summary><b>${ko?`${name} 채널`:name}</b>${icon('chevDown',16)}<span class="sr-only">${ko?'채널 바꾸기':'Change channel'}</span></summary><div class="chips">${CHANNELS.filter(c=>c.inBar||c.id==='notice').map(c=>html`<a class="wchip${c.id===ch.id?' on':''}" href="${writePath(l,c.id,{tag:tag?.id||null})}"${c.id===ch.id?html` aria-current="page"`:''} data-channel-link="${c.id}">${c.names[lang]}</a>`)}</div></details>`;
+ const channels=html`<details class="wsec wch"><summary><b>${ko?`${name} 채널`:name}</b>${icon('chevDown',16)}<span class="sr-only">${ko?'채널 바꾸기':'Change channel'}</span></summary><div class="chips">${CHANNELS.filter(c=>!c.readOnly).map(c=>html`<a class="wchip${c.id===ch.id?' on':''}" href="${writePath(l,c.id,{tag:tag?.id||null})}"${c.id===ch.id?html` aria-current="page"`:''} data-channel-link="${c.id}">${c.names[lang]}</a>`)}</div></details>`;
  const flairs=html`<fieldset class="wsec wfl"><legend class="sr-only">${ko?'말머리':'Flair'}</legend><div class="chips">${kinds.map(k=>html`<label class="wchip r"><input type="radio" name="kind" value="${k}"${k===chosen?html` checked`:''}><span>${flairLabel(ch.id,k,l)}</span></label>`)}</div></fieldset>`;
  const tags=html`<details class="wsec wtags" data-tag-picker data-limit="${TAG_LIMIT}"${tag?html` open`:''}><summary>${icon('plus',16)}${ko?'태그':'Tags'} <span class="fine">${ko?'선택 · 최대':'optional · up to'} ${TAG_LIMIT}${ko?'개':''}</span> <span class="tcount" data-tag-count>${tag?1:0}/${TAG_LIMIT}</span></summary><fieldset><legend class="sr-only">${ko?'태그':'Tags'}</legend>
 <div class="chips" data-tag-selected>${tag?html`<span class="wtag"><input type="hidden" name="tags" value="${tag.id}">${nameOf(tag,l)}<button type="button" data-tag-remove aria-label="${ko?'태그 빼기':'Remove tag'}">×</button></span>`:''}</div>
@@ -62,17 +70,28 @@ ${m.suggest.length?html`<div class="tsug"><span class="fine">${ko?'추천 태그
 <p class="fine" data-tag-line>${tag?(ko?`${nameOf(tag,l)} 태그 페이지에도 보여요.`:`Also shows on the ${nameOf(tag,l)} page.`):(ko?'태그 없이도 등록돼요. 달면 그 대상 페이지에도 보여요.':'Tags are optional; a tagged post also shows on that page.')}</p>
 ${ch.vertical?html`<details class="tprop" data-island="tag-propose" data-channel="${ch.id}"><summary>${ko?'찾는 태그가 없나요? 새 태그 제안 (고정닉)':'Missing a tag? Propose one (members)'}</summary><div class="row"><label>${ko?'태그 이름':'Tag name'}<input name="proposeName" maxlength="60" autocomplete="off"></label><label>${ko?'출처 링크 (공식 페이지)':'Source link (official page)'}<input name="proposeUrl" type="url" maxlength="300" placeholder="https://"></label></div><label>${ko?'메모':'Note'}<input name="proposeNote" maxlength="300"></label><p class="fine">${ko?'로그인한 회원만 제안할 수 있고, 운영자가 확인한 뒤 태그로 추가돼요.':'Members only; the owner reviews each proposal.'}</p><button type="button" class="btn" data-propose-send>${ko?'제안 보내기':'Send proposal'}</button><p class="fine" data-propose-status role="status"></p></details>`:''}</fieldset></details>`;
  // The rules sit in the empty body, as the placeholder (they go away as soon as you type).
- const ph=ko?`${name} 채널 글쓰기\n\n· 공식 정보는 출처 링크와 함께\n· 욕설·도배·불법 파일 공유는 숨김 처리\n· ${s.bestRule}\n\n마크다운 일부 지원: **굵게**, \`코드\`, 목록, 링크`:`Write in ${name}\n\n· Link sources for official information\n· Abuse, spam and illegal files are hidden\n\nMarkdown: **bold**, \`code\`, lists, links`;
+ const ph=ko?`${name} 채널 글쓰기\n\n· 전연령만 · 실존 인물 사진은 본인 것만 (또는 허락받은 성인)\n· 얼굴 바꾸기·옷 벗기기·나이 바꾸기 같은 합성은 올릴 수 없어요\n· 원본(전) 이미지는 ![원본](…)으로 넣으면 "원본"으로 표시돼요\n\n마크다운 일부 지원: **굵게**, \`코드\`, 목록, 링크`:`Write in ${name}\n\n· All ages only · real people: your own photo (or adults who agreed)\n· No face swaps, undressing or age changes\n\nMarkdown: **bold**, \`code\`, lists, links`;
+ // AI 창작 fields (optional) and the image consent (required with images; the API checks it).
+ const lang2=ko?'ko':'en';
+ const aiFields=html`<details class="wsec wai" data-ai-fields${m.fromMake||m.remix?html` open`:''}><summary>${icon('wand',16)}${ko?'AI로 만들었나요?':'Made with AI?'} <span class="fine">${ko?'사용한 AI · 프롬프트 (선택)':'the AI used · prompt (optional)'}</span></summary><div class="waib">
+<label>${ko?'사용한 AI':'AI used'}<select name="generator"><option value="">${ko?'고르지 않음':'Not set'}</option>${Object.entries(GENERATOR_NAMES).map(([k,v])=>html`<option value="${k}">${v[lang2]}</option>`)}</select></label>
+<label>${ko?'프롬프트':'Prompt'}<textarea name="prompt" rows="3" maxlength="2000" placeholder="${ko?'다른 사람이 따라 할 수 있게 쓴 프롬프트를 붙여 주세요':'Paste the prompt so others can follow it'}"></textarea></label>
+<label class="wcheck"><input type="checkbox" name="ai" value="1"${m.fromMake||m.remix?html` checked`:''}><span>${ko?'AI로 만든 이미지예요 ("AI 생성" 표시)':'Made with AI (shows "AI-made")'}</span></label></div></details>
+<div class="wrecipe" data-recipe-draft hidden><span class="mh inf">${ko?'레시피':'Recipe'}</span><span data-recipe-summary></span><button type="button" class="lnk" data-recipe-remove>${ko?'빼기':'Remove'}</button></div>
+${m.remix?html`<p class="wremix"><input type="hidden" name="remixOf" value="${m.remix.id}">${icon('remix',15)}<span>${ko?'리믹스 원본':'Remix of'}</span> <a href="${postPath(l,m.remix.channel,m.remix.no)}">${m.remix.title}</a></p>`:''}`;
+ const consent=html`<label class="wcheck wconsent"><input type="checkbox" name="consent" value="1" data-consent><span>${ko?'전연령 · 실존 인물은 본인 또는 허락받은 성인이에요':'All ages · real people only myself or adults who agreed'} <a href="/${l}/community/policy#ai">${ko?'규칙':'Rules'}</a></span></label>`;
  const body=html`<section class="box wbox"><div class="whead"><h1 class="wt">${ko?'글쓰기':'Write'}</h1>${channels}<a class="wx" href="${base}">${ko?'취소':'Cancel'}</a></div>${from}
-<form class="wform" data-island="write-form" data-channel="${ch.id}">
+<form class="wform" data-island="write-form" data-channel="${ch.id}"${m.fromMake?html` data-from-make`:''}>
 <p class="needlogin" hidden>${ko?'글을 등록하려면 로그인이 필요합니다. 쓰던 내용은 이 브라우저에 임시저장되어 로그인 후에도 남아 있어요.':'Sign in to post.'} <a href="${signInUrl(self)}" rel="nofollow" data-signin>${s.login} ›</a></p>
 ${flairs}
 ${rep}
 <input class="wti" name="title" maxlength="${LIMITS.title[1]}" minlength="${LIMITS.title[0]}" required autocomplete="off" placeholder="${ko?'제목':'Title'}" aria-label="${ko?'제목':'Title'}">
 <div class="wed"><div class="wbar"><div class="imgpick" data-image-picker hidden><label class="wtool" title="${ko?'최대 10장 · 올리기 전에 이 기기에서 크기를 줄이고 위치 정보(EXIF)를 지워요 · 움짤(GIF)은 첫 장면만':'Up to 10 · resized on this device, location data removed · a GIF becomes a still'}"><input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif" multiple hidden data-image-input>${icon('photo',18)}<span>${ko?'이미지':'Images'}</span></label></div></div>
 <textarea name="body" maxlength="${LIMITS.body[1]}" placeholder="${ph}" aria-label="${ko?'본문':'Body'}"></textarea><ul class="imgs" data-image-list></ul></div>
+${aiFields}
 ${tags}
 ${anonFields(l,self)}
+${consent}
 <div class="acts"><a class="fine" href="/${l}/community/policy">${ko?'운영정책':'Rules'}</a><span class="sp"></span><button class="btn p" type="submit" data-label="${ko?'등록':'Post'}">${ko?'등록':'Post'}</button></div>
 </form></section>`;
  return page({l,title:ko?`글쓰기 - ${name} 채널 | Nerulio`:`Write - ${name} | Nerulio`,description:ko?`${name} 채널에 글을 씁니다.`:`Write a post in ${name}.`,canonical:site.origin+channelPath(l,ch.id)+'write',noindex:true,

@@ -240,7 +240,7 @@ export async function notifyNewFlag(env,flag,o){
   const urgent=!!flag.autoHidden;
   const subs=(await adminSubscriptions(env.DB)).filter(s=>s.prefs.flags==='instant'||(urgent&&s.prefs.flags==='hourly'));
   if(!subs.length)return;
-  const REASON=/** @type {Record<string,string>} */({spam:'스팸·광고',abuse:'욕설·비하',wrong_info:'잘못된 정보',source_dispute:'출처 이의',duplicate:'중복',copyright:'저작권',other:'기타',csam:'아동·청소년 성착취물',illegal_filming:'불법촬영물',privacy:'개인정보 노출',sexual:'음란물',violence:'폭력·자해'});
+  const REASON=/** @type {Record<string,string>} */({spam:'스팸·광고',abuse:'욕설·비하',wrong_info:'잘못된 정보',source_dispute:'출처 이의',duplicate:'중복',copyright:'저작권',other:'기타',csam:'아동·청소년 성착취물',illegal_filming:'불법촬영물',privacy:'개인정보 노출',sexual:'음란물',minor:'미성년 선정 이미지',deepfake:'실존 인물 합성·딥페이크',violence:'폭력·자해'});
   const KIND=/** @type {Record<string,string>} */({discussion:'글',comment:'댓글',report:'리포트',wiki_revision:'위키',fact:'사실값',entity:'채널',user:'사용자'});
   const why=REASON[flag.category||'']||REASON[flag.reason]||flag.reason;
   const message=urgent?{kind:'flag',title:'자동 숨김 · 확인 필요',body:`${KIND[flag.target.split(':')[0]]||'항목'} · ${why}${flag.reports?` · 신고 ${flag.reports}명`:''} — 복구하거나 삭제하세요.`,url:'/admin/#/mod',tag:'flags'}
