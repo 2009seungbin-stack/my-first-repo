@@ -12,12 +12,13 @@ import {resolveContext} from '../identity.js';
 import {allowRequest} from '../ratelimit.js';
 import {randomToken} from '../crypto.js';
 import {assertSameOrigin} from '../api.js';
-import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,setTagsStatements,LIMITS} from '../../platform/community.js';
-import {channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,isPlaceholder,flairLabel,storedKind,TAG_LIMIT,CHANNELS} from '../../platform/channels.js';
+import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,setTagsStatements,LIMITS,remixRecountOfChild} from '../../platform/community.js';
+import {channelById,channelOfVertical,defaultChannelOf,writableChannel,channelPath,postPath,isPlaceholder,flairLabel,storedKind,TAG_LIMIT,CHANNELS,recipesPath,trendsPath} from '../../platform/channels.js';
+import {validateRecipe} from '../../platform/recipe.js';
 export {LIMITS};
 import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
 import {channelUrl,nameOf,channelName} from '../../platform/render/ui.js';
-import {changesFor,entitiesByIds,factsFor,searchEntities,tagPagesOf} from '../../platform/db/channel.js';
+import {changesFor,entitiesByIds,factsFor,searchEntities,tagPagesOf,recipeById} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 import {validateSeed,SEED_SCHEMA} from '../../platform/seed.js';
 import {ingest} from '../../platform/ingest.js';
@@ -27,7 +28,7 @@ import {notifyNewFlag} from './admin-notify.js';
 import {handleHit} from '../traffic.js';
 import {configuredProviders} from '../oauth/providers.js';
 import {ANON,REPORT,ANON_USER,anonIdentity,anonSecret,anonMode,assertAnonEnabled,humanGate,takeDaily,readDaily,hourKey,assertNotBanned,countLinks,blocklistVerdict,textHash,anonCleanupStatements,hashPassword,verifyPassword,kstDay,normalizeText} from './anon.js';
-import {uploadsConfigured,uploadsNotConfigured,readUpload,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf,originList} from './uploads.js';
+import {uploadsConfigured,uploadsNotConfigured,readUpload,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf,originList,imageRefs} from './uploads.js';
 import BUILD from '../build-info.js';
 import {IMAGE_LIMITS} from './images.js';
 import {passkeyAvailability} from '../member-passkey.js';
@@ -120,7 +121,7 @@ const pagesOf=e=>bothLocales(l=>[channelUrl(l,e),channelUrl(l,e)+'feed.xml',`/${
  * pages and feeds of its tags, the community front and 전체 베스트. Filtered views (?kind, ?tag, ?sort, ?page)
  * expire on their own within a minute. @param {{channel_id:string,channel_no:number}|null} post @param {{vertical:string,slug:string}[]} tags */
 const pagesOfPost=(post,tags=[])=>bothLocales(l=>[...(post?[postPath(l,post.channel_id,post.channel_no),channelPath(l,post.channel_id),channelPath(l,post.channel_id)+'feed.xml',channelPath(l,post.channel_id)+'best']:[]),
- ...tags.flatMap(e=>[channelUrl(l,e),channelUrl(l,e)+'feed.xml']),`/${l}/community/`,`/${l}/community/best/`]).flat();
+ ...tags.flatMap(e=>[channelUrl(l,e),channelUrl(l,e)+'feed.xml']),`/${l}/community/`,`/${l}/community/best/`,l==='ko'?'/':'/en/',recipesPath(l),trendsPath(l)]).flat();
 /** Purge everything a post appears on, the pages of the tags its tags are part of included (a Claude Code
  * post is on the Claude page too). @param {string|string[]} origins @param {any} db @param {string} id */
 async function purgePost(origins,db,id){
@@ -137,9 +138,11 @@ async function purgePost(origins,db,id){
 async function postTarget(db,body,staff){
  let ch=typeof body.channel==='string'?body.channel:null;
  let ids=body.tags===undefined?[]:body.tags;
- if(!ch&&body.entityId!==undefined){const e=await entity(db,/** @type {string} */(body.entityId));ch=defaultChannelOf(e,(await factsFor(db,[e.id])).get(e.id)||[]);ids=[e.id];}
+ // The old shape (entityId): the entity's channel, or 자유 when that channel is an archive now.
+ if(!ch&&body.entityId!==undefined){const e=await entity(db,/** @type {string} */(body.entityId));ch=writableChannel(defaultChannelOf(e,(await factsFor(db,[e.id])).get(e.id)||[]));ids=[e.id];}
  const c=channelById(ch);
  if(!c)throw new ApiError('BAD_REQUEST','Pick a channel.',{field:'channel'});
+ if(c.readOnly&&!staff)throw new ApiError('FORBIDDEN','This channel is an archive now; it takes no new posts.',{field:'channel',reason:'read_only'});
  if(!Array.isArray(ids)||ids.some(x=>typeof x!=='string'||!ENTITY_ID.test(x)||isPlaceholder(x)))throw new ApiError('BAD_REQUEST','Invalid tags.',{field:'tags'});
  const uniq=[...new Set(/** @type {string[]} */(ids))];
  if(uniq.length>TAG_LIMIT)throw new ApiError('BAD_REQUEST',`At most ${TAG_LIMIT} tags.`,{field:'tags'});
@@ -149,6 +152,63 @@ async function postTarget(db,body,staff){
  if(!(kind in POST_KINDS)||!writableKinds(c.id,{staff}).includes(kind))throw new ApiError('BAD_REQUEST','This flair cannot be used in this channel.',{field:'kind'});
  return {channel:c.id,kind,tags:uniq,entities:uniq.map(id=>/** @type {import('../../platform/db/channel.js').Entity} */(found.get(id)))};
 }
+/** Generators a post may name (the recipe's source.generator enum, AI-COMMUNITY-CONTRACT.md §4). */
+export const GENERATORS=Object.freeze(['chatgpt','gemini','midjourney','sd','novelai','other']);
+/** Fields of a new post that only AI 창작 posts use (the write page and the workbench send them). */
+const AI_FIELDS=['recipe','remixOf','generator','prompt','ai','consent'];
+/** Words a prompt or recipe title may not carry (research/AI-COMMUNITY-LEGAL.md §3.2: undressing and nude
+ * edits, in Korean, English, Japanese and Chinese). The site is 전연령; these are refused outright. */
+export const AI_BLOCKED=/누드|옷\s*(을\s*)?(벗|제거|지우)|탈의|딥\s*누드|deep\s*-?nude|undress|nudify|\bnude\b|\bnaked\b|\bnsfw\b|脱衣|脱がせ|去衣/i;
+/** The consent a post with images needs (the write form's checkbox): 전연령, and real people only from the
+ * writer's own photos or adults who agreed. */
+export const CONSENT_TEXT=Object.freeze({ko:'전연령 · 실존 인물은 본인 또는 허락받은 성인',en:'All ages · real people only yourself or adults who agreed'});
+/**
+ * The AI 창작 fields of a new post (migrations/0015): recipe (validated by platform/recipe.js), the post it
+ * remixes (must be published and carry a recipe), generator, prompt (≤ 2000), the AI-generated flag, and the
+ * image consent (required when the post attaches images). The workbench and the write page send the same
+ * shape; both go through here. Null for a plain post (no AI field, no image).
+ * @param {any} db @param {any} body @param {{images:number,now:number}} o
+ */
+async function aiInput(db,body,o){
+ /** @type {any} */let recipe=null;
+ if(body.recipe!==undefined&&body.recipe!==null){
+  const v=validateRecipe(body.recipe);
+  if(!v.ok)throw new ApiError('BAD_REQUEST',`Invalid recipe: ${String(/** @type {any} */(v).error).slice(0,160)}`,{field:'recipe',reason:'recipe'});
+  recipe=/** @type {any} */(v).recipe;
+ }
+ let remixOf=null;
+ if(body.remixOf!==undefined&&body.remixOf!==null&&body.remixOf!==''){
+  if(typeof body.remixOf!=='string'||!/^[\w-]{1,64}$/.test(body.remixOf))throw new ApiError('BAD_REQUEST','Invalid remixOf.',{field:'remixOf'});
+  const parent=await db.prepare("SELECT id FROM discussions WHERE id=? AND status='published' AND recipe_json IS NOT NULL").bind(body.remixOf).first();
+  if(!parent)throw new ApiError('BAD_REQUEST','The post you remix is gone or has no recipe.',{field:'remixOf',reason:'remix'});
+  remixOf=String(parent.id);
+ }
+ const src=recipe?.source||{};
+ const generator=body.generator===undefined||body.generator===null||body.generator===''?(GENERATORS.includes(src.generator)?src.generator:null):body.generator;
+ if(generator!==null&&!GENERATORS.includes(generator))throw new ApiError('BAD_REQUEST','Unknown generator.',{field:'generator'});
+ const rawPrompt=body.prompt===undefined||body.prompt===null||body.prompt===''?(typeof src.prompt==='string'&&src.prompt.trim()?src.prompt:null):body.prompt;
+ const prompt=rawPrompt===null?null:text(rawPrompt,[1,2000],'prompt');
+ if(body.ai!==undefined&&typeof body.ai!=='boolean')throw new ApiError('BAD_REQUEST','ai must be true or false.',{field:'ai'});
+ if(body.consent!==undefined&&typeof body.consent!=='boolean')throw new ApiError('BAD_REQUEST','consent must be true or false.',{field:'consent'});
+ if(AI_BLOCKED.test(`${prompt||''}\n${recipe?.title||''}`))throw new ApiError('BAD_REQUEST','This prompt or recipe asks for something not allowed here (nude or undressing edits).',{field:'prompt',reason:'ai_blocked'});
+ const generated=body.ai===true||(body.ai===undefined&&!!(recipe||generator||prompt));
+ if(!recipe&&!remixOf&&!generator&&!prompt&&!generated&&!(o.images>0))return null;
+ return {recipeJson:recipe?JSON.stringify(recipe):null,remixOf,generator,prompt,generated,consentAt:body.consent===true?o.now:null};
+}
+/** A post with images needs the consent (checked after the images themselves, so a foreign image is named first).
+ * @param {any} body @param {{ids:string[]}} plan */
+function assertConsent(body,plan){
+ if(plan.ids.length&&body.consent!==true)throw new ApiError('BAD_REQUEST','Confirm the image rules first (all ages; real people only yourself or adults who agreed).',{field:'consent',reason:'consent'});
+}
+/** An edit that attaches new images to a post without a recorded consent needs it (consent: true); returns the
+ * time to record, or null. @param {any} p the post row (consent_at) @param {{statements:any[]}} plan @param {unknown} consent @param {number} now */
+function editConsent(p,plan,consent,now){
+ if(consent!==undefined&&typeof consent!=='boolean')throw new ApiError('BAD_REQUEST','consent must be true or false.',{field:'consent'});
+ if(p.consent_at!=null)return null;
+ if(plan.statements.length&&consent!==true)throw new ApiError('BAD_REQUEST','Confirm the image rules first (all ages; real people only yourself or adults who agreed).',{field:'consent',reason:'consent'});
+ return consent===true?now:null;
+}
+
 /** The 말머리 a post may switch to when edited (a 리포트 post stays one: it carries a structured report). @param {string} channel @param {string} kind @param {string} l @param {boolean} staff */
 const editKinds=(channel,kind,l,staff)=>(kind==='report'?[kind]:[...new Set([kind,...writableKinds(channel,{staff}).filter(k=>k!=='report')])]).filter(k=>k in POST_KINDS).map(k=>({id:k,label:flairLabel(channel,k,l)}));
 /** The 말머리 after an edit: unchanged, or one the post's channel offers (never into or out of 리포트).
@@ -177,7 +237,10 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
  try{
   // The owner-only admin app has its own router, auth (passkeys) and origin rules.
   if(isAdminRoute(route))return handleAdminApi(request,env,ctx,deps);
-  if(!ROUTES[key]){
+  // GET /recipes/{discussionId} · POST /recipes/{discussionId}/try (the workbench's remix mode).
+  const rm=RECIPE_ROUTE.exec(route);
+  if(rm&&request.method!==(rm[2]?'POST':'GET'))return errorResponse(new ApiError('METHOD_NOT_ALLOWED'),{Allow:rm[2]?'POST':'GET'});
+  if(!ROUTES[key]&&!rm){
    const methods=['GET','POST'].filter(m=>ROUTES[`${m} ${route}`]);
    if(methods.length)return errorResponse(new ApiError('METHOD_NOT_ALLOWED'),{Allow:methods.join(', ')});
    throw new ApiError('NOT_FOUND');
@@ -185,6 +248,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   const cfg=runtimeConfig(env),now=(deps.now||Date.now)(),db=env.DB;
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
   if(request.method==='POST')assertSameOrigin(request,cfg);
+  if(rm)return await (rm[2]?recipeTry(request,env,cfg,db,rm[1],now,deps):recipeRead(url,db,rm[1],ctx));
   // Open data (ODbL): published compat reports by month, with no account data. Public and cacheable,
   // so it is answered before any session lookup.
   if(key==='GET /open-data/compat'){
@@ -212,7 +276,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    // The write form's tag search and the channel sheet: active entities by name or alias (the search page's ranking).
    const q=String(url.searchParams.get('q')||'').trim().slice(0,60),l=url.searchParams.get('l')==='en'?'en':'ko';
    const list=q?await searchEntities(db,q,{limit:10}):[];
-   return done({tags:list.map(e=>({id:e.id,name:nameOf(e,l),vertical:e.vertical,type:e.type,url:channelUrl(l,e),channel:defaultChannelOf(e)}))});
+   return done({tags:list.map(e=>({id:e.id,name:nameOf(e,l),vertical:e.vertical,type:e.type,url:channelUrl(l,e),channel:writableChannel(defaultChannelOf(e))}))});
   }
   if(key==='GET /pins'){
    if(!context.user)return done({pins:null});
@@ -290,19 +354,22 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     return done({following:body.follow!==false,followers:Number(n?.n||0)});
    }
    case 'POST /posts':{
-    only(body,['channel','tags','entityId','kind','title','body']);
+    only(body,['channel','tags','entityId','kind','title','body',...AI_FIELDS]);
     const staff=profile.role==='moderator'||profile.role==='curator'||profile.role==='admin';
     const tg=await postTarget(db,body,staff);
     const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
+    const ai=await aiInput(db,body,{images:imageRefs(md).length,now});
     await limit('post',LIMITS.postsPerMinute);
-    const verdict=staff?null:await blocklistVerdict(db,`${title}\n${md}`,now);
+    const verdict=staff?null:await blocklistVerdict(db,`${title}\n${md}${ai?.prompt?`\n${ai.prompt}`:''}`,now);
     if(verdict==='reject')throw blockedText();
     const id=randomToken(12);
     const plan=await attachPlan(db,{md,owner,kind:'discussion',id});
-    const no=await createPost(db,{id,channel:tg.channel,kind:tg.kind,tags:tg.tags,title,body:md,locale:x.l,authorId:context.user.id,hasImage:plan.ids.length>0,status:verdict==='hide'?'hidden':'published'},now);
+    assertConsent(body,plan);
+    const no=await createPost(db,{id,channel:tg.channel,kind:tg.kind,tags:tg.tags,title,body:md,locale:x.l,authorId:context.user.id,hasImage:plan.ids.length>0,status:verdict==='hide'?'hidden':'published',ai},now);
     if(plan.statements.length)await db.batch(plan.statements);
     if(verdict==='hide')await autoHold(x,'discussion',id);
     await purge(origins,pagesOfPost({channel_id:tg.channel,channel_no:no},tg.entities));
+    if(ai?.remixOf)await purgePost(origins,db,ai.remixOf);
     return done({id,channel:tg.channel,postNo:no,url:postPath(x.l,tg.channel,no),...(verdict==='hide'?{held:true}:{})},201);
    }
    case 'POST /comments':{
@@ -341,8 +408,8 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     return done(r);
    }
    case 'POST /posts/edit':case 'POST /posts/delete':{
-    only(body,key==='POST /posts/edit'?['postId','title','body','kind','tags']:['postId']);
-    const p=await db.prepare("SELECT d.id,d.author_id,d.status,COALESCE(d.flair,d.kind) AS kind,d.channel_id FROM discussions d WHERE d.id=?").bind(String(body.postId||'')).first();
+    only(body,key==='POST /posts/edit'?['postId','title','body','kind','tags','consent']:['postId']);
+    const p=await db.prepare("SELECT d.id,d.author_id,d.status,COALESCE(d.flair,d.kind) AS kind,d.channel_id,d.consent_at FROM discussions d WHERE d.id=?").bind(String(body.postId||'')).first();
     // Only the author, and only while the post is visible (a moderator-hidden post stays as the moderator left it).
     if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
     await limit('post-edit',10);
@@ -352,12 +419,14 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      const tags=body.tags===undefined?null:(await postTarget(db,{channel:p.channel_id,kind,tags:body.tags},kind==='notice')).tags;
      if(await blocklistVerdict(db,`${title}\n${md}`,now)==='reject')throw blockedText();
      const plan=await attachPlan(db,{md,owner,kind:'discussion',id:String(p.id)});
+     const consentAt=editConsent(p,plan,body.consent,now);
      // Purge the tag pages the post leaves as well as the ones it joins.
      await purgePost(origins,db,String(p.id));
-     await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,flair=?,has_image=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,storedKind(kind),kind,plan.ids.length?1:0,now,now,p.id),...(tags?setTagsStatements(db,String(p.id),tags,now):[]),...plan.statements]);
+     await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,flair=?,has_image=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,storedKind(kind),kind,plan.ids.length?1:0,now,now,p.id),...(tags?setTagsStatements(db,String(p.id),tags,now):[]),...plan.statements,
+      ...(consentAt?[db.prepare('UPDATE discussions SET consent_at=? WHERE id=? AND consent_at IS NULL').bind(consentAt,p.id)]:[])]);
      await deleteImages(env,db,plan.dropped,'author',origins);
     }else{
-     await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
+     await db.batch([db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id),remixRecountOfChild(db,String(p.id))]);
      await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',origins);
     }
     await purgePost(origins,db,String(p.id));
@@ -534,6 +603,38 @@ async function state(db,context,q,o){
  return out;
 }
 
+/* ---------- recipes (AI 창작, migrations/0015) ---------- */
+
+const RECIPE_ROUTE=/^\/recipes\/([\w-]{1,64})(\/try)?$/;
+/** "내 이미지로 해보기" counting: one per network per recipe per day (KST), at most RECIPE_TRY.perDay recipes a
+ * day per network and RECIPE_TRY.perMinute requests a minute. No account, no cookie, nothing personal kept. */
+export const RECIPE_TRY=Object.freeze({perDay:200,perMinute:30});
+/** GET /api/v2/recipes/{id}: a published post's recipe for the workbench (cacheable 60 s at the edge).
+ * @param {URL} url @param {any} db @param {string} id @param {any} ctx */
+async function recipeRead(url,db,id,ctx){
+ const cache=/** @type {any} */(globalThis).caches?.default,ck=new Request(`${url.origin}/api/v2/recipes/${id}`);
+ const hit=cache?await cache.match(ck):null;if(hit)return hit;
+ const r=await recipeById(db,id);
+ if(!r)throw new ApiError('NOT_FOUND','No recipe at this address.');
+ const res=json({id:r.id,title:r.title,channel:r.channel,no:r.no,url:postPath('ko',r.channel,r.no),recipe:r.recipe,generator:r.generator,prompt:r.prompt,author:r.author,tries:r.tries,remixes:r.remixes},200,{'Cache-Control':'public, max-age=60, s-maxage=60'});
+ if(cache)ctx?.waitUntil?.(cache.put(ck,res.clone()));
+ return res;
+}
+/** POST /api/v2/recipes/{id}/try: count one "내 이미지로 해보기" (try_count and the day's recipe_try_days row).
+ * A repeat from the same network on the same day answers counted:false and writes nothing.
+ * @param {Request} request @param {any} env @param {any} cfg @param {any} db @param {string} id @param {number} now @param {{limiter?:any}} deps */
+async function recipeTry(request,env,cfg,db,id,now,deps){
+ const ident=await anonIdentity(clientIp(request),anonSecret(env,cfg),now);
+ if(!await allowRequest({env,limiter:deps.limiter,key:`v2try|${ident.net}`,limit:RECIPE_TRY.perMinute,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});
+ const row=await db.prepare("SELECT try_count FROM discussions WHERE id=? AND status='published' AND recipe_json IS NOT NULL").bind(id).first();
+ if(!row)throw new ApiError('NOT_FOUND','No recipe at this address.');
+ const tries=Number(row.try_count||0);
+ if(!await takeDaily(db,`try:${id}:${ident.net}`,ident.day,1)||!await takeDaily(db,`tries:${ident.net}`,ident.day,RECIPE_TRY.perDay))return json({counted:false,tries},200);
+ await db.batch([db.prepare('UPDATE discussions SET try_count=try_count+1 WHERE id=?').bind(id),
+  db.prepare('INSERT INTO recipe_try_days (discussion_id,day,n) VALUES (?,?,1) ON CONFLICT(discussion_id,day) DO UPDATE SET n=n+1').bind(id,ident.day)]);
+ return json({counted:true,tries:tries+1},200);
+}
+
 /* ---------- writing without an account (유동), images, 신고 → 자동 임시조치 ---------- */
 
 /** @typedef {{request:Request,env:any,ctx:any,deps:{now?:()=>number,limiter?:any,fetch?:any,random?:()=>number},cfg:any,context:any,now:number,db:any,origin:string,origins:string[],url:URL,l:'ko'|'en'}} WriteCtx */
@@ -600,7 +701,7 @@ async function anonContentChecks(x,o){
 /** The anonymous post or comment an edit, delete or password check is about. @param {any} db @param {'discussion'|'comment'} kind @param {unknown} id */
 async function anonItem(db,kind,id){
  const row=kind==='discussion'
-  ?await db.prepare("SELECT d.id,d.title,d.body_md,COALESCE(d.flair,d.kind) AS kind,d.channel_id,d.author_id,d.status,d.anon_pw,d.anon_id FROM discussions d WHERE d.id=?").bind(String(id||'')).first()
+  ?await db.prepare("SELECT d.id,d.title,d.body_md,COALESCE(d.flair,d.kind) AS kind,d.channel_id,d.author_id,d.status,d.anon_pw,d.anon_id,d.consent_at FROM discussions d WHERE d.id=?").bind(String(id||'')).first()
   :await db.prepare("SELECT c.id,c.body_md,c.author_id,c.status,c.discussion_id,c.anon_pw,c.anon_id FROM comments c WHERE c.id=?").bind(String(id||'')).first();
  const visible=row&&(kind==='discussion'?row.status==='published'||row.status==='locked':row.status==='published');
  if(!row||row.author_id!==ANON_USER||!visible||!row.anon_pw)throw new ApiError('NOT_FOUND');
@@ -633,22 +734,25 @@ async function anonRoute(key,body,x){
    return {status:200,body:{ok:true,title:String(row.title),body:String(row.body_md),kind:String(row.kind),kinds:editKinds(String(row.channel_id),String(row.kind),x.l,false),channel:String(row.channel_id),tags:await postTags(db,String(row.id),x.l)}};
   }
   case 'POST /posts':{
-   only(body,['channel','tags','entityId','kind','title','body','name','password','turnstileToken']);
+   only(body,['channel','tags','entityId','kind','title','body','name','password','turnstileToken',...AI_FIELDS]);
    const tg=await postTarget(db,body,false);
    const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body'),password=anonPassword(body.password),name=await anonName(db,body.name);
+   const ai=await aiInput(db,body,{images:imageRefs(md).length,now});
    await assertNotBanned(db,ident.net,now);
    await gate(true);
    // Content checks before the burst limit: a writer who fixes a refused text can send it again at once.
-   const c=await anonContentChecks(x,{text:`${title}\n${md}`,kind:'post',ident});
+   const c=await anonContentChecks(x,{text:`${title}\n${md}${ai?.prompt?`\n${ai.prompt}`:''}`,kind:'post',ident});
    await minute('post',L.postsPerMinute);
    const id=randomToken(12);
    const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id});
+   assertConsent(body,plan);
    await daily('p',L.postsPerDay);
    const no=await createPost(db,{id,channel:tg.channel,kind:tg.kind,tags:tg.tags,title,body:md,locale:x.l,authorId:ANON_USER,hasImage:plan.ids.length>0,status:c.hide?'hidden':'published',textHash:c.hash,
-    anon:{name,id:ident.id,net:ident.net,pw:await hashPassword(password,secret)}},now);
+    anon:{name,id:ident.id,net:ident.net,pw:await hashPassword(password,secret)},ai},now);
    if(plan.statements.length)await db.batch(plan.statements);
    if(c.hide)await autoHold(x,'discussion',id);
    await purge(x.origins,pagesOfPost({channel_id:tg.channel,channel_no:no},tg.entities));
+   if(ai?.remixOf)await purgePost(x.origins,db,ai.remixOf);
    return {status:201,body:{id,channel:tg.channel,postNo:no,url:postPath(x.l,tg.channel,no),name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
   }
   case 'POST /comments':{
@@ -720,7 +824,7 @@ async function anonRoute(key,body,x){
    return {status:r.updated?200:201,body:r};
   }
   case 'POST /posts/edit':case 'POST /posts/delete':{
-   only(body,key==='POST /posts/edit'?['postId','title','body','kind','tags','password','turnstileToken']:['postId','password','turnstileToken']);
+   only(body,key==='POST /posts/edit'?['postId','title','body','kind','tags','password','turnstileToken','consent']:['postId','password','turnstileToken']);
    const p=await anonItem(db,'discussion',body.postId);
    await checkPassword(x,{kind:'discussion',id:String(p.id),password:body.password,stored:p.anon_pw,ident,max:L.passwordFailuresPerHour});
    await gate(false);
@@ -733,12 +837,14 @@ async function anonRoute(key,body,x){
     const c=await anonContentChecks(x,{text:`${title}\n${md}`,kind:'post',ident,edit:true});
     // The images the post already has stay usable; new ones must be this browser's own uploads.
     const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id:String(p.id)});
+    const consentAt=editConsent(p,plan,body.consent,now);
     await purgePost(x.origins,db,String(p.id));
-    await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,flair=?,has_image=?,text_hash=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,storedKind(kind),kind,plan.ids.length?1:0,c.hash,now,now,p.id),...(tags?setTagsStatements(db,String(p.id),tags,now):[]),...plan.statements]);
+    await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,flair=?,has_image=?,text_hash=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,storedKind(kind),kind,plan.ids.length?1:0,c.hash,now,now,p.id),...(tags?setTagsStatements(db,String(p.id),tags,now):[]),...plan.statements,
+     ...(consentAt?[db.prepare('UPDATE discussions SET consent_at=? WHERE id=? AND consent_at IS NULL').bind(consentAt,p.id)]:[])]);
     await deleteImages(env,db,plan.dropped,'author',x.origins);
     if(c.hide)await autoHold(x,'discussion',String(p.id));
    }else{
-    await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
+    await db.batch([db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id),remixRecountOfChild(db,String(p.id))]);
     await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',x.origins);
    }
    await purgePost(x.origins,db,String(p.id));
@@ -848,6 +954,7 @@ async function hideStatements(x,kind,id,previous,reason,meta){
  const w=[db.prepare(`UPDATE ${table} SET status='hidden',updated_at=? WHERE id=? AND status IN ('published','locked')`).bind(now,id),
   db.prepare("INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES ('system:automod','hide',?,?,?,?,?)").bind(kind,id,reason,JSON.stringify({previous,...meta}),now)];
  if(kind==='comment')w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
+ else w.push(remixRecountOfChild(db,id));
  await db.batch(w);
  await purgeTarget(x.db,x.origins,kind,id);
 }
@@ -1169,6 +1276,8 @@ export async function modAction(db,actor,actorRole,body,now,origin,env={},ctx=nu
     :db.prepare('DELETE FROM anon_bans WHERE net=?').bind(a.anon_net));
   }
   if(kind==='comment'&&(action==='hide'||action==='unhide'||action==='delete'))w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
+  // A remix that is hidden, restored or deleted leaves or rejoins its original's 리믹스 count.
+  if(kind==='discussion'&&(action==='hide'||action==='unhide'||action==='delete'))w.push(remixRecountOfChild(db,id));
  }
  if(kind==='proposal'){
   // accept = the value goes into the graph through the ingest pipeline (COMMUNITY_VERIFIED, so an

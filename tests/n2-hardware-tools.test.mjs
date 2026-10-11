@@ -57,7 +57,7 @@ test('real Worker renderer and sitemap expose both utilities in both languages',
  const db=D1Shim.migrated();
  for(const l of ['ko','en'])for(const tool of ['used-prices','performance']){
   const res=await renderPlatformPage(new Request(`https://nerulio.com/${l}/hardware/${tool}/`),{DB:db},{origin:'https://nerulio.com/'});assert.equal(res.status,200);
-  const body=await res.text();assert(body.includes('nav-pc')&&body.includes('/src/platform/islands.js'));assert(!body.includes('https://nerulio.com//'));
+  const body=await res.text();assert(body.includes('id="nav-make"')&&body.includes('/src/platform/islands.js'),'the page shell (the PC tool group left the menu with the AI 창작 pivot; the pages stay)');assert(!body.includes('https://nerulio.com//'));
  }
  const xml=await renderSitemap(db,'hardware','https://nerulio.com');assert(xml.includes('/ko/hardware/used-prices/')&&xml.includes('/en/hardware/performance/'));
  db.raw.close();

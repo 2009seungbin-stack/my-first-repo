@@ -275,6 +275,58 @@ function imagePicker(wf,cfg,signedIn){
  return {busy:()=>pending>0};
 }
 
+/** Step names for a recipe summary on the write page (platform/recipe.js summarize() has the full labels). */
+const OP_NAMES={ko:{'bg.remove':'배경 지우기','sheet.split':'시트 나누기',crop:'자르기',upscale:'고화질로 키우기',fit:'규격 맞추기',pixelize:'도트로 만들기',palette:'팔레트','pixel.snap':'AI 도트 정리','sticker.border':'흰 테두리',caption:'글자 넣기',motion:'움직임',export:'내보내기'},
+ en:{'bg.remove':'Remove background','sheet.split':'Split sheet',crop:'Crop',upscale:'Upscale',fit:'Fit to size',pixelize:'Pixelize',palette:'Palette','pixel.snap':'AI pixel fix','sticker.border':'White border',caption:'Caption',motion:'Motion',export:'Export'}};
+const DRAFT_KEY='nerulio:recipe-draft';
+/** The recipe the workbench hands to the write page: sessionStorage "nerulio:recipe-draft" =
+ * {recipe, generator?, prompt?, remixOf?, title?, body?}, read once when the page is opened with ?from=make. */
+function aiDraft(wf,ti,ta){
+ if(!('fromMake' in wf.dataset))return null;
+ let d=null;try{d=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||'null');}catch{}
+ if(!d||typeof d!=='object')return null;
+ const box=$('[data-recipe-draft]',wf),sum=$('[data-recipe-summary]',box||wf);
+ const steps=Array.isArray(d.recipe?.steps)?d.recipe.steps:[];
+ const names=OP_NAMES[L==='ko'?'ko':'en'];
+ if(box&&d.recipe){box.hidden=false;if(sum)sum.textContent=`${steps.length}${L==='ko'?'단계':' steps'}: ${steps.map(x=>names[x?.op]||x?.op).join(' → ')}`;}
+ const gen=$('select[name="generator"]',wf),pr=$('textarea[name="prompt"]',wf);
+ const g=d.generator||d.recipe?.source?.generator,p=d.prompt||d.recipe?.source?.prompt;
+ if(gen&&g&&[...gen.options].some(o=>o.value===g))gen.value=g;
+ if(pr&&typeof p==='string'&&!pr.value)pr.value=p;
+ if(ti&&typeof d.title==='string'&&!ti.value)ti.value=d.title;
+ if(ta&&typeof d.body==='string'&&!ta.value)ta.value=d.body;
+ let on=!!d.recipe;
+ $('[data-recipe-remove]',wf)?.addEventListener('click',()=>{on=false;if(box)box.hidden=true;});
+ return {get recipe(){return on?d.recipe:undefined;},remixOf:typeof d.remixOf==='string'?d.remixOf:undefined,clear(){try{sessionStorage.removeItem(DRAFT_KEY);}catch{}}};
+}
+/** The AI 창작 fields of the write form for POST /api/v2/posts (the API validates every one). */
+function aiPayload(wf,fd,draft){
+ const out={};
+ const gen=String(fd.get('generator')||''),prompt=String(fd.get('prompt')||'').trim(),remix=String(fd.get('remixOf')||'')||draft?.remixOf;
+ if(gen)out.generator=gen;if(prompt)out.prompt=prompt;
+ if($('input[name="ai"]',wf))out.ai=fd.get('ai')==='1';
+ if($('[data-consent]',wf))out.consent=fd.get('consent')==='1';
+ if(remix)out.remixOf=remix;
+ if(draft?.recipe)out.recipe=draft.recipe;
+ return out;
+}
+/** A ZIP (stored, no compression: the images are already compressed) of same-origin files, built here. */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+const crc32=b=>{let c=0xffffffff;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xffffffff)>>>0;};
+function zipStore(files){
+ const enc=new TextEncoder(),parts=[],central=[];let offset=0;
+ for(const f of files){
+  const name=enc.encode(f.name),crc=crc32(f.data),size=f.data.length;
+  const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint32(14,crc,true);h.setUint32(18,size,true);h.setUint32(22,size,true);h.setUint16(26,name.length,true);
+  parts.push(new Uint8Array(h.buffer),name,f.data);
+  const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint32(16,crc,true);c.setUint32(20,size,true);c.setUint32(24,size,true);c.setUint16(28,name.length,true);c.setUint32(42,offset,true);
+  central.push(new Uint8Array(c.buffer),name);offset+=30+name.length+size;
+ }
+ const cs=central.reduce((n,x)=>n+x.length,0),e=new DataView(new ArrayBuffer(22));
+ e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,offset,true);
+ return new Blob([...parts,...central,new Uint8Array(e.buffer)],{type:'application/zip'});
+}
+
 /** Tag search (/api/v2/tags): calls `show` with the matches, debounced; an older answer never replaces a newer one. */
 function tagSearch(input,show){
  let timer=0,seq=0;
@@ -776,12 +828,17 @@ async function main(){
   let dt=0;wf.addEventListener('input',()=>{clearTimeout(dt);dt=setTimeout(keep,400);});
   // Another channel keeps what was written (and the picked tags).
   for(const a of $$('[data-channel-link]',wf))a.addEventListener('click',()=>{clearTimeout(dt);keep();});
+  // AI 창작: a recipe the workbench left in this tab (?from=make), sent with the post (docs/AI-COMMUNITY.md).
+  const draft=aiDraft(wf,ti,ta);
   wf.addEventListener('submit',async e=>{
    e.preventDefault();
    const fd=new FormData(wf),btn=$('button[type="submit"]',wf);
    const kind=String(fd.get('kind')||'');
    if(kind!=='report'&&!String(fd.get('body')||'').trim()){toast(T.empty);ta?.focus();return;}
    if(pick?.busy())return toast(T.imgUploading);
+   // Images need the consent (전연령 · 실존 인물은 본인/허락받은 성인); the server checks it too.
+   const cb=$('[data-consent]',wf);
+   if(/!\[[^\]\n]*\]\(\/u\//.test(String(fd.get('body')||''))&&cb&&!cb.checked){toast(L==='ko'?'이미지를 올리려면 "전연령 · 실존 인물은 본인 또는 허락받은 성인" 확인에 체크해 주세요.':'Tick the image rules (all ages; real people only yourself or adults who agreed) to post images.');cb.focus();return;}
    if(!signedIn&&kind==='report'&&$('[data-report-fields]',wf)){toast(T.reportNeedsLogin);return;}
    if(af&&!af.valid())return;
    btn.disabled=true;btn.textContent=T.posting;
@@ -790,11 +847,11 @@ async function main(){
     r=await write('/reports',{kind:'compat',entityId:String(fd.get('subjectId')),subjectVersion:String(fd.get('subjectVersion')||'')||undefined,targetId:String(fd.get('targetId')),targetVersion:String(fd.get('targetVersion')||'')||undefined,
      result:String(fd.get('result')),env:Object.fromEntries(['os','device','note'].map(k=>[k,String(fd.get('env_'+k)||'')]).filter(([,v])=>v)),title:String(fd.get('title')||'')||undefined,comment:String(fd.get('body')||'')||undefined},signedIn);
    }else{
-    r=await write('/posts?l='+L,{channel:wf.dataset.channel,kind,tags:fd.getAll('tags').map(String),title:String(fd.get('title')||''),body:String(fd.get('body')||''),...(af?af.fields():{})},signedIn,{anon:true});
+    r=await write('/posts?l='+L,{channel:wf.dataset.channel,kind,tags:fd.getAll('tags').map(String),title:String(fd.get('title')||''),body:String(fd.get('body')||''),...aiPayload(wf,fd,draft),...(af?af.fields():{})},signedIn,{anon:true});
    }
    btn.disabled=false;btn.textContent=btn.dataset.label||btn.textContent;
    if(r?.held){af?.remember();store.set(null);toastNext(T.held);location.href=location.pathname.replace(/write$/,'');return;}
-   if(r?.url){af?.remember();store.set(null);toastNext(T.posted);location.href=r.url;}
+   if(r?.url){af?.remember();store.set(null);draft?.clear();toastNext(T.posted);location.href=r.url;}
   });
   const subj=$('select[name="subjectId"]',wf),sv=$('input[name="subjectVersion"]',wf);
   // Picking a patch fills in its latest known version (the reader can still change it).
@@ -889,7 +946,7 @@ async function main(){
   const r=await api('/mod/queue');
   if(r.ok){
    const {items,hidden=[],log}=r.data,ko=L==='ko';
-   const REASON=ko?{spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타',privacy:'개인정보 노출',illegal_filming:'불법촬영물',csam:'아동·청소년 성착취물',sexual:'음란물',violence:'폭력·자해'}:{};
+   const REASON=ko?{spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타',privacy:'개인정보 노출',illegal_filming:'불법촬영물',csam:'아동·청소년 성착취물',sexual:'음란물',minor:'미성년 선정 이미지',deepfake:'실존 인물 합성·딥페이크',violence:'폭력·자해'}:{};
    const STATUS=ko?{hidden:'임시조치 중',deleted:'작성자가 삭제',locked:'댓글 잠김'}:{};
    const ACTION=ko?{hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제',accept:'정보 제안 반영',reject:'정보 제안 반려',delete:'영구 삭제',ban:'ID 차단',unban:'차단 해제'}:{};
    const KIND=ko?{discussion:'글',comment:'댓글',user:'계정',proposal:'정보 제안'}:{};
@@ -977,6 +1034,20 @@ async function main(){
  }
 
  // Share / copy link
+ // Copy (the recipe card's prompt).
+ for(const b of $$('[data-copy]'))b.addEventListener('click',async()=>{const el=$(b.dataset.copy);if(!el)return;try{await navigator.clipboard.writeText(el.textContent||'');toast(L==='ko'?'복사했어요':'Copied');}catch{const r=document.createRange();r.selectNodeContents(el);const sel=getSelection();sel?.removeAllRanges();sel?.addRange(r);}});
+ // ZIP 받기: the post's result images in one file, built in this browser.
+ for(const b of $$('[data-island="zip"]'))b.addEventListener('click',async()=>{
+  let urls=[];try{urls=JSON.parse(b.dataset.urls||'[]');}catch{}
+  if(!urls.length)return;b.disabled=true;
+  try{
+   const files=[];let i=0;
+   for(const u of urls){if(!/^\/u\/[a-z0-9]{8,64}\/full\.(webp|png|jpg)$/.test(u))continue;const r=await fetch(u,{credentials:'same-origin'});if(!r.ok)continue;i++;files.push({name:`${String(i).padStart(2,'0')}.${u.split('.').pop()}`,data:new Uint8Array(await r.arrayBuffer())});}
+   if(!files.length)throw Error('none');
+   const a=document.createElement('a');a.href=URL.createObjectURL(zipStore(files));a.download=`${b.dataset.name||'nerulio'}.zip`;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);
+  }catch{toast(T.error);}
+  b.disabled=false;
+ });
  for(const b of $$('[data-island="share"]')){
   b.addEventListener('click',async()=>{
    const url=location.href.split('#')[0];

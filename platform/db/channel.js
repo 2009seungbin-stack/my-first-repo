@@ -9,6 +9,9 @@
 
 import {VERIFICATION} from '../schema.js';
 import {plainExcerpt} from '../markdown.js';
+import {OPEN_CHANNELS} from '../channels.js';
+
+const OPEN_IDS=OPEN_CHANNELS.map(c=>`'${c.id}'`).join(',');
 
 const CHUNK=40;
 const qs=(/** @type {number} */ n)=>Array(n).fill('?').join(',');
@@ -152,14 +155,16 @@ export async function collectorState(db,adapters){
 
 /* ---------- community (게시판) ---------- */
 
-const POST_COLS=`d.id,d.entity_id,d.post_no,d.channel_id,d.channel_no,COALESCE(d.flair,d.kind) AS kind,d.title,d.locale,d.author_id,d.change_id,d.report_id,d.status,d.pinned,d.solved_comment_id,d.up_count,d.down_count,d.view_count,d.comment_count,d.has_image,d.best_at,d.created_at,d.edited_at,d.last_activity_at,d.anon_name,d.anon_id,
+const POST_COLS=`d.id,d.entity_id,d.post_no,d.channel_id,d.channel_no,COALESCE(d.flair,d.kind) AS kind,d.title,d.locale,d.author_id,d.change_id,d.report_id,d.status,d.pinned,d.solved_comment_id,d.up_count,d.down_count,d.view_count,d.comment_count,d.has_image,d.best_at,d.created_at,d.edited_at,d.last_activity_at,d.anon_name,d.anon_id,d.recipe_json IS NOT NULL AS has_recipe,d.remix_of,d.remix_count,d.try_count,d.ai_generated,d.generator,
  COALESCE(p.display_name,CASE WHEN u.provider='system' THEN u.display_name ELSE 'user-'||lower(substr(u.id,1,6)) END) AS author_name,COALESCE(p.tier,'new') AS author_tier,COALESCE(p.role,'user') AS author_role`;
 /** @param {any} r */
 const postRow=r=>({id:String(r.id),entity_id:String(r.entity_id),post_no:Number(r.post_no),channel_id:String(r.channel_id||'free'),channel_no:Number(r.channel_no||0),tags:/** @type {Entity[]} */([]),kind:String(r.kind),title:String(r.title),locale:String(r.locale),author_id:String(r.author_id),author_name:r.anon_name??r.author_name??null,anon_id:r.anon_id==null?null:String(r.anon_id),anon:r.anon_id!=null,author_tier:String(r.author_tier),author_role:String(r.author_role),
  bot:String(r.author_id).startsWith('system:'),change_id:r.change_id??null,report_id:r.report_id??null,status:String(r.status),pinned:!!r.pinned,up:Number(r.up_count),down:Number(r.down_count),views:Number(r.view_count),comments:Number(r.comment_count),has_image:!!r.has_image,
+ has_recipe:!!r.has_recipe,remix_of:r.remix_of==null?null:String(r.remix_of),remixes:Number(r.remix_count||0),tries:Number(r.try_count||0),ai:!!r.ai_generated,generator:r.generator==null?null:String(r.generator),
  solved:r.solved_comment_id?String(r.solved_comment_id):null,best_at:r.best_at===null||r.best_at===undefined?null:Number(r.best_at),created_at:Number(r.created_at),edited_at:r.edited_at===null||r.edited_at===undefined?null:Number(r.edited_at),last_activity_at:Number(r.last_activity_at),
  entity:r.e_id?entityRow({id:r.e_id,vertical:r.e_vertical,type:r.e_type,slug:r.e_slug,names:r.e_names,descriptions:'{}',official_urls:'[]',image_url:null,status:'active',updated_at:0}):null});
-export const SORTS=/** @type {const} */(['new','hot','top','activity']);
+/** Board sorts: 최신 · 인기 · 추천순 · 최근 댓글 · 많이 해본 순 (posts with a recipe, by tries). */
+export const SORTS=/** @type {const} */(['new','hot','top','activity','tries']);
 /** Relations that make one tag part of another. A post tagged with a part also shows under the whole:
  * Claude → its plans, features and the models in its plans; Anthropic → Claude, Claude Code and its
  * models; a game → its Korean patches; a franchise → its works, characters and goods; NVIDIA → its cards.
@@ -203,7 +208,7 @@ async function withTags(db,posts){
  * `fold` hides the Radar bot's 소식 and the 공지 (the board shows them folded in their own rows).
  * `facet` filters by a fact of the tagged entities (the 게임 channel's platform and genre filter).
  * @param {D1} db
- * @param {{channel?:string|null,tag?:string|null,children?:boolean,kind?:string|null,sort?:string,best?:boolean,limit?:number,page?:number,now?:number,fold?:boolean,facet?:{property:string,value:string}|null}} o
+ * @param {{channel?:string|null,tag?:string|null,children?:boolean,kind?:string|null,sort?:string,best?:boolean,recipe?:boolean,limit?:number,page?:number,now?:number,fold?:boolean,facet?:{property:string,value:string}|null}} o
  */
 export async function boardPosts(db,o){
  const limit=Math.min(o.limit??30,100),offset=Math.max(0,((o.page??1)-1)*limit);
@@ -217,7 +222,8 @@ export async function boardPosts(db,o){
  // Folded: the bot's 소식 of the last 7 days (botNews counts them) and every 공지 (noticesOf lists them).
  if(o.fold){where.push("NOT (d.flair='news' AND d.author_id LIKE 'system:%' AND d.created_at>=?)","d.flair<>'notice'");params.push((o.now??Date.now())-BOT_FOLD_MS);}
  if(o.facet){where.push(`d.id IN (SELECT t.discussion_id FROM discussion_tags t JOIN facts f ON f.entity_id=t.entity_id AND f.is_current=1 AND f.property=? WHERE f.value LIKE ? ESCAPE '\\')`);params.push(o.facet.property,'%'+likeEscape(JSON.stringify(o.facet.value))+'%');}
- const order=o.sort==='top'?'d.up_count DESC,d.created_at DESC':o.sort==='activity'?'d.last_activity_at DESC':o.sort==='hot'?'(d.up_count*3+d.comment_count*2+d.view_count/50.0)/((?-d.created_at)/3600000.0+2) DESC':'d.created_at DESC,d.id DESC';
+ if(o.sort==='tries'||o.recipe)where.push('d.recipe_json IS NOT NULL');
+ const order=o.sort==='tries'?'d.try_count DESC,d.remix_count DESC,d.created_at DESC':o.sort==='top'?'d.up_count DESC,d.created_at DESC':o.sort==='activity'?'d.last_activity_at DESC':o.sort==='hot'?'(d.up_count*3+d.comment_count*2+d.view_count/50.0)/((?-d.created_at)/3600000.0+2) DESC':'d.created_at DESC,d.id DESC';
  const orderParams=o.sort==='hot'?[o.now??Date.now()]:[];
  const rows=await all(db,`${cte} SELECT ${POST_COLS} FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
   WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ? OFFSET ?`,[...cteParams,...params,...orderParams,limit+1,offset]);
@@ -225,10 +231,10 @@ export async function boardPosts(db,o){
 }
 /** A post by its channel number (published or locked). @param {D1} db @param {string} channel @param {number} no */
 export async function postByChannelNo(db,channel,no){
- const r=await db.prepare(`SELECT ${POST_COLS},d.body_md FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
+ const r=await db.prepare(`SELECT ${POST_COLS},d.body_md,d.recipe_json,d.prompt FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
   WHERE d.channel_id=? AND d.channel_no=? AND d.status IN ('published','locked')`).bind(channel,no).first();
  if(!r)return null;
- const [post]=await withTags(db,[{...postRow(r),body_md:String(r.body_md)}]);
+ const [post]=await withTags(db,[{...postRow(r),body_md:String(r.body_md),recipe:json(r.recipe_json,null),prompt:r.prompt==null?null:String(r.prompt)}]);
  return post;
 }
 /** Where an old per-entity post number (/{l}/{vertical}/{slug}/{no}) lives now. @param {D1} db @param {string} entityId @param {number} no */
@@ -294,7 +300,7 @@ export async function recentTitles(db,scope,since){
 }
 const XPOST=`SELECT ${POST_COLS},e.id AS e_id,e.vertical AS e_vertical,e.type AS e_type,e.slug AS e_slug,e.names AS e_names FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id LEFT JOIN entities e ON e.id=d.entity_id AND e.status='active'`;
 /** Cross-channel lists for the community front and 전체 베스트. @param {D1} db
- * @param {{mode:'best'|'news'|'kind'|'hot'|'latest',kind?:string,channel?:string|null,since?:number,limit?:number,unanswered?:boolean,people?:boolean}} o */
+ * @param {{mode:'best'|'news'|'kind'|'hot'|'latest'|'tries',kind?:string,channel?:string|null,since?:number,limit?:number,unanswered?:boolean,people?:boolean,recipe?:boolean,open?:boolean}} o */
 export async function frontPosts(db,o){
  const where=["d.status='published'"],params=[];
  if(o.people)where.push("d.author_id NOT LIKE 'system:%'");   // the home feed: members' and ㅇㅇ posts, not the Radar bot
@@ -304,7 +310,10 @@ export async function frontPosts(db,o){
  if(o.mode==='news')where.push("d.flair='news'","d.author_id LIKE 'system:%'");
  if(o.mode==='kind'&&o.kind){where.push('d.flair=?');params.push(o.kind);}
  if(o.unanswered)where.push('d.solved_comment_id IS NULL','d.comment_count=0');   // nobody has replied yet
- const order=o.mode==='best'?'d.up_count DESC,d.best_at DESC':o.mode==='hot'?'(d.up_count-d.down_count)+2*d.comment_count DESC,d.created_at DESC':'d.created_at DESC';
+ if(o.recipe||o.mode==='tries')where.push('d.recipe_json IS NOT NULL');
+ // The AI 창작 boards only (not the archived channels): the home feed since the 2026-10-11 pivot.
+ if(o.open)where.push(`d.channel_id IN (${OPEN_IDS})`);
+ const order=o.mode==='tries'?'d.try_count DESC,d.remix_count DESC,d.created_at DESC':o.mode==='best'?'d.up_count DESC,d.best_at DESC':o.mode==='hot'?'(d.up_count-d.down_count)+2*d.comment_count DESC,d.created_at DESC':'d.created_at DESC';
  return withTags(db,(await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ?`,[...params,o.limit??15])).map(postRow));
 }
 /** A member's public profile by nickname (고정닉): tier, since when, and totals of what they wrote under
@@ -339,6 +348,83 @@ export async function excerptsOf(db,ids,n=140){
  const rows=await inChunks(db,ids,ph=>`SELECT id,substr(body_md,1,600) AS md FROM discussions WHERE id IN (${ph})`);
  return new Map(rows.map(r=>[String(r.id),plainExcerpt(String(r.md||''),n)]));
 }
+/* ---------- AI 창작: recipes, remixes, images (migrations/0015) ---------- */
+
+/** Alt texts that mark the source image of a post (the "원본" of a before/after pair). The workbench inserts
+ * ![원본](/u/…) for it; every other image is a result. */
+export const SOURCE_ALT=/^(원본|before|source|原本|元画像)$/i;
+const IMG_REF=/!\[([^\]\n]{0,200})\]\(\/u\/([a-z0-9]{8,64})\/(?:thumb|medium|full)\.(?:webp|png|jpg)\)/g;
+const MIME_EXT=/** @type {Record<string,string>} */({'image/webp':'webp','image/png':'png','image/jpeg':'jpg'});
+/** @typedef {{id:string,url:string,w:number,h:number,source:boolean}} PostImage */
+/**
+ * The visible images of many posts, in the order the body shows them: {images, before, after} per post id.
+ * before = the image marked 원본 (if any), after = the first result. Only active uploads attached to the post.
+ * @param {D1} db @param {string[]} ids @returns {Promise<Map<string,{images:PostImage[],before:PostImage|null,after:PostImage|null}>>}
+ */
+export async function mediaOf(db,ids){
+ /** @type {Map<string,{images:PostImage[],before:PostImage|null,after:PostImage|null}>} */const out=new Map();
+ if(!ids.length)return out;
+ const [bodies,ups]=await Promise.all([
+  inChunks(db,ids,ph=>`SELECT id,body_md FROM discussions WHERE has_image=1 AND id IN (${ph})`),
+  inChunks(db,ids,ph=>`SELECT id,attached_id,mime,width,height FROM uploads WHERE attached_kind='discussion' AND status='active' AND attached_id IN (${ph})`)]);
+ const up=new Map(ups.map(r=>[String(r.id),r]));
+ for(const b of bodies){
+  /** @type {PostImage[]} */const images=[];const seen=new Set();
+  for(const m of String(b.body_md||'').matchAll(IMG_REF)){
+   const u=up.get(m[2]);if(!u||seen.has(m[2])||String(u.attached_id)!==String(b.id))continue;seen.add(m[2]);
+   images.push({id:m[2],url:`/u/${m[2]}/full.${MIME_EXT[String(u.mime)]||'webp'}`,w:Number(u.width)||0,h:Number(u.height)||0,source:SOURCE_ALT.test(m[1].trim())});
+  }
+  const before=images.find(i=>i.source)||null,after=images.find(i=>!i.source)||null;
+  out.set(String(b.id),{images,before,after});
+ }
+ return out;
+}
+/** The recipes of many posts (feed and list rows show a one-line summary). @param {D1} db @param {string[]} ids @returns {Promise<Map<string,any>>} */
+export async function recipesOf(db,ids){
+ const rows=await inChunks(db,ids,ph=>`SELECT id,recipe_json FROM discussions WHERE recipe_json IS NOT NULL AND id IN (${ph})`);
+ return new Map(rows.map(r=>[String(r.id),json(r.recipe_json,null)]).filter(([,v])=>v));
+}
+/** Images, recipes and excerpts for rows of a feed or list: one place, so every list shows the same card.
+ * @template {{id:string}} P @param {D1} db @param {P[]} posts */
+export async function withCards(db,posts){
+ const ids=posts.map(p=>p.id);
+ const [media,recipes,excerpts]=await Promise.all([mediaOf(db,ids),recipesOf(db,ids),excerptsOf(db,ids)]);
+ return posts.map(p=>({...p,media:media.get(p.id)||null,recipe:recipes.get(p.id)||null,excerpt:excerpts.get(p.id)||''}));
+}
+/** A published post's recipe (GET /api/v2/recipes/{id}, the workbench's remix mode). @param {D1} db @param {string} id */
+export async function recipeById(db,id){
+ const r=await db.prepare(`SELECT d.id,d.title,d.channel_id,d.channel_no,d.recipe_json,d.generator,d.prompt,d.try_count,d.remix_count,d.anon_name,d.anon_id,d.author_id,
+  COALESCE(p.display_name,'user-'||lower(substr(u.id,1,6))) AS author_name FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
+  WHERE d.id=? AND d.status IN ('published','locked') AND d.recipe_json IS NOT NULL`).bind(id).first();
+ if(!r)return null;
+ return {id:String(r.id),title:String(r.title),channel:String(r.channel_id),no:Number(r.channel_no),recipe:json(r.recipe_json,null),generator:r.generator==null?null:String(r.generator),prompt:r.prompt==null?null:String(r.prompt),
+  tries:Number(r.try_count),remixes:Number(r.remix_count),author:r.anon_id!=null?`${r.anon_name||'ㅇㅇ'} (${r.anon_id})`:String(r.author_name)};
+}
+/** The published remixes of a post (its 리믹스 grid), newest first. @param {D1} db @param {string} id @param {number} [limit] */
+export async function remixesOf(db,id,limit=12){
+ return withTags(db,(await all(db,`${XPOST} WHERE d.remix_of=? AND d.status IN ('published','locked') ORDER BY d.created_at DESC LIMIT ?`,[id,limit])).map(postRow));
+}
+/** 레시피 모음: posts with a recipe, most tried or newest. @param {D1} db @param {{sort?:string,channel?:string|null,page?:number,limit?:number}} o */
+export async function recipePosts(db,o={}){
+ const limit=Math.min(o.limit??30,100),offset=Math.max(0,((o.page??1)-1)*limit);
+ const where=["d.status IN ('published','locked')",'d.recipe_json IS NOT NULL'],params=[];
+ if(o.channel){where.push('d.channel_id=?');params.push(o.channel);}
+ const order=o.sort==='new'?'d.created_at DESC,d.id DESC':'d.try_count DESC,d.remix_count DESC,d.created_at DESC';
+ const rows=await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ? OFFSET ?`,[...params,limit+1,offset]);
+ return {posts:await withTags(db,rows.slice(0,limit).map(postRow)),more:rows.length>limit};
+}
+/** Recipes tried most since a day (KST, YYYY-MM-DD): 이번 주 유행. @param {D1} db @param {{since:string,limit?:number}} o */
+export async function trendingRecipes(db,o){
+ const rows=await all(db,`SELECT t.discussion_id,SUM(t.n) AS week FROM recipe_try_days t JOIN discussions d ON d.id=t.discussion_id
+  WHERE t.day>=? AND d.status='published' AND d.recipe_json IS NOT NULL GROUP BY t.discussion_id ORDER BY week DESC LIMIT ?`,[o.since,o.limit??10]);
+ if(!rows.length)return [];
+ const posts=await withTags(db,(await inChunks(db,rows.map(r=>String(r.discussion_id)),ph=>`${XPOST} WHERE d.id IN (${ph})`)).map(postRow));
+ const by=new Map(posts.map(p=>[p.id,p]));
+ /** @type {(ReturnType<typeof postRow>&{week:number})[]} */const out=[];
+ for(const r of rows){const p=by.get(String(r.discussion_id));if(p)out.push({...p,week:Number(r.week)});}
+ return out;
+}
+
 /** Tags with the most posts since a time (인기 태그). @param {D1} db @param {number} since @param {number} [limit] */
 export async function activeChannels(db,since,limit=10){
  return (await popularTags(db,{since,limit})).map(r=>({entity:r.entity,posts:r.posts}));

@@ -4,6 +4,7 @@
  * "demo:" and the preview banner says the posts are samples. */
 import {createPost} from '../../platform/community.js';
 import {defaultChannelOf,channelById} from '../../platform/channels.js';
+import {insertAiDemo} from './demo-aic.mjs';
 
 const MIN=6e4,HOUR=36e5,DAY=864e5;
 const USERS=[
@@ -47,8 +48,8 @@ const POSTS=[
  ['notice','feedback','[건의] 모바일에서 채널 바 고정 순서 바꾸기','전체 채널 시트에서 순서를 바꿀 수 있으면 좋겠어요.','demo:u2',180,9,0,400],
 ];
 
-/** @param {any} db D1 binding @param {number} now */
-export async function insertDemoContent(db,now){
+/** @param {any} db D1 binding @param {number} now @param {{bucket?:any}} [o] the R2 bucket for the demo images (dev server) */
+export async function insertDemoContent(db,now,o={}){
  const stmts=USERS.map(([id,name,tier],i)=>db.prepare(`INSERT OR IGNORE INTO users (id,email,display_name,provider,provider_subject,created_at) VALUES (?,NULL,?,'demo',?,?)`).bind(id,name,id,now-400*DAY+i*DAY));
  stmts.push(...USERS.map(([id,name,tier])=>db.prepare(`INSERT OR IGNORE INTO user_profiles (user_id,display_name,tier,created_at,updated_at) VALUES (?,?,?,?,?)`).bind(id,name,tier,now-300*DAY,now)));
  await db.batch(stmts);
@@ -82,5 +83,7 @@ export async function insertDemoContent(db,now){
   for(let i=0;i<4;i++)rows.push(now-(i*37)*MIN);
   await db.batch(rows.map((at,i)=>db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue','service:claude',?,'broken',?,?,?)").bind(`demo-issue-${i}`,JSON.stringify({symptom:sym[i%sym.length]}),USERS[i%USERS.length][0],at,at)));
  }
- return {posts:n,comments:c};
+ // The AI 창작 boards (2026-10-11): recipes, a remix thread and images (bytes only when a bucket is given).
+ const ai=await insertAiDemo(db,now,{bucket:o.bucket});
+ return {posts:n+ai.posts,comments:c};
 }

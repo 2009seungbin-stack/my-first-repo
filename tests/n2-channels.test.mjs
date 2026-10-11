@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {D1Shim,sqliteAvailable,migrationFiles} from './d1-shim.mjs';
 import {createPost,castVote,writableKinds,POST_KINDS} from '../platform/community.js';
-import {CHANNELS,channelById,channelOfVertical,defaultChannelOf,flairLabel,writableFlairs,storedKind,writePath,postPath} from '../platform/channels.js';
+import {CHANNELS,OPEN_CHANNELS,channelById,channelOfVertical,defaultChannelOf,writableChannel,isReadOnly,flairLabel,writableFlairs,storedKind,writePath,postPath} from '../platform/channels.js';
 
 const MIG=new URL('../migrations/',import.meta.url);
 /** A database migrated up to (not including) 0014, as production is before this change. */
@@ -27,30 +27,39 @@ async function oldPost(db,id,entityId,no,kind,at,extra={}){
   .bind(id,entityId,no,kind,`t-${id}`,'body',extra.author||'u1',at,at,at,extra.status||'published',extra.up||0,extra.best||null).run();
 }
 
-test('channel config: 7 channels, flairs per the owner decision, labels per channel',()=>{
- assert.deepEqual(CHANNELS.map(c=>c.id),['free','games','sub','hw','ai','studio','notice']);
- assert.deepEqual(CHANNELS.filter(c=>c.inBar).map(c=>c.id),['free','games','sub','hw','ai','studio']);
+test('channel config: the 7 AI 창작 boards on the bar, the 2026-09-29 channels archived (read-only, off the bar)',()=>{
+ assert.deepEqual(CHANNELS.map(c=>c.id),['pfp','sticker','pixel','wall','howto','free','notice','games','sub','hw','ai','studio']);
+ assert.deepEqual(CHANNELS.filter(c=>c.inBar).map(c=>c.id),['pfp','sticker','pixel','wall','howto','free','notice']);
+ assert.deepEqual(CHANNELS.filter(c=>c.readOnly).map(c=>c.id),['games','sub','hw','ai','studio']);
+ assert.deepEqual(OPEN_CHANNELS.map(c=>c.id),['pfp','sticker','pixel','wall','howto','free','notice']);
+ assert.deepEqual(CHANNELS.filter(c=>c.inBar).map(c=>c.names.ko),['프사·프로필','이모티콘·스티커','도트','배경화면','레시피 질문','자유','공지']);
  const labels=(/** @type {string} */ ch)=>writableFlairs(ch).map(f=>flairLabel(ch,f,'ko'));
- assert.deepEqual(labels('ai'),['소식','정보','질문','사용기','팁','벤치','잡담']);
- assert.deepEqual(labels('games'),['소식','정보','질문','공략','한글패치','리포트','스샷','잡담']);
- assert.deepEqual(labels('hw'),['소식','정보','질문','견적','벤치','사용기','잡담']);
- assert.deepEqual(labels('studio'),['소식','질문','호환','팁','작업물','잡담']);
- assert.deepEqual(labels('sub'),['소식','정보','감상','행사·굿즈','팬아트','질문','잡담']);
+ assert.deepEqual(labels('pfp'),['작품','팁','질문','잡담']);
+ assert.deepEqual(labels('sticker'),['카톡 대화용','LINE 판매','디스코드','텔레그램','움짤','질문']);
+ assert.deepEqual(labels('pixel'),['작품','정리 전후','팁','질문']);
+ assert.deepEqual(labels('wall'),['폰','PC','팁','질문']);
+ assert.deepEqual(labels('howto'),['질문','만들어 주세요','팁']);
  assert.deepEqual(labels('free'),['잡담','질문','정보']);
  assert.deepEqual(labels('notice'),['건의']);
+ // Archived channels take nothing but a staff 공지; their 말머리 labels stay for their old posts.
+ for(const ch of ['games','sub','hw','ai','studio']){assert.deepEqual(writableFlairs(ch),[],ch);assert.deepEqual(writableFlairs(ch,{staff:true}),['notice'],ch);assert.ok(isReadOnly(ch));}
+ assert.equal(flairLabel('ai','guide','ko'),'팁');assert.equal(flairLabel('studio','report','ko'),'호환');assert.equal(flairLabel('games','patch','ko'),'한글패치');
+ assert.equal(channelById('sticker')?.note?.ko,'카카오 스토어는 AI 이모티콘을 받지 않아요 — 카톡 규격은 대화용');
+ assert.deepEqual(channelById('sticker')?.presets,['kakao-emoticon','line-sticker','discord-emoji','telegram-sticker']);
  // 공지 only for staff, in any channel; English labels exist for every flair.
- assert.ok(!writableKinds('ai').includes('notice')&&writableKinds('ai',{staff:true})[0]==='notice');
+ assert.ok(!writableKinds('pfp').includes('notice')&&writableKinds('pfp',{staff:true})[0]==='notice');
  for(const c of CHANNELS)for(const f of c.flairs)assert.ok(flairLabel(c.id,f,'en')&&flairLabel(c.id,f,'en')!==f,`${c.id}:${f}`);
- for(const f of ['info','review','buy','event','feedback'])assert.ok(f in POST_KINDS);
+ for(const f of ['info','review','buy','event','feedback','share','tip','kakao','line','discord','telegram','anim','fix','phone','pc','request'])assert.ok(f in POST_KINDS,f);
  // The stored kind always satisfies the old CHECK of discussions.kind.
  const legacy=['notice','news','report','patch','question','guide','benchmark','screenshot','free'];
  for(const f of Object.keys(POST_KINDS))assert.ok(legacy.includes(storedKind(f)),f);
  assert.equal(channelOfVertical('hardware'),'hw');assert.equal(channelOfVertical('subculture'),'sub');assert.equal(channelOfVertical('tools'),'free');
- // A subculture work that is a game defaults to 게임; a GPU to PC·하드웨어.
+ // A subculture work that is a game belongs to 게임; a GPU to PC·하드웨어 — both archived, so new posts go to 자유.
  assert.equal(defaultChannelOf({vertical:'subculture',type:'work'},[{property:'media_type',value:'game'}]),'games');
  assert.equal(defaultChannelOf({vertical:'subculture',type:'work'},[{property:'media_type',value:'tv_anime'}]),'sub');
  assert.equal(defaultChannelOf({vertical:'hardware',type:'gpu'}),'hw');
- assert.equal(writePath('ko','ai',{tag:'service:claude'}),'/ko/community/ai/write?tag=service:claude');
+ assert.equal(writableChannel('hw'),'free');assert.equal(writableChannel('sticker'),'sticker');
+ assert.equal(writePath('ko','sticker',{tag:'service:claude'}),'/ko/community/sticker/write?tag=service:claude');
  assert.equal(postPath('en','games',12),'/en/community/games/12');
  assert.equal(channelById('nope'),null);
 });

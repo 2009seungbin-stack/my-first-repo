@@ -69,7 +69,8 @@ async function harness(o={}){
   }};
  return h;
 }
-const post=(b,extra={})=>b.call('POST','/posts?l=ko',{body:{entityId:'service:svc',kind:'free',title:'익명 글 제목',body:'본문입니다',password:'1234',...extra}});
+// consent: the image rules (AI 창작, 2026-10-11) — required whenever a post attaches images.
+const post=(b,extra={})=>b.call('POST','/posts?l=ko',{body:{entityId:'service:svc',kind:'free',title:'익명 글 제목',body:'본문입니다',password:'1234',consent:true,...extra}});
 
 /* ---------- daily ID, network key, passwords ---------- */
 
@@ -340,7 +341,7 @@ test('reports: 3 different reporters hide it, a severe category hides it at once
   assert.equal(r.json.hidden,true);
  }
  assert.equal(h.db.raw.prepare('SELECT category,reason FROM content_flags WHERE target_id=?').get(q2).category,'csam');
- assert.deepEqual([...REPORT.severe].sort(),['csam','illegal_filming','privacy']);
+ assert.deepEqual([...REPORT.severe].sort(),['csam','deepfake','illegal_filming','minor','privacy','sexual']);
  assert.equal((await h.browser().call('POST','/flags',{body:{target:`discussion:${p}`,reason:'because'}})).status,400);
  assert.equal((await h.browser().call('POST','/flags',{body:{target:'user:anon',reason:'spam'}})).status,400);
 });
@@ -493,7 +494,7 @@ test('uploads: limits, types, ownership on edit, deletion with the post, NOT_CON
  await h.member('m');const m=h.browser('203.0.113.7','m');
  const mine=[];for(let i=0;i<11;i++){if(i===10)h.clock.now+=61e3;const r=await m.call('POST','/uploads',{raw:FIX('gps.webp')});assert.equal(r.status,201,JSON.stringify(r.json));mine.push(r.json.url);}
  assert.equal(h.db.raw.prepare('SELECT owner FROM uploads WHERE id=?').get(mine[0].split('/')[2]).owner,'u:u-m');
- const mp=body=>m.call('POST','/posts',{body:{entityId:'service:svc',kind:'free',title:'회원 사진',body}});
+ const mp=body=>m.call('POST','/posts',{body:{entityId:'service:svc',kind:'free',title:'회원 사진',body,consent:true}});
  assert.equal((await mp(mine.map(u=>`![](${u})`).join('\n'))).json.error.reason,'images','at most 10 per post');
  h.clock.now+=61e3;
  assert.equal((await mp(mine.slice(0,10).map(u=>`![](${u})`).join('\n'))).status,201);

@@ -353,7 +353,7 @@ test('community stats for a Seoul day: tiles, 7-day spark, channels, verticals, 
  assert.deepEqual(r.json.tiles,{posts:1,comments:1,users:0,flags:0});
  assert.deepEqual(r.json.spark.slice(-2),[{day:'2026-09-28',posts:1,comments:0},{day:'2026-09-29',posts:1,comments:1}]);
  assert.deepEqual(r.json.channels.map(x=>[x.name,x.posts,x.comments]),[['테스트 게임',1,1]]);
- assert.deepEqual(r.json.verticals,[{vertical:'games',name:'게임',url:'/ko/community/games/',posts:1,comments:1}],'posts per channel');
+ assert.deepEqual(r.json.verticals,[{vertical:'free',name:'자유',url:'/ko/community/free/',posts:1,comments:1}],'posts per channel (a game tag posts to 자유: the 게임 channel is archived)');
  const y=await admin.call('GET','/admin/community?day=2026-09-28');
  assert.equal(y.json.tiles.users,2,'members created 2026-09-28 (KST)');
  assert(y.json.newUsers.every(u=>!('email' in u))&&!y.text.includes('@example.test'));
@@ -520,6 +520,6 @@ test('new tags: a member proposes, the admin picks the kind and approves (entity
  assert.equal((await act({id:b.json.id,action:'reject',reason:'대상이 불분명'})).status,200);
  assert.equal(db.raw.prepare("SELECT status FROM tag_proposals WHERE id=?").get(b.json.id).status,'rejected');
  // The new tag can be used at once.
- const p=await m.call('POST','/posts',{body:{channel:'games',kind:'question',tags:['game:hollow-knight-silksong'],title:'실크송 질문',body:'본문'}});
+ const p=await m.call('POST','/posts',{body:{channel:'howto',kind:'question',tags:['game:hollow-knight-silksong'],title:'실크송 질문',body:'본문'}});
  assert.equal(p.status,201,p.text);
 });

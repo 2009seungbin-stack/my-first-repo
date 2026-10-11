@@ -26,7 +26,8 @@ test('shell: portal home addresses, profile links, dark-mode button and the menu
  const out=String(page({l:'ko',title:'t',description:'d',canonical:'https://nerulio.com/ko/community/ai/',channels:[],body:'<p>x</p>'}));
  assert(out.indexOf('/src/platform/theme.js')<out.indexOf('/src/platform/n2.css'),'the theme applies before the stylesheet paints');
  assert(out.includes('data-theme-toggle')&&out.includes('id="lnav"')&&out.includes('data-drawer-open'));
- assert(out.includes('<details class="lg" id="nav-file">')&&out.includes('<details class="lg" id="nav-game">'),'both tool groups start folded')
+ assert(out.includes('<details class="lg" id="nav-make" open>')&&out.includes('href="/ko/make/kakao-emoticon/"')&&out.includes('href="/ko/tools/"'),'다듬기 도구: the workbench presets and 도구 전체 보기, open');
+ assert(!out.includes('id="nav-file"')&&!out.includes('id="nav-game"')&&!out.includes('id="nav-pc"'),'the file, game and PC tool groups left the menu (AI 창작 pivot, 2026-10-11)');
  assert(!out.includes('class="rail"'),'no icon column: the channels are in the channel bar');
  assert(!out.includes('data-theme="dark"'),'white unless the reader chose dark');
  const css=await readFile(new URL('../src/platform/n2.css',import.meta.url),'utf8');

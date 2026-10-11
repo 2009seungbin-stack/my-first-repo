@@ -6,12 +6,12 @@ import {html,raw,safeHref} from './html.js';
 import {t} from './strings.js';
 import {VERIFICATION_LABEL,label} from '../labels.js';
 import {boardTime,compact} from './format.js';
-import {CHANNELS,channelById,channelPath,postPath,flairLabel,patchCollectionPath} from '../channels.js';
-import {FILE_TOOLS,GAME_TOOLS,PC_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
+import {CHANNELS,channelById,channelPath,postPath,flairLabel,recipesPath,trendsPath} from '../channels.js';
+import {MAKE_TOOLS,makeHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
-export const CSS_HREF='/src/platform/n2.css?v=20261004-corner-radius';
+export const CSS_HREF='/src/platform/n2.css?v=20261011-ai-community';
 /** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
 export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
@@ -79,6 +79,8 @@ export const authorText=(p,fallback)=>p.anon_id?`${p.author_name||'ㅇㅇ'} (${p
 const KIND_CLASS=/** @type {Record<string,string>} */({news:'news',report:'rep',patch:'ko',question:'q',guide:'gd',benchmark:'ben',notice:'nt',info:'inf',review:'rv',buy:'buy',event:'buy',feedback:''});
 /** 말머리 chip, named as the post's channel calls it (팁 for guide in AI). @param {string} kind @param {string} l @param {string|null} [channel] */
 export const kindChip=(kind,l,channel=null)=>html`<span class="mh ${KIND_CLASS[kind]||''}">${flairLabel(channel,kind,l)}</span>`;
+/** "AI 생성" beside the 말머리 of a post marked AI-generated (AI기본법 §31 label, research/AI-COMMUNITY-LEGAL.md §1.8). @param {string} l */
+export const aiChip=l=>html`<span class="mh ai">${l==='ko'?'AI 생성':'AI-made'}</span>`;
 /** A tag chip (the entity page of the tag). @param {Entity} e @param {string} l @param {boolean} [on] */
 export const tagChip=(e,l,on=false)=>html`<a class="rtag${on?' on':''}" href="${channelUrl(l,e)}">${nameOf(e,l)}</a>`;
 /** A channel's tile (its icon on the channel's color). @param {string} ch @param {string} [_l] */
@@ -93,9 +95,11 @@ export const channelName=(ch,l)=>channelById(ch)?.names[l==='ko'?'ko':'en']||ch;
  */
 export function postRow(p,o){
  const {l,now}=o,href=postHref(l,p);
- const title=html`${kindChip(p.kind,l,p.channel_id)}${/** @type {any} */(p).solved?html`<span class="solved">${l==='ko'?'해결':'solved'}</span>`:''}${p.best_at?html`<span class="star" title="${t(l).bestRule}">★ </span>`:''}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}${p.has_image?html`<span class="img" aria-label="image"> ▣</span>`:''}`;
+ const x=/** @type {any} */(p),ko=l==='ko';
+ const thumb=x.thumb?html`<span class="pth chk" aria-hidden="true"><img src="${x.thumb.url}" alt="" width="36" height="36" loading="lazy" decoding="async"></span>`:'';
+ const title=html`${kindChip(p.kind,l,p.channel_id)}${x.solved?html`<span class="solved">${ko?'해결':'solved'}</span>`:''}${p.best_at?html`<span class="star" title="${t(l).bestRule}">★ </span>`:''}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}${p.has_image&&!x.thumb?html`<span class="img" aria-label="image"> ▣</span>`:''}${x.has_recipe?html`<span class="rcb">${ko?'레시피':'Recipe'}</span>`:''}`;
  const tags=p.tags.length?html`<span class="rtags">${p.tags.map(e=>tagChip(e,l,!!o.tagOn?.has(e.id)))}</span>`:'';
- return html`<li class="pr${p.bot?' bot':''}${p.pinned?' pin':''}${o.current?' cur':''}"><span class="no">${p.bot?'⚙':p.channel_no}</span><span class="tc">${o.current?html`<span class="tt" aria-current="page">${title}</span>`:html`<a class="tt" href="${href}">${title}</a>`}${o.channel?html`<a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>`:''}${tags}</span>${author(p,l)}<span class="num w"><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time></span><span class="num v">${compact(p.views,l)}</span><span class="num u">${p.up||''}</span></li>`;
+ return html`<li class="pr${p.bot?' bot':''}${p.pinned?' pin':''}${o.current?' cur':''}${thumb?' hth':''}"><span class="no">${p.bot?'⚙':p.channel_no}</span><span class="tc">${thumb}${o.current?html`<span class="tt" aria-current="page">${title}</span>`:html`<a class="tt" href="${href}">${title}</a>`}${o.channel?html`<a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>`:''}${tags}</span>${author(p,l)}<span class="num w"><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time></span><span class="num v">${compact(p.views,l)}</span><span class="num u">${p.up||''}</span></li>`;
 }
 /** The header row of a board list. @param {string} l */
 export function boardHead(l){
@@ -107,17 +111,20 @@ export function boardHead(l){
 const LOGO=html`<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#c6f24e"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#15171a" stroke-width="8.5" stroke-linecap="round"/><circle cx="47.5" cy="16.5" r="5" fill="#15171a"/></svg>`;
 const CHEV=html`<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`;
 
-/** The menu column (desktop) and the drawer (mobile): pages, the channels, and the file and game tools,
- * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean}} o */
+/** The menu column (desktop) and the drawer (mobile), AI 창작 community (2026-10-11): 홈 · 전체 베스트 · 레시피 모음 ·
+ * 이번 주 유행, the channels (drawer only; the channel bar has them on wide screens), and 다듬기 도구 — the
+ * workbench's presets and 도구 전체 보기. Radar, 한글패치 모음 and the PC/파일/게임 tool groups left the menu; their
+ * pages keep working. Groups fold with <details>, no script needed.
+ * @param {{l:string,homeOn?:boolean,bestOn?:boolean,recipesOn?:boolean,trendsOn?:boolean}} o */
 function shellNav(o){
  const l=o.l,ko=l==='ko',lang=ko?'ko':'en';
  const item=(/** @type {string} */ href,/** @type {string} */ label,/** @type {boolean|undefined} */ on,/** @type {string} */ ic)=>html`<a class="ln${on?' on':''}" href="${href}"${on?html` aria-current="page"`:''}>${icon(ic,18)}${label}</a>`;
- const tools=(/** @type {string} */ id,/** @type {string} */ title,/** @type {readonly import('../tools-nav.js').NavTool[]} */ list,/** @type {boolean} */ open)=>html`<details class="lg" id="${id}"${open?html` open`:''}><summary>${CHEV}${title}<span class="lgn">${list.length}</span></summary><ul>${list.map(x=>html`<li><a href="${toolHref(l,x)}"><span class="ic" title="${x.ic}">${icon(x.svg,18)}</span>${x[lang]}</a></li>`)}<li><a class="all" href="${toolsHome(l)}">${ko?'도구 전체 보기 ›':'All tools ›'}</a></li></ul></details>`;
+ const bar=CHANNELS.filter(c=>c.inBar);
  return html`<aside class="lnav" id="lnav" aria-label="${ko?'메뉴와 도구':'Menu and tools'}"><div class="lnh"><a class="brand" href="${homeUrl(l)}">${LOGO}<span>nerulio</span></a><a class="lnx" href="#" data-drawer-close aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a></div>
-<nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn,'home')}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
-<details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
+<nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn,'home')}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(recipesPath(l),ko?'레시피 모음':'Recipes',o.recipesOn,'recipe')}${item(trendsPath(l),ko?'이번 주 유행':'Trending this week',o.trendsOn,'trend')}</nav>
+<details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${bar.length}</span></summary><ul>${bar.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
 <span class="lsep" aria-hidden="true"></span>
-${tools('nav-pc',ko?'PC 도구':'PC tools',PC_TOOLS,true)}${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}</aside>`;
+<details class="lg" id="nav-make" open><summary>${CHEV}${ko?'다듬기 도구':'Finishing tools'}<span class="lgn">${MAKE_TOOLS.length}</span></summary><ul>${MAKE_TOOLS.map(x=>html`<li><a href="${makeHref(l,x)}"><span class="mic">${icon(x.svg,16)}</span>${x[lang]}</a></li>`)}<li><a class="all" href="${toolsHome(l)}">${ko?'도구 전체 보기 ›':'All tools ›'}</a></li></ul></details></aside>`;
 }
 
 /**
@@ -128,10 +135,11 @@ ${tools('nav-pc',ko?'PC 도구':'PC tools',PC_TOOLS,true)}${tools('nav-file',ko?
 export function channelSheet(l){
  const ko=l==='ko',lang=ko?'ko':'en';
  return html`<dialog class="chsheet" id="chsheet" aria-labelledby="chsheet-h" data-island="channel-sheet"><div class="shh"><span class="grab" aria-hidden="true"></span><h2 id="chsheet-h">${ko?'채널':'Channels'}</h2><button type="button" class="shx" data-close-sheet aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-<div class="shs"><label class="sr-only" for="chsheet-q">${ko?'채널·태그 찾기':'Find a channel or tag'}</label><input id="chsheet-q" type="search" data-sheet-q placeholder="${ko?'채널·태그 찾기 (예: 클로드, 5070)':'Find a channel or tag (e.g. Claude, 5070)'}" autocomplete="off"><ul class="shr" data-sheet-results hidden></ul></div>
+<div class="shs"><label class="sr-only" for="chsheet-q">${ko?'채널·태그 찾기':'Find a channel or tag'}</label><input id="chsheet-q" type="search" data-sheet-q placeholder="${ko?'채널 찾기 (예: 이모티콘, 도트)':'Find a channel (e.g. stickers, pixel)'}" autocomplete="off"><ul class="shr" data-sheet-results hidden></ul></div>
 <section class="shg" data-my-channels hidden><h3>${ko?'내 채널 · 채널 바에 이 순서로':'My channels · in this order on the bar'}</h3><ul data-my-list></ul></section>
-<section class="shg"><h3>${ko?'전체 채널':'All channels'}</h3><ul>${CHANNELS.map(c=>html`<li><span class="tile ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],16)}</span><span class="shn"><a href="${channelPath(l,c.id)}">${c.names[lang]}</a><span class="fine">${c.desc[lang]}</span></span>${c.inBar?html`<button type="button" class="pin" data-pin="${c.id}" aria-pressed="false"><span class="p0">${ko?'고정':'Pin'}</span><span class="p1">✓ ${ko?'고정됨':'Pinned'}</span></button>`:''}</li>`)}
-<li><span class="tile ch-patch" aria-hidden="true">${icon('pin',16)}</span><span class="shn"><a href="${patchCollectionPath(l)}">${ko?'한글패치 모음':'Korean patches'}</a><span class="fine">${ko?'게임 · [한글패치]':'Games · [Korean patch]'}</span></span></li></ul></section>
+<section class="shg"><h3>${ko?'전체 채널':'All channels'}</h3><ul>${CHANNELS.filter(c=>c.inBar).map(c=>html`<li><span class="tile ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],16)}</span><span class="shn"><a href="${channelPath(l,c.id)}">${c.names[lang]}</a><span class="fine">${c.desc[lang]}</span></span>${c.inBar?html`<button type="button" class="pin" data-pin="${c.id}" aria-pressed="false"><span class="p0">${ko?'고정':'Pin'}</span><span class="p1">✓ ${ko?'고정됨':'Pinned'}</span></button>`:''}</li>`)}
+<li><span class="tile ch-recipes" aria-hidden="true">${icon('recipe',16)}</span><span class="shn"><a href="${recipesPath(l)}">${ko?'레시피 모음':'Recipes'}</a><span class="fine">${ko?'레시피가 붙은 글 · 많이 해본 순':'Posts with a recipe · most tried'}</span></span></li></ul></section>
+<section class="shg"><h3>${ko?'보관된 채널':'Archived channels'}</h3><p class="fine shf">${ko?'예전 채널의 글은 그대로 읽을 수 있어요. 새 글은 받지 않아요.':'Posts of the earlier channels stay readable; they take no new posts.'}</p><ul class="sharch">${CHANNELS.filter(c=>c.readOnly).map(c=>html`<li><a href="${channelPath(l,c.id)}">${c.names[lang]}</a></li>`)}</ul></section>
 <section class="shg" data-recent-tags hidden><h3>${ko?'최근 본 태그':'Tags you viewed'}</h3><div class="rtags" data-recent-list></div></section>
 <p class="fine shf">${ko?'로그인 없이 고정한 채널은 이 브라우저에 저장되고, 로그인하면 계정으로 옮겨져요.':'Pins without an account stay in this browser and move to your account when you sign in.'}</p></dialog>`;
 }
@@ -149,7 +157,7 @@ export function ogImageUrl(o){
  * the reader's subscriptions). `scope` = the channel a search is limited to.
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
  *  verify?:{google?:string,naver?:string,bing?:string}|null,
- *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,feedTitle?:string,ogType?:string,
+ *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,recipesOn?:boolean,trendsOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,feedTitle?:string,ogType?:string,
  *  ogImage?:{url:string,alt?:string}|null}} o `ogImage` = a 1200×630 share card of this page (a site path), instead of the site card.
  */
 export function page(o){
@@ -197,7 +205,6 @@ ${shellNav(o)}
 <a class="brand" href="${homeUrl(o.l)}">${LOGO}<span>nerulio</span></a>
 <form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>
 <button type="button" class="thm" data-theme-toggle aria-pressed="false" aria-label="${o.l==='ko'?'다크 모드':'Dark mode'}" title="${o.l==='ko'?'다크 모드':'Dark mode'}"><svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-<nav class="hn" aria-label="Nerulio"><a class="hb rdr" href="/${o.l}/radar/" title="${s.radar}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 19 5"/></svg><span>${s.radar}</span></a></nav>
 <div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>
 </header>
 <nav class="chbar" aria-label="${s.allChannels}"><div class="cr" data-island="channel-bar"><span class="chs" data-channel-links>${o.channels.map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span></div><a class="allch" href="#lnav" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'전체 채널':'All channels'}</span></a></nav>

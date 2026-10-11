@@ -52,9 +52,12 @@ export const ANON=Object.freeze({
 /** Reports (신고): categories, which ones hide at once, and how many distinct reporters hide the rest. */
 export const REPORT=Object.freeze({
  threshold:3,
- severe:Object.freeze(['csam','illegal_filming','privacy']),
+ // One report hides at once, pending review. The AI 창작 community adds sexual content, a minor in a sexual or
+ // suggestive image, and deepfakes (a real person's face swapped, undressed, aged or made sexual): 2026-10-11,
+ // research/AI-COMMUNITY-LEGAL.md §4.3.
+ severe:Object.freeze(['csam','illegal_filming','privacy','sexual','minor','deepfake']),
  /** content_flags.reason (0004 CHECK) for each category; the category itself goes in content_flags.category. */
- reasonOf:Object.freeze(/** @type {Record<string,string>} */({spam:'spam',abuse:'abuse',wrong_info:'wrong_info',source_dispute:'source_dispute',copyright:'copyright',duplicate:'duplicate',other:'other',csam:'abuse',illegal_filming:'abuse',privacy:'other',sexual:'abuse',violence:'abuse'})),
+ reasonOf:Object.freeze(/** @type {Record<string,string>} */({spam:'spam',abuse:'abuse',wrong_info:'wrong_info',source_dispute:'source_dispute',copyright:'copyright',duplicate:'duplicate',other:'other',csam:'abuse',illegal_filming:'abuse',privacy:'other',sexual:'abuse',minor:'abuse',deepfake:'abuse',violence:'abuse'})),
 });
 
 /** Korean calendar day (KST) of a time. @param {number} now */
