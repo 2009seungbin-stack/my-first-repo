@@ -3,9 +3,12 @@
  * → champion. The organiser's seating panel (대진 배치) opens from five taps on the title or Alt+Shift+R and
  * is built here, not in the page HTML. A seated draw looks and animates like any other. State stays in this
  * browser; the seating is stored packed. A share link (#b=…) leaves the address bar once read.
- * With "신호 줄 때만" (cue) the seating waits: draws are random until two quick taps on the trophy
- * (or Alt+Shift+A) arm it for the following draws; the same signal disarms it. Phones confirm with a
- * vibration. The FAQ on the page states that these prank features exist. */
+ * The signal (two quick taps on the trophy, or Alt+Shift+A) flips the following draws: a saved seating
+ * applies until the signal and draws are random after it, or with "기본은 랜덤" (cue) the other way round.
+ * The same signal flips back; phones confirm with a vibration. "입력 순서" seats the names as typed
+ * (1–2, 3–4, …), so nothing has to be set up per game. A fixed seating marked exact is drawn as saved, and
+ * a signal that turns it on lasts one draw. The FAQ on the page states that these prank
+ * features exist. */
 import {SIZES,MAX_TITLE,parseNames,sizeProblem,fitSize,planActive,emptyPlan,drawPlan,pairIndex,pairsFit,fitSeats,seatNames,inOrder,newBoard,entrant,ready,nextMatch,champion,setWinner,pickWinner,roundsOf,encodeShare,decodeShare,pack,unpack,cleanPlan,planData} from './engine.js';
 
 const STORE='nerulio.bracket.v1';
@@ -16,26 +19,28 @@ const T=ko?{
  round:(/** @type {number} */ s)=>s===2?'결승':`${s}강`,champ:'우승',bye:'부전승',name:'대진표',
  progress:(/** @type {number} */ d,/** @type {number} */ t)=>`${d} / ${t} 경기`,won:(/** @type {string} */ n)=>`우승 · ${n}`,copied:'링크를 복사했어요.',copyFail:'복사하지 못했어요. 주소를 길게 눌러 복사하세요.',
  noUndo:'되돌릴 게 없어요.',done:'경기가 모두 끝났어요.',
- ed:'대진 배치',modes:[['','랜덤'],['pairs','첫 상대만'],['fixed','전체 배치']],
- help:{'':'평소처럼 무작위로 추첨합니다.',pairs:'정한 두 사람은 첫 경기에서 만나고, 나머지는 무작위입니다.',fixed:'붙어 있는 두 경기의 승자끼리 다음 라운드에서 만나고, 같은 쪽 승자끼리 4강에서 만납니다. 추첨할 때마다 자리 모양은 바뀌어도 만나는 상대는 그대로입니다.'},
+ ed:'대진 배치',modes:[['','랜덤'],['pairs','첫 상대만'],['fixed','전체 배치'],['typed','입력 순서']],
+ help:{'':'평소처럼 무작위로 추첨합니다.',pairs:'정한 두 사람은 첫 경기에서 만나고, 나머지는 무작위입니다.',fixed:'붙어 있는 두 경기의 승자끼리 다음 라운드에서 만나고, 같은 쪽 승자끼리 4강에서 만납니다. 추첨할 때마다 자리 모양은 바뀌어도 만나는 상대는 그대로입니다.',typed:'참가자 칸에 입력한 순서대로 1번과 2번, 3번과 4번…이 첫 경기에서 만나고, 1·2번 승자와 3·4번 승자가 다음 라운드에서 만납니다. 따로 정할 것 없이 원하는 순서로 이름만 입력하면 되고, 추첨 화면의 자리 모양은 매번 섞여 보입니다. 인원이 모자라면 마지막에 입력한 사람부터 부전승입니다.'},
  vsHead:'첫 경기 상대',none:'없음',left:'왼쪽',right:'오른쪽',match:(/** @type {number} */ k)=>`${k}경기`,
  save:'저장',shuffle:'섞기',fromBoard:'지금 대진 가져오기',link:'이 배치로 링크 복사',close:'닫기',
  empty:'먼저 참가자 이름을 넣으세요.',sizeBad:'참가자 수와 대진 크기를 먼저 맞추세요.',twoByes:'한 경기에 부전승이 둘이면 안 돼요.',tooManyPairs:'부전승 자리 때문에 짝을 이만큼 넣을 수 없어요.',
  saved:'저장했어요.',redraw:'저장 후 「다시 추첨」을 누르면 반영돼요.',
- cue:'신호 줄 때만 적용',cueHelp:'평소엔 진짜 랜덤으로 추첨됩니다. 트로피 아이콘을 빠르게 두 번 누르면(PC: Alt+Shift+A) 다음 추첨부터 이 배치가 나오고, 다시 두 번 누르면 랜덤으로 돌아갑니다. 휴대폰은 짧은 진동 한 번(켜짐)·두 번(꺼짐)으로 알려 줍니다. 새로고침하면 꺼집니다.',
+ exact:'자리 모양 그대로 (섞지 않음)',exactHelp:'저장한 칸 그대로 나옵니다. 같은 모양이 계속 나오면 티가 나므로, 신호로 켰을 때는 바로 다음 추첨 한 번만 이 대진이 나오고 다시 랜덤으로 돌아갑니다.',
+ cueOff:'기본은 이 배치 · 신호 주면 랜덤',cueOn:'기본은 랜덤 · 신호 주면 이 배치',cueHelp:'신호: 트로피 아이콘을 빠르게 두 번(PC: Alt+Shift+A). 다음 추첨부터 바뀌고, 신호를 한 번 더 주면 원래대로 돌아갑니다. 휴대폰은 진동 한 번(신호 켜짐)·두 번(꺼짐)으로 알려 줍니다. 새로고침하면 신호가 꺼집니다.',
 }:{
  count:(/** @type {number} */ n,/** @type {number} */ s)=>`${n} players · ${s}-bracket${s>n&&n>s/2?` (${s-n} byes)`:''}`,
  few:'Add at least 2 names.',many:(/** @type {number} */ s,/** @type {number} */ f)=>f?`A ${s}-bracket holds ${s}. Pick ${f}.`:'Up to 32 players.',sparse:(/** @type {number} */ s,/** @type {number} */ f)=>`A ${s}-bracket needs ${s/2+1}+ players. Pick ${f}.`,
  round:(/** @type {number} */ s)=>s===2?'Final':s===4?'Semis':s===8?'Quarters':`Last ${s}`,champ:'Champion',bye:'Bye',name:'Bracket',
  progress:(/** @type {number} */ d,/** @type {number} */ t)=>`${d} / ${t} matches`,won:(/** @type {string} */ n)=>`Champion · ${n}`,copied:'Link copied.',copyFail:'Could not copy. Copy the address by hand.',
  noUndo:'Nothing to undo.',done:'All matches are played.',
- ed:'Seating',modes:[['','Random'],['pairs','First opponents'],['fixed','Every seat']],
- help:{'':'Draws are random as usual.',pairs:'Paired players meet in their first match; everyone else is random.',fixed:'Winners of neighbouring matches meet next, and each side’s winners meet in the semis. Every draw looks different, but who meets whom stays.'},
+ ed:'Seating',modes:[['','Random'],['pairs','First opponents'],['fixed','Every seat'],['typed','Typed order']],
+ help:{'':'Draws are random as usual.',pairs:'Paired players meet in their first match; everyone else is random.',fixed:'Winners of neighbouring matches meet next, and each side’s winners meet in the semis. Every draw looks different, but who meets whom stays.',typed:'Names meet in the order typed: 1st vs 2nd, 3rd vs 4th, …, and the winners of 1–2 and 3–4 meet next. Just type the names in the order you want; every draw still looks shuffled. With fewer names than slots, the last names typed get the byes.'},
  vsHead:'First opponent',none:'None',left:'Left',right:'Right',match:(/** @type {number} */ k)=>`Match ${k}`,
  save:'Save',shuffle:'Shuffle',fromBoard:'Use current bracket',link:'Copy link with seating',close:'Close',
  empty:'Add the player names first.',sizeBad:'Fix the player count and bracket size first.',twoByes:'A match cannot have two byes.',tooManyPairs:'Too many pairs for the byes in this bracket.',
  saved:'Saved.',redraw:'Save, then press “Draw again” to apply it.',
- cue:'Only on signal',cueHelp:'Draws stay truly random. Two quick taps on the trophy (PC: Alt+Shift+A) apply this seating from the next draw; two more taps go back to random. Phones vibrate once (on) or twice (off). Reloading turns it off.',
+ exact:'Keep the exact layout (no shuffling)',exactHelp:'Seats come out exactly as saved. Since the same picture twice would show, a signal that turns it on lasts only the next draw, then draws are random again.',
+ cueOff:'This seating · random on signal',cueOn:'Random · this seating on signal',cueHelp:'The signal: two quick taps on the trophy (PC: Alt+Shift+A). It flips the following draws; signal again to flip back. Phones vibrate once (on) or twice (off). Reloading turns the signal off.',
 };
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep=(/** @type {number} */ ms)=>new Promise(r=>setTimeout(r,reduce?0:ms));
@@ -51,7 +56,7 @@ export function mountBracket(root){
  let st={title:'',size:16,text:'',plan:emptyPlan(),names:[],board:null};
  /** @type {string[]} */
  let undo=[];let busy=false;
- // The signal for a seating that waits (cue): in memory only, so a reload is always random again.
+ // The signal: in memory only, so a reload always starts from the plan's default.
  let armed=false;
  try{const s=JSON.parse(localStorage.getItem(STORE)||'null');if(s&&typeof s==='object')st={title:String(s.title||''),size:Number(s.size)||16,text:String(s.text||''),names:Array.isArray(s.names)?s.names.map(String):[],board:s.board||null,plan:cleanPlan(unpack(s.x||''))};}catch{}
  // A shared link replaces what this browser had, then leaves the address bar.
@@ -83,7 +88,9 @@ export function mountBracket(root){
   if(busy)return;
   const ns=names(),p=sizeProblem(ns.length,st.size);
   if(p){showCount();el.names.focus();return;}
-  st.names=ns;st.board=newBoard(keepOrder?inOrder(ns.length,st.size):drawPlan(ns,st.size,st.plan.cue&&!armed?null:st.plan));undo=[];save();
+  const use=st.plan.cue===armed;
+  st.names=ns;st.board=newBoard(keepOrder?inOrder(ns.length,st.size):drawPlan(ns,st.size,use?st.plan:null));undo=[];save();
+  if(!keepOrder&&use&&armed&&st.plan.exact)armed=false;
   boardBox.hidden=false;render();
   boardBox.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
   if(!keepOrder)await reveal();
@@ -259,18 +266,22 @@ export function mountBracket(root){
   const modes=document.createElement('div');modes.className='bk-size bk-ed-mode';modes.setAttribute('role','radiogroup');modes.setAttribute('aria-label',T.ed);
   for(const [v,label] of T.modes){const l=document.createElement('label'),i=document.createElement('input'),s=document.createElement('span');i.type='radio';i.name='mode';i.value=v;s.textContent=label;l.append(i,s);modes.append(l);}
   const help=document.createElement('p');help.className='fine';help.dataset.edHelp='';
-  const cueRow=document.createElement('label');cueRow.className='bk-ed-cue';cueRow.dataset.edCue='';
-  const cueBox=document.createElement('input');cueBox.type='checkbox';cueBox.name='cue';
-  const cueText=document.createElement('span');cueText.textContent=T.cue;
+  const exactRow=document.createElement('div');exactRow.className='bk-ed-cue';exactRow.dataset.edExact='';
+  const exactLabel=document.createElement('label'),exactBox=document.createElement('input'),exactText=document.createElement('span'),exactHelp=document.createElement('small');
+  exactBox.type='checkbox';exactBox.name='exact';exactText.textContent=T.exact;exactHelp.className='fine';exactHelp.textContent=T.exactHelp;
+  exactLabel.append(exactBox,exactText);exactRow.append(exactLabel,exactHelp);
+  exactBox.addEventListener('change',()=>{draft.exact=exactBox.checked;});
+  const cueRow=document.createElement('div');cueRow.className='bk-ed-cue';cueRow.dataset.edCue='';cueRow.setAttribute('role','radiogroup');
+  for(const [v,label] of [['0',T.cueOff],['1',T.cueOn]]){const l=document.createElement('label'),i=document.createElement('input'),s=document.createElement('span');i.type='radio';i.name='cue';i.value=v;s.textContent=label;l.append(i,s);cueRow.append(l);}
   const cueHelp=document.createElement('small');cueHelp.className='fine';cueHelp.textContent=T.cueHelp;
-  cueRow.append(cueBox,cueText,cueHelp);
-  cueBox.addEventListener('change',()=>{draft.cue=cueBox.checked;});
+  cueRow.append(cueHelp);
+  cueRow.addEventListener('change',e=>{draft.cue=/** @type {HTMLInputElement} */(e.target).value==='1';});
   const list=document.createElement('div');list.className='bk-ed-list';list.dataset.edList='';
   const msg=document.createElement('p');msg.className='bk-ed-msg';msg.dataset.edMsg='';msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
   const acts=document.createElement('div');acts.className='bk-actions';
   const btn=(/** @type {string} */ label,/** @type {string} */ key,primary=false)=>{const b=document.createElement('button');b.type='button';b.className='btn'+(primary?' p':'');b.textContent=label;b.dataset.ed=key;acts.append(b);return b;};
   btn(T.save,'save',true);btn(T.shuffle,'shuffle');btn(T.fromBoard,'board');btn(T.link,'link');btn(T.close,'close');
-  f.append(h,modes,help,cueRow,list,msg,acts);d.append(f);root.append(d);
+  f.append(h,modes,help,exactRow,cueRow,list,msg,acts);d.append(f);root.append(d);
   modes.addEventListener('change',()=>{draft.mode=/** @type {any} */(new FormData(f).get('mode')||'');if(draft.mode==='fixed'&&!draft.seats.some(Boolean)&&!sizeProblem(names().length,st.size))draft.seats=startSeats();fill();});
   list.addEventListener('change',onPick);
   acts.addEventListener('click',(/** @type {Event} */ e)=>{
@@ -289,8 +300,10 @@ export function mountBracket(root){
  const startSeats=()=>{const ns=names();return st.plan.seats.some(Boolean)?seatNames(fitSeats(ns,st.size,st.plan.seats),ns):boardSeats()||seatNames(drawPlan(ns,st.size,null),ns);};
  function openSeating(){
   const d=panel();if(d.open)return;
-  draft={mode:st.plan.mode,pair:{...st.plan.pair},seats:[],cue:st.plan.cue};
-  /** @type {HTMLInputElement} */(d.querySelector('input[name=cue]')).checked=draft.cue;
+  // A first seating starts as 기본은 랜덤.
+  draft={mode:st.plan.mode,pair:{...st.plan.pair},seats:[],cue:st.plan.mode?st.plan.cue:true,exact:st.plan.exact};
+  /** @type {HTMLInputElement} */(d.querySelector('input[name=exact]')).checked=draft.exact;
+  /** @type {HTMLInputElement} */(d.querySelector(`input[name=cue][value="${draft.cue?1:0}"]`)).checked=true;
   if(!sizeProblem(names().length,st.size))draft.seats=startSeats();
   /** @type {HTMLInputElement} */(d.querySelector(`input[name=mode][value="${draft.mode}"]`)).checked=true;
   fill();
@@ -301,8 +314,9 @@ export function mountBracket(root){
   const d=/** @type {HTMLDialogElement} */(dlg),list=/** @type {HTMLElement} */(d.querySelector('[data-ed-list]')),ns=names(),bad=sizeProblem(ns.length,st.size);
   /** @type {HTMLElement} */(d.querySelector('[data-ed-help]')).textContent=T.help[draft.mode];
   /** @type {HTMLElement} */(d.querySelector('[data-ed-cue]')).hidden=!draft.mode;
+  /** @type {HTMLElement} */(d.querySelector('[data-ed-exact]')).hidden=draft.mode!=='fixed';
   for(const k of ['shuffle','board'])/** @type {HTMLElement} */(d.querySelector(`[data-ed="${k}"]`)).hidden=draft.mode!=='fixed'||(k==='board'&&!boardSeats());
-  list.replaceChildren();list.className='bk-ed-list'+(draft.mode?'':' off');
+  list.replaceChildren();list.className='bk-ed-list'+(draft.mode&&draft.mode!=='typed'?'':' off');
   if(draft.mode&&(!ns.length||bad)){check();return;}
   if(draft.mode==='pairs'){
    const head=document.createElement('div');head.className='bk-rr bk-rh';head.append(document.createElement('span'),document.createElement('span'));/** @type {HTMLElement} */(head.lastChild).textContent=T.vsHead;list.append(head);
@@ -369,7 +383,7 @@ export function mountBracket(root){
   return say(st.board?T.redraw:'',true);
  }
  function commit(){
-  st.plan={mode:draft.mode,pair:{...draft.pair},seats:draft.mode==='fixed'?draft.seats.slice():st.plan.seats,cue:draft.cue};armed=false;
+  st.plan={mode:draft.mode,pair:{...draft.pair},seats:draft.mode==='fixed'?draft.seats.slice():st.plan.seats,cue:draft.cue,exact:draft.exact};armed=false;
   save();
  }
 

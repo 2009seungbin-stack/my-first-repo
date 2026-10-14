@@ -101,6 +101,8 @@ def run():
             pg.locator('select[data-kind=pair][data-name="민수"]').select_option('서연')
             pg.locator('select[data-kind=pair][data-name="지영"]').select_option('현우')
             assert pg.locator('select[data-kind=pair][data-name="서연"]').input_value() == '민수', 'pairs go both ways'
+            assert pg.locator('input[name=cue][value="1"]').is_checked(), 'a first seating starts as 기본은 랜덤'
+            pg.locator('input[name=cue][value="0"]').check()
             pg.screenshot(path=str(output / 'desktop-pairs.png'))
             pg.locator('[data-ed=save]').click(); pg.wait_for_selector('dialog.bk-ed:not([open])', state='attached')
             for _ in range(3):
@@ -127,10 +129,18 @@ def run():
             assert len(looks) >= 2, 'redraws do not all look the same'
             auto(pg)
 
-            # Only on signal: truly random draws until two quick taps on the trophy, then the seating on
+            # The default: the seating on every draw until the signal (Alt+Shift+A), random after it,
+            # the seating again on the next signal.
+            pg.keyboard.press('Alt+Shift+KeyA')
+            draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) != want, 'random on signal'
+            pg.keyboard.press('Alt+Shift+KeyA')
+            draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) == want, 'the seating again'
+
+            # 기본은 랜덤: truly random draws until two quick taps on the trophy, then the seating on
             # every draw; the signal again (Alt+Shift+A) goes back to random; a reload is random.
             open_seating(pg, '전체 배치')
-            pg.locator('input[name=cue]').check()
+            assert pg.locator('input[name=cue][value="0"]').is_checked()
+            pg.locator('input[name=cue][value="1"]').check()
             plan = seats(pg); want = meetings(plan)
             pg.screenshot(path=str(output / 'desktop-cue.png'))
             pg.locator('[data-ed=save]').click(); pg.wait_for_selector('dialog.bk-ed:not([open])', state='attached')
@@ -146,7 +156,26 @@ def run():
             pg.reload(); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
             draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) != want, 'a reload is random'
             assert '장난용 기능 안내' in pg.locator('.bk-help').inner_text()
-            open_seating(pg, '전체 배치'); pg.locator('input[name=cue]').uncheck(); pg.locator('[data-ed=save]').click()
+            open_seating(pg, '전체 배치'); pg.locator('input[name=cue][value="0"]').check(); pg.locator('[data-ed=save]').click()
+
+            # 입력 순서: nothing to set per game, the names meet in the order typed (1–2, 3–4, …), the
+            # picture still changes, and the signal gives random draws.
+            open_seating(pg, '입력 순서')
+            assert pg.locator('select').count() == 0, 'no list to fill in'
+            pg.screenshot(path=str(output / 'desktop-typed.png'))
+            pg.locator('[data-ed=save]').click(); pg.wait_for_selector('dialog.bk-ed:not([open])', state='attached')
+            typed = ['건우', '은우', '수아', '민수', '하은', '지호', '도윤', '채원', '서연', '태민', '예린', '현우', '유나', '지영', '시우', '준호']
+            pg.locator('textarea[name=names]').fill('\n'.join(typed))
+            want, looks = meetings(typed), set()
+            for _ in range(3):
+                draw(pg, '[data-bk-redraw]'); l = leaves(pg); looks.add(tuple(l))
+                assert meetings(l) == want, l
+                assert l.index('건우') ^ 1 == l.index('은우')
+            assert len(looks) >= 2, 'typed-order draws do not all look the same'
+            pg.locator('[data-bk-c]').dblclick()
+            draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) != want, 'random on signal'
+            pg.keyboard.press('Alt+Shift+KeyA')
+            pg.locator('textarea[name=names]').fill('\n'.join(NAMES))
 
             # A two-bye match cannot be saved (12 names → 4 byes).
             pg.locator('textarea[name=names]').fill('\n'.join(NAMES[:12]))
@@ -208,6 +237,28 @@ def run():
             pg.screenshot(path=str(output / 'desktop-dark.png'), full_page=True)
             pg.goto(base + '/en/bracket/'); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
             assert 'Draw bracket' in pg.locator('[data-bk-draw]').inner_text()
+            # The exact layout from a link (기본은 랜덤): random draws, then the signal gives this very
+            # bracket on the next draw only.
+            names = [f'{c}-{k}' for c in (1, 2) for k in range(1, 9)]
+            exact = ['2-1', '2-8', '2-2', '1-1', '2-4', '1-3', '1-6', '1-4', '2-3', '1-2', '2-6', '1-7', '1-8', '2-7', '2-5', '1-5']
+            ctx4 = b.new_context(viewport={'width': 1440, 'height': 900}, bypass_csp=True)
+            p4 = ctx4.new_page(); p4.on('pageerror', lambda e: errors.append(str(e)))
+            p4.goto(base + '/ko/bracket/'); p4.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            code = p4.evaluate('''([n, a]) => import('/src/bracket/engine.js').then(m => m.encodeShare({title: '', size: 16, names: n,
+                plan: {mode: 'fixed', pair: {}, seats: a, cue: true, exact: true}}))''', [names, exact])
+            p4.goto(base + '/ko/bracket/#b=' + code); p4.reload(); p4.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            assert p4.input_value('textarea[name=names]').split('\n') == names
+            for _ in range(3):
+                draw(p4); assert leaves(p4) != exact, 'random before the signal'
+            p4.keyboard.press('Alt+Shift+KeyA')
+            draw(p4); assert leaves(p4) == exact, leaves(p4)
+            p4.screenshot(path=str(output / 'desktop-exact.png'), full_page=True)
+            draw(p4, '[data-bk-redraw]'); assert leaves(p4) != exact, 'one draw only'
+            p4.locator('[data-bk-c]').dblclick()
+            draw(p4, '[data-bk-redraw]'); assert leaves(p4) == exact
+            open_seating(p4, '전체 배치')
+            assert p4.locator('input[name=exact]').is_checked() and seats(p4) == exact
+            ctx4.close()
             assert not errors, errors
             b.close()
     finally:

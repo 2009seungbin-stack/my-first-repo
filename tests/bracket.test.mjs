@@ -66,6 +66,26 @@ test('a fixed seating: every draw looks different, every meeting stays',()=>{
  const s=[...Array(16).keys()];for(let k=0;k<50;k++)assert.deepEqual(meetings(mirror(s,rand)),meetings(s));
 });
 
+test('typed order: 1st meets 2nd, 3rd meets 4th, the pairs of pairs meet next; the picture is shuffled',()=>{
+ const rand=rng(5),plan={mode:'typed',pair:{},seats:[],cue:false};
+ assert(planActive(plan));
+ assert.equal(cleanPlan(unpack(pack({m:'typed',p:{},a:[]}))).mode,'typed');
+ for(const [n,size] of [[16,16],[11,16],[8,8],[32,32]]){
+  const want=meetings(inOrder(n,size)),looks=new Set();
+  for(let k=0;k<40;k++){const s=drawPlan(NAMES.slice(0,n),size,plan,rand);checkSlots(s,n);assert.deepEqual(meetings(s),want);looks.add(s.join());}
+  assert(looks.size>10,`${size}: the picture changes`);
+  const s=drawPlan(NAMES.slice(0,n),size,plan,rand);
+  assert.equal(s.indexOf(0)^1,s.indexOf(1),'1st meets 2nd');
+  if(n===16)assert.equal(s.indexOf(0)>>2,s.indexOf(3)>>2,'1st can meet 4th in round two');
+ }
+});
+
+test('an exact seating comes out as saved on every draw',()=>{
+ const rand=rng(3),names=['1-1','1-2','1-3','1-4','1-5','1-6','1-7','1-8','2-1','2-2','2-3','2-4','2-5','2-6','2-7','2-8'];
+ const seats=['2-1','2-8','2-2','1-1','2-4','1-3','1-6','1-4','2-3','1-2','2-6','1-7','1-8','2-7','2-5','1-5'];
+ for(let k=0;k<20;k++)assert.deepEqual(seatNames(drawPlan(names,16,{mode:'fixed',pair:{},seats,cue:true,exact:true},rand),names),seats);
+});
+
 test('a saved seating follows edits to the names: kept seats stay, new names fill, no double byes',()=>{
  const names=NAMES.slice(0,16),seats=names.slice();
  assert.deepEqual(fitSeats(names,16,seats),[...Array(16).keys()]);
@@ -85,13 +105,13 @@ test('manual winners: changing an earlier result clears what the old winner reac
 });
 
 test('share links and stored data round-trip; junk is rejected',()=>{
- const plan={mode:'fixed',pair:{},seats:['신라면','','진라면','짜파게티'],cue:true};
+ const plan={mode:'fixed',pair:{},seats:['신라면','','진라면','짜파게티'],cue:true,exact:true};
  const d={title:'라면 월드컵',size:4,names:['신라면','진라면','짜파게티'],plan};
  const s=encodeShare(d);assert.match(s,/^[\w-]+$/);
  assert.deepEqual(decodeShare(s),{title:d.title,size:4,names:d.names,plan});
  assert.equal(decodeShare(encodeShare({...d,plan:null}))?.plan.mode,'');
  assert.deepEqual(unpack(pack({a:[1,'가']})),{a:[1,'가']});
- assert.deepEqual(cleanPlan({m:'x',p:{a:'b'},a:'no'}),{mode:'',pair:{},seats:[],cue:false});
+ assert.deepEqual(cleanPlan({m:'x',p:{a:'b'},a:'no'}),{mode:'',pair:{},seats:[],cue:false,exact:false});
  for(const junk of ['','abc','!!!',encodeShare({title:'',size:16,names:[]}).slice(0,5)])assert.equal(decodeShare(junk),null);
 });
 
