@@ -85,13 +85,13 @@ test('manual winners: changing an earlier result clears what the old winner reac
 });
 
 test('share links and stored data round-trip; junk is rejected',()=>{
- const plan={mode:'fixed',pair:{},seats:['신라면','','진라면','짜파게티']};
+ const plan={mode:'fixed',pair:{},seats:['신라면','','진라면','짜파게티'],cue:true};
  const d={title:'라면 월드컵',size:4,names:['신라면','진라면','짜파게티'],plan};
  const s=encodeShare(d);assert.match(s,/^[\w-]+$/);
  assert.deepEqual(decodeShare(s),{title:d.title,size:4,names:d.names,plan});
  assert.equal(decodeShare(encodeShare({...d,plan:null}))?.plan.mode,'');
  assert.deepEqual(unpack(pack({a:[1,'가']})),{a:[1,'가']});
- assert.deepEqual(cleanPlan({m:'x',p:{a:'b'},a:'no'}),{mode:'',pair:{},seats:[]});
+ assert.deepEqual(cleanPlan({m:'x',p:{a:'b'},a:'no'}),{mode:'',pair:{},seats:[],cue:false});
  for(const junk of ['','abc','!!!',encodeShare({title:'',size:16,names:[]}).slice(0,5)])assert.equal(decodeShare(junk),null);
 });
 
@@ -106,6 +106,8 @@ test('the page: route, nav entry, structured data, sitemap and no query paramete
   const body=await res.text();
   assert(body.includes('data-island="bracket"')&&body.includes('nav-fun')&&body.includes(`href="/${l}/bracket/"`)&&body.includes('"FAQPage"'));
   assert(body.includes(`<link rel="canonical" href="https://nerulio.com/${l}/bracket/">`));
+  // The FAQ states the prank features plainly.
+  assert(body.includes(l==='ko'?'장난용 기능 안내':'prank features')&&body.includes(l==='ko'?'공정한 추첨의 증거가 될 수 없습니다':'no proof of a fair draw'));
  }
  const r=await renderPlatformPage(new Request('https://nerulio.com/ko/bracket/?utm=1'),{DB:db},{origin:'https://nerulio.com/'});assert.equal(r.status,301);
  const xml=await renderSitemap(db,'ai','https://nerulio.com');assert(xml.includes('https://nerulio.com/ko/bracket/')&&xml.includes('https://nerulio.com/en/bracket/'));

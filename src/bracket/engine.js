@@ -4,19 +4,20 @@
  * (a bye); win[r][m] is the winner of match m in round r (between the entrants 2m and 2m+1), -1 = open.
  * A seating plan fixes who meets whom: `pairs` names first-round opponents (everyone else is drawn), and
  * `fixed` gives every seat. A fixed seating is redrawn by flipping the halves of random sub-brackets, so
- * each draw looks new while every possible meeting stays the same. */
+ * each draw looks new while every possible meeting stays the same. With `cue` the plan waits: draws stay
+ * random until the organiser gives the signal on the page (a prank feature, stated in the page's FAQ). */
 
 export const SIZES=Object.freeze([4,8,16,32]);
 export const MAX_NAME=24,MAX_TITLE=40;
 
 /** @typedef {''|'pairs'|'fixed'} PlanMode */
-/** @typedef {{mode:PlanMode,pair:Record<string,string>,seats:string[]}} Plan  seats: a name or '' (bye) per slot */
+/** @typedef {{mode:PlanMode,pair:Record<string,string>,seats:string[],cue:boolean}} Plan  seats: a name or '' (bye) per slot */
 /** @typedef {{slots:number[],win:number[][]}} Board */
 
 /** @param {number} size */
 export const roundsOf=size=>Math.round(Math.log2(size));
 /** @returns {Plan} */
-export const emptyPlan=()=>({mode:'',pair:{},seats:[]});
+export const emptyPlan=()=>({mode:'',pair:{},seats:[],cue:false});
 /** @param {Plan|null|undefined} p */
 export const planActive=p=>!!p&&((p.mode==='pairs'&&Object.keys(p.pair||{}).length>0)||(p.mode==='fixed'&&(p.seats||[]).some(Boolean)));
 
@@ -178,11 +179,12 @@ export function cleanPlan(o){
  const p=emptyPlan();if(!o||typeof o!=='object')return p;
  if(o.m==='pairs'||o.m==='fixed')p.mode=o.m;
  for(const [k,v] of Object.entries(o.p||{}))if(typeof v==='string'&&o.p[v]===k)p.pair[k]=v;
+ p.cue=o.c===1;
  if(Array.isArray(o.a)&&o.a.length<=32)p.seats=o.a.map((/** @type {unknown} */ x)=>typeof x==='string'?x.slice(0,MAX_NAME+5):'');
  return p;
 }
 /** @param {Plan} p */
-export const planData=p=>({m:p.mode,p:p.pair,a:p.seats});
+export const planData=p=>({m:p.mode,p:p.pair,a:p.seats,...(p.cue?{c:1}:{})});
 
 /** @param {{title:string,size:number,names:string[],plan?:Plan|null}} d */
 export const encodeShare=d=>pack({v:1,t:d.title||'',s:d.size,n:d.names,...(planActive(d.plan)?{r:planData(/** @type {Plan} */(d.plan))}:{})});
