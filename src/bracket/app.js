@@ -2,7 +2,10 @@
 /** The /{l}/bracket/ page: names → draw (with a slot-machine reveal) → winners by tap or by a random pick
  * → champion. The organiser's seating panel (대진 배치) opens from five taps on the title or Alt+Shift+R and
  * is built here, not in the page HTML. A seated draw looks and animates like any other. State stays in this
- * browser; the seating is stored packed. A share link (#b=…) leaves the address bar once read. */
+ * browser; the seating is stored packed. A share link (#b=…) leaves the address bar once read.
+ * With "신호 줄 때만" (cue) the seating waits: draws are random until two quick taps on the trophy
+ * (or Alt+Shift+A) arm it for the following draws; the same signal disarms it. Phones confirm with a
+ * vibration. The FAQ on the page states that these prank features exist. */
 import {SIZES,MAX_TITLE,parseNames,sizeProblem,fitSize,planActive,emptyPlan,drawPlan,pairIndex,pairsFit,fitSeats,seatNames,inOrder,newBoard,entrant,ready,nextMatch,champion,setWinner,pickWinner,roundsOf,encodeShare,decodeShare,pack,unpack,cleanPlan,planData} from './engine.js';
 
 const STORE='nerulio.bracket.v1';
@@ -19,6 +22,7 @@ const T=ko?{
  save:'저장',shuffle:'섞기',fromBoard:'지금 대진 가져오기',link:'이 배치로 링크 복사',close:'닫기',
  empty:'먼저 참가자 이름을 넣으세요.',sizeBad:'참가자 수와 대진 크기를 먼저 맞추세요.',twoByes:'한 경기에 부전승이 둘이면 안 돼요.',tooManyPairs:'부전승 자리 때문에 짝을 이만큼 넣을 수 없어요.',
  saved:'저장했어요.',redraw:'저장 후 「다시 추첨」을 누르면 반영돼요.',
+ cue:'신호 줄 때만 적용',cueHelp:'평소엔 진짜 랜덤으로 추첨됩니다. 트로피 아이콘을 빠르게 두 번 누르면(PC: Alt+Shift+A) 다음 추첨부터 이 배치가 나오고, 다시 두 번 누르면 랜덤으로 돌아갑니다. 휴대폰은 짧은 진동 한 번(켜짐)·두 번(꺼짐)으로 알려 줍니다. 새로고침하면 꺼집니다.',
 }:{
  count:(/** @type {number} */ n,/** @type {number} */ s)=>`${n} players · ${s}-bracket${s>n&&n>s/2?` (${s-n} byes)`:''}`,
  few:'Add at least 2 names.',many:(/** @type {number} */ s,/** @type {number} */ f)=>f?`A ${s}-bracket holds ${s}. Pick ${f}.`:'Up to 32 players.',sparse:(/** @type {number} */ s,/** @type {number} */ f)=>`A ${s}-bracket needs ${s/2+1}+ players. Pick ${f}.`,
@@ -31,6 +35,7 @@ const T=ko?{
  save:'Save',shuffle:'Shuffle',fromBoard:'Use current bracket',link:'Copy link with seating',close:'Close',
  empty:'Add the player names first.',sizeBad:'Fix the player count and bracket size first.',twoByes:'A match cannot have two byes.',tooManyPairs:'Too many pairs for the byes in this bracket.',
  saved:'Saved.',redraw:'Save, then press “Draw again” to apply it.',
+ cue:'Only on signal',cueHelp:'Draws stay truly random. Two quick taps on the trophy (PC: Alt+Shift+A) apply this seating from the next draw; two more taps go back to random. Phones vibrate once (on) or twice (off). Reloading turns it off.',
 };
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep=(/** @type {number} */ ms)=>new Promise(r=>setTimeout(r,reduce?0:ms));
@@ -46,6 +51,8 @@ export function mountBracket(root){
  let st={title:'',size:16,text:'',plan:emptyPlan(),names:[],board:null};
  /** @type {string[]} */
  let undo=[];let busy=false;
+ // The signal for a seating that waits (cue): in memory only, so a reload is always random again.
+ let armed=false;
  try{const s=JSON.parse(localStorage.getItem(STORE)||'null');if(s&&typeof s==='object')st={title:String(s.title||''),size:Number(s.size)||16,text:String(s.text||''),names:Array.isArray(s.names)?s.names.map(String):[],board:s.board||null,plan:cleanPlan(unpack(s.x||''))};}catch{}
  // A shared link replaces what this browser had, then leaves the address bar.
  const m=/^#b=([\w-]+)$/.exec(location.hash);
@@ -76,7 +83,7 @@ export function mountBracket(root){
   if(busy)return;
   const ns=names(),p=sizeProblem(ns.length,st.size);
   if(p){showCount();el.names.focus();return;}
-  st.names=ns;st.board=newBoard(keepOrder?inOrder(ns.length,st.size):drawPlan(ns,st.size,st.plan));undo=[];save();
+  st.names=ns;st.board=newBoard(keepOrder?inOrder(ns.length,st.size):drawPlan(ns,st.size,st.plan.cue&&!armed?null:st.plan));undo=[];save();
   boardBox.hidden=false;render();
   boardBox.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
   if(!keepOrder)await reveal();
@@ -226,6 +233,16 @@ export function mountBracket(root){
  function toastMsg(s){toast.textContent=s;toast.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.hidden=true;},2200);}
 
  // 대진 배치: five quick taps on the title or the trophy, or Alt+Shift+R.
+ // The signal: two quick taps on the trophy, or Alt+Shift+A.
+ let cueTap=0;
+ const cue=$('[data-bk-c]');
+ function toggleArmed(){
+  armed=!armed;
+  try{navigator.vibrate?.(armed?40:[30,70,30]);}catch{}
+  if(armed&&!reduce){cue.classList.remove('pop');void cue.offsetWidth;cue.classList.add('pop');}
+ }
+ cue?.addEventListener('click',()=>{const now=Date.now();if(now-cueTap<450){cueTap=0;toggleArmed();}else cueTap=now;});
+ addEventListener('keydown',e=>{if(e.altKey&&e.shiftKey&&e.code==='KeyA'){e.preventDefault();toggleArmed();}});
  let taps=0,tapTimer=0;
  for(const s of root.querySelectorAll('[data-bk-t]'))s.addEventListener('click',()=>{taps++;clearTimeout(tapTimer);tapTimer=setTimeout(()=>{taps=0;},1500);if(taps>=5){taps=0;openSeating();}});
  addEventListener('keydown',e=>{if(e.altKey&&e.shiftKey&&e.code==='KeyR'){e.preventDefault();openSeating();}});
@@ -242,12 +259,18 @@ export function mountBracket(root){
   const modes=document.createElement('div');modes.className='bk-size bk-ed-mode';modes.setAttribute('role','radiogroup');modes.setAttribute('aria-label',T.ed);
   for(const [v,label] of T.modes){const l=document.createElement('label'),i=document.createElement('input'),s=document.createElement('span');i.type='radio';i.name='mode';i.value=v;s.textContent=label;l.append(i,s);modes.append(l);}
   const help=document.createElement('p');help.className='fine';help.dataset.edHelp='';
+  const cueRow=document.createElement('label');cueRow.className='bk-ed-cue';cueRow.dataset.edCue='';
+  const cueBox=document.createElement('input');cueBox.type='checkbox';cueBox.name='cue';
+  const cueText=document.createElement('span');cueText.textContent=T.cue;
+  const cueHelp=document.createElement('small');cueHelp.className='fine';cueHelp.textContent=T.cueHelp;
+  cueRow.append(cueBox,cueText,cueHelp);
+  cueBox.addEventListener('change',()=>{draft.cue=cueBox.checked;});
   const list=document.createElement('div');list.className='bk-ed-list';list.dataset.edList='';
   const msg=document.createElement('p');msg.className='bk-ed-msg';msg.dataset.edMsg='';msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
   const acts=document.createElement('div');acts.className='bk-actions';
   const btn=(/** @type {string} */ label,/** @type {string} */ key,primary=false)=>{const b=document.createElement('button');b.type='button';b.className='btn'+(primary?' p':'');b.textContent=label;b.dataset.ed=key;acts.append(b);return b;};
   btn(T.save,'save',true);btn(T.shuffle,'shuffle');btn(T.fromBoard,'board');btn(T.link,'link');btn(T.close,'close');
-  f.append(h,modes,help,list,msg,acts);d.append(f);root.append(d);
+  f.append(h,modes,help,cueRow,list,msg,acts);d.append(f);root.append(d);
   modes.addEventListener('change',()=>{draft.mode=/** @type {any} */(new FormData(f).get('mode')||'');if(draft.mode==='fixed'&&!draft.seats.some(Boolean)&&!sizeProblem(names().length,st.size))draft.seats=startSeats();fill();});
   list.addEventListener('change',onPick);
   acts.addEventListener('click',(/** @type {Event} */ e)=>{
@@ -266,7 +289,8 @@ export function mountBracket(root){
  const startSeats=()=>{const ns=names();return st.plan.seats.some(Boolean)?seatNames(fitSeats(ns,st.size,st.plan.seats),ns):boardSeats()||seatNames(drawPlan(ns,st.size,null),ns);};
  function openSeating(){
   const d=panel();if(d.open)return;
-  draft={mode:st.plan.mode,pair:{...st.plan.pair},seats:[]};
+  draft={mode:st.plan.mode,pair:{...st.plan.pair},seats:[],cue:st.plan.cue};
+  /** @type {HTMLInputElement} */(d.querySelector('input[name=cue]')).checked=draft.cue;
   if(!sizeProblem(names().length,st.size))draft.seats=startSeats();
   /** @type {HTMLInputElement} */(d.querySelector(`input[name=mode][value="${draft.mode}"]`)).checked=true;
   fill();
@@ -276,6 +300,7 @@ export function mountBracket(root){
  function fill(){
   const d=/** @type {HTMLDialogElement} */(dlg),list=/** @type {HTMLElement} */(d.querySelector('[data-ed-list]')),ns=names(),bad=sizeProblem(ns.length,st.size);
   /** @type {HTMLElement} */(d.querySelector('[data-ed-help]')).textContent=T.help[draft.mode];
+  /** @type {HTMLElement} */(d.querySelector('[data-ed-cue]')).hidden=!draft.mode;
   for(const k of ['shuffle','board'])/** @type {HTMLElement} */(d.querySelector(`[data-ed="${k}"]`)).hidden=draft.mode!=='fixed'||(k==='board'&&!boardSeats());
   list.replaceChildren();list.className='bk-ed-list'+(draft.mode?'':' off');
   if(draft.mode&&(!ns.length||bad)){check();return;}
@@ -344,7 +369,7 @@ export function mountBracket(root){
   return say(st.board?T.redraw:'',true);
  }
  function commit(){
-  st.plan={mode:draft.mode,pair:{...draft.pair},seats:draft.mode==='fixed'?draft.seats.slice():st.plan.seats};
+  st.plan={mode:draft.mode,pair:{...draft.pair},seats:draft.mode==='fixed'?draft.seats.slice():st.plan.seats,cue:draft.cue};armed=false;
   save();
  }
 

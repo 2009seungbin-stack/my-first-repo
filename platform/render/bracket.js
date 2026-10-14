@@ -16,13 +16,13 @@ export function renderBracket(o){
   ['승자는 어떻게 정하나요?','이름을 누르면 그 사람이 다음 라운드로 올라갑니다. 직접 정하기 어려우면 「다음 경기 랜덤」이나 「끝까지 자동」으로 뽑기 연출과 함께 정할 수 있고, 잘못 누르면 「되돌리기」로 돌아갑니다.'],
   ['친구에게 보내려면?','「링크 복사」로 대회 이름과 참가자가 담긴 주소를 만들 수 있습니다. 받은 사람이 직접 추첨 버튼을 누르게 할 수 있습니다.'],
   ['저장되나요?','입력한 내용과 진행 상황은 이 브라우저에만 저장됩니다. 서버로 보내지 않습니다.'],
-  ['결과가 진짜 랜덤인가요?','예능·몰래카메라용으로 대진 배치를 미리 정해 둘 수 있는 숨은 기능이 있습니다. 상품이나 돈이 걸린 실제 추첨에는 쓰지 마세요.'],
+  ['결과가 진짜 랜덤인가요? (장난용 기능 안내)','아닐 수 있습니다. 이 도구에는 몰래카메라·예능용 장난 기능이 있습니다. 진행자가 대진을 미리 정해 둘 수 있고, 몇 번은 진짜 랜덤으로 추첨하다가 진행자가 화면에서 몰래 신호를 주면 정해 둔 대진이 나오게 할 수도 있습니다. 그래서 이 사이트의 추첨 화면은 공정한 추첨의 증거가 될 수 없습니다. 상품·돈·순서가 걸린 실제 추첨에는 쓰지 마세요.'],
  ]:[
   ['How many players?','Pick a 4, 8, 16 or 32 bracket. With fewer names than slots the free slots become byes — one per match at most, so a bracket needs more than half its slots filled (9–16 names for 16).'],
   ['How are winners decided?','Tap a name to send that player to the next round, or let “Random next match” and “Auto-play to the end” pick with a little animation. “Undo” steps back.'],
   ['Can I send it to a friend?','“Copy link” makes an address with the title and players, and the other person can press the draw button themselves.'],
   ['Is it saved?','Names and progress stay in this browser only. Nothing is sent to a server.'],
-  ['Is it really random?','There is a hidden mode that can set the matchups in advance, for party games and hidden-camera pranks. Do not use it for real draws with prizes or money.'],
+  ['Is it really random? (prank features)','Not necessarily. This tool has prank features for party games and hidden-camera videos: the host can set the matchups in advance, and can even run a few truly random draws and then give a hidden signal so the next draw shows the preset bracket. A draw on this site is therefore no proof of a fair draw. Do not use it for real draws with prizes, money or turns at stake.'],
  ];
  const jsonld={'@context':'https://schema.org','@graph':[
   {'@type':'WebApplication',name:ko?'대진표 만들기':'Bracket maker',url:o.origin+`/${o.l}${base}`,applicationCategory:'UtilitiesApplication',operatingSystem:'Any',inLanguage:o.l,offers:{'@type':'Offer',price:'0',priceCurrency:ko?'KRW':'USD'}},
@@ -31,7 +31,7 @@ export function renderBracket(o){
  const sizes=[4,8,16,32];
  return page({l:o.l,title:title+' | Nerulio',description,canonical:o.origin+`/${o.l}${base}`,alternates:{ko:o.origin+`/ko${base}`,en:o.origin+`/en${base}`},channels:o.channels,jsonld,
   body:html`<div class="bk" data-island="bracket">
-<header class="box chh bk-head"><span class="tile t-hw" aria-hidden="true" data-bk-t>${icon('trophy',24)}</span><div class="chm"><h1 data-bk-t>${ko?'대진표 만들기':'Bracket maker'}</h1><p class="desc">${ko?'참가자를 넣고 추첨하면 토너먼트 대진표가 나옵니다. 이름을 눌러 승자를 올리세요.':'Add the players, draw, and tap a name to send the winner on.'}</p></div></header>
+<header class="box chh bk-head"><span class="tile t-hw bk-cue" aria-hidden="true" data-bk-c>${icon('trophy',24)}</span><div class="chm"><h1 data-bk-t>${ko?'대진표 만들기':'Bracket maker'}</h1><p class="desc">${ko?'참가자를 넣고 추첨하면 토너먼트 대진표가 나옵니다. 이름을 눌러 승자를 올리세요.':'Add the players, draw, and tap a name to send the winner on.'}</p></div></header>
 <section class="box bk-setup" aria-labelledby="bk-setup-h"><h2 id="bk-setup-h" class="bk-h2">${ko?'참가자':'Players'}</h2>
 <form class="bk-form" data-bk-form><fieldset disabled data-bk-enable>
 <div class="bk-row"><label class="bk-title">${ko?'대회 이름':'Tournament name'}<input name="title" maxlength="40" autocomplete="off" placeholder="${ko?'예: 최애 라면 월드컵':'e.g. Best snack cup'}"></label>

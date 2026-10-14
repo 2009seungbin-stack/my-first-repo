@@ -127,6 +127,27 @@ def run():
             assert len(looks) >= 2, 'redraws do not all look the same'
             auto(pg)
 
+            # Only on signal: truly random draws until two quick taps on the trophy, then the seating on
+            # every draw; the signal again (Alt+Shift+A) goes back to random; a reload is random.
+            open_seating(pg, '전체 배치')
+            pg.locator('input[name=cue]').check()
+            plan = seats(pg); want = meetings(plan)
+            pg.screenshot(path=str(output / 'desktop-cue.png'))
+            pg.locator('[data-ed=save]').click(); pg.wait_for_selector('dialog.bk-ed:not([open])', state='attached')
+            for _ in range(3):
+                draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) != want, 'random before the signal'
+            pg.locator('[data-bk-c]').dblclick()
+            for _ in range(2):
+                draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) == want, 'the seating after the signal'
+            pg.keyboard.press('Alt+Shift+KeyA')
+            draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) != want, 'random again'
+            pg.keyboard.press('Alt+Shift+KeyA')
+            draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) == want
+            pg.reload(); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            draw(pg, '[data-bk-redraw]'); assert meetings(leaves(pg)) != want, 'a reload is random'
+            assert '장난용 기능 안내' in pg.locator('.bk-help').inner_text()
+            open_seating(pg, '전체 배치'); pg.locator('input[name=cue]').uncheck(); pg.locator('[data-ed=save]').click()
+
             # A two-bye match cannot be saved (12 names → 4 byes).
             pg.locator('textarea[name=names]').fill('\n'.join(NAMES[:12]))
             open_seating(pg, '전체 배치')
