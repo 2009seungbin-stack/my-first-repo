@@ -101,6 +101,8 @@ def run():
             pg.locator('select[data-kind=pair][data-name="민수"]').select_option('서연')
             pg.locator('select[data-kind=pair][data-name="지영"]').select_option('현우')
             assert pg.locator('select[data-kind=pair][data-name="서연"]').input_value() == '민수', 'pairs go both ways'
+            assert pg.locator('input[name=cue][value="1"]').is_checked(), 'a first seating starts as 기본은 랜덤'
+            pg.locator('input[name=cue][value="0"]').check()
             pg.screenshot(path=str(output / 'desktop-pairs.png'))
             pg.locator('[data-ed=save]').click(); pg.wait_for_selector('dialog.bk-ed:not([open])', state='attached')
             for _ in range(3):
@@ -235,6 +237,28 @@ def run():
             pg.screenshot(path=str(output / 'desktop-dark.png'), full_page=True)
             pg.goto(base + '/en/bracket/'); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
             assert 'Draw bracket' in pg.locator('[data-bk-draw]').inner_text()
+            # The exact layout from a link (기본은 랜덤): random draws, then the signal gives this very
+            # bracket on the next draw only.
+            names = [f'{c}-{k}' for c in (1, 2) for k in range(1, 9)]
+            exact = ['2-1', '2-8', '2-2', '1-1', '2-4', '1-3', '1-6', '1-4', '2-3', '1-2', '2-6', '1-7', '1-8', '2-7', '2-5', '1-5']
+            ctx4 = b.new_context(viewport={'width': 1440, 'height': 900}, bypass_csp=True)
+            p4 = ctx4.new_page(); p4.on('pageerror', lambda e: errors.append(str(e)))
+            p4.goto(base + '/ko/bracket/'); p4.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            code = p4.evaluate('''([n, a]) => import('/src/bracket/engine.js').then(m => m.encodeShare({title: '', size: 16, names: n,
+                plan: {mode: 'fixed', pair: {}, seats: a, cue: true, exact: true}}))''', [names, exact])
+            p4.goto(base + '/ko/bracket/#b=' + code); p4.reload(); p4.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            assert p4.input_value('textarea[name=names]').split('\n') == names
+            for _ in range(3):
+                draw(p4); assert leaves(p4) != exact, 'random before the signal'
+            p4.keyboard.press('Alt+Shift+KeyA')
+            draw(p4); assert leaves(p4) == exact, leaves(p4)
+            p4.screenshot(path=str(output / 'desktop-exact.png'), full_page=True)
+            draw(p4, '[data-bk-redraw]'); assert leaves(p4) != exact, 'one draw only'
+            p4.locator('[data-bk-c]').dblclick()
+            draw(p4, '[data-bk-redraw]'); assert leaves(p4) == exact
+            open_seating(p4, '전체 배치')
+            assert p4.locator('input[name=exact]').is_checked() and seats(p4) == exact
+            ctx4.close()
             assert not errors, errors
             b.close()
     finally:

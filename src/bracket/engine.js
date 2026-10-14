@@ -11,13 +11,14 @@ export const SIZES=Object.freeze([4,8,16,32]);
 export const MAX_NAME=24,MAX_TITLE=40;
 
 /** @typedef {''|'pairs'|'fixed'|'typed'} PlanMode  typed: names meet in their typed order (1–2, 3–4, …) */
-/** @typedef {{mode:PlanMode,pair:Record<string,string>,seats:string[],cue:boolean}} Plan  seats: a name or '' (bye) per slot */
+/** @typedef {{mode:PlanMode,pair:Record<string,string>,seats:string[],cue:boolean,exact:boolean}} Plan  seats: a name or '' (bye) per slot;
+ * exact: a fixed seating drawn as saved, not flipped */
 /** @typedef {{slots:number[],win:number[][]}} Board */
 
 /** @param {number} size */
 export const roundsOf=size=>Math.round(Math.log2(size));
 /** @returns {Plan} */
-export const emptyPlan=()=>({mode:'',pair:{},seats:[],cue:false});
+export const emptyPlan=()=>({mode:'',pair:{},seats:[],cue:false,exact:false});
 /** @param {Plan|null|undefined} p */
 export const planActive=p=>!!p&&(p.mode==='typed'||(p.mode==='pairs'&&Object.keys(p.pair||{}).length>0)||(p.mode==='fixed'&&(p.seats||[]).some(Boolean)));
 
@@ -104,11 +105,11 @@ export function fitSeats(names,size,seats,rand=Math.random){
 /** Seats as names ('' = bye), for storing and editing. @param {number[]} slots @param {string[]} names */
 export const seatNames=(slots,names)=>slots.map(i=>i>=0?names[i]:'');
 
-/** The first round for a plan: a fixed seating or the typed order (both flipped as in mirror()), drawn pairs,
- * or a plain draw.
+/** The first round for a plan: a fixed seating (as saved when exact) or the typed order, flipped as in mirror();
+ * drawn pairs; or a plain draw.
  * @param {string[]} names @param {number} size @param {Plan|null|undefined} plan @param {()=>number} [rand] */
 export function drawPlan(names,size,plan,rand=Math.random){
- if(plan?.mode==='fixed'&&planActive(plan))return mirror(fitSeats(names,size,plan.seats,rand),rand);
+ if(plan?.mode==='fixed'&&planActive(plan)){const s=fitSeats(names,size,plan.seats,rand);return plan.exact?s:mirror(s,rand);}
  if(plan?.mode==='typed')return mirror(inOrder(names.length,size),rand);
  return draw(names.length,size,plan?.mode==='pairs'?pairIndex(names,plan):new Map(),rand).slots;
 }
@@ -181,12 +182,12 @@ export function cleanPlan(o){
  const p=emptyPlan();if(!o||typeof o!=='object')return p;
  if(o.m==='pairs'||o.m==='fixed'||o.m==='typed')p.mode=o.m;
  for(const [k,v] of Object.entries(o.p||{}))if(typeof v==='string'&&o.p[v]===k)p.pair[k]=v;
- p.cue=o.c===1;
+ p.cue=o.c===1;p.exact=o.e===1;
  if(Array.isArray(o.a)&&o.a.length<=32)p.seats=o.a.map((/** @type {unknown} */ x)=>typeof x==='string'?x.slice(0,MAX_NAME+5):'');
  return p;
 }
 /** @param {Plan} p */
-export const planData=p=>({m:p.mode,p:p.pair,a:p.seats,...(p.cue?{c:1}:{})});
+export const planData=p=>({m:p.mode,p:p.pair,a:p.seats,...(p.cue?{c:1}:{}),...(p.exact?{e:1}:{})});
 
 /** @param {{title:string,size:number,names:string[],plan?:Plan|null}} d */
 export const encodeShare=d=>pack({v:1,t:d.title||'',s:d.size,n:d.names,...(planActive(d.plan)?{r:planData(/** @type {Plan} */(d.plan))}:{})});

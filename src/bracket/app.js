@@ -6,7 +6,8 @@
  * The signal (two quick taps on the trophy, or Alt+Shift+A) flips the following draws: a saved seating
  * applies until the signal and draws are random after it, or with "기본은 랜덤" (cue) the other way round.
  * The same signal flips back; phones confirm with a vibration. "입력 순서" seats the names as typed
- * (1–2, 3–4, …), so nothing has to be set up per game. The FAQ on the page states that these prank
+ * (1–2, 3–4, …), so nothing has to be set up per game. A fixed seating marked exact is drawn as saved, and
+ * a signal that turns it on lasts one draw. The FAQ on the page states that these prank
  * features exist. */
 import {SIZES,MAX_TITLE,parseNames,sizeProblem,fitSize,planActive,emptyPlan,drawPlan,pairIndex,pairsFit,fitSeats,seatNames,inOrder,newBoard,entrant,ready,nextMatch,champion,setWinner,pickWinner,roundsOf,encodeShare,decodeShare,pack,unpack,cleanPlan,planData} from './engine.js';
 
@@ -24,6 +25,7 @@ const T=ko?{
  save:'저장',shuffle:'섞기',fromBoard:'지금 대진 가져오기',link:'이 배치로 링크 복사',close:'닫기',
  empty:'먼저 참가자 이름을 넣으세요.',sizeBad:'참가자 수와 대진 크기를 먼저 맞추세요.',twoByes:'한 경기에 부전승이 둘이면 안 돼요.',tooManyPairs:'부전승 자리 때문에 짝을 이만큼 넣을 수 없어요.',
  saved:'저장했어요.',redraw:'저장 후 「다시 추첨」을 누르면 반영돼요.',
+ exact:'자리 모양 그대로 (섞지 않음)',exactHelp:'저장한 칸 그대로 나옵니다. 같은 모양이 계속 나오면 티가 나므로, 신호로 켰을 때는 바로 다음 추첨 한 번만 이 대진이 나오고 다시 랜덤으로 돌아갑니다.',
  cueOff:'기본은 이 배치 · 신호 주면 랜덤',cueOn:'기본은 랜덤 · 신호 주면 이 배치',cueHelp:'신호: 트로피 아이콘을 빠르게 두 번(PC: Alt+Shift+A). 다음 추첨부터 바뀌고, 신호를 한 번 더 주면 원래대로 돌아갑니다. 휴대폰은 진동 한 번(신호 켜짐)·두 번(꺼짐)으로 알려 줍니다. 새로고침하면 신호가 꺼집니다.',
 }:{
  count:(/** @type {number} */ n,/** @type {number} */ s)=>`${n} players · ${s}-bracket${s>n&&n>s/2?` (${s-n} byes)`:''}`,
@@ -37,6 +39,7 @@ const T=ko?{
  save:'Save',shuffle:'Shuffle',fromBoard:'Use current bracket',link:'Copy link with seating',close:'Close',
  empty:'Add the player names first.',sizeBad:'Fix the player count and bracket size first.',twoByes:'A match cannot have two byes.',tooManyPairs:'Too many pairs for the byes in this bracket.',
  saved:'Saved.',redraw:'Save, then press “Draw again” to apply it.',
+ exact:'Keep the exact layout (no shuffling)',exactHelp:'Seats come out exactly as saved. Since the same picture twice would show, a signal that turns it on lasts only the next draw, then draws are random again.',
  cueOff:'This seating · random on signal',cueOn:'Random · this seating on signal',cueHelp:'The signal: two quick taps on the trophy (PC: Alt+Shift+A). It flips the following draws; signal again to flip back. Phones vibrate once (on) or twice (off). Reloading turns the signal off.',
 };
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -85,7 +88,9 @@ export function mountBracket(root){
   if(busy)return;
   const ns=names(),p=sizeProblem(ns.length,st.size);
   if(p){showCount();el.names.focus();return;}
-  st.names=ns;st.board=newBoard(keepOrder?inOrder(ns.length,st.size):drawPlan(ns,st.size,st.plan.cue===armed?st.plan:null));undo=[];save();
+  const use=st.plan.cue===armed;
+  st.names=ns;st.board=newBoard(keepOrder?inOrder(ns.length,st.size):drawPlan(ns,st.size,use?st.plan:null));undo=[];save();
+  if(!keepOrder&&use&&armed&&st.plan.exact)armed=false;
   boardBox.hidden=false;render();
   boardBox.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
   if(!keepOrder)await reveal();
@@ -261,6 +266,11 @@ export function mountBracket(root){
   const modes=document.createElement('div');modes.className='bk-size bk-ed-mode';modes.setAttribute('role','radiogroup');modes.setAttribute('aria-label',T.ed);
   for(const [v,label] of T.modes){const l=document.createElement('label'),i=document.createElement('input'),s=document.createElement('span');i.type='radio';i.name='mode';i.value=v;s.textContent=label;l.append(i,s);modes.append(l);}
   const help=document.createElement('p');help.className='fine';help.dataset.edHelp='';
+  const exactRow=document.createElement('div');exactRow.className='bk-ed-cue';exactRow.dataset.edExact='';
+  const exactLabel=document.createElement('label'),exactBox=document.createElement('input'),exactText=document.createElement('span'),exactHelp=document.createElement('small');
+  exactBox.type='checkbox';exactBox.name='exact';exactText.textContent=T.exact;exactHelp.className='fine';exactHelp.textContent=T.exactHelp;
+  exactLabel.append(exactBox,exactText);exactRow.append(exactLabel,exactHelp);
+  exactBox.addEventListener('change',()=>{draft.exact=exactBox.checked;});
   const cueRow=document.createElement('div');cueRow.className='bk-ed-cue';cueRow.dataset.edCue='';cueRow.setAttribute('role','radiogroup');
   for(const [v,label] of [['0',T.cueOff],['1',T.cueOn]]){const l=document.createElement('label'),i=document.createElement('input'),s=document.createElement('span');i.type='radio';i.name='cue';i.value=v;s.textContent=label;l.append(i,s);cueRow.append(l);}
   const cueHelp=document.createElement('small');cueHelp.className='fine';cueHelp.textContent=T.cueHelp;
@@ -271,7 +281,7 @@ export function mountBracket(root){
   const acts=document.createElement('div');acts.className='bk-actions';
   const btn=(/** @type {string} */ label,/** @type {string} */ key,primary=false)=>{const b=document.createElement('button');b.type='button';b.className='btn'+(primary?' p':'');b.textContent=label;b.dataset.ed=key;acts.append(b);return b;};
   btn(T.save,'save',true);btn(T.shuffle,'shuffle');btn(T.fromBoard,'board');btn(T.link,'link');btn(T.close,'close');
-  f.append(h,modes,help,cueRow,list,msg,acts);d.append(f);root.append(d);
+  f.append(h,modes,help,exactRow,cueRow,list,msg,acts);d.append(f);root.append(d);
   modes.addEventListener('change',()=>{draft.mode=/** @type {any} */(new FormData(f).get('mode')||'');if(draft.mode==='fixed'&&!draft.seats.some(Boolean)&&!sizeProblem(names().length,st.size))draft.seats=startSeats();fill();});
   list.addEventListener('change',onPick);
   acts.addEventListener('click',(/** @type {Event} */ e)=>{
@@ -290,7 +300,9 @@ export function mountBracket(root){
  const startSeats=()=>{const ns=names();return st.plan.seats.some(Boolean)?seatNames(fitSeats(ns,st.size,st.plan.seats),ns):boardSeats()||seatNames(drawPlan(ns,st.size,null),ns);};
  function openSeating(){
   const d=panel();if(d.open)return;
-  draft={mode:st.plan.mode,pair:{...st.plan.pair},seats:[],cue:st.plan.cue};
+  // A first seating starts as 기본은 랜덤.
+  draft={mode:st.plan.mode,pair:{...st.plan.pair},seats:[],cue:st.plan.mode?st.plan.cue:true,exact:st.plan.exact};
+  /** @type {HTMLInputElement} */(d.querySelector('input[name=exact]')).checked=draft.exact;
   /** @type {HTMLInputElement} */(d.querySelector(`input[name=cue][value="${draft.cue?1:0}"]`)).checked=true;
   if(!sizeProblem(names().length,st.size))draft.seats=startSeats();
   /** @type {HTMLInputElement} */(d.querySelector(`input[name=mode][value="${draft.mode}"]`)).checked=true;
@@ -302,6 +314,7 @@ export function mountBracket(root){
   const d=/** @type {HTMLDialogElement} */(dlg),list=/** @type {HTMLElement} */(d.querySelector('[data-ed-list]')),ns=names(),bad=sizeProblem(ns.length,st.size);
   /** @type {HTMLElement} */(d.querySelector('[data-ed-help]')).textContent=T.help[draft.mode];
   /** @type {HTMLElement} */(d.querySelector('[data-ed-cue]')).hidden=!draft.mode;
+  /** @type {HTMLElement} */(d.querySelector('[data-ed-exact]')).hidden=draft.mode!=='fixed';
   for(const k of ['shuffle','board'])/** @type {HTMLElement} */(d.querySelector(`[data-ed="${k}"]`)).hidden=draft.mode!=='fixed'||(k==='board'&&!boardSeats());
   list.replaceChildren();list.className='bk-ed-list'+(draft.mode&&draft.mode!=='typed'?'':' off');
   if(draft.mode&&(!ns.length||bad)){check();return;}
@@ -370,7 +383,7 @@ export function mountBracket(root){
   return say(st.board?T.redraw:'',true);
  }
  function commit(){
-  st.plan={mode:draft.mode,pair:{...draft.pair},seats:draft.mode==='fixed'?draft.seats.slice():st.plan.seats,cue:draft.cue};armed=false;
+  st.plan={mode:draft.mode,pair:{...draft.pair},seats:draft.mode==='fixed'?draft.seats.slice():st.plan.seats,cue:draft.cue,exact:draft.exact};armed=false;
   save();
  }
 
