@@ -16,13 +16,13 @@ export function renderBracket(o){
   ['승자는 어떻게 정하나요?','이름을 누르면 그 사람이 다음 라운드로 올라갑니다. 직접 정하기 어려우면 「다음 경기 랜덤」이나 「끝까지 자동」으로 뽑기 연출과 함께 정할 수 있고, 잘못 누르면 「되돌리기」로 돌아갑니다.'],
   ['친구에게 보내려면?','「링크 복사」로 대회 이름과 참가자가 담긴 주소를 만들 수 있습니다. 받은 사람이 직접 추첨 버튼을 누르게 할 수 있습니다.'],
   ['저장되나요?','입력한 내용과 진행 상황은 이 브라우저에만 저장됩니다. 서버로 보내지 않습니다.'],
-  ['결과가 진짜 랜덤인가요? (장난용 기능 안내)','아닐 수 있습니다. 이 도구에는 몰래카메라·예능용 장난 기능이 있습니다. 진행자가 대진을 미리 정해 둘 수 있고, 몇 번은 진짜 랜덤으로 추첨하다가 진행자가 화면에서 몰래 신호를 주면 정해 둔 대진이 나오게 할 수도 있습니다. 그래서 이 사이트의 추첨 화면은 공정한 추첨의 증거가 될 수 없습니다. 상품·돈·순서가 걸린 실제 추첨에는 쓰지 마세요.'],
+  ['결과가 진짜 랜덤인가요? (장난용 기능 안내)','아닐 수 있습니다. 이 도구에는 몰래카메라·예능용 장난 기능이 있습니다. 진행자가 대진을 미리 정해 두거나 이름을 입력한 순서대로 짝이 지어지게 할 수 있고, 진행자가 화면에서 몰래 신호를 줄 때만 랜덤으로 나오게 하거나 반대로 신호를 줄 때만 정해 둔 대진이 나오게 할 수도 있습니다. 그래서 이 사이트의 추첨 화면은 공정한 추첨의 증거가 될 수 없습니다. 상품·돈·순서가 걸린 실제 추첨에는 쓰지 마세요.'],
  ]:[
   ['How many players?','Pick a 4, 8, 16 or 32 bracket. With fewer names than slots the free slots become byes — one per match at most, so a bracket needs more than half its slots filled (9–16 names for 16).'],
   ['How are winners decided?','Tap a name to send that player to the next round, or let “Random next match” and “Auto-play to the end” pick with a little animation. “Undo” steps back.'],
   ['Can I send it to a friend?','“Copy link” makes an address with the title and players, and the other person can press the draw button themselves.'],
   ['Is it saved?','Names and progress stay in this browser only. Nothing is sent to a server.'],
-  ['Is it really random? (prank features)','Not necessarily. This tool has prank features for party games and hidden-camera videos: the host can set the matchups in advance, and can even run a few truly random draws and then give a hidden signal so the next draw shows the preset bracket. A draw on this site is therefore no proof of a fair draw. Do not use it for real draws with prizes, money or turns at stake.'],
+  ['Is it really random? (prank features)','Not necessarily. This tool has prank features for party games and hidden-camera videos: the host can set the matchups in advance or have the names paired in the order they were typed, and a hidden signal can switch the following draws between truly random and the preset bracket. A draw on this site is therefore no proof of a fair draw. Do not use it for real draws with prizes, money or turns at stake.'],
  ];
  const jsonld={'@context':'https://schema.org','@graph':[
   {'@type':'WebApplication',name:ko?'대진표 만들기':'Bracket maker',url:o.origin+`/${o.l}${base}`,applicationCategory:'UtilitiesApplication',operatingSystem:'Any',inLanguage:o.l,offers:{'@type':'Offer',price:'0',priceCurrency:ko?'KRW':'USD'}},

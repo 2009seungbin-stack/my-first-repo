@@ -66,6 +66,20 @@ test('a fixed seating: every draw looks different, every meeting stays',()=>{
  const s=[...Array(16).keys()];for(let k=0;k<50;k++)assert.deepEqual(meetings(mirror(s,rand)),meetings(s));
 });
 
+test('typed order: 1st meets 2nd, 3rd meets 4th, the pairs of pairs meet next; the picture is shuffled',()=>{
+ const rand=rng(5),plan={mode:'typed',pair:{},seats:[],cue:false};
+ assert(planActive(plan));
+ assert.equal(cleanPlan(unpack(pack({m:'typed',p:{},a:[]}))).mode,'typed');
+ for(const [n,size] of [[16,16],[11,16],[8,8],[32,32]]){
+  const want=meetings(inOrder(n,size)),looks=new Set();
+  for(let k=0;k<40;k++){const s=drawPlan(NAMES.slice(0,n),size,plan,rand);checkSlots(s,n);assert.deepEqual(meetings(s),want);looks.add(s.join());}
+  assert(looks.size>10,`${size}: the picture changes`);
+  const s=drawPlan(NAMES.slice(0,n),size,plan,rand);
+  assert.equal(s.indexOf(0)^1,s.indexOf(1),'1st meets 2nd');
+  if(n===16)assert.equal(s.indexOf(0)>>2,s.indexOf(3)>>2,'1st can meet 4th in round two');
+ }
+});
+
 test('a saved seating follows edits to the names: kept seats stay, new names fill, no double byes',()=>{
  const names=NAMES.slice(0,16),seats=names.slice();
  assert.deepEqual(fitSeats(names,16,seats),[...Array(16).keys()]);

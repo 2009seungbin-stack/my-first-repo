@@ -10,7 +10,7 @@
 export const SIZES=Object.freeze([4,8,16,32]);
 export const MAX_NAME=24,MAX_TITLE=40;
 
-/** @typedef {''|'pairs'|'fixed'} PlanMode */
+/** @typedef {''|'pairs'|'fixed'|'typed'} PlanMode  typed: names meet in their typed order (1–2, 3–4, …) */
 /** @typedef {{mode:PlanMode,pair:Record<string,string>,seats:string[],cue:boolean}} Plan  seats: a name or '' (bye) per slot */
 /** @typedef {{slots:number[],win:number[][]}} Board */
 
@@ -19,7 +19,7 @@ export const roundsOf=size=>Math.round(Math.log2(size));
 /** @returns {Plan} */
 export const emptyPlan=()=>({mode:'',pair:{},seats:[],cue:false});
 /** @param {Plan|null|undefined} p */
-export const planActive=p=>!!p&&((p.mode==='pairs'&&Object.keys(p.pair||{}).length>0)||(p.mode==='fixed'&&(p.seats||[]).some(Boolean)));
+export const planActive=p=>!!p&&(p.mode==='typed'||(p.mode==='pairs'&&Object.keys(p.pair||{}).length>0)||(p.mode==='fixed'&&(p.seats||[]).some(Boolean)));
 
 /** Participants from free text: one per line (commas and tabs also split a pasted list), trimmed,
  * empty lines dropped, and repeated names numbered ("민수", "민수 (2)") so every slot is distinct.
@@ -104,10 +104,12 @@ export function fitSeats(names,size,seats,rand=Math.random){
 /** Seats as names ('' = bye), for storing and editing. @param {number[]} slots @param {string[]} names */
 export const seatNames=(slots,names)=>slots.map(i=>i>=0?names[i]:'');
 
-/** The first round for a plan: a fixed seating (flipped as in mirror()), drawn pairs, or a plain draw.
+/** The first round for a plan: a fixed seating or the typed order (both flipped as in mirror()), drawn pairs,
+ * or a plain draw.
  * @param {string[]} names @param {number} size @param {Plan|null|undefined} plan @param {()=>number} [rand] */
 export function drawPlan(names,size,plan,rand=Math.random){
  if(plan?.mode==='fixed'&&planActive(plan))return mirror(fitSeats(names,size,plan.seats,rand),rand);
+ if(plan?.mode==='typed')return mirror(inOrder(names.length,size),rand);
  return draw(names.length,size,plan?.mode==='pairs'?pairIndex(names,plan):new Map(),rand).slots;
 }
 
@@ -177,7 +179,7 @@ export function unpack(s){
 /** A plan read back from stored or shared data, with anything malformed dropped. @param {any} o @returns {Plan} */
 export function cleanPlan(o){
  const p=emptyPlan();if(!o||typeof o!=='object')return p;
- if(o.m==='pairs'||o.m==='fixed')p.mode=o.m;
+ if(o.m==='pairs'||o.m==='fixed'||o.m==='typed')p.mode=o.m;
  for(const [k,v] of Object.entries(o.p||{}))if(typeof v==='string'&&o.p[v]===k)p.pair[k]=v;
  p.cue=o.c===1;
  if(Array.isArray(o.a)&&o.a.length<=32)p.seats=o.a.map((/** @type {unknown} */ x)=>typeof x==='string'?x.slice(0,MAX_NAME+5):'');
