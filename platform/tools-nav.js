@@ -31,3 +31,7 @@ export const PC_TOOLS=Object.freeze(/** @type {NavTool[]} */([
  {id:'used-prices',path:'hardware/used-prices',ic:'USED',svg:'chip',ko:'국가별 중고 시세',en:'Used prices by country'},
  {id:'performance',path:'hardware/performance',ic:'BENCH',svg:'chip',ko:'GPU·CPU 성능 비교',en:'GPU / CPU performance'},
 ]));
+/** Worker-rendered pages for fun (놀이 도구): no files, everything runs in the page. */
+export const FUN_TOOLS=Object.freeze(/** @type {NavTool[]} */([
+ {id:'bracket',path:'bracket',ic:'VS',svg:'trophy',ko:'대진표 만들기',en:'Bracket maker'},
+]));
