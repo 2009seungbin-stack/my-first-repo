@@ -1,5 +1,6 @@
-"""대진표 만들기 in a real browser: draw, tap winners, random picks, the hidden rig (five taps and
-Alt+Shift+R), rigged and plain share links, byes, phone/desktop overflow, dark mode, and QA PNGs."""
+"""대진표 만들기 in a real browser: draw, tap winners, random picks, the seating panel (first opponents and
+every seat, five taps and Alt+Shift+R), share links with and without a seating, byes, phone/desktop
+overflow, dark mode, and QA PNGs."""
 import os
 from pathlib import Path
 import socket
@@ -10,15 +11,26 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 NAMES = ['민수', '지영', '현우', '서연', '도윤', '하은', '준호', '수아', '태민', '예린', '시우', '지호', '유나', '건우', '채원', '은우']
+SETTLED = "document.querySelectorAll('.bk-s.spin').length===0 && !document.querySelector('[data-bk-redraw]').disabled"
 
 
 def champion(pg):
     return pg.locator('.bk-s.champ').inner_text().strip()
 
 
-def draw(pg):
-    pg.locator('[data-bk-draw]').click()
-    pg.wait_for_function("document.querySelectorAll('.bk-s.spin').length===0 && !document.querySelector('[data-bk-redraw]').disabled")
+def leaves(pg):
+    return [x.strip() for x in pg.locator('.bk-s[data-r="0"]').all_inner_texts()]
+
+
+def meetings(seats):
+    """Name pair → the round where they can meet (the highest bit where their seats differ)."""
+    at = {n: i for i, n in enumerate(seats) if n and n != '부전승'}
+    return {(a, b): (i ^ j).bit_length() - 1 for a, i in at.items() for b, j in at.items() if a < b}
+
+
+def draw(pg, button='[data-bk-draw]'):
+    pg.locator(button).click()
+    pg.wait_for_function(SETTLED)
 
 
 def auto(pg):
@@ -26,14 +38,15 @@ def auto(pg):
     pg.wait_for_function("document.querySelector('.bk-s.champ:not(.wait)') && !document.querySelector('[data-bk-redraw]').disabled", timeout=60000)
 
 
-def rig(pg, fates, pairs=()):
+def open_seating(pg, mode_label):
     for _ in range(5):
-        pg.locator('h1[data-bk-secret]').click()
-    pg.wait_for_selector('[data-bk-rig][open]')
-    for name, label in fates:
-        pg.locator(f'select[data-kind=fate][data-name="{name}"]').select_option(label=label)
-    for a, b in pairs:
-        pg.locator(f'select[data-kind=pair][data-name="{a}"]').select_option(b)
+        pg.locator('h1[data-bk-t]').click()
+    pg.wait_for_selector('dialog.bk-ed[open]')
+    pg.locator('.bk-ed-mode label', has_text=mode_label).click()
+
+
+def seats(pg):
+    return [s.input_value() for s in pg.locator('select[data-seat]').all()]
 
 
 def run():
@@ -66,14 +79,12 @@ def run():
             pg.fill('input[name=title]', '최애 라면 월드컵')
             pg.fill('textarea[name=names]', '\n'.join(NAMES))
             assert '16명' in pg.locator('[data-bk-count]').inner_text()
-            assert pg.locator('.bk-dot').count() == 0
             draw(pg)
-            leaves = [x.strip() for x in pg.locator('.bk-s[data-r="0"]').all_inner_texts()]
-            assert sorted(leaves) == sorted(NAMES), leaves
+            assert sorted(leaves(pg)) == sorted(NAMES)
             assert pg.locator('[data-bk-name]').inner_text() == '최애 라면 월드컵'
             pg.screenshot(path=str(output / 'desktop-drawn.png'), full_page=True)
 
-            # Tap winners by hand, change one, undo.
+            # Tap winners by hand, change one, undo, random picks to the end.
             first = pg.locator('.bk-s[data-r="0"][data-i="0"]'); second = pg.locator('.bk-s[data-r="0"][data-i="1"]')
             a, c = first.inner_text().strip(), second.inner_text().strip()
             first.click(); assert pg.locator('.bk-s[data-r="1"][data-i="0"]').inner_text().strip() == a
@@ -82,74 +93,97 @@ def run():
             pg.locator('[data-bk-next]').click()
             pg.wait_for_function("document.querySelectorAll('.bk-s.won').length>=2 && !document.querySelector('[data-bk-next]').disabled")
             auto(pg)
-            assert champion(pg) in NAMES
-            assert pg.locator('[data-bk-status]').inner_text().startswith('우승')
+            assert champion(pg) in NAMES and pg.locator('[data-bk-status]').inner_text().startswith('우승')
             pg.screenshot(path=str(output / 'desktop-champion.png'), full_page=True)
 
-            # The hidden rig: 지영 wins, 현우 is runner-up, 민수 meets 서연 in round one.
-            rig(pg, [('지영', '우승'), ('현우', '준우승')], [('민수', '서연')])
-            assert '이대로 추첨' in pg.locator('[data-bk-rig-msg]').inner_text()
+            # First opponents: 민수 meets 서연 and 지영 meets 현우 on every draw.
+            open_seating(pg, '첫 상대만')
+            pg.locator('select[data-kind=pair][data-name="민수"]').select_option('서연')
+            pg.locator('select[data-kind=pair][data-name="지영"]').select_option('현우')
             assert pg.locator('select[data-kind=pair][data-name="서연"]').input_value() == '민수', 'pairs go both ways'
-            pg.screenshot(path=str(output / 'desktop-rig.png'))
-            pg.locator('[data-bk-rig-ok]').click(); pg.wait_for_selector('[data-bk-rig]:not([open])', state='attached')
-            assert pg.locator('.bk-dot').count() == 1, 'the host sees a dot while the rig is on'
-            assert '조작' not in pg.locator('main').inner_text().split('자주 묻는 질문')[0]
+            pg.screenshot(path=str(output / 'desktop-pairs.png'))
+            pg.locator('[data-ed=save]').click(); pg.wait_for_selector('dialog.bk-ed:not([open])', state='attached')
             for _ in range(3):
-                pg.locator('[data-bk-redraw]').click()
-                pg.wait_for_function("document.querySelectorAll('.bk-s.spin').length===0 && !document.querySelector('[data-bk-redraw]').disabled")
-                leaves = [x.strip() for x in pg.locator('.bk-s[data-r="0"]').all_inner_texts()]
-                i, j = leaves.index('민수'), leaves.index('서연'); assert i ^ 1 == j, leaves
-                auto(pg)
-                assert champion(pg) == '지영', champion(pg)
-                finals = [pg.locator(f'.bk-s[data-r="3"][data-i="{k}"]').inner_text().strip() for k in (0, 1)]
-                assert sorted(finals) == ['지영', '현우'], finals
+                draw(pg, '[data-bk-redraw]')
+                l = leaves(pg)
+                assert l.index('민수') ^ 1 == l.index('서연') and l.index('지영') ^ 1 == l.index('현우'), l
 
-            # Impossible: two champions cannot be saved.
-            rig(pg, [('민수', '우승')])
-            assert 'bad' in pg.locator('[data-bk-rig-msg]').get_attribute('class')
-            pg.locator('[data-bk-rig-ok]').click(); assert pg.locator('[data-bk-rig][open]').count() == 1, 'conflicting rig stays open'
-            pg.locator('select[data-kind=fate][data-name="민수"]').select_option('')
-            # A rigged link: opened elsewhere it looks plain, then the draw follows the rig.
-            pg.locator('[data-bk-rig-link]').click(); pg.wait_for_selector('[data-bk-toast]:not([hidden])')
+            # Every seat: take the current bracket, put 지영 against 은우, save; draws look different,
+            # meetings stay.
+            open_seating(pg, '전체 배치')
+            pg.locator('[data-ed=board]').click()
+            assert seats(pg) == leaves(pg), 'the panel starts from the bracket on screen'
+            pg.locator('select[data-seat="0"]').select_option('지영')
+            pg.locator('select[data-seat="1"]').select_option('은우')
+            plan = seats(pg)
+            assert plan[0] == '지영' and plan[1] == '은우' and sorted(plan) == sorted(NAMES), plan
+            pg.screenshot(path=str(output / 'desktop-seats.png'))
+            pg.locator('[data-ed=save]').click(); pg.wait_for_selector('dialog.bk-ed:not([open])', state='attached')
+            want, looks = meetings(plan), set()
+            for _ in range(4):
+                draw(pg, '[data-bk-redraw]')
+                l = leaves(pg); looks.add(tuple(l))
+                assert meetings(l) == want, l
+            assert len(looks) >= 2, 'redraws do not all look the same'
+            auto(pg)
+
+            # A two-bye match cannot be saved (12 names → 4 byes).
+            pg.locator('textarea[name=names]').fill('\n'.join(NAMES[:12]))
+            open_seating(pg, '전체 배치')
+            s = seats(pg)
+            assert s.count('') == 4 and sorted(x for x in s if x) == sorted(NAMES[:12]), s
+            bye_match = next(m for m in range(8) if not s[2 * m] or not s[2 * m + 1])
+            filled = 2 * bye_match if s[2 * bye_match] else 2 * bye_match + 1
+            pg.locator(f'select[data-seat="{filled}"]').select_option('')
+            assert 'bad' in pg.locator('[data-ed-msg]').get_attribute('class')
+            pg.locator('[data-ed=save]').click(); assert pg.locator('dialog.bk-ed[open]').count() == 1, 'stays open'
+            pg.locator('[data-ed=close]').click()
+            pg.locator('textarea[name=names]').fill('\n'.join(NAMES))
+
+            # A link with the seating: on another device the draw keeps the meetings.
+            open_seating(pg, '전체 배치')
+            plan = seats(pg)
+            pg.locator('[data-ed=link]').click(); pg.wait_for_selector('[data-bk-toast]:not([hidden])')
             link = pg.evaluate('navigator.clipboard.readText()')
             assert '#b=' in link and '지영' not in link
             pg.keyboard.press('Escape')
-
             ctx2 = b.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True, bypass_csp=True)
             ph = ctx2.new_page(); ph.on('pageerror', lambda e: errors.append(str(e)))
             ph.goto(link); ph.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
             assert '#' not in ph.url, 'the link data leaves the address bar'
             assert ph.input_value('input[name=title]') == '최애 라면 월드컵'
-            assert ph.locator('.bk-dot').count() == 1
             draw(ph)
+            assert meetings(leaves(ph)) == meetings(plan)
             assert ph.evaluate('document.documentElement.scrollWidth') <= 390, 'no page-wide horizontal scroll on a phone'
             ph.screenshot(path=str(output / 'phone-drawn.png'), full_page=True)
-            auto(ph); assert champion(ph) == '지영'
-            ph.screenshot(path=str(output / 'phone-champion.png'), full_page=True)
-            # Keyboard opener and clearing the rig.
-            ph.keyboard.press('Alt+Shift+KeyR'); ph.wait_for_selector('[data-bk-rig][open]')
-            ph.locator('[data-bk-rig-reset]').click(); ph.locator('[data-bk-rig-ok]').click()
-            assert ph.locator('.bk-dot').count() == 0
+            ph.keyboard.press('Alt+Shift+KeyR'); ph.wait_for_selector('dialog.bk-ed[open]')
+            assert ph.locator('.bk-ed-mode input[value=fixed]').is_checked()
+            assert ph.evaluate('document.documentElement.scrollWidth') <= 390
+            ph.screenshot(path=str(output / 'phone-seats.png'))
+            ph.locator('.bk-ed-mode label', has_text='랜덤').click(); ph.locator('[data-ed=save]').click()
+            auto(ph); assert champion(ph) in NAMES
             ctx2.close()
 
-            # A plain link carries no rig; byes with 11 names in a 16 bracket.
-            pg.goto(base + '/ko/bracket/'); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            # A plain link carries no seating; byes with 11 names; size hints.
             pg.locator('[data-bk-link]').click(); pg.wait_for_selector('[data-bk-toast]:not([hidden])')
             plain = pg.evaluate('navigator.clipboard.readText()')
+            p3 = ctx.new_page(); p3.goto(plain); p3.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            p3.keyboard.press('Alt+Shift+KeyR'); p3.wait_for_selector('dialog.bk-ed[open]')
+            assert p3.locator('.bk-ed-mode input[value=""]').is_checked(), 'plain links never carry the seating'
+            p3.close()
+            pg.goto(base + '/ko/bracket/'); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
+            open_seating(pg, '랜덤'); pg.locator('[data-ed=save]').click()
             pg.locator('textarea[name=names]').fill('\n'.join(NAMES[:11]))
             assert '부전승 5' in pg.locator('[data-bk-count]').inner_text()
-            pg.locator('[data-bk-draw]').click(); pg.wait_for_function("document.querySelectorAll('.bk-s.spin').length===0 && !document.querySelector('[data-bk-redraw]').disabled")
+            draw(pg)
             assert pg.locator('.bk-s.bye').count() == 5
             pg.locator('textarea[name=names]').fill('\n'.join(NAMES[:7]))
             assert '9명 이상' in pg.locator('[data-bk-count]').inner_text()
-            p3 = ctx.new_page(); p3.goto(plain); p3.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
-            assert p3.locator('.bk-dot').count() == 0, 'plain links never carry the rig'
-            p3.close()
 
             # Reload keeps the board; dark mode; English page.
             pg.reload(); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
             assert pg.locator('.bk-s.bye').count() == 5
-            pg.evaluate("document.documentElement.dataset.theme='dark'")
+            pg.evaluate("document.documentElement.dataset.theme='dark'"); pg.wait_for_timeout(300)
             pg.screenshot(path=str(output / 'desktop-dark.png'), full_page=True)
             pg.goto(base + '/en/bracket/'); pg.wait_for_function("document.documentElement.dataset.bracketReady==='1'")
             assert 'Draw bracket' in pg.locator('[data-bk-draw]').inner_text()
