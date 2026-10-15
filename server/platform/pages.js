@@ -9,6 +9,7 @@
  *   /{l}/community/report      신고 form (?target=kind:id)
  *   /{l}/search/               search (?q=&in=entity)
  *   /{l}/radar/                what changed / what is coming (?v=)
+ *   /{l}/bracket/              대진표 만들기 (a page tool: the bracket runs in src/bracket/app.js)
  *   /{l}/{vertical}/{slug}/    tag page: facts and the tag's posts in every channel (?kind=&sort=&best=1&page=&sub=0)
  *   /{l}/{vertical}/{slug}/{no} → 301 to the post's channel address (legacy_posts); …/write → 302 to the
  *   channel's write page with the tag; …/history · …/status (…/status/feed.xml) · …/local-llm · …/feed.xml
@@ -35,6 +36,7 @@ import {loadHub,renderHub} from '../../platform/render/hub.js';
 import {channelFeed,radarFeed,boardFeed,statusFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
 import {renderUsedPrices,renderPerformance} from '../../platform/render/hardware-tools.js';
+import {renderBracket} from '../../platform/render/bracket.js';
 import {MARKETS} from '../../src/hardware/market.js';
 import {marketSnapshot} from './hardware-market.js';
 import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
@@ -59,11 +61,13 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'bracket'|'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  const tool=new RegExp(`^/(${L})/hardware/(used-prices|performance)/$`).exec(pathname);
  if(tool)return {l:tool[1],page:/** @type {'used-prices'|'performance'} */(tool[2]),slug:tool[2],vertical:'hardware'};
+ const fun=new RegExp(`^/(${L})/bracket/$`).exec(pathname);
+ if(fun)return {l:fun[1],page:'bracket'};
  // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
  if(pathname==='/')return {l:'ko',page:'front'};
  if(pathname==='/en/')return {l:'en',page:'front'};
@@ -157,6 +161,7 @@ export async function renderPlatformPage(request,env,site){
   if(route.slug==='used-prices')response.headers.set('cache-control','no-store');
   return response;
  }
+ if(route.page==='bracket')return html(String(renderBracket({l,origin:s.origin,channels:await bar()})));
  switch(route.page){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,sort:q.get('sort')||'hot',channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',channel:q.get('ch'),channels:await bar()}),s)));
@@ -243,7 +248,7 @@ export async function renderSitemap(db,vertical,origin){
  const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
  // The comparison tables, and (in the AI file) the community front and the Radar.
  // The community front, its 전체 베스트 and every channel board are in the AI file (the first one).
- const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
+ const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/'],['/bracket/']]:[])];
  if(vertical==='ai'){
   const home={ko:`${origin}/`,en:`${origin}/en/`};
   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);

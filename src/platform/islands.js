@@ -393,6 +393,8 @@ async function channels(signedIn){
 
 async function main(){
  mountHardwareTools();
+ const bracket=$('[data-island="bracket"]');
+ if(bracket)import('../bracket/app.js').then(m=>m.mountBracket(bracket));
  const entity=$('[data-entity]')?.dataset.entity||'';
  const post=$('[data-post]')?.dataset.post||'';
  const q=new URLSearchParams();if(entity)q.set('entity',entity);if(post)q.set('post',post);
