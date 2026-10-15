@@ -26,7 +26,7 @@ with sync_playwright() as pw:
     requests=[];page.on('request',lambda r:requests.append(r.url))
     # --- home ---
     page.goto(BASE+'/ko/',wait_until='networkidle')
-    ok('home is a tool directory with categories',page.locator('.directory section').count()==5 and page.locator('.tool-card').count()>=35)
+    ok('home is a tool directory with categories and Preflight',page.locator('.directory section').count()==6 and page.locator('.tool-card').count()>=36 and page.locator('[data-preflight-link]').count()==1)
     ok('home has one h1 and no editor shell',page.locator('h1').count()==1 and page.locator('#workspace').count()==0)
     page.fill('#toolQuery','pdf 합치기');page.wait_for_timeout(150)
     ok('search narrows to the matching tool',page.locator('.tool-card:visible').evaluate_all('ns=>ns.map(n=>n.dataset.tool)')==['pdf-merge'])
@@ -34,6 +34,9 @@ with sync_playwright() as pw:
     page.fill('#toolQuery','');page.wait_for_timeout(150)
     page.locator('#languageSelect').select_option('en');page.wait_for_timeout(200)
     ok('language switch relabels the directory and URL',page.url.endswith('/en/') and page.locator('.tool-card[data-tool="compress"] b').inner_text()=='Compress image' and page.locator('.tool-card[data-tool="compress"]').get_attribute('href').endswith('/en/image/compress/'))
+    page.fill('#toolQuery','upgrade');page.wait_for_timeout(150)
+    ok('Preflight participates in search and language switching',page.locator('[data-preflight-link]').is_visible() and page.locator('[data-preflight-link] b').inner_text()=='Check before you upgrade' and page.locator('[data-preflight-link]').evaluate('a=>a.href').endswith('/en/preflight/'))
+    page.fill('#toolQuery','');page.wait_for_timeout(150)
     # The home is the game studio's front door: images dropped there open in the Studio (hand-off, no upload).
     drop(page,'body',B64);page.wait_for_url('**/en/game/studio/**',timeout=20000)
     page.wait_for_function('()=>document.documentElement.dataset.studioStarted==="1"&&window.nerulioStudio.doc.assets.length===2',timeout=30000)
