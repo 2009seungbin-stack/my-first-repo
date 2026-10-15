@@ -36,6 +36,8 @@ The portal uses one connected JSON-LD graph per indexable page. Entity pages ret
 
 `entityIndexable` applies the same per-language content gate to channel robots metadata and the Worker sitemap. Alternate links include only indexable translations. Filtered channel views remain noindex. The sitemap lists local-LLM pages only when a GPU has the VRAM value required to render that page.
 
+Preview Workers add `X-Robots-Tag: noindex, nofollow` to dynamic page and sitemap responses as well as static responses passing through the Worker. Pages `_headers` rules alone do not cover Worker-generated HTML. Production responses retain their existing indexing rules.
+
 Validation commands:
 
 ```text
