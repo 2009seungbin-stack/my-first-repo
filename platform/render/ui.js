@@ -9,6 +9,8 @@ import {boardTime,compact} from './format.js';
 import {CHANNELS,channelById,channelPath,postPath,flairLabel,patchCollectionPath} from '../channels.js';
 import {FILE_TOOLS,GAME_TOOLS,PC_TOOLS,FUN_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
+import {discoveryTopics} from '../discovery.js';
+import {pageJsonLd} from './page-seo.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
 export const CSS_HREF='/src/platform/n2.css?v=20261004-corner-radius';
@@ -117,6 +119,7 @@ function shellNav(o){
 <nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn,'home')}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
 <details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
 <span class="lsep" aria-hidden="true"></span>
+<details class="lg"><summary>${CHEV}${ko?'정보·비교':'Reference pages'}<span class="lgn">5</span></summary><ul>${discoveryTopics(l).map(x=>html`<li><a href="${x.href}"><span class="ic" aria-hidden="true">${icon(CHANNEL_ICON[x.icon]||'chat',14)}</span>${x.name}</a></li>`)}</ul></details>
 ${tools('nav-pc',ko?'PC 도구':'PC tools',PC_TOOLS,true)}${tools('nav-fun',ko?'놀이 도구':'Fun tools',FUN_TOOLS,true)}${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}</aside>`;
 }
 
@@ -154,6 +157,7 @@ export function ogImageUrl(o){
  */
 export function page(o){
  const s=t(o.l);
+ const jsonld=o.noindex?o.jsonld:pageJsonLd(o);
  // Every page with language versions names the English one as x-default, the same way.
  const alts={...(o.alternates||{})};if(alts.en&&alts.ko&&!alts['x-default'])alts['x-default']=alts.en;
  const alt=Object.entries(alts);
@@ -167,7 +171,8 @@ export function page(o){
 <link rel="canonical" href="${o.canonical}">
 ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}">
 `)}${o.noindex?html`<meta name="robots" content="noindex,follow">
-`:''}<meta property="og:title" content="${o.title}">
+`:html`<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+`}<meta property="og:title" content="${o.title}">
 <meta property="og:description" content="${o.description}">
 <meta property="og:url" content="${o.canonical}">
 <meta property="og:site_name" content="Nerulio">
@@ -186,7 +191,7 @@ ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" 
 <link rel="stylesheet" href="${CSS_HREF}">
 <script type="module" src="${ISLANDS_SRC}"></script>
 <script src="/src/hit.js" defer></script>
-${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld).replace(/</g,'\\u003c'))}</script>
+${jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(jsonld).replace(/</g,'\\u003c'))}</script>
 `:''}</head>
 <body class="n2">
 <a class="skip" href="#main">${o.l==='ko'?'본문 바로가기':'Skip to content'}</a>

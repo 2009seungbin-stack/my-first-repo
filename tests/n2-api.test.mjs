@@ -408,7 +408,8 @@ test('question authors accept an answer; the post becomes a QAPage with accepted
  const out=String(renderPost(await loadPost(h.db,'games',1,{l:'ko',now:T0}),{origin:ORIGIN}));
  assert(out.includes('✓ 채택된 답변'));
  const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(out)[1]);
- assert.equal(ld['@type'],'QAPage');assert.equal(ld.mainEntity.acceptedAnswer.text,'제작자 블로그에서요');
+ const qa=ld['@graph'].find(node=>node['@type']==='QAPage');
+ assert(qa);assert.equal(qa.mainEntity.acceptedAnswer.text,'제작자 블로그에서요');
  assert.equal((await frontPosts(h.db,{mode:'kind',kind:'question',unanswered:true})).length,0);
 });
 

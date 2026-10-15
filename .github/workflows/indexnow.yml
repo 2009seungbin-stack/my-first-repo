@@ -1,6 +1,8 @@
 name: IndexNow after production deploy
 # Cloudflare Pages deploys main by itself; this job only tells IndexNow engines (Bing, Yandex, Naver,
-# Seznam…) which pages are new or changed once that deploy is live. There is no Google submission
+# Seznam…) which static pages are new, changed or removed once that deploy is live. D1-only
+# entity changes need their own content-change submission; they are not in a Git build diff.
+# There is no Google submission
 # API: Google reads the sitemap index listed in robots.txt (and Search Console, owner login).
 on:
   push:
@@ -19,6 +21,11 @@ jobs:
       # Must equal the Cloudflare Pages production SITE_URL: every canonical, sitemap <loc> and the
       # IndexNow host come from it. A repository variable SITE_URL overrides the default.
       SITE_URL: ${{ vars.SITE_URL || 'https://nerulio.com/' }}
+      # Match the current Cloudflare Pages production build, including the portal's tool-home
+      # paths and Worker sitemap references. Both this and the previous build inherit these.
+      SERVICE_API: 'on'
+      PLATFORM: 'on'
+      TOOL_METERING: 'off'
       # Retired hosts that must answer with a permanent redirect to SITE_URL (tools/live-check.mjs).
       LEGACY_ORIGINS: https://nerulio.pages.dev/ https://fileforge-studio.pages.dev/ https://www.nerulio.com/
       # live-check waits until production's /build.txt names this commit (a push that changes no
@@ -37,7 +44,7 @@ jobs:
           git fetch --no-tags --depth=1 origin ${{ github.event.before }}
           git worktree add --detach ../previous ${{ github.event.before }}
           cd ../previous && node tools/build.mjs
-      - name: Wait until the deploy is live, then submit the new and changed page URLs
+      - name: Wait until the deploy is live, then submit new, changed and removed static page URLs
         run: |
           if [ -f ../previous/dist/sitemap.xml ]; then
             node tools/indexnow.mjs --since ../previous/dist --wait-live --submit

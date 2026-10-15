@@ -22,3 +22,11 @@ export function indexable(e,c){
  // Enough material overall, and something beyond bare numbers: a description, posts, or a rich fact sheet.
  return contentScore(e,c)>=min+2&&(c.description||c.posts>0||c.facts>=min+3);
 }
+
+/** The same language-specific gate for page robots and the sitemap. Korean pages may display the
+ * English description as a fallback; English pages never display a Korean-only description.
+ * @param {{vertical:string,type:string,index_state?:string,descriptions:Record<string,string>}} e
+ * @param {{facts:number,relations:number,posts:number}} c @param {string} l */
+export function entityIndexable(e,c,l){
+ return indexable(e,{...c,description:!!(e.descriptions[l]||e.descriptions.en)?.trim()});
+}
