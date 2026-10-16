@@ -253,9 +253,9 @@ export async function renderSitemap(db,vertical,origin){
  add(hub);
  // Change histories with real changes (at least 3 besides first sightings) are pages of their own.
  const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
- // The comparison tables, and (in the AI file) the community front and the Radar.
- // The community front, its 전체 베스트 and every channel board are in the AI file (the first one).
- const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/'],['/bracket/']]:[])];
+ // Only populated boards enter discovery. Time-window best lists remain usable but noindex.
+ const populated=vertical==='ai'?new Set(((await db.prepare("SELECT DISTINCT channel_id FROM discussions WHERE status='published'").all()).results||[]).map((/** @type {any} */ r)=>String(r.channel_id))):new Set();
+ const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[...CHANNEL_IDS.filter(c=>populated.has(c)).map(c=>[`/community/${c}/`]),['/radar/'],['/bracket/']]:[])];
  if(vertical==='ai'){
   const home={ko:`${origin}/`,en:`${origin}/en/`};
   add(home,0,home.ko);
