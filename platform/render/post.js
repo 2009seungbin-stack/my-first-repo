@@ -15,6 +15,7 @@ import {channelPath,postPath,writePath} from '../channels.js';
 import {typeDef} from '../verticals/index.js';
 import {loadRail,renderRail} from './rail.js';
 import {icon,identicon} from './icons.js';
+import {postJsonLd} from './jsonld.js';
 
 /** The writer's initial in a circle (the Radar bot: ⚙; ㅇㅇ: ㅇ). @param {{author_name:string|null,bot?:boolean,anon_id?:string|null}} a */
 const avatar=a=>a.bot?html`<span class="av bot" aria-hidden="true">${icon('gear',16)}</span>`:html`<span class="av" aria-hidden="true">${identicon(a.anon_id?`${a.author_name||'ㅇㅇ'}#${a.anon_id}`:a.author_name||'?',30)}</span>`;
@@ -109,25 +110,7 @@ ${nComments?sortBar:''}<ol class="cl">${accepted?comment(accepted,0,true):best?c
  return page({l,title:`${p.title} - ${s.channel(name)} | Nerulio`,description,canonical:own,
   alternates:{[p.locale==='en'?'en':'ko']:own},noindex:p.locale!==l,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:e?{name:nameOf(e,l),id:e.id}:null,body:wrapped,
-  jsonld:postJsonLd(m,site.origin+url,s)});
-}
-
-/** Question posts are QAPage (accepted/suggested answers); everything else DiscussionForumPosting
- * with its first comments, as Google's forum and Q&A rich results expect. @param {any} m @param {string} url @param {any} s */
-function postJsonLd(m,url,s){
- const p=m.post,person=(/** @type {string|null} */ n,/** @type {boolean} */ bot)=>({'@type':'Person',name:bot?s.bot:n||s.anonymous});
- const who=(/** @type {any} */ x)=>authorText(x,s.anonymous);
- const text=plainExcerpt(p.body_md,500)||p.title;
- const comments=m.comments.filter((/** @type {any} */ c)=>!c.deleted);
- const asComment=(/** @type {any} */ c)=>({'@type':p.kind==='question'?'Answer':'Comment',text:plainExcerpt(c.body_md,500),datePublished:new Date(c.created_at).toISOString(),author:person(who(c),false),upvoteCount:c.up,url:`${url}#c-${c.id}`});
- // A question is a QAPage once it has an answer; before that it is a forum post like any other.
- if(p.kind==='question'&&comments.length){
-  const acc=p.solved?comments.find((/** @type {any} */ c)=>c.id===p.solved):null;
-  return {'@context':'https://schema.org','@type':'QAPage',mainEntity:{'@type':'Question',name:p.title,text,dateCreated:new Date(p.created_at).toISOString(),author:person(who(p),p.bot),answerCount:comments.length,upvoteCount:p.up,
-   ...(acc?{acceptedAnswer:asComment(acc)}:{}),suggestedAnswer:comments.filter((/** @type {any} */ c)=>!acc||c.id!==acc.id).slice(0,10).map(asComment)}};
- }
- return {'@context':'https://schema.org','@type':'DiscussionForumPosting',headline:p.title,text,url,datePublished:new Date(p.created_at).toISOString(),author:person(who(p),p.bot),commentCount:p.comments,
-  interactionStatistic:{'@type':'InteractionCounter',interactionType:'https://schema.org/LikeAction',userInteractionCount:p.up},comment:comments.slice(0,10).map(asComment)};
+  jsonld:postJsonLd(m,own,s),ogType:'article'});
 }
 
 /** Nickname + password for writing without an account (shown by the islands when the reader is signed

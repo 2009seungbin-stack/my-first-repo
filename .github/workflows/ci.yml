@@ -34,6 +34,8 @@ jobs:
       - name: Nerulio 2.0 platform (strict JSDoc types, browser E2E on the dev server)
         run: |
           npm run typecheck
+          node tools/audit-platform-seo.mjs
+          python tests/platform-seo-browser.py
           python tests/platform-browser.py
           python tests/hardware-benchmarks-test.py
           python tests/hardware-tools-browser.py

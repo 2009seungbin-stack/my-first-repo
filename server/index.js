@@ -14,6 +14,12 @@ import {configuredProviders,providerCredentials} from './oauth/providers.js';
  * reaches it only in advertising builds, which need a fresh CSP nonce per response. */
 /** The ad CSP forbids forms (tool pages have none); platform pages post to their own origin. @param {Response} r */
 function allowForms(r){const h=new Headers(r.headers),csp=h.get('Content-Security-Policy');if(csp)h.set('Content-Security-Policy',csp.replace("form-action 'none'","form-action 'self'"));return new Response(r.body,{status:r.status,statusText:r.statusText,headers:h});}
+/** Pages _headers apply only to static assets; protect Worker-rendered preview pages and sitemaps too. */
+function searchResponse(response){
+ if(!BUILD.preview)return response;
+ const headers=new Headers(response.headers);headers.set('X-Robots-Tag','noindex, nofollow');
+ return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
+}
 export default {
  async fetch(request,env,ctx){
   const url=new URL(request.url);
@@ -25,8 +31,8 @@ export default {
   // Community images (R2, binding UPLOADS) on the site's own origin (PLATFORM=on builds only).
   if(BUILD.platform&&url.pathname.startsWith('/u/')){const img=await serveUpload(request,env,ctx,{isModerator:()=>isModeratorRequest(request,env)});if(img)return img;}
   // Nerulio 2.0 channel/community pages (PLATFORM=on builds only); anything else is the static site.
-  if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,verify:/** @type {any} */(BUILD).verify,providers:configuredProviders({oauth:providerCredentials(env)})});if(page)return BUILD.adsHtml?allowForms(await secureResponse(page)):page;}
+  if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,verify:/** @type {any} */(BUILD).verify,providers:configuredProviders({oauth:providerCredentials(env)})});if(page)return searchResponse(BUILD.adsHtml?allowForms(await secureResponse(page)):page);}
   const response=await env.ASSETS.fetch(request);
-  return BUILD.adsHtml?secureResponse(response):response;
+  return searchResponse(BUILD.adsHtml?await secureResponse(response):response);
  }
 };
