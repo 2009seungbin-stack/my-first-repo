@@ -22,7 +22,7 @@ export function serviceMeta(config){
  return `<meta name="nerulio-service" content="${escape(JSON.stringify({api:'api/v1/',pricing:config.pricing,freeDailyJobs:config.freeDailyJobs,freeDailyStudio:config.freeDailyStudio,freeAnonStudio:config.freeAnonStudio,...(config.ticketPublicKey?{ticketKey:config.ticketPublicKey}:{})}))}">`;
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
-export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/admin/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
+export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/admin/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt','/llms.txt','/search-discovery.json']);
 /** Server-rendered platform prefixes (PLATFORM=on): the portal home (/ and /en/; /ko/ redirects to /), the
  * community, the vertical channels and community images (/u/). */
 export const PLATFORM_ROUTES=Object.freeze(['/','/ko/','/en/',...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*','/u/*']);

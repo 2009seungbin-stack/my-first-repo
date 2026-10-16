@@ -31,6 +31,8 @@ const P=/** @type {Record<string,string>} */({
  alert:'<path d="M10.3 4.8 2.9 17.6A2 2 0 0 0 4.6 20.6h14.8a2 2 0 0 0 1.7-3L13.7 4.8a2 2 0 0 0-3.4 0Z"/><path d="M12 9.5v4.5M12 17.2v.1"/>',
  xCircle:'<circle cx="12" cy="12" r="8.5"/><path d="m9 9 6 6M15 9l-6 6"/>',
  dashCircle:'<circle cx="12" cy="12" r="8.5"/><path d="M8.5 12h7"/>',
+ helpCircle:'<circle cx="12" cy="12" r="8.5"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.8-2.5 1.8-2.5 3.5M12 16h.01"/>',
+ history:'<path d="M4 7v4h4M4.5 10a8 8 0 1 1 1 6.5M12 7.5V12l3 2"/>',
  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
  bubble:'<path d="M20.5 11.5a7.5 7.5 0 0 1-11 6.6L4 19.5l1.4-4.6A7.5 7.5 0 1 1 20.5 11.5Z"/>',
  up:'<path d="M12 19V5.5M6 11.5l6-6 6 6"/>',

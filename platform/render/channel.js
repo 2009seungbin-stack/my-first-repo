@@ -10,7 +10,7 @@ import {page,box,nameOf,channelUrl,postHref,postRow,boardHead,kindChip,monogram,
 import {compact} from './format.js';
 import {pickFact,factsFor,boardPosts,channelStats,recentTitles,contentCounts,relatedChannels,koAlias,tagChildren,SORTS} from '../db/channel.js';
 import {PREDICATES} from '../schema.js';
-import {indexable} from '../seo.js';
+import {entityIndexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
 import {panelFor} from './panels/index.js';
 import {POST_KINDS,channelBestThreshold,BEST_RULE} from '../community.js';
@@ -44,8 +44,9 @@ export async function loadChannel(db,entity,o){
   channelStats(db,entity.id,dayStart(o.now,o.l)),recentTitles(db,{tag:entity.id},o.now-2*864e5),contentCounts(db,entity.id),
   channelBestThreshold(db,home,o.now),relatedChannels(db,entity.id,8),o.l==='ko'?koAlias(db,entity.id,nameOf(entity,'ko')):Promise.resolve(null),
   tagChildren(db,entity.id,40),boardPosts(db,{tag:entity.id,best:true,sort:'top',limit:5})]);
- const index=indexable(entity,{...counts,description:!!(entity.descriptions[o.l]||entity.descriptions.en)});
- return {entity,ctx,panel,data,index,bestMin,relatedList,alias,kind,sort,best:!!o.best,children,home,parts,tagBest:tagBest.posts,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
+ const index=entityIndexable(entity,counts,o.l);
+ const indexLocales=['ko','en'].filter(l=>entityIndexable(entity,counts,l));
+ return {entity,ctx,panel,data,index,indexLocales,bestMin,relatedList,alias,kind,sort,best:!!o.best,children,home,parts,tagBest:tagBest.posts,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
 }
 
 const STOP=new Set(['the','and','for','with','this','that','what','how','why','are','you','is','in','on','of','to','a','an','it','질문','후기','정리','이거','이게','그냥','근데','진짜','혹시','어떻게','뭐가','있나요','되나요','있음','없음','해봄','ㅋㅋ','ㅠㅠ','vs','다시','최신','새','후','이번','오늘','지금','같음','좋아짐','해봤는데']);
@@ -138,12 +139,13 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
   if(bits.length)description=`${description.replace(/[.。]?$/,'.')} ${bits.join(' · ')}.`;
   description+=l==='ko'?' 변경 기록과 커뮤니티 글도 함께 봅니다.':' With change history and community posts.';
  }
- const other=l==='ko'?'en':'ko';
  const filtered=!!(m.kind||m.sort!=='new'||m.best||m.page>1||!m.children);
  const canonical=site.origin+(filtered?q({}):base);
- return page({l,title,description,canonical,alternates:{[l]:site.origin+base,[other]:site.origin+channelUrl(other,e),'x-default':site.origin+channelUrl('en',e)},
+ const alternates=Object.fromEntries(m.indexLocales.map(loc=>[loc,site.origin+channelUrl(loc,e)]));
+ if(m.indexLocales.length)alternates['x-default']=alternates.en||alternates.ko;
+ return page({l,title,description,canonical,alternates:filtered||!m.index?{}:alternates,
   noindex:filtered||!m.index,channels:m.channels.map(c=>({...c,on:c.id===m.home})),scope:{name,id:e.id},body,
-  jsonld:channelJsonLd(e,ctx.facts,l,site.origin+base,site.origin),feed:base+'feed.xml'});
+  jsonld:channelJsonLd(e,ctx.facts,l,canonical,site.origin),feed:base+'feed.xml'});
 }
 /** Channels whose readers make things with Nerulio's game-asset tools. */
 const ENTITY_TOOLS=/** @type {Record<string,string[]>} */({'app:godot':['sprite-lab','tile-lab','pixel-lab','ui-lab'],'app:blender':['texture-lab'],'app:unity':['sprite-lab','texture-lab','ui-lab'],'app:aseprite':['pixel-lab','sprite-lab']});

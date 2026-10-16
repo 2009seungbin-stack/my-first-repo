@@ -27,13 +27,15 @@ import {ADMIN_HEADERS,isAdminSource} from './admin-build.mjs';
 import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths,resolveLink} from './game-landing-build.mjs';
 import {gameHead} from './game-seo-build.mjs';
 import {sfxPage} from './sfx-build.mjs';
+import {searchDiscoveryFiles} from './search-discovery.mjs';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
 import {AUDIO_LAB_PATH,audioLabPage} from './audio-lab-build.mjs';
+import {PREFLIGHT_PATHS,preflightPage} from './preflight-build.mjs';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
 // /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
-export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',AUDIO_LAB_PATH].map(r=>`${l}/${r}`)])];
+export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',...PREFLIGHT_PATHS,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',AUDIO_LAB_PATH,...PREFLIGHT_PATHS].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Cloudflare Email Address Obfuscation (on for the nerulio.com zone) rewrites anything shaped like
  * an address at the edge: "hero@2x.json" was served as "[email protected]" with a /cdn-cgi link that 404s.
@@ -62,8 +64,9 @@ export function entry(html,route='',siteURL='',config={}){
  // PLATFORM=on: the tool home is built at /ko/tools/ and /en/tools/ (the portal owns / and /en/; src/seo.js pagePath).
  if(config.platform&&parts.path==='tools'&&PORTAL_LOCALES.includes(parts.locale))parts.path='';
  const locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
+ if(PREFLIGHT_PATHS.includes(parts.path))return preflightPage({locale,path:parts.path,siteURL,preview:config.preview,platform:config.platform,base:'../'.repeat(route.split('/').filter(Boolean).length)||'./'});
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
- if(parts.path==='game/sfx-generator')return sfxPage({locale,base,siteURL});
+ if(parts.path==='game/sfx-generator')return sfxPage({locale,base,siteURL,preview:!!config.preview});
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
  if(parts.path===STUDIO_PATH)return studioPage({locale,base,config});
  if(parts.path===AUDIO_LAB_PATH)return audioLabPage({locale,base,siteURL,preview:config.preview});
@@ -154,9 +157,15 @@ export async function build(options={}){
  if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
-  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/build.txt','/styles.css','/experience.css','/content.css','/favicon.svg','/favicon.ico','/apple-touch-icon.png','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']},null,2));
+  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/build.txt','/styles.css','/experience.css','/content.css','/favicon.svg','/favicon.ico','/apple-touch-icon.png','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt','/llms.txt','/search-discovery.json']},null,2));
  }
  if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS+(config.platform?ADMIN_HEADERS:''));}
+ // Read final HTML (including service-only routes) to share canonical and noindex decisions.
+ // Discovery files are public navigation, not a ranking or citation guarantee.
+ for(const [file,content] of Object.entries(await searchDiscoveryFiles(config.preview?'':siteURL,{
+  readPage:route=>readFile(path.join(dist,route,'index.html'),'utf8'),
+  extra:config.service&&config.metering!==false?['pricing']:[],lastmod
+ })))await writeFile(path.join(dist,file),content);
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))await build();

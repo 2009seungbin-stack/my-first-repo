@@ -16,7 +16,7 @@
  * Anonymous HTML is identical for everyone (personal state comes from islands), so responses are
  * cached at the edge. Only known query parameters with valid values reach the renderers and the
  * cache key; anything else is redirected to the canonical URL (no cache-busting by ?x=random). */
-import {entityBySlug,legacyPost,factsFor,SORTS} from '../../platform/db/channel.js';
+import {entityBySlug,legacyPost,factsFor,pickFact,SORTS} from '../../platform/db/channel.js';
 import {loadChannel,renderChannel} from '../../platform/render/channel.js';
 import {loadBoard,renderBoard} from '../../platform/render/board.js';
 import {loadPost,renderPost} from '../../platform/render/post.js';
@@ -38,13 +38,14 @@ import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
 import {renderUsedPrices,renderPerformance} from '../../platform/render/hardware-tools.js';
 import {renderBracket} from '../../platform/render/bracket.js';
 import {MARKETS} from '../../src/hardware/market.js';
+import {marketSnapshot} from './hardware-market.js';
 import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
 import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,writePath,channelBarLinks} from '../../platform/channels.js';
 import {sitemapEntities} from '../../platform/db/channel.js';
-import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
+import {entityIndexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {RAIL_SERVICES} from '../../platform/render/rail.js';
 import {maybeRefreshStatus} from './status-refresh.js';
 
@@ -94,7 +95,7 @@ export function matchPlatformRoute(pathname){
 const hasOwn=(/** @type {object} */ o,/** @type {string} */ k)=>Object.prototype.hasOwnProperty.call(o,k);
 /** Allowed parameters per page with their canonical form (null = drop). */
 const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} */({
- 'used-prices':{country:v=>MARKETS.some(m=>m.id===v)?v:null,q:v=>v.trim().slice(0,80)||null},
+ 'used-prices':{country:v=>MARKETS.some(m=>m.id===v)?v:null,q:v=>v.trim().slice(0,80)||null,basis:v=>v==='sold'||v==='asking'?v:null,days:v=>['7','30','90'].includes(v)?v:null},
  performance:{type:v=>v==='cpu'||v==='gpu'?v:null,country:v=>MARKETS.some(m=>m.id===v)?v:null,a:v=>/^[a-f0-9]{16}$/.test(v)?v:null,b:v=>/^[a-f0-9]{16}$/.test(v)?v:null},
  channel:{kind:v=>hasOwn(POST_KINDS,v)?v:null,sort:v=>SORTS.includes(/** @type {any} */(v))&&v!=='new'?v:null,best:v=>v==='1'?'1':null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null,sub:v=>v==='0'?'0':null},
  board:{kind:v=>hasOwn(POST_KINDS,v)?v:null,tag:v=>ENTITY_ID.test(v)?v:null,sort:v=>SORTS.includes(/** @type {any} */(v))&&v!=='new'?v:null,best:v=>v==='1'?'1':null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null,
@@ -155,7 +156,10 @@ export async function renderPlatformPage(request,env,site){
  const bar=()=>channelBar(db,l,now);
  if(route.page==='used-prices'||route.page==='performance'){
   const o={l,origin:s.origin,tool:route.slug||'',query:search,q,channels:await bar()};
-  return html(String(route.slug==='used-prices'?renderUsedPrices(o):renderPerformance(o)));
+  const response=html(String(route.slug==='used-prices'?renderUsedPrices({...o,market:await marketSnapshot(request,env)}):renderPerformance(o)));
+  // Keep page caching from extending the five-minute marketplace snapshot lifetime.
+  if(route.slug==='used-prices')response.headers.set('cache-control','no-store');
+  return response;
  }
  if(route.page==='bracket')return html(String(renderBracket({l,origin:s.origin,channels:await bar()})));
  switch(route.page){
@@ -236,10 +240,17 @@ export async function renderSitemap(db,vertical,origin){
  // The home status box's services (Claude, ChatGPT, Gemini) are always listed: their status pages are
  // what people land on when the service breaks ("클로드 안 됨"), whatever the content gate says.
  const always=new Set(RAIL_SERVICES.map(x=>x.id));
- const rows=(await sitemapEntities(db,vertical)).filter(e=>(always.has(e.id)&&e.index_state!=='noindex')||indexable(e,{facts:e.facts,relations:e.relations,posts:e.posts,description:!!(e.descriptions.ko||e.descriptions.en)}));
- const urls=[];
+ const rows=(await sitemapEntities(db,vertical)).filter(e=>e.index_state!=='noindex');
+ /** @type {string[]} */const urls=[];
+ /** One locale-aware sitemap entry per indexable translation. The alternate cluster contains only
+  * those same indexable URLs, with an English fallback when it exists. @param {Record<string,string>} alt @param {number} [lastmod] @param {string} [fallback] */
+ const add=(alt,lastmod=0,fallback=alt.en||alt.ko)=>{
+  const alternates=Object.entries({...alt,...(fallback?{'x-default':fallback}:{})}).map(([l,url])=>`<xhtml:link rel="alternate" hreflang="${l}" href="${xmlEsc(url)}"/>`).join('');
+  const modified=Number.isFinite(lastmod)&&lastmod>0&&lastmod<=864e13?`<lastmod>${new Date(lastmod).toISOString().slice(0,10)}</lastmod>`:'';
+  for(const url of Object.values(alt))urls.push(`<url><loc>${xmlEsc(url)}</loc>${modified}${alternates}</url>`);
+ };
  const hub={ko:`${origin}/ko/${vertical}/`,en:`${origin}/en/${vertical}/`};
- for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(hub[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(hub.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(hub.en)}"/></url>`);
+ add(hub);
  // Change histories with real changes (at least 3 besides first sightings) are pages of their own.
  const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
  // The comparison tables, and (in the AI file) the community front and the Radar.
@@ -247,27 +258,32 @@ export async function renderSitemap(db,vertical,origin){
  const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/'],['/bracket/']]:[])];
  if(vertical==='ai'){
   const home={ko:`${origin}/`,en:`${origin}/en/`};
-  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);
+  add(home,0,home.ko);
  }
  for(const [p] of extra){
   const alt={ko:`${origin}/ko${p}`,en:`${origin}/en${p}`};
-  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/></url>`);
+  add(alt);
  }
+ const gpuFacts=vertical==='hardware'?await factsFor(db,rows.filter(e=>e.type==='gpu').map(e=>e.id)):new Map();
  for(const e of rows){
-  const paths=[''];if(e.type==='service')paths.push('status');if(e.type==='gpu')paths.push('local-llm');if(hist.has(e.id))paths.push('history');
+  const locales=['ko','en'].filter(l=>entityIndexable(e,e,l));
+  const paths=locales.length?['']:[];
+  if(e.type==='service'&&(locales.length||always.has(e.id)))paths.push('status');
+  if(e.type==='gpu'&&Number(pickFact(gpuFacts.get(e.id),'vram_gb')?.value||0)>0)paths.push('local-llm');
+  if(hist.has(e.id))paths.push('history');
   for(const p of paths){
-   const alt={ko:origin+channelUrl('ko',e)+p,en:origin+channelUrl('en',e)+p};
-   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc>${e.lastmod?`<lastmod>${new Date(e.lastmod).toISOString().slice(0,10)}</lastmod>`:''}<xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(alt.en)}"/></url>`);
+   const alt=Object.fromEntries((p?['ko','en']:locales).map(l=>[l,origin+channelUrl(l,e)+p]));
+   add(alt,e.lastmod);
   }
  }
  // GPU pairs worth a page of their own: a card and the card it succeeds (RTX 4070 → RTX 5070).
  if(vertical==='hardware'){
-  const ok=new Set(rows.filter(e=>e.type==='gpu').map(e=>e.id)),slug=new Map(rows.map(e=>[e.id,e.slug]));
+  const ok=new Set(rows.filter(e=>e.type==='gpu'&&['ko','en'].some(l=>entityIndexable(e,e,l))).map(e=>e.id)),slug=new Map(rows.map(e=>[e.id,e.slug]));
   const pairs=((await db.prepare("SELECT subject_id,object_id FROM relations WHERE predicate='successor_of' AND valid_until IS NULL").all()).results||[])
    .filter((/** @type {any} */ r)=>ok.has(r.subject_id)&&ok.has(r.object_id)).map((/** @type {any} */ r)=>[slug.get(r.subject_id),slug.get(r.object_id)].sort().join(','));
   for(const pr of [...new Set(pairs)]){
    const alt={ko:`${origin}/ko/hardware/?type=gpu&vs=${pr}`,en:`${origin}/en/hardware/?type=gpu&vs=${pr}`};
-   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/></url>`);
+   add(alt);
   }
  }
  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls.join('')}</urlset>`;
@@ -293,7 +309,7 @@ export async function handlePlatformPage(request,env,ctx,site){
  maybeRefreshStatus(env,ctx,site);
  const cache=/** @type {any} */(globalThis).caches?.default;
  const key=new Request(request.url,{method:'GET'});
- const hit=cache?await cache.match(key):null;
+ const hit=cache&&matchPlatformRoute(path)?.page!=='used-prices'?await cache.match(key):null;
  if(hit)return hit;
  let res;
  try{res=await renderPlatformPage(request,env,site);}

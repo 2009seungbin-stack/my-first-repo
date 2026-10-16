@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile,readdir,mkdtemp,rm,stat} from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import {pathToFileURL} from 'node:url';
+import {D1Shim,sqliteAvailable} from './d1-shim.mjs';
 import {build} from '../tools/build.mjs';
 import {configuration,adHead} from '../tools/site-config.mjs';
 import {serviceRoutes,STATIC_EXCLUDES} from '../tools/service-build.mjs';
@@ -84,6 +86,27 @@ test('service + ads build: HTML through the Worker for nonces, static assets exc
  });
  assert.equal(serviceRoutes({client}).exclude.length,STATIC_EXCLUDES.length);
  assert(serviceRoutes({client}).exclude.length<=100&&serviceRoutes({client}).exclude.every(r=>r.length<=100),'_routes.json limits');
+});
+test('built Workers keep dynamic preview HTML and sitemaps noindex without changing production indexing',{skip:!sqliteAvailable},async()=>{
+ for(const preview of [false,true])await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on',TOOL_METERING:'off',...(preview?{SITE_ENV:'preview'}:{})},async(out,read)=>{
+  const {default:worker}=await import(pathToFileURL(path.join(out,'_worker.js/index.js')).href);
+  const db=D1Shim.migrated();
+  try{
+   const env={DB:db,ASSETS:{fetch:async()=>new Response('<h1>Tool</h1>',{headers:{'content-type':'text/html'}})}};
+   for(const route of ['', 'sitemap-n2-ai.xml', 'en/image/compress/']){
+    const response=await worker.fetch(new Request(new URL(route,origin)),env,{});
+    assert.equal(response.status,200,route);
+    assert.equal(response.headers.get('X-Robots-Tag'),preview?'noindex, nofollow':null,`${preview?'preview':'production'} ${route}`);
+    assert((await response.text()).length>0,'the original response body is preserved');
+   }
+   if(preview){
+    await assert.rejects(read('llms.txt'));await assert.rejects(read('search-discovery.json'));
+   }else{
+    assert((await read('llms.txt')).startsWith('# Nerulio'));
+    assert(JSON.parse(await read('search-discovery.json')).pages.length>0);
+   }
+  }finally{db.raw.close();}
+ });
 });
 test('tool UI never hard-codes quota classes',async()=>{
  for(const f of ['app','experience','toolkit','entitlement','ads']){

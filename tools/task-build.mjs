@@ -5,6 +5,7 @@ import {LOCALES,LANGUAGE_NAMES,t} from '../src/i18n.js';
 import {INTENTS} from '../src/intents.js';
 import {TOOLS} from '../src/tool-registry.js';
 import {TASK_TOOLS,DIRECTORY} from '../src/task/registry.js';
+import {preflightDirectory} from '../src/preflight/directory.js';
 import {ui} from '../src/task/strings.js';
 import {SPRITE_EXPORTS,TILE_EXPORTS} from '../src/game-seo.js';
 import {siteHeader,footerBrand,arrow} from './game-chrome.mjs';
@@ -99,6 +100,7 @@ ${row('pixel',shotFig('pixel','pixelCaption',1600,980),go('pixel','openPixel'),{
  const index=`<section class="gs-section gh-index" id="tools" aria-labelledby="toolsTitle"><div class="gs-wrap"><header class="gh-index-head"><div><h2 class="gs-h2" id="toolsTitle" data-ui="gh.tools">${esc(ui(locale,'gh.tools'))}</h2>${u('gh.toolsLead','p','gs-lead')}</div><label class="gh-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="tool-query" id="toolQuery" type="search" placeholder="${esc(ui(locale,'search'))}" aria-label="${esc(ui(locale,'searchLabel'))}" autocomplete="off"></label></header>
 <div class="directory" id="directory"><section class="gh-dir-game" aria-labelledby="toolsTitle"><div class="gh-groups">${groups.map(([g,ids])=>`<div class="gh-group" data-group="${g}">${groupName(g)}<ul>${ids.map(card).join('')}</ul></div>`).join('')}</div></section>
 ${hubLinks}${pc}
+<section class="gh-group"><h3>Nerulio Preflight</h3><ul><li><a class="tool-card" data-preflight-link data-search="${esc(preflightDirectory(locale).search)}" href="${prefix}preflight/"><b>${esc(preflightDirectory(locale).title)}</b><small>${esc(preflightDirectory(locale).description)}</small></a></li></ul></section>
 <details class="file-tools" id="file-tools"><summary><b data-ui="gh.fileTools">${esc(ui(locale,'gh.fileTools'))}</b><small data-ui="gh.fileToolsLead">${esc(ui(locale,'gh.fileToolsLead'))}</small></summary><div class="gh-groups is-files">${files.map(([cat,ids])=>`<section class="gh-group"><h3 data-cat="${cat}">${esc(ui(locale,'cat.'+cat))}</h3><ul>${ids.map(card).join('')}</ul></section>`).join('')}</div></details>
 <p class="no-result" id="noResult" hidden></p></div></div></section>`;
  const body=`${header}<main class="page game-home-main" id="home" data-ad-exclude><span id="main"></span>${hero}${flow}${engines}${index}</main><div id="siteContent" class="gh-content gs-footgrid">${withFooterBrand(contentHTML,locale,prefix)}</div>`;

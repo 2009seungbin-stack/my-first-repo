@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "vertical": "obs",
+  "name": "Demo OBS Studio stack",
+  "generatedAt": "2026-10-05T00:00:00Z",
+  "sample": true,
+  "host": {
+    "name": "OBS Studio",
+    "version": "32.2.2"
+  },
+  "platform": "windows",
+  "architecture": "x86_64",
+  "components": [
+    {
+      "id": "demo-obs-0",
+      "name": "Demo Canvas Switch",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-1",
+      "name": "Demo Scene Motion",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Transition",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-2",
+      "name": "Demo Source Capture",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Source",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-3",
+      "name": "Demo Color Filter",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Filter",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-4",
+      "name": "Demo Chat Dock",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-5",
+      "name": "Demo Audio Monitor",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Filter",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-6",
+      "name": "Demo Camera Bridge",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Source",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-7",
+      "name": "Demo Caption Tool",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Script",
+      "version": "0.9.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-8",
+      "name": "Demo Legacy Overlay",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-9",
+      "name": "Demo Unverified Filter",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Filter",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-10",
+      "name": "Demo Old Encoder",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Plugin",
+      "version": "1.2.0",
+      "critical": false,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-11",
+      "name": "Demo Retired Dock",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Plugin",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-12",
+      "name": "Demo Web Runtime",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Runtime",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-13",
+      "name": "Demo Hotkey Control",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Control Tool",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-14",
+      "name": "Demo Script Pack",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Script",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    },
+    {
+      "id": "demo-obs-15",
+      "name": "Demo Output Monitor",
+      "vendor": "Fictional Demo Vendor",
+      "category": "Filter",
+      "version": "1.2.0",
+      "critical": true,
+      "sample": true
+    }
+  ],
+  "target": {
+    "version": "33.0",
+    "platform": "windows",
+    "architecture": "x86_64"
+  }
+}
