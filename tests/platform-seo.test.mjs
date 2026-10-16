@@ -77,6 +77,17 @@ test('platform audit reads the document head while still rejecting duplicate pag
  assert(platformMarkupProblems(canonical,markup.replace('<h1>Service</h1>','')).includes('expected one H1'));
 });
 
+test('merged navigation keeps reference pages in the portal and standalone Preflight links static',()=>{
+ const options={...metadata,channels:[],body:'Content'};
+ const portal=String(page(options));
+ assert(portal.includes('href="/en/ai/"'));
+ assert(portal.includes('href="/en/bracket/"'));
+ const standalone=String(page({...options,toolsOnly:true}));
+ assert(standalone.includes('href="/en/preflight/obs/"'));
+ assert(!standalone.includes('href="/en/ai/"'));
+ assert(!standalone.includes('href="/en/bracket/"'));
+});
+
 test('SFX previews are noindex while production pages retain their canonical URL',()=>{
  const preview=sfxPage({locale:'en',base:'../../../',siteURL:origin+'/',preview:true});
  assert.match(preview,/name="robots" content="noindex,nofollow"/);
