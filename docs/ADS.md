@@ -1,5 +1,13 @@
 # Advertising boundaries
 
+## Content readiness changes (2026-10-16)
+
+The portal now starts with real tool workflows and the existing licensed Studio example, followed by source-backed reference directories and then community posts. Empty boards link to relevant information and tools. Empty boards and all time-window best lists are `noindex,follow`; the platform sitemap uses the same published-post condition for boards and omits best lists. These are discoverability rules, not an exemption from AdSense review.
+
+About pages describe tools, reference sources, corrections and community moderation. File privacy promises apply to files opened for editing; community image attachments are separately uploaded to R2. The community disclosure is tied to the platform feature rather than visit tracking, including after a policy-page language switch.
+
+Before requesting another review, verify the deployed revision, actual publisher ID in `/ads.txt`, and the ownership status in the AdSense account. Continue maintaining source dates and adding useful examples from real work. These changes do not establish traffic, account verification or Google approval. Ad enablement and review submission remain separate operations.
+
 Advertising remains optional and off without `ADSENSE_CLIENT`. Existing ownership verification uses `ADSENSE_VERIFICATION_CLIENT` to generate ads.txt **without** loading an ad script. This separation stays intact during the Nerulio rename. Google account approval and actual monetization are operational states, not build-time promises.
 
 ## Available placement and exclusions

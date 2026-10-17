@@ -1,7 +1,7 @@
 // @ts-check
-/** The portal home (/ in Korean, /en/ in English; /{l}/community/ redirects there): one column of posts
- * from every channel (인기 · 최신, and the ★ 념글 page), and on the right sign-in, AI service status, Radar
- * news, this week's schedule and today's best. File and game tools are in the menu of every page. */
+/** The portal home (/ in Korean, /en/ in English; /{l}/community/ redirects there): useful tool
+ * workflows and examples, source directories, then the community feed. Sign-in, status and news
+ * stay in the side rail. Best lists and sort variants remain accessible without search indexing. */
 import {html,raw} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,channelTile,channelName} from './ui.js';
@@ -15,6 +15,7 @@ import {boardTime} from './format.js';
 import {frontPosts,excerptsOf} from '../db/channel.js';
 import {CHANNELS,channelById,channelPath} from '../channels.js';
 import {renderDiscovery} from './discovery.js';
+import {renderHomeContent} from './home-content.js';
 
 const DAY=864e5;
 /** 념글 periods (today = the rolling 24 hours the ★ rule uses). */
@@ -52,10 +53,10 @@ export function renderFront(m,site){
  const tabs=html`<nav class="feedtabs" aria-label="${ko?'정렬':'Sort'}"><a href="${home}"${m.sort==='hot'?html` class="on" aria-current="page"`:''}>${icon('flame',16)}${ko?'인기':'Popular'}</a><a href="${home}?sort=new" rel="nofollow"${m.sort==='new'?html` class="on" aria-current="page"`:''}>${icon('clock',16)}${ko?'최신':'Latest'}</a><a href="${frontUrl(l)}best/">${icon('star',16)}${ko?'념글':'Best'}</a><span class="sp"></span><a class="btn p" href="${frontUrl(l)}free/write" aria-label="${s.write}">${icon('pencil',16)}<span>${s.write}</span></a></nav>`;
  const feed=m.posts.length?html`<ol class="feed">${m.posts.map(p=>feedCard(p,l,now))}</ol>`:html`<div class="empty box emptyv">${EMPTY_ART}<p>${s.frontEmpty}</p></div>`;
  const login=html`<section class="box login" data-island="account"><b>${ko?'로그인하면 구독·알림·고정닉':s.loginTitle}</b>${site.providers?.length?raw(buttonsHTML(site.providers,l,home)):html`<a class="btn" href="${signInUrl(home)}" rel="nofollow" data-signin>${s.login}</a>`}</section>`;
- const body=html`<div class="front"><main class="mainc"><h1 class="sr-only">${ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티':'Nerulio — community for AI, games, PC, creator tools and anime'}</h1>${statusStrip(m.rail,l)}${tabs}${feed}${renderDiscovery(l)}<p class="more2"><a class="btn" href="${frontUrl(l)}free/">${ko?'채널에서 더 보기':'More in the channels'} ›</a></p></main><div class="side">${login}${renderRail(m.rail,l)}</div></div>`;
- const title=ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티와 파일 도구':'Nerulio — community for AI, games, PC, creator tools and anime, plus file tools';
+ const body=html`<div class="front"><main class="mainc">${renderHomeContent(l)}${renderDiscovery(l)}${statusStrip(m.rail,l)}<section aria-labelledby="home-community"><div class="bh"><h2 id="home-community">${ko?'커뮤니티 이야기':'From the community'}</h2></div>${tabs}${feed}<p class="more2"><a class="btn" href="${frontUrl(l)}free/">${ko?'채널에서 더 보기':'More in the channels'} ›</a></p></section></main><div class="side">${login}${renderRail(m.rail,l)}</div></div>`;
+ const title=ko?'Nerulio — 파일·게임 에셋 도구와 AI·PC 정보 커뮤니티':'Nerulio — file and game asset tools, AI and PC reference pages and community';
  const other=ko?'en':'ko';
- return page({l,title,description:ko?'AI 서비스 상태와 새 소식, 게임·PC·창작 도구·애니 채널의 인기 글, 그리고 서버에 올리지 않는 파일·게임 도구.':'AI service status and news, popular posts from game, PC, creator-tool and anime channels, and file and game tools that never upload your files.',canonical:site.origin+home+(m.sort==='new'?'?sort=new':''),noindex:m.sort==='new',
+ return page({l,title,description:ko?'이미지 압축·PDF 편집·스프라이트 제작·작업 환경 점검을 브라우저에서 시작하세요. 사용 예제와 출처가 표시된 AI·게임·PC 정보, 커뮤니티 질문과 경험을 함께 제공합니다.':'Start image compression, PDF editing, sprite workflows and environment checks in your browser. Explore worked examples, sourced AI, game and PC information, and community questions and experience.',canonical:site.origin+home+(m.sort==='new'?'?sort=new':''),noindex:m.sort==='new',
   alternates:m.sort==='new'?{}:{[l]:site.origin+home,[other]:site.origin+homeUrl(other),'x-default':site.origin+homeUrl('ko')},channels:m.channels,homeOn:true,body,verify:m.sort==='hot'?site.verify:null,
   // The site's name and logo for search engines: the portal is the home now, not the game asset studio.
   jsonld:m.sort==='hot'?siteJsonld(site.origin+'/',l):null});
@@ -77,5 +78,5 @@ export function renderBest(m,site){
  const list=box({title:ko?'★ 념글':'★ Best posts',extra:periods,note:s.bestRule},m.posts.length?html`<ol class="plist">${m.posts.map((p,i)=>html`<li class="lr"><span class="rank">${i+1}</span><a class="tt" href="${postHref(l,p)}">${kindChip(p.kind,l,p.channel_id)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a><span class="lrm"><a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>${p.tags[0]?html`<a class="rtag" href="${channelUrl(l,p.tags[0])}">${nameOf(p.tags[0],l)}</a>`:''}</span><span class="up">▲ ${p.up}</span></li>`)}</ol>`:html`<p class="empty">${ko?'이 기간에 념글이 된 글이 없습니다.':'No best posts in this period.'}</p>`);
  const body=html`<div class="narrow"><h1 class="sr-only">${ko?'전체 베스트 — 채널별 념글':'Best posts'}</h1><section class="box kwb">${chs}</section>${list}</div>`;
  return page({l,title:ko?'전체 베스트 — 채널별 념글 | Nerulio':'Best posts | Nerulio',description:ko?'AI·게임·PC·창작 도구·애니·자유 채널에서 추천을 많이 받은 글.':'Most upvoted posts across channels.',
-  canonical:site.origin+qs({}),noindex:!!(m.channel||m.period!=='day'),channels:m.channels,bestOn:true,body});
+  canonical:site.origin+qs({}),noindex:true,channels:m.channels,bestOn:true,body});
 }
