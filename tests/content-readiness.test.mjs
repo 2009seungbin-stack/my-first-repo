@@ -4,8 +4,18 @@ import {D1Shim,sqliteAvailable} from './d1-shim.mjs';
 import {renderPlatformPage,renderSitemap} from '../server/platform/pages.js';
 import {createPost} from '../platform/community.js';
 import {policyContent} from '../src/policies.js';
+import {renderHomeContent} from '../platform/render/home-content.js';
+import {ALL_ROUTES} from '../tools/build.mjs';
 
 const origin='https://nerulio.example.test';
+
+test('homepage links resolve to registered production routes rather than the entry renderer fallback',()=>{
+ const routes=new Set([...ALL_ROUTES,'ko/tools','en/tools']);
+ for(const locale of ['ko','en'])for(const [,href] of String(renderHomeContent(locale)).matchAll(/href="([^"]+)"/g)){
+  const path=new URL(href,origin).pathname.replace(/^\/+|\/+$/g,'');
+  assert(routes.has(path),`${locale}: ${href} is not a production route`);
+ }
+});
 
 test('empty boards stay accessible but leave search discovery; publication and hiding update both gates',{skip:!sqliteAvailable},async()=>{
  const db=D1Shim.migrated();
