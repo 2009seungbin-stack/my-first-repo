@@ -12,10 +12,10 @@ with socket.socket() as sock:
 origin = f'http://localhost:{port}'
 checks = []
 # The platform dev server owns dynamic routes; production serves the generated tools
-# directory as a static asset. Use the actual entry renderer for those two static routes.
+# directory as a static asset. Serve only routes present in the production registry.
 server_script = '''
 import {createDevServer} from './tools/platform/dev-server.mjs';
-import {entry} from './tools/build.mjs';
+import {entry,ALL_ROUTES} from './tools/build.mjs';
 import {setPortal} from './src/seo.js';
 import {readFile} from 'node:fs/promises';
 const {server,origin,db}=await createDevServer({port:Number(process.argv[1])});
@@ -24,7 +24,8 @@ await db.prepare('DELETE FROM discussions').run();
 const template=await readFile('index.html','utf8');setPortal(true);
 const [dynamic]=server.listeners('request');server.removeAllListeners('request');
 server.on('request',(req,res)=>{
- if(/^\\/(ko|en|ja)\\/(tools|image\\/compress|game\\/sprite-slicer|preflight|about|privacy)\\/$/.test(req.url)){
+ const route=req.url.split('?')[0].replace(/^\\/+|\\/+$/g,'');
+ if(route&&!['ko','en'].includes(route)&&(ALL_ROUTES.includes(route)||['ko/tools','en/tools'].includes(route))){
   res.writeHead(200,{'content-type':'text/html; charset=utf-8'});
   res.end(entry(template,req.url.slice(1,-1),origin+'/',{platform:true,service:true,metering:false}));
  }else if(['/styles.css','/content.css'].includes(req.url)){

@@ -8,11 +8,11 @@ export function renderHomeContent(l){
  const ko=l==='ko',lang=ko?'ko':'en',base=`/${lang}/`;
  const workflows=ko?[
   {path:'image/compress/',title:'이미지 용량 줄이기',body:'PNG·JPG·WebP를 열고 압축 단계를 고르세요. 결과의 용량과 화질을 비교한 뒤 저장합니다.',result:'결과: 압축한 이미지',guide:'지원 형식·실측 예제·문제 해결 보기'},
-  {path:'game/sprite-slicer/',title:'스프라이트 시트를 애니메이션으로',body:'시트를 열고 프레임 크기와 범위를 지정하세요. 애니메이션을 재생해 잘린 부분을 확인하고 엔진용으로 내보냅니다.',result:'결과: 나눈 프레임과 애니메이션',guide:'자르기·미리보기·내보내기 안내'},
+  {path:'sprite-slicer/',title:'스프라이트 시트를 애니메이션으로',body:'시트를 열고 프레임 크기와 범위를 지정하세요. 애니메이션을 재생해 잘린 부분을 확인하고 엔진용으로 내보냅니다.',result:'결과: 나눈 프레임과 애니메이션',guide:'자르기·미리보기·내보내기 안내'},
   {path:'preflight/',title:'작업 전에 환경 점검하기',body:'OBS·Blender·Godot 작업을 골라 환경 정보를 확인하세요. 점검 결과의 근거와 적용 범위를 읽고 보고서를 저장합니다.',result:'결과: 환경 점검 보고서',guide:'작업별 점검 도구 열기'}
  ]:[
   {path:'image/compress/',title:'Reduce an image’s file size',body:'Open a PNG, JPG or WebP and choose a compression level. Compare the output size and image quality before saving.',result:'Output: a compressed image',guide:'Formats, measured examples and troubleshooting'},
-  {path:'game/sprite-slicer/',title:'Turn a sprite sheet into animation',body:'Open a sheet and set the frame size and range. Play the animation to check the cuts, then export for your engine.',result:'Output: split frames and animation',guide:'Slicing, preview and export guide'},
+  {path:'sprite-slicer/',title:'Turn a sprite sheet into animation',body:'Open a sheet and set the frame size and range. Play the animation to check the cuts, then export for your engine.',result:'Output: split frames and animation',guide:'Slicing, preview and export guide'},
   {path:'preflight/',title:'Check your setup before a project',body:'Choose an OBS, Blender or Godot workflow and review your environment. Read the evidence and scope of each finding, then save the report.',result:'Output: an environment check report',guide:'Open the workflow checks'}
  ];
  return html`<section class="box home-start" aria-labelledby="home-title" data-home-start>
