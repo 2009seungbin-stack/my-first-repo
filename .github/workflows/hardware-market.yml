@@ -30,6 +30,7 @@ jobs:
             const response=await fetch(url,options);
             const body=await response.clone().text();
             console.log(JSON.stringify({url,status:response.status,type:response.headers.get('content-type'),length:body.length,title:body.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1],entry:/data-gg-block-kind="entry"/.test(body),document:/class="document_\d+_\d+ xe_content"/.test(body),headings:[...body.matchAll(/<h1\b[^>]*>/gi)].map(m=>m[0]),categories:[...body.matchAll(/<strong\b[^>]*class="cate[^>]*>[\s\S]*?<\/strong>/gi)].map(m=>m[0])}));
+            if(body.length<2000&&!url.endsWith('robots.txt'))console.log(body);
             return response;
           }});
           console.log(JSON.stringify(results.map(({source,status,items,excluded,failure})=>({source,status,count:items.length,excluded,failure}))));
