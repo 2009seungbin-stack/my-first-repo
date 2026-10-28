@@ -56,6 +56,9 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
    if(!res.ok)throw Error(postId&&[404,410].includes(res.status)?'GONE':res.status===429?'RATE_LIMITED':res.status===403||res.status===401?'ACCESS_DENIED':`HTTP_${res.status}`);
    const type=res.headers.get('content-type')||'';if(!/text\/(?:html|plain)|application\/(?:rss\+xml|xml)/i.test(type))throw Error('CONTENT_TYPE');
    const body=await bounded(res);
+   // Some hosts return a JavaScript cookie challenge with HTTP 200 instead of a page.
+   // Record the refusal without executing the script or treating it as a parser change.
+   if(source.id==='giggle'&&/<script\b[^>]*src=["']\/cupid\.js["']/i.test(body)&&/document\.cookie\s*=\s*["']CUPID=/i.test(body))throw Error('BOT_CHALLENGE');
    if(postId)result.fetches.push({url,postId,etag:res.headers.get('etag'),modified:res.headers.get('last-modified')});
    return body;
   }
