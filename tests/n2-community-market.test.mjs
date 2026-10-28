@@ -65,6 +65,27 @@ test('discovery stays on canonical market paths and discards unsafe/non-sale/oth
  const h='<a href="https://gigglehd.com/gg/index.php?mid=bbs&amp;category=14058&amp;document_srl=123">RTX 4060</a><a href="https://evil.test/?document_srl=456">RTX 4060</a><a href="https://gigglehd.com/gg/index.php?category=13759&amp;document_srl=456">RTX 4060</a>';
  assert.deepEqual(discovery(h,SOURCES[0]),[{id:'123',url:'https://gigglehd.com/gg/123'}]);
 });
+
+test('schema failures identify the board or post without storing page content or committing partial facts',async()=>{
+ const source=SOURCES[0],headers={'content-type':'text/html'};
+ const board='<tr data-gg-block-kind="entry">'+[123,456].map(id=>`<a href="https://gigglehd.com/gg/index.php?mid=bbs&amp;category=14058&amp;document_srl=${id}">RTX 4060</a>`).join('')+'</tr>';
+ const post='<div class="top_area ngeb"><strong class="cate fl" title="Category">장터</strong><h1 class="np_18px"><a>RTX 4060 판매</a></h1></div><div class="document_123_1 xe_content">RTX 4060 8GB 27만원</div>';
+ for(const stage of ['board','post']){
+  const get=async url=>new Response(url.endsWith('robots.txt')?'User-agent: *\nAllow: /':url.endsWith('/123')?post:url.endsWith('/456')||stage==='board'?'unrecognized private page body':board,{headers});
+  const [r]=await collectCommunity({fetch:get,now,delay:0,sources:[source]});
+  assert.equal(r.status,'SCHEMA');
+  assert.deepEqual(r.failure,{stage,url:stage==='board'?source.board:'https://gigglehd.com/gg/456'});
+  assert(!JSON.stringify(r).includes('unrecognized private page body'));
+  if(stage==='post'){
+   assert.equal(r.items.length,1);
+   const db=D1Shim.migrated();
+   await saveCommunity(db,[r]);
+   assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM hardware_market_items').first()).n,0);
+   assert.equal((await db.prepare('SELECT success_at FROM hardware_market_sources').first()).success_at,null);
+   db.raw.close();
+  }
+ }
+});
 test('D1 idempotence, conditional 304, revisions, sold transitions and vanished items',async()=>{
  const db=D1Shim.migrated(),items=parsed().items;
  await saveCommunity(db,[result(items)]);await saveCommunity(db,[result(items,now+1000)]);

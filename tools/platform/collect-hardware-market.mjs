@@ -12,7 +12,10 @@ export async function run(argv=process.argv.slice(2)){
  for(const t of targets)for(const sql of schema.split(';').map(s=>s.trim()).filter(Boolean))await t.db.prepare(sql).run();
  const results=await collectCommunity({db:targets[0]?.db});let failed=results.some(r=>r.status!=='ok');
  for(const t of targets){try{await saveCommunity(t.db,results);console.log(`Saved normalized facts to ${t.label}`);}catch(e){failed=true;console.error(`Persistence failed for ${t.label}: ${e.message}`);}}
- for(const r of results)console.log(`${r.source}: ${r.status}, ${r.items.length} items, ${r.excluded} excluded`);
+ for(const r of results){
+  console.log(`${r.source}: ${r.status}, ${r.items.length} items, ${r.excluded} excluded`);
+  if(r.failure)console.error(`${r.source}: ${r.status} during ${r.failure.stage} at ${r.failure.url}`);
+ }
  if(!targets.length)console.log(JSON.stringify(results.map(r=>({source:r.source,status:r.status,items:r.items})),null,2));
  for(const t of targets)t.db.raw?.close();
  return failed?1:0;

@@ -36,7 +36,7 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
  const results=[];
  for(const source of sources){
   const result={source:source.id,country:source.country,status:'ok',observedAt:now,items:[],posts:[],fetches:[],excluded:0};
-  let robots='',calls=0;
+  let robots='',calls=0,context;
   async function request(url,postId=''){
    const u=new URL(url);if(u.protocol!=='https:'||u.hostname!==source.host||u.username||u.password)throw Error('HOST');
    if(u.pathname!=='/robots.txt'&&!robotsAllowed(robots,url))throw Error('ROBOTS');
@@ -60,8 +60,10 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
    return body;
   }
   try{
-   robots=await request(`https://${source.host}/robots.txt`);
+   context={stage:'robots',url:`https://${source.host}/robots.txt`};
+   robots=await request(context.url);
    if(source.id==='hardforum'){
+    context={stage:'feed',url:source.board};
     const feed=await request(source.board),posts=rssPosts(feed);
     for(const p of posts.slice(0,30)){
      const u=new URL(p.url),id=u.pathname.match(/^\/threads\/[^/]+\.(\d+)\/$/)?.[1];if(u.protocol!=='https:'||u.hostname!==source.host||!id)continue;
@@ -71,18 +73,21 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
    }else{
     const posts=new Map();
     for(let page=1;page<=(source.id==='giggle'?3:1);page++){
-     const url=page===1?source.board:source.board+`&page=${page}`,board=await request(url);
+     const url=page===1?source.board:source.board+`&page=${page}`;
+     context={stage:'board',url};
+     const board=await request(url);
      if(source.id==='giggle'&&!/data-gg-block-kind="entry"/.test(board)||source.id==='hardwarefr'&&!/sujetCase3/.test(board))throw Error('SCHEMA');
      for(const p of discovery(board,source))posts.set(p.id,p);
     }
     for(const p of [...posts.values()].slice(0,12)){
+     context={stage:'post',url:p.url};
      let body;try{body=await request(p.url,p.id);}catch(e){if(e.message==='GONE'){result.posts.push({id:p.id,unchanged:false});result.excluded++;continue;}throw e;}if(body===null)continue;
      const post=source.id==='giggle'?gigglePost(body,p.id):frenchPost(body);
      const parsed=parseItems({...post,source:source.id,postId:p.id,url:p.url,country:source.country,currency:source.currency});
      result.posts.push({id:p.id,unchanged:false});result.items.push(...parsed.items);result.excluded+=parsed.excluded;
     }
    }
-  }catch(e){result.status=e instanceof Error?e.message:'ERROR';}
+  }catch(e){result.status=e instanceof Error?e.message:'ERROR';result.failure=context;}
   results.push(result);
  }
  return results;
