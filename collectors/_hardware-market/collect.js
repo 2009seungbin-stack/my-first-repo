@@ -46,7 +46,12 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
    if(old?.etag)headers['if-none-match']=old.etag;if(old?.modified)headers['if-modified-since']=old.modified;
    let res,current=url;
    for(let hop=0;hop<3;hop++){
-    try{res=await get(current,{headers,redirect:'manual',signal:AbortSignal.timeout(15000)});}catch{throw Error('NETWORK');}
+    // Retry transport failures only, with a fresh timeout and bounded backoff.
+    // Access refusals, challenges and malformed pages are never retried here.
+    for(let attempt=0;attempt<3;attempt++){
+     try{res=await get(current,{headers,redirect:'manual',signal:AbortSignal.timeout(15000)});break;}
+     catch{if(attempt===2)throw Error('NETWORK');if(delay)await new Promise(r=>setTimeout(r,delay*(attempt+1)));}
+    }
     if(![301,302,303,307,308].includes(res.status))break;
     const next=new URL(res.headers.get('location')||'',current);await res.body?.cancel();
     if(!postId||source.id!=='giggle'||next.protocol!=='https:'||next.hostname!==source.host||next.username||next.password||!new RegExp(`^/gg/(?:bbs/)?${postId}$`).test(next.pathname)||!robotsAllowed(robots,next.href)||hop===2)throw Error('REDIRECT');

@@ -65,6 +65,24 @@ test('access/rate limits, oversized responses and schema changes never commit pa
  const [r]=await collectCommunity({fetch:async url=>new Response(url.endsWith('robots.txt')?'':'x'.repeat(1024*1024+1),{headers:{'content-type':'text/plain'}}),sources:[SOURCES[1]],delay:0});assert.equal(r.status,'SIZE');
  const db=D1Shim.migrated();await saveCommunity(db,[result(parsed().items)]);await saveCommunity(db,[result([] ,now+1000,{status:'SCHEMA'})]);assert.equal((await db.prepare('SELECT active,last_seen FROM hardware_market_items').first()).active,1);assert.equal((await db.prepare('SELECT success_at FROM hardware_market_sources').first()).success_at,now);db.raw.close();
 });
+
+test('transient transport errors recover within three attempts; persistent outages stay failed',async()=>{
+ for(const failures of [2,3]){
+  const signals=[],urls=[];
+  const get=async(url,options)=>{
+   if(url.endsWith('robots.txt'))return new Response('User-agent: *\nAllow: /',{headers:{'content-type':'text/plain'}});
+   urls.push(url);signals.push(options.signal);
+   if(urls.length<=failures)throw new TypeError('fetch failed');
+   return new Response('<rss><channel></channel></rss>',{headers:{'content-type':'application/rss+xml'}});
+  };
+  const [r]=await collectCommunity({fetch:get,now,delay:0,sources:[SOURCES[1]]});
+  assert.equal(urls.length,3);assert(urls.every(u=>u===SOURCES[1].board));
+  assert.equal(new Set(signals).size,3);
+  assert.equal(r.status,failures===2?'ok':'NETWORK');
+  if(failures===3)assert.deepEqual(r.failure,{stage:'feed',url:SOURCES[1].board});
+  assert.deepEqual(r.items,[]);assert.deepEqual(r.fetches,[]);
+ }
+});
 test('discovery stays on canonical market paths and discards unsafe/non-sale/other-category links',()=>{
  const h='<a href="https://gigglehd.com/gg/index.php?mid=bbs&amp;category=14058&amp;document_srl=123">RTX 4060</a><a href="https://evil.test/?document_srl=456">RTX 4060</a><a href="https://gigglehd.com/gg/index.php?category=13759&amp;document_srl=456">RTX 4060</a>';
  assert.deepEqual(discovery(h,SOURCES[0]),[{id:'123',url:'https://gigglehd.com/gg/123'}]);
