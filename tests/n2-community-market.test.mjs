@@ -1,11 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync,rmdirSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {D1Shim} from './d1-shim.mjs';
 import {parseItems,gigglePost,frenchPost,rssPosts} from '../collectors/_hardware-market/parse.js';
 import {collectCommunity,robotsAllowed,SOURCES,discovery} from '../collectors/_hardware-market/collect.js';
 import {saveCommunity} from '../platform/hardware-community.js';
 import {marketSnapshot} from '../server/platform/hardware-market.js';
 import {renderUsedPrices} from '../platform/render/hardware-tools.js';
+import {run as runCollector} from '../tools/platform/collect-hardware-market.mjs';
 const now=Date.now();
 const input={title:'[VDS] GPU',body:'<p>RTX 5070 Ti 16 Go</p><p>Excellent état</p><p>Prix: 1 050&euro;out</p>',source:'hardwarefr',postId:'123',url:'https://forum.hardware.fr/hfr/AchatsVentes/Hardware/gpu-sujet_123_1.htm',country:'FR',currency:'EUR'};
 const parsed=o=>parseItems({...input,...o});
@@ -61,9 +65,85 @@ test('access/rate limits, oversized responses and schema changes never commit pa
  const [r]=await collectCommunity({fetch:async url=>new Response(url.endsWith('robots.txt')?'':'x'.repeat(1024*1024+1),{headers:{'content-type':'text/plain'}}),sources:[SOURCES[1]],delay:0});assert.equal(r.status,'SIZE');
  const db=D1Shim.migrated();await saveCommunity(db,[result(parsed().items)]);await saveCommunity(db,[result([] ,now+1000,{status:'SCHEMA'})]);assert.equal((await db.prepare('SELECT active,last_seen FROM hardware_market_items').first()).active,1);assert.equal((await db.prepare('SELECT success_at FROM hardware_market_sources').first()).success_at,now);db.raw.close();
 });
+
+test('transient transport errors recover within three attempts; persistent outages stay failed',async()=>{
+ for(const failures of [2,3]){
+  const signals=[],urls=[];
+  const get=async(url,options)=>{
+   if(url.endsWith('robots.txt'))return new Response('User-agent: *\nAllow: /',{headers:{'content-type':'text/plain'}});
+   urls.push(url);signals.push(options.signal);
+   if(urls.length<=failures)throw new TypeError('fetch failed');
+   return new Response('<rss><channel></channel></rss>',{headers:{'content-type':'application/rss+xml'}});
+  };
+  const [r]=await collectCommunity({fetch:get,now,delay:0,sources:[SOURCES[1]]});
+  assert.equal(urls.length,3);assert(urls.every(u=>u===SOURCES[1].board));
+  assert.equal(new Set(signals).size,3);
+  assert.equal(r.status,failures===2?'ok':'NETWORK');
+  if(failures===3)assert.deepEqual(r.failure,{stage:'feed',url:SOURCES[1].board});
+  assert.deepEqual(r.items,[]);assert.deepEqual(r.fetches,[]);
+ }
+});
 test('discovery stays on canonical market paths and discards unsafe/non-sale/other-category links',()=>{
  const h='<a href="https://gigglehd.com/gg/index.php?mid=bbs&amp;category=14058&amp;document_srl=123">RTX 4060</a><a href="https://evil.test/?document_srl=456">RTX 4060</a><a href="https://gigglehd.com/gg/index.php?category=13759&amp;document_srl=456">RTX 4060</a>';
  assert.deepEqual(discovery(h,SOURCES[0]),[{id:'123',url:'https://gigglehd.com/gg/123'}]);
+});
+
+test('schema failures identify the board or post without storing page content or committing partial facts',async()=>{
+ const source=SOURCES[0],headers={'content-type':'text/html'};
+ const board='<tr data-gg-block-kind="entry">'+[123,456].map(id=>`<a href="https://gigglehd.com/gg/index.php?mid=bbs&amp;category=14058&amp;document_srl=${id}">RTX 4060</a>`).join('')+'</tr>';
+ const post='<div class="top_area ngeb"><strong class="cate fl" title="Category">장터</strong><h1 class="np_18px"><a>RTX 4060 판매</a></h1></div><div class="document_123_1 xe_content">RTX 4060 8GB 27만원</div>';
+ for(const stage of ['board','post']){
+  const get=async url=>new Response(url.endsWith('robots.txt')?'User-agent: *\nAllow: /':url.endsWith('/123')?post:url.endsWith('/456')||stage==='board'?'unrecognized private page body':board,{headers});
+  const [r]=await collectCommunity({fetch:get,now,delay:0,sources:[source]});
+  assert.equal(r.status,'SCHEMA');
+  assert.deepEqual(r.failure,{stage,url:stage==='board'?source.board:'https://gigglehd.com/gg/456'});
+  assert(!JSON.stringify(r).includes('unrecognized private page body'));
+  if(stage==='post'){
+   assert.equal(r.items.length,1);
+   const db=D1Shim.migrated();
+   await saveCommunity(db,[r]);
+   assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM hardware_market_items').first()).n,0);
+   assert.equal((await db.prepare('SELECT success_at FROM hardware_market_sources').first()).success_at,null);
+   db.raw.close();
+  }
+ }
+});
+
+test('HTTP 200 CUPID challenges are access restrictions and never refresh existing facts',async()=>{
+ const source=SOURCES[0],challenge='<html><body><script type="text/javascript" src="/cupid.js"></script><script>document.cookie="CUPID="+toHex(slowAES.decrypt(c,2,a,b));location.href="/?ckattempt=1";</script></body></html>';
+ const board='<tr data-gg-block-kind="entry"><a href="https://gigglehd.com/gg/index.php?mid=bbs&amp;category=14058&amp;document_srl=123">RTX 4060</a></tr>';
+ for(const stage of ['board','post']){
+  const db=D1Shim.migrated();
+  try{
+   const items=parsed({source:'giggle',country:'KR',currency:'KRW',title:'RTX 4060 판매',body:'RTX 4060 8GB 27만원',url:'https://gigglehd.com/gg/123'}).items;
+   await saveCommunity(db,[result(items,now,{source:'giggle',country:'KR'})]);
+   const get=async url=>new Response(url.endsWith('robots.txt')?'User-agent: *\nAllow: /':stage==='post'&&!url.endsWith('/123')?board:challenge,{headers:{'content-type':'text/html',etag:'"challenge"'}});
+   const [r]=await collectCommunity({fetch:get,now:now+1000,db,delay:0,sources:[source]});
+   assert.equal(r.status,'BOT_CHALLENGE');assert.equal(r.failure.stage,stage);
+   assert.deepEqual(r.items,[]);assert.deepEqual(r.fetches,[]);
+   await saveCommunity(db,[r]);
+   assert.equal((await db.prepare('SELECT success_at FROM hardware_market_sources').first()).success_at,now);
+   assert.deepEqual(await db.prepare('SELECT active,last_seen FROM hardware_market_items').first(),{active:1,last_seen:now});
+  }finally{db.raw.close();}
+ }
+});
+
+test('collector exit codes warn on partial restrictions but fail on schema, total outage or persistence errors',async()=>{
+ const row=status=>({source:status==='ok'?'hardwarefr':'giggle',country:'FR',status,observedAt:now,items:[],posts:[],fetches:[],excluded:0});
+ for(const status of ['BOT_CHALLENGE','ACCESS_DENIED','ROBOTS','RATE_LIMITED']){
+  const errors=[];
+  assert.equal(await runCollector([],{collect:async()=>[row(status),row('ok')],log:()=>{},logErr:m=>errors.push(m)}),0);
+  assert(errors.some(m=>m.startsWith('::warning')&&m.includes(status)));
+  assert.equal(await runCollector([],{collect:async()=>[row(status)],log:()=>{},logErr:()=>{}}),1);
+ }
+ for(const status of ['SCHEMA','NETWORK','HTTP_500'])assert.equal(await runCollector([],{collect:async()=>[row(status),row('ok')],log:()=>{},logErr:()=>{}}),1);
+ assert.equal(await runCollector([],{collect:async()=>[],log:()=>{},logErr:()=>{}}),1);
+ const folder=mkdtempSync(join(tmpdir(),'community-collector-'));
+ try{
+  const errors=[];
+  assert.equal(await runCollector(['--sqlite',join(folder,'facts.sqlite')],{collect:async()=>[{...row('ok'),items:[{}]}],log:()=>{},logErr:m=>errors.push(m)}),1);
+  assert(errors.some(m=>m.startsWith('Persistence failed for local:')));
+ }finally{rmSync(join(folder,'facts.sqlite'),{force:true});rmdirSync(folder);}
 });
 test('D1 idempotence, conditional 304, revisions, sold transitions and vanished items',async()=>{
  const db=D1Shim.migrated(),items=parsed().items;

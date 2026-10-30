@@ -36,7 +36,7 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
  const results=[];
  for(const source of sources){
   const result={source:source.id,country:source.country,status:'ok',observedAt:now,items:[],posts:[],fetches:[],excluded:0};
-  let robots='',calls=0;
+  let robots='',calls=0,context;
   async function request(url,postId=''){
    const u=new URL(url);if(u.protocol!=='https:'||u.hostname!==source.host||u.username||u.password)throw Error('HOST');
    if(u.pathname!=='/robots.txt'&&!robotsAllowed(robots,url))throw Error('ROBOTS');
@@ -46,7 +46,12 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
    if(old?.etag)headers['if-none-match']=old.etag;if(old?.modified)headers['if-modified-since']=old.modified;
    let res,current=url;
    for(let hop=0;hop<3;hop++){
-    try{res=await get(current,{headers,redirect:'manual',signal:AbortSignal.timeout(15000)});}catch{throw Error('NETWORK');}
+    // Retry transport failures only, with a fresh timeout and bounded backoff.
+    // Access refusals, challenges and malformed pages are never retried here.
+    for(let attempt=0;attempt<3;attempt++){
+     try{res=await get(current,{headers,redirect:'manual',signal:AbortSignal.timeout(15000)});break;}
+     catch{if(attempt===2)throw Error('NETWORK');if(delay)await new Promise(r=>setTimeout(r,delay*(attempt+1)));}
+    }
     if(![301,302,303,307,308].includes(res.status))break;
     const next=new URL(res.headers.get('location')||'',current);await res.body?.cancel();
     if(!postId||source.id!=='giggle'||next.protocol!=='https:'||next.hostname!==source.host||next.username||next.password||!new RegExp(`^/gg/(?:bbs/)?${postId}$`).test(next.pathname)||!robotsAllowed(robots,next.href)||hop===2)throw Error('REDIRECT');
@@ -56,12 +61,17 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
    if(!res.ok)throw Error(postId&&[404,410].includes(res.status)?'GONE':res.status===429?'RATE_LIMITED':res.status===403||res.status===401?'ACCESS_DENIED':`HTTP_${res.status}`);
    const type=res.headers.get('content-type')||'';if(!/text\/(?:html|plain)|application\/(?:rss\+xml|xml)/i.test(type))throw Error('CONTENT_TYPE');
    const body=await bounded(res);
+   // Some hosts return a JavaScript cookie challenge with HTTP 200 instead of a page.
+   // Record the refusal without executing the script or treating it as a parser change.
+   if(source.id==='giggle'&&/<script\b[^>]*src=["']\/cupid\.js["']/i.test(body)&&/document\.cookie\s*=\s*["']CUPID=/i.test(body))throw Error('BOT_CHALLENGE');
    if(postId)result.fetches.push({url,postId,etag:res.headers.get('etag'),modified:res.headers.get('last-modified')});
    return body;
   }
   try{
-   robots=await request(`https://${source.host}/robots.txt`);
+   context={stage:'robots',url:`https://${source.host}/robots.txt`};
+   robots=await request(context.url);
    if(source.id==='hardforum'){
+    context={stage:'feed',url:source.board};
     const feed=await request(source.board),posts=rssPosts(feed);
     for(const p of posts.slice(0,30)){
      const u=new URL(p.url),id=u.pathname.match(/^\/threads\/[^/]+\.(\d+)\/$/)?.[1];if(u.protocol!=='https:'||u.hostname!==source.host||!id)continue;
@@ -71,18 +81,21 @@ export async function collectCommunity({fetch:get=fetch,now=Date.now(),db=null,d
    }else{
     const posts=new Map();
     for(let page=1;page<=(source.id==='giggle'?3:1);page++){
-     const url=page===1?source.board:source.board+`&page=${page}`,board=await request(url);
+     const url=page===1?source.board:source.board+`&page=${page}`;
+     context={stage:'board',url};
+     const board=await request(url);
      if(source.id==='giggle'&&!/data-gg-block-kind="entry"/.test(board)||source.id==='hardwarefr'&&!/sujetCase3/.test(board))throw Error('SCHEMA');
      for(const p of discovery(board,source))posts.set(p.id,p);
     }
     for(const p of [...posts.values()].slice(0,12)){
+     context={stage:'post',url:p.url};
      let body;try{body=await request(p.url,p.id);}catch(e){if(e.message==='GONE'){result.posts.push({id:p.id,unchanged:false});result.excluded++;continue;}throw e;}if(body===null)continue;
      const post=source.id==='giggle'?gigglePost(body,p.id):frenchPost(body);
      const parsed=parseItems({...post,source:source.id,postId:p.id,url:p.url,country:source.country,currency:source.currency});
      result.posts.push({id:p.id,unchanged:false});result.items.push(...parsed.items);result.excluded+=parsed.excluded;
     }
    }
-  }catch(e){result.status=e instanceof Error?e.message:'ERROR';}
+  }catch(e){result.status=e instanceof Error?e.message:'ERROR';result.failure=context;}
   results.push(result);
  }
  return results;
