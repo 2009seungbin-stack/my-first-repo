@@ -1,4 +1,5 @@
 // @ts-check
+import {digestLink} from './digest.js';
 /** Public routes that connect the portal to its source-backed reference pages. Keep these links in
  * visible HTML: channel search and the sitemap should not be the only way to find the directories. */
 export const DISCOVERY_TOPICS=Object.freeze([
@@ -19,7 +20,8 @@ export const DISCOVERY_TOPICS=Object.freeze([
 ]);
 /** @param {string} l */
 export function discoveryTopics(l){
- const lang=l==='ko'?'ko':'en';
+ const lang=l==='ko'?'ko':'en',digest=digestLink(lang);
  return DISCOVERY_TOPICS.map(x=>({id:x.id,icon:x.icon,name:x[lang],description:x[lang==='ko'?'koDesc':'enDesc'],href:`/${lang}/${x.id}/`,
-  links:x.links.map(a=>({name:a[lang],href:`/${lang}/${a.path}`}))}));
+  // The AI topic gains the digest link once an article is published (the home page's AI area).
+  links:[...x.links.map(a=>({name:a[lang],href:`/${lang}/${a.path}`})),...(x.id==='ai'&&digest?[digest]:[])]}));
 }

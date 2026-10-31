@@ -24,6 +24,8 @@ import {adminBundle,ADMIN_CSP} from '../admin-build.mjs';
 import {R2Shim} from '../../tests/r2-shim.mjs';
 import {serveUpload} from '../../server/platform/uploads.js';
 import {isModeratorRequest} from '../../server/platform/api.js';
+import {useDigestArticles} from '../../platform/digest.js';
+import {loadDigest,publishedDigest} from '../digest-build.mjs';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 const VERIFY_HTML=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Verification</title><style>html,body{margin:0;background:transparent}body{display:flex;justify-content:center;padding:4px}</style><script type="module" src="/src/verify-page.js"></script></head><body><div id="turnstile"></div></body></html>`;
@@ -34,6 +36,8 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
  const db=D1Shim.migrated();
  await seedDatabase(db,undefined,now-2*864e5);
  await insertDemoContent(db,now);
+ // The AI digest as the build would publish it: content/ai-digest/ articles with status: published.
+ useDigestArticles(publishedDigest(await loadDigest()));
  const origin=`http://localhost:${port}`;
  const env={DB:db,SESSION_SECRET:'dev-only-session-secret-0123456789abcdef-0123',NERULIO_ENV:'development',SITE_URL:origin,
   ...(process.env.DEV_UPLOADS==='off'?{}:{UPLOADS:new R2Shim()}),
