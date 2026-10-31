@@ -6,7 +6,7 @@ import {html,raw} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,channelTile,channelName} from './ui.js';
 import {loadRail,renderRail,statusStrip} from './rail.js';
-import {icon,EMPTY_ART} from './icons.js';
+import {icon} from './icons.js';
 import {buttonsHTML} from '../../src/signin-brands.js';
 import {siteGraph} from '../../src/brand.js';
 /** WebSite + Organization as one JSON-LD graph. @param {string} root @param {string} l */
@@ -14,8 +14,7 @@ const siteJsonld=(root,l)=>{const {site,org}=siteGraph(root,l);return {'@context
 import {boardTime} from './format.js';
 import {frontPosts,excerptsOf} from '../db/channel.js';
 import {CHANNELS,channelById,channelPath} from '../channels.js';
-import {renderDiscovery} from './discovery.js';
-import {renderHomeContent} from './home-content.js';
+import {renderHomeContent,renderHomeAi} from './home-content.js';
 
 const DAY=864e5;
 /** 념글 periods (today = the rolling 24 hours the ★ rule uses). */
@@ -51,12 +50,13 @@ export function feedCard(p,l,now){
 export function renderFront(m,site){
  const {l,now}=m,s=t(l),ko=l==='ko',home=homeUrl(l);
  const tabs=html`<nav class="feedtabs" aria-label="${ko?'정렬':'Sort'}"><a href="${home}"${m.sort==='hot'?html` class="on" aria-current="page"`:''}>${icon('flame',16)}${ko?'인기':'Popular'}</a><a href="${home}?sort=new" rel="nofollow"${m.sort==='new'?html` class="on" aria-current="page"`:''}>${icon('clock',16)}${ko?'최신':'Latest'}</a><a href="${frontUrl(l)}best/">${icon('star',16)}${ko?'념글':'Best'}</a><span class="sp"></span><a class="btn p" href="${frontUrl(l)}free/write" aria-label="${s.write}">${icon('pencil',16)}<span>${s.write}</span></a></nav>`;
- const feed=m.posts.length?html`<ol class="feed">${m.posts.map(p=>feedCard(p,l,now))}</ol>`:html`<div class="empty box emptyv">${EMPTY_ART}<p>${s.frontEmpty}</p></div>`;
+ const feed=html`<ol class="feed">${m.posts.map(p=>feedCard(p,l,now))}</ol>`;
  const login=html`<section class="box login" data-island="account"><b>${ko?'로그인하면 구독·알림·고정닉':s.loginTitle}</b>${site.providers?.length?raw(buttonsHTML(site.providers,l,home)):html`<a class="btn" href="${signInUrl(home)}" rel="nofollow" data-signin>${s.login}</a>`}</section>`;
- const body=html`<div class="front"><main class="mainc">${renderHomeContent(l)}${renderDiscovery(l)}${statusStrip(m.rail,l)}<section aria-labelledby="home-community"><div class="bh"><h2 id="home-community">${ko?'커뮤니티 이야기':'From the community'}</h2></div>${tabs}${feed}<p class="more2"><a class="btn" href="${frontUrl(l)}free/">${ko?'채널에서 더 보기':'More in the channels'} ›</a></p></section></main><div class="side">${login}${renderRail(m.rail,l)}</div></div>`;
- const title=ko?'Nerulio — 파일·게임 에셋 도구와 AI·PC 정보 커뮤니티':'Nerulio — file and game asset tools, AI and PC reference pages and community';
+ const community=m.posts.length?html`<section aria-labelledby="home-community"><div class="bh"><h2 id="home-community">${ko?'커뮤니티 이야기':'From the community'}</h2></div>${tabs}${feed}<p class="more2"><a class="btn" href="${frontUrl(l)}free/">${ko?'채널에서 더 보기':'More in the channels'} ›</a></p></section>`:'';
+ const body=html`<div class="front"><main class="mainc">${renderHomeContent(l)}${renderHomeAi(l)}${statusStrip(m.rail,l)}${community}</main><div class="side">${login}${renderRail(m.rail,l)}</div></div>`;
+ const title=ko?'Nerulio — 브라우저 게임 에셋·파일 도구와 크리에이터를 위한 AI 해설':'Nerulio — browser game asset and file tools, plus AI commentary for creators';
  const other=ko?'en':'ko';
- return page({l,title,description:ko?'이미지 압축·PDF 편집·스프라이트 제작·작업 환경 점검을 브라우저에서 시작하세요. 사용 예제와 출처가 표시된 AI·게임·PC 정보, 커뮤니티 질문과 경험을 함께 제공합니다.':'Start image compression, PDF editing, sprite workflows and environment checks in your browser. Explore worked examples, sourced AI, game and PC information, and community questions and experience.',canonical:site.origin+home+(m.sort==='new'?'?sort=new':''),noindex:m.sort==='new',
+ return page({l,title,description:ko?'스프라이트·픽셀·타일셋 같은 게임 에셋 도구와 이미지 압축·변환·PDF 합치기 같은 파일 도구를 브라우저에서 바로 쓰세요. 크리에이터를 위한 AI 해설도 함께 다룹니다.':'Use game asset tools such as sprites, pixel art and tilesets, and file tools such as image compression, conversion and PDF merging, right in your browser. Also covers AI commentary for creators.',canonical:site.origin+home+(m.sort==='new'?'?sort=new':''),noindex:m.sort==='new',
   alternates:m.sort==='new'?{}:{[l]:site.origin+home,[other]:site.origin+homeUrl(other),'x-default':site.origin+homeUrl('ko')},channels:m.channels,homeOn:true,body,verify:m.sort==='hot'?site.verify:null,
   // The site's name and logo for search engines: the portal is the home now, not the game asset studio.
   jsonld:m.sort==='hot'?siteJsonld(site.origin+'/',l):null});
