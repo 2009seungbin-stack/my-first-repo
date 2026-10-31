@@ -34,7 +34,7 @@ Verify with `node --test tests/search-discovery.test.mjs`, then inspect the prod
 
 The portal uses one connected JSON-LD graph per indexable page. Entity pages retain their collection and breadcrumb nodes; human discussions and answered questions retain their forum/Q&A metadata. Collected Radar posts identify the site publisher without claiming how the original source was created. Text and dates come from the rendered content and stored records.
 
-`entityIndexable` applies the same per-language content gate to channel robots metadata and the Worker sitemap. Alternate links include only indexable translations. Filtered channel views remain noindex. The sitemap lists local-LLM pages only when a GPU has the VRAM value required to render that page.
+`entityIndexable` applies the same per-language content gate to channel robots metadata and the Worker sitemap. Alternate links include only indexable translations. Filtered channel views remain noindex. Original content is what counts (see `platform/seo.js`): collected descriptions and collector or seed facts never make an entity page indexable. Status, local-LLM and change-history pages follow their entity and are listed only in the languages where it is indexable (local-LLM also needs the GPU's VRAM value; a history needs three non-collector changes). The home status services (Claude, ChatGPT, Gemini) have no exception; set `index_state='index'` on an entity to list it and its derived pages.
 
 Preview Workers add `X-Robots-Tag: noindex, nofollow` to dynamic page and sitemap responses as well as static responses passing through the Worker. Pages `_headers` rules alone do not cover Worker-generated HTML. Production responses retain their existing indexing rules.
 

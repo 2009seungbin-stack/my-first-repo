@@ -199,7 +199,7 @@ export async function recomputeCompat(db,k,now){
  // Only verified/disputed transitions are Radar news; single reports stay on the channel.
  if(v.verification!=='COMMUNITY'){
   const vertical=(await db.prepare('SELECT vertical FROM entities WHERE id=?').bind(k.subject).first())?.vertical||'games';
-  w.push(db.prepare(`INSERT INTO changes (entity_id,vertical,kind,scope,old_value,new_value,importance,visibility,effective_at,detected_at) VALUES (?,?,'compat_changed',?,?,?,2,'public',?,?)`)
+  w.push(db.prepare(`INSERT INTO changes (entity_id,vertical,kind,scope,old_value,new_value,importance,visibility,effective_at,detected_at,origin) VALUES (?,?,'compat_changed',?,?,?,2,'public',?,?,'community')`)
    .bind(k.subject,vertical,JSON.stringify({target:k.target,target_version:k.targetVersion,subject_version:k.subjectVersion,verification:v.verification}),cur?JSON.stringify(cur.status):null,JSON.stringify(v.status),now,now));
  }
  await db.batch(w);

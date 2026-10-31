@@ -62,6 +62,15 @@ export function mergeLocales(stored,incoming){
  for(const [k,v] of Object.entries(incoming||{})){if(v==null)delete out[k];else out[k]=v;}
  return out;
 }
+/** Which description locales are collector-composed ("collected"); the rest were written by people.
+ * A document names the origin per entity (`description_origin`), else the ingest mode decides: a
+ * collector run is "collected", seed/admin/community text is editorial. Only the locales the document
+ * states change. @param {unknown} stored @param {Record<string,unknown>|undefined} incoming @param {string} origin */
+export function mergeDescriptionSrc(stored,incoming,origin){
+ /** @type {Record<string,unknown>} */const out={...(stored&&typeof stored==='object'?stored:{})};
+ for(const [k,v] of Object.entries(incoming||{})){if(v!=null&&origin==='collected')out[k]='collected';else delete out[k];}
+ return out;
+}
 /** Official links: stored order kept, an incoming url replaces its stored entry (new label), new
  * urls are appended; a url is never dropped by a document that simply does not list it.
  * @param {any[]} stored @param {any[]} incoming @returns {any[]} */
@@ -137,7 +146,7 @@ export async function ingest(db,doc,opts){
  const list=doc.entities||[];
  /** @type {Map<string,any>} */const existing=new Map();
  for(const c of chunks([...new Set(list.map((/** @type {any} */ e)=>e.id))])){
-  const r=await db.prepare(`SELECT id,vertical,type,slug,names,descriptions,official_urls,regions,image_url,status,merged_into FROM entities WHERE id IN (${qs(c.length)})`).bind(...c).all();
+  const r=await db.prepare(`SELECT id,vertical,type,slug,names,descriptions,description_src,official_urls,regions,image_url,status,merged_into FROM entities WHERE id IN (${qs(c.length)})`).bind(...c).all();
   for(const row of r.results)existing.set(row.id,row);
  }
  // A merged entity forwards writes to its target.
@@ -157,28 +166,29 @@ export async function ingest(db,doc,opts){
   stats.entities++;
   const cur=existing.get(e.id);
   if(!cur){
-   const names=JSON.stringify(mergeLocales({},e.names)),desc=JSON.stringify(mergeLocales({},e.description)),urls=JSON.stringify(e.official_urls||[]),regions=JSON.stringify(e.regions||['GLOBAL']);
-   W(`INSERT INTO entities (id,vertical,type,slug,names,descriptions,image_url,image_credit,regions,languages,official_urls,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,'active',?,?)`,
-    e.id,vertical,e.type,e.slug,names,desc,e.image_url??null,e.image_credit??null,regions,JSON.stringify(e.languages||[]),urls,now,now);
-   existing.set(e.id,{id:e.id,vertical,type:e.type,slug:e.slug,names,descriptions:desc,official_urls:urls,regions,image_url:e.image_url??null,status:'active',merged_into:null});
+   const names=JSON.stringify(mergeLocales({},e.names)),desc=JSON.stringify(mergeLocales({},e.description)),dsrc=JSON.stringify(mergeDescriptionSrc({},e.description,e.description_origin??(mode==='collector'?'collected':'editor'))),urls=JSON.stringify(e.official_urls||[]),regions=JSON.stringify(e.regions||['GLOBAL']);
+   W(`INSERT INTO entities (id,vertical,type,slug,names,descriptions,description_src,image_url,image_credit,regions,languages,official_urls,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'active',?,?)`,
+    e.id,vertical,e.type,e.slug,names,desc,dsrc,e.image_url??null,e.image_credit??null,regions,JSON.stringify(e.languages||[]),urls,now,now);
+   existing.set(e.id,{id:e.id,vertical,type:e.type,slug:e.slug,names,descriptions:desc,description_src:dsrc,official_urls:urls,regions,image_url:e.image_url??null,status:'active',merged_into:null});
    createdNow.add(e.id);stats.created++;
    change({entity_id:e.id,vertical,kind:'entity_added',importance:quiet?0:1,effective_at:now});
    touched.add(e.id);reindex.add(e.id);
   }else if(cur.status!=='merged'){
    // Only what the document states is applied; what it leaves out stays (see mergeLocales/mergeUrls).
-   const was={names:parseJSON(cur.names,{}),descriptions:parseJSON(cur.descriptions,{}),official_urls:parseJSON(cur.official_urls,[]),regions:parseJSON(cur.regions,['GLOBAL'])};
+   const was={names:parseJSON(cur.names,{}),descriptions:parseJSON(cur.descriptions,{}),description_src:parseJSON(cur.description_src,{}),official_urls:parseJSON(cur.official_urls,[]),regions:parseJSON(cur.regions,['GLOBAL'])};
    const next={names:e.names!==undefined?mergeLocales(was.names,e.names):was.names,
     descriptions:e.description!==undefined?mergeLocales(was.descriptions,e.description):was.descriptions,
+    description_src:e.description!==undefined?mergeDescriptionSrc(was.description_src,e.description,e.description_origin??(mode==='collector'?'collected':'editor')):was.description_src,
     official_urls:e.official_urls!==undefined?mergeUrls(was.official_urls,e.official_urls):was.official_urls,
     regions:e.regions!==undefined?e.regions:was.regions};
    const slug=e.slug??cur.slug,image=e.image_url!==undefined&&e.image_url!==null&&e.image_url!==cur.image_url;
    const diff=/** @type {(keyof typeof next)[]} */(Object.keys(next)).some(k=>canon(next[k])!==canon(was[k]));
    if(diff||slug!==cur.slug||image){
     if(slug!==cur.slug)W(`INSERT OR IGNORE INTO entity_redirects (vertical,slug,entity_id,created_at) VALUES (?,?,?,?)`,cur.vertical,cur.slug,e.id,now);
-    const names=JSON.stringify(next.names),desc=JSON.stringify(next.descriptions),urls=JSON.stringify(next.official_urls),regions=JSON.stringify(next.regions);
-    W(`UPDATE entities SET names=?,descriptions=?,official_urls=?,regions=?,slug=?,image_url=COALESCE(?,image_url),updated_at=? WHERE id=?`,names,desc,urls,regions,slug,e.image_url??null,now,e.id);
+    const names=JSON.stringify(next.names),desc=JSON.stringify(next.descriptions),dsrc=JSON.stringify(next.description_src),urls=JSON.stringify(next.official_urls),regions=JSON.stringify(next.regions);
+    W(`UPDATE entities SET names=?,descriptions=?,description_src=?,official_urls=?,regions=?,slug=?,image_url=COALESCE(?,image_url),updated_at=? WHERE id=?`,names,desc,dsrc,urls,regions,slug,e.image_url??null,now,e.id);
     // A second definition of the same entity in this document compares against what was just written.
-    existing.set(e.id,{...cur,names,descriptions:desc,official_urls:urls,regions,slug,image_url:e.image_url??cur.image_url});
+    existing.set(e.id,{...cur,names,descriptions:desc,description_src:dsrc,official_urls:urls,regions,slug,image_url:e.image_url??cur.image_url});
     touched.add(e.id);reindex.add(e.id);
    }
   }
@@ -425,8 +435,8 @@ export async function ingest(db,doc,opts){
  for(const c of changeRows){
   const k=canon([c.entity_id,c.kind,c.property??null,c.scope??'{}',c.old_value??null,c.new_value??null,c.ref_id??null]);
   if(seenChange.has(k))continue;seenChange.add(k);
-  W(`INSERT INTO changes (entity_id,vertical,kind,property,scope,old_value,new_value,summary,importance,source_id,ref_id,visibility,effective_at,detected_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-   c.entity_id,c.vertical,c.kind,c.property??null,c.scope??'{}',c.old_value??null,c.new_value??null,c.summary??null,c.importance??2,c.source_id??null,c.ref_id??null,c.visibility||'public',c.effective_at??now,now);
+  W(`INSERT INTO changes (entity_id,vertical,kind,property,scope,old_value,new_value,summary,importance,source_id,ref_id,visibility,effective_at,detected_at,origin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+   c.entity_id,c.vertical,c.kind,c.property??null,c.scope??'{}',c.old_value??null,c.new_value??null,c.summary??null,c.importance??2,c.source_id??null,c.ref_id??null,c.visibility||'public',c.effective_at??now,now,mode);
  }
  stats.changes=seenChange.size;
  const ids=[...touched];

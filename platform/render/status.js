@@ -7,7 +7,8 @@ import {html,safeHref} from './html.js';
 import {t} from './strings.js';
 import {page,nameOf,channelUrl,box,badge,signInUrl} from './ui.js';
 import {boardTime,TZ} from './format.js';
-import {related,eventsFor,issueReportsSince,factsFor,pickFact,collectorState,koAlias} from '../db/channel.js';
+import {related,eventsFor,issueReportsSince,factsFor,pickFact,collectorState,koAlias,contentCounts} from '../db/channel.js';
+import {entityIndexable} from '../seo.js';
 import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
 import {reportSignal,SPIKE,SYMPTOMS} from '../status-signal.js';
 import {RAIL_SERVICES,isStatusIncident,statusState} from './rail.js';
@@ -55,7 +56,10 @@ export async function loadStatus(db,entity,o){
  const open=incidents.filter(x=>!x.about&&x.status!=='ended');
  const siblingOpen=incidents.filter(x=>x.about&&x.status!=='ended');
  const state=statusState({open:open.length>0,spike,checked,total24});
- return {entity,alias,provider,siblings,incidents,open,siblingOpen,state,checked,checkedAt:collector?.last_success_at??null,hasCollector:!!adapter,hours,baseline,spike,total24,symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
+ // A status page follows its entity (platform/seo.js): no exception for the home status services.
+ const counts=await contentCounts(db,entity.id);
+ const indexLocales=['ko','en'].filter(x=>entityIndexable(entity,counts,x));
+ return {entity,index:indexLocales.includes(o.l),indexLocales,alias,provider,siblings,incidents,open,siblingOpen,state,checked,checkedAt:collector?.last_success_at??null,hasCollector:!!adapter,hours,baseline,spike,total24,symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
 }
 
 /** Title, description and heading in the words people search with when it breaks: "Claude 지금 안
@@ -127,7 +131,7 @@ ${reportBox(e.id,name,l)}</section>`;
  const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>${top}<div class="cols"><main class="mainc">${reports}${inc}</main><aside class="side">${alerts}${others}</aside></div>`;
  const card=statusCardPath(e.id,state,l);
  return page({l,title:seo.title,description:seo.description,ogImage:card?{url:card,alt:cardAlt(name,state,l)}:null,feed,feedTitle:ko?`${name} 장애·상태 알림`:`${name} outages and status`,
-  canonical:site.origin+base+'status',alternates:{[l]:site.origin+base+'status',[ko?'en':'ko']:site.origin+channelUrl(ko?'en':'ko',e)+'status'},
+  canonical:site.origin+base+'status',alternates:m.index?Object.fromEntries(m.indexLocales.map(x=>[x,site.origin+channelUrl(x,e)+'status'])):{},noindex:!m.index,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body,
   jsonld:{'@context':'https://schema.org','@type':'WebPage',name:seo.h1,headline,url:site.origin+base+'status',dateModified:new Date(now).toISOString()}});
 }

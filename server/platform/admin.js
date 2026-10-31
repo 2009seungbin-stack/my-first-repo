@@ -448,7 +448,7 @@ async function radarAction(c){
    db.prepare('UPDATE facts SET is_current=0,valid_until=? WHERE id=? AND is_current=1').bind(c.now,k.fact_id),
    db.prepare('INSERT INTO facts (entity_id,property,region,language,platform,plan,app_version,value,unit,verification,confidence,source_id,snapshot_id,note,valid_from,observed_at,is_current,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,1,?,?,?,?,?,1,?,?)')
     .bind(k.entity_id,k.property,k.region,k.language,k.platform,k.plan,k.app_version,k.value,k.unit??null,k.verification,k.source_id??null,k.snapshot_id??null,`Adopted by an admin from conflict #${id} (${reason})`.slice(0,300),c.now,c.now,actor,c.now),
-   db.prepare("INSERT INTO changes (entity_id,vertical,kind,property,scope,old_value,new_value,importance,source_id,visibility,approved_by,effective_at,detected_at) VALUES (?,?,'fact_changed',?,?,?,?,2,?,'public',?,?,?)")
+   db.prepare("INSERT INTO changes (entity_id,vertical,kind,property,scope,old_value,new_value,importance,source_id,visibility,approved_by,effective_at,detected_at,origin) VALUES (?,?,'fact_changed',?,?,?,?,2,?,'public',?,?,?,'admin')")
     .bind(k.entity_id,k.vertical,k.property,JSON.stringify(scope),k.cur_value,k.value,k.source_id??null,actor,c.now,c.now),
    db.prepare('UPDATE entities SET version=version+1,updated_at=? WHERE id=?').bind(c.now,k.entity_id),
    logAction(c,'resolve_conflict','conflict',id,reason,{adopt:true,fact:Number(k.fact_id)})]);
