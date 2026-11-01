@@ -10,10 +10,11 @@ import {CHANNELS,channelById,channelPath,postPath,flairLabel,patchCollectionPath
 import {FILE_TOOLS,GAME_TOOLS,PC_TOOLS,FUN_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 import {discoveryTopics} from '../discovery.js';
+import {digestLink} from '../digest.js';
 import {pageJsonLd} from './page-seo.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
-export const CSS_HREF='/src/platform/n2.css?v=20261016-useful-home';
+export const CSS_HREF='/src/platform/n2.css?v=20261031-focus-nav';
 /** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
 export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
@@ -109,19 +110,31 @@ export function boardHead(l){
 const LOGO=html`<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#c6f24e"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#15171a" stroke-width="8.5" stroke-linecap="round"/><circle cx="47.5" cy="16.5" r="5" fill="#15171a"/></svg>`;
 const CHEV=html`<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`;
 
-/** The menu column (desktop) and the drawer (mobile): pages, the channels, and the file and game tools,
+/** The channel bar's links: game asset tools, file tools, then AI. The community channels are behind "More"
+ * (the channel sheet); only the channel being read is added. @param {string} l */
+export function primaryBar(l){
+ const lang=l==='ko'?'ko':'en';
+ return [...GAME_TOOLS,...FILE_TOOLS].map(x=>({href:toolHref(l,x),name:x[lang]})).concat([{href:`/${l}/ai/`,name:'AI'}]);
+}
+
+/** The menu column (desktop) and the drawer (mobile): home, the game and file tools, AI, Preflight, then More,
  * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,toolsOnly?:boolean}} o */
 function shellNav(o){
  const l=o.l,ko=l==='ko',lang=ko?'ko':'en';
  const home=o.toolsOnly?toolsHome(l):homeUrl(l);
+ // The AI digest's entry, right after the primary AI item, only once an article is published (platform/digest.js).
+ const digest=digestLink(l);
  const item=(/** @type {string} */ href,/** @type {string} */ label,/** @type {boolean|undefined} */ on,/** @type {string} */ ic)=>html`<a class="ln${on?' on':''}" href="${href}"${on?html` aria-current="page"`:''}>${icon(ic,18)}${label}</a>`;
  const tools=(/** @type {string} */ id,/** @type {string} */ title,/** @type {readonly import('../tools-nav.js').NavTool[]} */ list,/** @type {boolean} */ open)=>html`<details class="lg" id="${id}"${open?html` open`:''}><summary>${CHEV}${title}<span class="lgn">${list.length}</span></summary><ul>${list.map(x=>html`<li><a href="${toolHref(l,x)}"><span class="ic" title="${x.ic}">${icon(x.svg,18)}</span>${x[lang]}</a></li>`)}<li><a class="all" href="${toolsHome(l)}">${ko?'도구 전체 보기 ›':'All tools ›'}</a></li></ul></details>`;
  return html`<aside class="lnav" id="lnav" aria-label="${ko?'메뉴와 도구':'Menu and tools'}"><div class="lnh"><a class="brand" href="${home}">${LOGO}<span>nerulio</span></a><a class="lnx" href="#" data-drawer-close aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a></div>
-<nav aria-label="${ko?'페이지':'Pages'}">${item(home,ko?'홈':'Home',o.homeOn,'home')}${o.toolsOnly?'':html`${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}`}${item(`/${l}/preflight/`,'Preflight',false,'check')}${o.toolsOnly?html`${item(`/${l}/preflight/obs/`,'OBS',false,'film')}${item(`/${l}/preflight/studio/`,'Studio',false,'pulse')}${item(`/${l}/preflight/blender/`,'Blender',false,'brush')}${item(`/${l}/preflight/godot/`,'Godot',false,'gamepad')}`:item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
-${o.toolsOnly?'':html`<details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>`}
+<nav aria-label="${ko?'페이지':'Pages'}">${item(home,ko?'홈':'Home',o.homeOn,'home')}</nav>
+${tools('nav-game',ko?'게임 에셋 도구':'Game asset tools',GAME_TOOLS,true)}${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,true)}${o.toolsOnly?'':html`<nav class="lai" aria-label="AI">${item(`/${l}/ai/`,'AI',false,CHANNEL_ICON.ai)}${digest?html`<a class="ln" href="${digest.href}" data-digest-link>${icon(CHANNEL_ICON.ai||'chat',18)}${digest.name}</a>`:''}</nav>`}
+<nav class="lai" aria-label="${ko?'환경 점검':'Preflight checks'}">${item(`/${l}/preflight/`,'Preflight',false,'check')}${o.toolsOnly?html`${item(`/${l}/preflight/obs/`,'OBS',false,'film')}${item(`/${l}/preflight/studio/`,'Studio',false,'pulse')}${item(`/${l}/preflight/blender/`,'Blender',false,'brush')}${item(`/${l}/preflight/godot/`,'Godot',false,'gamepad')}`:''}</nav>
 <span class="lsep" aria-hidden="true"></span>
-${o.toolsOnly?'':html`<details class="lg"><summary>${CHEV}${ko?'정보·비교':'Reference pages'}<span class="lgn">5</span></summary><ul>${discoveryTopics(l).map(x=>html`<li><a href="${x.href}"><span class="ic" aria-hidden="true">${icon(CHANNEL_ICON[x.icon]||'chat',14)}</span>${x.name}</a></li>`)}</ul></details>`}
-${o.toolsOnly?'':tools('nav-pc',ko?'PC 도구':'PC tools',PC_TOOLS,true)}${o.toolsOnly?'':tools('nav-fun',ko?'놀이 도구':'Fun tools',FUN_TOOLS,true)}${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}</aside>`;
+${o.toolsOnly?'':html`<details class="lg" id="nav-more"><summary>${CHEV}${ko?'더보기':'More'}</summary><div class="lmore"><nav aria-label="${ko?'더보기 페이지':'More pages'}">${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
+<details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
+<details class="lg"><summary>${CHEV}${ko?'정보·비교':'Reference pages'}<span class="lgn">${discoveryTopics(l).length}</span></summary><ul>${discoveryTopics(l).map(x=>html`<li><a href="${x.href}"><span class="ic" aria-hidden="true">${icon(CHANNEL_ICON[x.icon]||'chat',14)}</span>${x.name}</a></li>`)}</ul></details>
+${tools('nav-pc',ko?'PC 도구':'PC tools',PC_TOOLS,false)}${tools('nav-fun',ko?'놀이 도구':'Fun tools',FUN_TOOLS,false)}</div></details>`}</aside>`;
 }
 
 /**
@@ -203,10 +216,9 @@ ${shellNav(o)}
 <a class="brand" href="${o.toolsOnly?toolsHome(o.l):homeUrl(o.l)}">${LOGO}<span>nerulio</span></a>
 ${o.toolsOnly?'':html`<form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>`}
 <button type="button" class="thm" data-theme-toggle aria-pressed="false" aria-label="${o.l==='ko'?'다크 모드':'Dark mode'}" title="${o.l==='ko'?'다크 모드':'Dark mode'}"><svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-${o.toolsOnly?'':html`<nav class="hn" aria-label="Nerulio"><a class="hb rdr" href="/${o.l}/radar/" title="${s.radar}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 19 5"/></svg><span>${s.radar}</span></a></nav>
-<div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>`}
+${o.toolsOnly?'':html`<div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>`}
 </header>
-${o.toolsOnly?'':html`<nav class="chbar" aria-label="${s.allChannels}"><div class="cr" data-island="channel-bar"><span class="chs" data-channel-links>${o.channels.map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span></div><a class="allch" href="#lnav" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'전체 채널':'All channels'}</span></a></nav>
+${o.toolsOnly?'':html`<nav class="chbar" aria-label="${o.l==='ko'?'주요 도구':'Main tools'}"><div class="cr" data-island="channel-bar"><span class="chs">${primaryBar(o.l).map(x=>html`<a href="${x.href}">${x.name}</a>`)}</span><span class="chs" data-channel-links>${o.channels.filter(c=>c.on).map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span></div><a class="allch" href="#lnav" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'더보기':'More'}</span></a></nav>
 ${channelSheet(o.l)}`}
 ${String(o.body).includes('<main')?html`<div class="pg" id="main">${o.body}</div>`:html`<main class="pg" id="main">${o.body}</main>`}
 <footer class="ft"><div><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a>${o.toolsOnly?'':html` · <a href="/${o.l}/community/policy">${o.l==='ko'?'게시판 운영정책':'Community rules'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a>`}</div></footer>

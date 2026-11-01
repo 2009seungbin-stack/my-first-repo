@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {entityIndexable} from '../platform/seo.js';
+import {entityIndexable,historyIndexable} from '../platform/seo.js';
 import {pageJsonLd} from '../platform/render/page-seo.js';
 import {channelJsonLd,postJsonLd,schemaText} from '../platform/render/jsonld.js';
 import {page} from '../platform/render/ui.js';
@@ -11,14 +11,45 @@ const origin='https://nerulio.example.test',canonical=origin+'/en/ai/example/';
 const metadata={l:'en',title:'Example service | Nerulio',description:'Sourced service details',canonical};
 const entity={id:'service:example',vertical:'ai',type:'service',names:{en:'Example'},descriptions:{ko:'한국어 설명'},official_urls:[],index_state:'auto'};
 
-test('content gates use only the description displayed in that language, including English fallback',()=>{
- const counts={facts:3,relations:0,posts:0};
- assert.equal(entityIndexable(entity,counts,'ko'),true);
- assert.equal(entityIndexable(entity,counts,'en'),false);
- const english={...entity,descriptions:{en:'English description'}};
- for(const l of ['ko','en'])assert.equal(entityIndexable(english,counts,l),true);
- assert.equal(entityIndexable({...entity,descriptions:{ko:'   '}},counts,'ko'),false);
- assert.equal(entityIndexable({...english,index_state:'noindex'},counts,'en'),false);
+const words=n=>Array.from({length:n},(_,i)=>`word${i}`).join(' ');
+const none={posts:0,contributions:0};
+
+test('content gate: collected-only entities are noindex; posts, editor text, contributions or a manual override index',()=>{
+ // Facts and relations are shown on the page but are not content for the gate.
+ assert.equal(entityIndexable(entity,{facts:50,relations:20,posts:0,contributions:0},'ko'),false);
+ // A short editor description is not enough; a long one is, in its own language only.
+ assert.equal(entityIndexable({...entity,descriptions:{ko:'한'.repeat(299)}},none,'ko'),false);
+ assert.equal(entityIndexable({...entity,descriptions:{ko:'한'.repeat(300)}},none,'ko'),true);
+ assert.equal(entityIndexable({...entity,descriptions:{ko:'한'.repeat(300)}},none,'en'),false,'English pages never show a Korean-only description');
+ assert.equal(entityIndexable({...entity,descriptions:{en:words(59)}},none,'en'),false);
+ assert.equal(entityIndexable({...entity,descriptions:{en:words(60)}},none,'en'),true);
+ assert.equal(entityIndexable({...entity,descriptions:{en:words(60)}},none,'ko'),false,'an English fallback is not Korean text: the Korean page needs its own');
+ assert.equal(entityIndexable({...entity,descriptions:{en:words(60),ko:'한'.repeat(300)}},none,'ko'),true);
+ assert.equal(entityIndexable({...entity,descriptions:{ko:'한'.repeat(300),en:'Short.'}},none,'en'),false);
+ assert.equal(entityIndexable({...entity,descriptions:{ko:'   '}},none,'ko'),false);
+ // A description composed from collected data (Steam blurb) never counts, however long.
+ const collected={...entity,descriptions:{ko:'한'.repeat(400),en:words(80)},description_src:{ko:'collected',en:'collected'}};
+ for(const l of ['ko','en'])assert.equal(entityIndexable(collected,none,l),false,l);
+ assert.equal(entityIndexable({...collected,description_src:{en:'collected'}},none,'ko'),true,'the Korean text was written by an editor');
+ // Community: three posts by people, or three accepted contributions.
+ assert.equal(entityIndexable(entity,{posts:2,contributions:2},'ko'),false);
+ for(const l of ['ko','en']){
+  assert.equal(entityIndexable(entity,{posts:3,contributions:0},l),true);
+  assert.equal(entityIndexable(entity,{posts:0,contributions:3},l),true);
+ }
+ // Manual overrides: noindex always wins, index always lists.
+ assert.equal(entityIndexable({...entity,index_state:'index'},none,'en'),true);
+ assert.equal(entityIndexable({...entity,index_state:'noindex',descriptions:{en:words(90)}},{posts:9,contributions:9},'en'),false);
+});
+
+test('a change history follows its entity and needs three editorial changes of its own',()=>{
+ const rich={...entity,index_state:'index'};
+ assert.equal(historyIndexable(rich,{editorial_changes:3},'en'),true);
+ assert.equal(historyIndexable(rich,{editorial_changes:2},'en'),false);
+ assert.equal(historyIndexable(entity,{editorial_changes:40},'en'),false,'a non-indexable parent has no indexable history');
+ assert.equal(historyIndexable({...rich,index_state:'noindex'},{editorial_changes:40},'en'),false);
+ assert.equal(historyIndexable({...entity,descriptions:{en:words(60)}},{editorial_changes:3},'en'),true);
+ assert.equal(historyIndexable({...entity,descriptions:{en:words(60)}},{editorial_changes:3},'ko'),false,'no Korean text: the Korean history follows the noindex Korean page');
 });
 
 test('page graphs retain specialized page identity, publisher and breadcrumbs without duplicate page nodes',()=>{

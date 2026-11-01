@@ -6,7 +6,8 @@
 import {html} from './html.js';
 import {page,nameOf,channelUrl,box,badge} from './ui.js';
 import {int} from './format.js';
-import {openModels,benchmarksOn,factsFor,pickFact} from '../db/channel.js';
+import {openModels,benchmarksOn,factsFor,pickFact,contentCounts} from '../db/channel.js';
+import {entityIndexable} from '../seo.js';
 import {estimateLlmMemory,METHOD} from '../estimates/llm-memory.js';
 
 const QUANTS=/** @type {const} */(['Q4_K_M','Q8_0']);
@@ -19,7 +20,10 @@ export async function loadLocalLlm(db,gpu,o){
   const tps=bench.filter(b=>b.entity_id===m.entity.id&&typeof b.metrics.tokens_per_s==='number').map(b=>Number(b.metrics.tokens_per_s)).sort((a,b)=>a-b);
   return {...m,est,measured:tps.length?{median:tps.length%2?tps[tps.length>>1]:(tps[tps.length/2-1]+tps[tps.length/2])/2,n:tps.length}:null};
  });
- return {gpu,vram,models,l:o.l,now:o.now,channels:o.channels||[]};
+ // Derived page: indexed only with a known VRAM and when the card's own page is indexable (platform/seo.js).
+ const counts=await contentCounts(db,gpu.id);
+ const indexLocales=vram?['ko','en'].filter(x=>entityIndexable(gpu,counts,x)):[];
+ return {gpu,vram,models,index:indexLocales.includes(o.l),indexLocales,l:o.l,now:o.now,channels:o.channels||[]};
 }
 
 /** @param {Awaited<ReturnType<typeof loadLocalLlm>>} m @param {{origin:string}} site */
@@ -49,6 +53,6 @@ ${m.models.filter(x=>!noFit(x)).map(row)}
  const other=ko?'en':'ko';
  return page({l,title:ko?`${name}에서 돌아가는 로컬 LLM — ${m.vram}GB VRAM 적합 모델 (추정·실측) | Nerulio`:`Local LLMs that fit the ${name} (${m.vram} GB) — estimate and measurements | Nerulio`,
   description:ko?`${name} ${m.vram}GB에 들어가는 공개 LLM ${fitsQ4.length}개(Q4_K_M, 추정)와 커뮤니티 실측 토큰/초.`:`${fitsQ4.length} open LLMs that fit ${m.vram} GB at Q4_K_M (estimate) plus community-measured tokens/s.`,
-  canonical:site.origin+url,alternates:{[l]:site.origin+url,[other]:site.origin+channelUrl(other,gpu)+'local-llm'},noindex:!m.vram,
+  canonical:site.origin+url,alternates:m.index?Object.fromEntries(m.indexLocales.map(x=>[x,site.origin+channelUrl(x,gpu)+'local-llm'])):{},noindex:!m.index,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:gpu.id},body});
 }

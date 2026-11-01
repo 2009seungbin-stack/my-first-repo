@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {FILE_TOOLS,GAME_TOOLS,toolHref,toolsHome} from '../platform/tools-nav.js';
 import {INTENTS} from '../src/intents.js';
+import {CHANNELS} from '../platform/channels.js';
 import {DIRECTORY} from '../src/task/registry.js';
 import {page,homeUrl,profilePath,hasProfile} from '../platform/render/ui.js';
 import {statusState,statusText} from '../platform/render/rail.js';
@@ -26,7 +27,19 @@ test('shell: portal home addresses, profile links, dark-mode button and the menu
  const out=String(page({l:'ko',title:'t',description:'d',canonical:'https://nerulio.com/ko/community/ai/',channels:[],body:'<p>x</p>'}));
  assert(out.indexOf('/src/platform/theme.js')<out.indexOf('/src/platform/n2.css'),'the theme applies before the stylesheet paints');
  assert(out.includes('data-theme-toggle')&&out.includes('id="lnav"')&&out.includes('data-drawer-open'));
- assert(out.includes('<details class="lg" id="nav-file">')&&out.includes('<details class="lg" id="nav-game">'),'both tool groups start folded')
+ assert(out.includes('<details class="lg" id="nav-file" open>')&&out.includes('<details class="lg" id="nav-game" open>'),'both tool groups lead the menu, open');
+ assert(out.indexOf('id="nav-game"')<out.indexOf('id="nav-file"')&&out.indexOf('id="nav-file"')<out.indexOf('href="/ko/ai/"')&&out.indexOf('href="/ko/ai/"')<out.indexOf('id="nav-more"'),'order: game tools, file tools, AI, then More');
+ assert(out.indexOf('id="nav-file"')<out.indexOf('href="/ko/preflight/"')&&out.indexOf('href="/ko/preflight/"')<out.indexOf('id="nav-more"'),'Preflight comes after the game and file tools, not ahead of them');
+ assert(out.indexOf('id="nav-more"')<out.indexOf('community/sub/')&&out.indexOf('id="nav-more"')<out.indexOf('id="nav-pc"'),'subculture channel and PC data sit under More');
+ const hd=out.slice(out.indexOf('<header class="top hd">'),out.indexOf('</header>'));
+ assert(!hd.includes('/radar/'),'Radar is not a header button (it sits under More; islands add it only for unread alerts)');
+ assert(out.indexOf('id="nav-more"')<out.indexOf('/ko/radar/'),'Radar is reachable from More');
+ // Pinning: the channel island takes its known channels from the sheet's pin buttons, and pinned channels
+ // join the bar's own channel span, after the tool links.
+ const bar=/<span class="chs" data-channel-links>([\s\S]*?)<\/span><\/div>/.exec(out)?.[1];
+ assert(bar!==undefined&&!bar.includes(toolHref('ko',GAME_TOOLS[0]))&&!bar.includes(toolHref('ko',FILE_TOOLS[0]))&&!bar.includes('"/ko/ai/"')&&out.indexOf(toolHref('ko',GAME_TOOLS[0]),out.indexOf('class="chbar"'))<out.indexOf('data-channel-links'),'the channel span holds no tool links, so pins are not put before them');
+ const sheet=out.slice(out.indexOf('id="chsheet"'),out.indexOf('</dialog>'));
+ for(const c of CHANNELS.filter(c=>c.inBar))assert(sheet.includes(`data-pin="${c.id}"`)&&sheet.includes(`href="/ko/community/${c.id}/"`),`the sheet has a pin button and link for ${c.id}`);
  assert(!out.includes('class="rail"'),'no icon column: the channels are in the channel bar');
  assert(!out.includes('data-theme="dark"'),'white unless the reader chose dark');
  const css=await readFile(new URL('../src/platform/n2.css',import.meta.url),'utf8');

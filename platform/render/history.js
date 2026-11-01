@@ -6,14 +6,18 @@ import {html,safeHref} from './html.js';
 import {t} from './strings.js';
 import {page,nameOf,channelUrl,badge} from './ui.js';
 import {dateText} from './format.js';
-import {historyOf} from '../db/channel.js';
+import {historyOf,contentCounts} from '../db/channel.js';
+import {historyIndexable} from '../seo.js';
 import {describeChange} from '../change-text.js';
 
 const SOURCE_VER=/** @type {Record<string,string>} */({OFFICIAL:'OFFICIAL',OFFICIAL_API:'AUTOMATED',FEED:'AUTOMATED',CURATED:'OFFICIAL',COMMUNITY:'COMMUNITY',MANUAL_SOURCE:'OFFICIAL',ESTIMATE_METHOD:'ESTIMATE'});
 
 /** @param {any} db @param {import('../db/channel.js').Entity} entity @param {{l:string,now:number,channels?:{name:string,href:string}[]}} o */
 export async function loadHistory(db,entity,o){
- return {entity,rows:await historyOf(db,entity.id,{limit:200}),l:o.l,now:o.now,channels:o.channels||[]};
+ // A history page is indexed only when its parent entity is and it holds enough editorial (non-collector) changes (platform/seo.js).
+ const [rows,counts]=await Promise.all([historyOf(db,entity.id,{limit:200}),contentCounts(db,entity.id)]);
+ const indexLocales=['ko','en'].filter(x=>historyIndexable(entity,counts,x));
+ return {entity,rows,index:indexLocales.includes(o.l),indexLocales,l:o.l,now:o.now,channels:o.channels||[]};
 }
 
 /** @param {Awaited<ReturnType<typeof loadHistory>>} m @param {{origin:string}} site */
@@ -30,6 +34,6 @@ ${m.rows.length?html`<ol class="hist">${[...days.entries()].map(([d,rows])=>html
 <p class="fine pad">${ko?'값이 바뀌면 이전 값은 지우지 않고 기간을 닫아 남깁니다. 공식 값은 커뮤니티 제보로 덮어쓰지 않습니다.':'When a value changes the old one is kept with its period closed. Community reports never overwrite official values.'}</p></section>`;
  return page({l,title:ko?`${name} 변경 기록 — 버전·가격·스펙 이력 | Nerulio`:`${name} change history | Nerulio`,
   description:ko?`${name}의 버전, 가격, 스펙, 일정이 언제 어떻게 바뀌었는지 출처와 함께 정리한 기록.`:`When and how ${name}'s versions, prices, specs and dates changed, with sources.`,
-  canonical:site.origin+base+'history',alternates:{[l]:site.origin+base+'history',[ko?'en':'ko']:site.origin+channelUrl(ko?'en':'ko',e)+'history'},noindex:m.rows.filter(r=>r.kind!=='fact_added').length<3,
+  canonical:site.origin+base+'history',alternates:m.index?Object.fromEntries(m.indexLocales.map(x=>[x,site.origin+channelUrl(x,e)+'history'])):{},noindex:!m.index,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body});
 }

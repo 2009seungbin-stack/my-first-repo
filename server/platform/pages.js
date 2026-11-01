@@ -10,6 +10,7 @@
  *   /{l}/search/               search (?q=&in=entity)
  *   /{l}/radar/                what changed / what is coming (?v=)
  *   /{l}/bracket/              대진표 만들기 (a page tool: the bracket runs in src/bracket/app.js)
+ *   /{l}/ai/digest/ · /{l}/ai/digest/{slug}/   AI 주간 해설 (published articles only, platform/digest.js)
  *   /{l}/{vertical}/{slug}/    tag page: facts and the tag's posts in every channel (?kind=&sort=&best=1&page=&sub=0)
  *   /{l}/{vertical}/{slug}/{no} → 301 to the post's channel address (legacy_posts); …/write → 302 to the
  *   channel's write page with the tag; …/history · …/status (…/status/feed.xml) · …/local-llm · …/feed.xml
@@ -37,6 +38,8 @@ import {channelFeed,radarFeed,boardFeed,statusFeed} from '../../platform/render/
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
 import {renderUsedPrices,renderPerformance} from '../../platform/render/hardware-tools.js';
 import {renderBracket} from '../../platform/render/bracket.js';
+import {renderDigestIndex,renderDigestArticle} from '../../platform/render/digest.js';
+import {digestSitemapEntries} from '../../platform/digest.js';
 import {MARKETS} from '../../src/hardware/market.js';
 import {marketSnapshot} from './hardware-market.js';
 import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
@@ -45,8 +48,7 @@ import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
 import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,writePath,channelBarLinks} from '../../platform/channels.js';
 import {sitemapEntities} from '../../platform/db/channel.js';
-import {entityIndexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
-import {RAIL_SERVICES} from '../../platform/render/rail.js';
+import {entityIndexable,historyIndexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {maybeRefreshStatus} from './status-refresh.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
@@ -61,13 +63,16 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'bracket'|'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'used-prices'|'performance'|'bracket'|'digest'|'digest-article'|'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  const tool=new RegExp(`^/(${L})/hardware/(used-prices|performance)/$`).exec(pathname);
  if(tool)return {l:tool[1],page:/** @type {'used-prices'|'performance'} */(tool[2]),slug:tool[2],vertical:'hardware'};
  const fun=new RegExp(`^/(${L})/bracket/$`).exec(pathname);
  if(fun)return {l:fun[1],page:'bracket'};
+ // The AI digest lives under /{l}/ai/ but is not a tag page (checked before the vertical/slug route).
+ const dg=new RegExp(`^/(${L})/ai/digest/(?:([a-z0-9][a-z0-9-]{0,95})/)?$`).exec(pathname);
+ if(dg)return dg[2]?{l:dg[1],page:'digest-article',slug:dg[2]}:{l:dg[1],page:'digest'};
  // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
  if(pathname==='/')return {l:'ko',page:'front'};
  if(pathname==='/en/')return {l:'en',page:'front'};
@@ -162,6 +167,8 @@ export async function renderPlatformPage(request,env,site){
   return response;
  }
  if(route.page==='bracket')return html(String(renderBracket({l,origin:s.origin,channels:await bar()})));
+ if(route.page==='digest')return html(String(renderDigestIndex({l,channels:await bar()},s)));
+ if(route.page==='digest-article'){const a=renderDigestArticle({l,slug:/** @type {string} */(route.slug),channels:await bar()},s);return a?html(String(a)):null;}
  switch(route.page){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,sort:q.get('sort')||'hot',channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',channel:q.get('ch'),channels:await bar()}),s)));
@@ -233,13 +240,13 @@ const SITEMAP=/^\/sitemap-n2-([a-z]+)\.xml$/;
 const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Record<string,string>} */({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'})[c]);
 /**
  * Entity sitemap of one vertical: only channels that pass the content gate, both languages with
- * hreflang alternates, lastmod = last visible change or post. Service status pages are listed too.
+ * hreflang alternates, lastmod = last visible change or post. Derived pages (status, local-LLM fit, change
+ * history) are listed only in the languages where their entity passes the gate (platform/seo.js), exactly
+ * the pages that render without noindex. No exceptions: the home status services (Claude, ChatGPT, Gemini)
+ * follow the gate too; the owner can set index_state='index' on an entity to list it regardless.
  * @param {any} db @param {string} vertical @param {string} origin
  */
 export async function renderSitemap(db,vertical,origin){
- // The home status box's services (Claude, ChatGPT, Gemini) are always listed: their status pages are
- // what people land on when the service breaks ("클로드 안 됨"), whatever the content gate says.
- const always=new Set(RAIL_SERVICES.map(x=>x.id));
  const rows=(await sitemapEntities(db,vertical)).filter(e=>e.index_state!=='noindex');
  /** @type {string[]} */const urls=[];
  /** One locale-aware sitemap entry per indexable translation. The alternate cluster contains only
@@ -251,8 +258,6 @@ export async function renderSitemap(db,vertical,origin){
  };
  const hub={ko:`${origin}/ko/${vertical}/`,en:`${origin}/en/${vertical}/`};
  add(hub);
- // Change histories with real changes (at least 3 besides first sightings) are pages of their own.
- const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
  // Only populated boards enter discovery. Time-window best lists remain usable but noindex.
  const populated=vertical==='ai'?new Set(((await db.prepare("SELECT DISTINCT channel_id FROM discussions WHERE status='published'").all()).results||[]).map((/** @type {any} */ r)=>String(r.channel_id))):new Set();
  const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[...CHANNEL_IDS.filter(c=>populated.has(c)).map(c=>[`/community/${c}/`]),['/radar/'],['/bracket/']]:[])];
@@ -264,16 +269,20 @@ export async function renderSitemap(db,vertical,origin){
   const alt={ko:`${origin}/ko${p}`,en:`${origin}/en${p}`};
   add(alt);
  }
+ // The AI digest: published articles only; nothing at all while none is published.
+ if(vertical==='ai')for(const d of digestSitemapEntries(origin))add(d.alt,d.lastmod);
  const gpuFacts=vertical==='hardware'?await factsFor(db,rows.filter(e=>e.type==='gpu').map(e=>e.id)):new Map();
  for(const e of rows){
   const locales=['ko','en'].filter(l=>entityIndexable(e,e,l));
-  const paths=locales.length?['']:[];
-  if(e.type==='service'&&(locales.length||always.has(e.id)))paths.push('status');
-  if(e.type==='gpu'&&Number(pickFact(gpuFacts.get(e.id),'vram_gb')?.value||0)>0)paths.push('local-llm');
-  if(hist.has(e.id))paths.push('history');
-  for(const p of paths){
-   const alt=Object.fromEntries((p?['ko','en']:locales).map(l=>[l,origin+channelUrl(l,e)+p]));
-   add(alt,e.lastmod);
+  /** @type {[string,string[]][]} path → the languages in which that page is indexable (the same gates as the pages' robots meta) */
+  const paths=[['',locales]];
+  if(e.type==='service')paths.push(['status',locales]);
+  if(e.type==='gpu'&&Number(pickFact(gpuFacts.get(e.id),'vram_gb')?.value||0)>0)paths.push(['local-llm',locales]);
+  // A change history is a page of its own once it holds at least 3 editorial (non-collector) changes.
+  paths.push(['history',['ko','en'].filter(l=>historyIndexable(e,e,l))]);
+  for(const [p,ls] of paths){
+   if(!ls.length)continue;
+   add(Object.fromEntries(ls.map(l=>[l,origin+channelUrl(l,e)+p])),e.lastmod);
   }
  }
  // GPU pairs worth a page of their own: a card and the card it succeeds (RTX 4070 → RTX 5070).

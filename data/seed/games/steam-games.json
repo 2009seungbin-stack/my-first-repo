@@ -5808,7 +5808,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-251570"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1055540",
@@ -5918,7 +5919,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1055540"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2288340",
@@ -6031,7 +6033,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2288340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-813780",
@@ -6172,7 +6175,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-813780"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1466860",
@@ -6386,7 +6390,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1466860"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-714010",
@@ -6499,7 +6504,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-714010"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-359390",
@@ -6601,7 +6607,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-359390"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-945360",
@@ -6734,7 +6741,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-945360"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4126040",
@@ -6883,7 +6891,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4126040"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4163960",
@@ -6964,7 +6973,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-4163960"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1172470",
@@ -7081,7 +7091,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1172470"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1808500",
@@ -7260,7 +7271,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1808500"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2073620",
@@ -7359,7 +7371,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2073620"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-346110",
@@ -7495,7 +7508,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-346110"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1888160",
@@ -7670,7 +7684,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1888160"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-812140",
@@ -7873,7 +7888,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-812140"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3159330",
@@ -8130,7 +8146,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3159330"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-244210",
@@ -8309,7 +8326,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-244210"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2622000",
@@ -8398,7 +8416,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2622000"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2379780",
@@ -8578,7 +8597,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2379780"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1086940",
@@ -8762,7 +8782,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1086940"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2807960",
@@ -8944,7 +8965,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2807960"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2499520",
@@ -9119,7 +9141,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2499520"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-284160",
@@ -9300,7 +9323,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1478500",
@@ -9449,7 +9473,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1478500"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-582660",
@@ -9553,7 +9578,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-582660"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2358720",
@@ -9740,7 +9766,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2358720"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-960090",
@@ -9934,7 +9961,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-960090"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3557620",
@@ -10039,7 +10067,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3557620"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4656000",
@@ -10174,7 +10203,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4656000"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3419430",
@@ -10286,7 +10316,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3419430"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1285190",
@@ -10428,7 +10459,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1285190"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-291550",
@@ -10610,7 +10642,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-291550"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1942280",
@@ -10794,7 +10827,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1942280"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1938090",
@@ -10944,7 +10978,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1938090"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-333640",
@@ -11076,7 +11111,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-333640"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-504230",
@@ -11204,7 +11240,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-504230"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1961950",
@@ -11281,7 +11318,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1961950"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-255710",
@@ -11438,7 +11476,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-255710"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-949230",
@@ -11612,7 +11651,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-949230"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1903340",
@@ -11803,7 +11843,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1903340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3669870",
@@ -11910,7 +11951,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3669870"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-730",
@@ -12034,7 +12076,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-730"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3321460",
@@ -12221,7 +12264,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3321460"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1366800",
@@ -12333,7 +12377,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1366800"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1158310",
@@ -12516,7 +12561,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1158310"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-718670",
@@ -12619,7 +12665,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-718670"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-268910",
@@ -12791,7 +12838,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-268910"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1091500",
@@ -12981,7 +13029,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1091500"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-374320",
@@ -13158,7 +13207,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-374320"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-262060",
@@ -13274,7 +13324,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-262060"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1940340",
@@ -13454,7 +13505,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1940340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1868140",
@@ -13569,7 +13621,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1868140"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-221100",
@@ -13692,7 +13745,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-221100"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-381210",
@@ -13877,7 +13931,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-381210"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-588650",
@@ -13993,7 +14048,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-588650"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1422450",
@@ -14093,7 +14149,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1422450"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-548430",
@@ -14203,7 +14260,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-548430"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2507950",
@@ -14311,7 +14369,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2507950"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1671210",
@@ -14480,7 +14539,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1671210"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1085660",
@@ -14585,7 +14645,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1085660"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2344520",
@@ -14761,7 +14822,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2344520"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1984270",
@@ -14869,7 +14931,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1984270"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2402680",
@@ -15026,7 +15089,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2402680"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-632470",
@@ -15183,7 +15247,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-632470"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1531540",
@@ -15277,7 +15342,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1531540"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-960170",
@@ -15406,7 +15472,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-960170"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-322330",
@@ -15518,7 +15585,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-322330"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-570",
@@ -15665,7 +15733,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-570"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4019220",
@@ -15762,7 +15831,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-4019220"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-753420",
@@ -15934,7 +16004,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-753420"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3008130",
@@ -16080,7 +16151,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3008130"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1366540",
@@ -16243,7 +16315,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1366540"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3405690",
@@ -16408,7 +16481,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3405690"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4080220",
@@ -16539,7 +16613,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4080220"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4128400",
@@ -16666,7 +16741,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4128400"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1665460",
@@ -16774,7 +16850,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1665460"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1245620",
@@ -16952,7 +17029,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1245620"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2622380",
@@ -17134,7 +17212,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2622380"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2459550",
@@ -17315,7 +17394,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2459550"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1203620",
@@ -17508,7 +17588,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1203620"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-311690",
@@ -17664,7 +17745,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-311690"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3932890",
@@ -17853,7 +17935,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3932890"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2879840",
@@ -18005,7 +18088,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2879840"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4560660",
@@ -18186,7 +18270,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4560660"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1049590",
@@ -18374,7 +18459,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1049590"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-227300",
@@ -18533,7 +18619,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-227300"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-236850",
@@ -18679,7 +18766,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-236850"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-427520",
@@ -18880,7 +18968,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-427520"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1097150",
@@ -18986,7 +19075,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1097150"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-377160",
@@ -19146,7 +19236,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-377160"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-22380",
@@ -19237,7 +19328,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-22380"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2369390",
@@ -19369,7 +19461,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2369390"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2300320",
@@ -19562,7 +19655,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2300320"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3551340",
@@ -19750,7 +19844,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3551340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1551360",
@@ -19856,7 +19951,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1551360"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2483190",
@@ -19999,7 +20095,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2483190"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4000",
@@ -20137,7 +20234,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4000"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-322170",
@@ -20305,7 +20403,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-322170"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2215430",
@@ -20485,7 +20584,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2215430"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3308670",
@@ -20577,7 +20677,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3308670"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1593500",
@@ -20769,7 +20870,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1593500"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2322010",
@@ -20969,7 +21071,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2322010"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4559140",
@@ -21074,7 +21177,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-4559140"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3240220",
@@ -21179,7 +21283,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3240220"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-271590",
@@ -21283,7 +21388,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-271590"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-985810",
@@ -21380,7 +21486,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-985810"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4358690",
@@ -21501,7 +21608,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4358690"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-962130",
@@ -21684,7 +21792,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-962130"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1145360",
@@ -21857,7 +21966,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1145360"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1145350",
@@ -22041,7 +22151,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1145350"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-546560",
@@ -22229,7 +22340,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-546560"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4025700",
@@ -22323,7 +22435,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-4025700"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-394360",
@@ -22494,7 +22607,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-394360"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-553850",
@@ -22677,7 +22791,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-553850"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-269210",
@@ -22842,7 +22957,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-269210"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2491040",
@@ -22922,7 +23038,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2491040"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-367520",
@@ -23113,7 +23230,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-367520"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1030300",
@@ -23274,7 +23392,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1030300"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4001890",
@@ -23463,7 +23582,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4001890"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-594650",
@@ -23611,7 +23731,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-594650"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-859580",
@@ -23777,7 +23898,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-859580"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2677660",
@@ -23914,7 +24036,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2677660"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1092790",
@@ -24096,7 +24219,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1092790"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2456740",
@@ -24288,7 +24412,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2456740"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1426210",
@@ -24411,7 +24536,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1426210"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1084160",
@@ -24587,7 +24713,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1084160"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-233860",
@@ -24742,7 +24869,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-233860"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2399420",
@@ -24920,7 +25048,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2399420"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-550",
@@ -25042,7 +25171,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-550"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1966720",
@@ -25128,7 +25258,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1966720"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1256670",
@@ -25304,7 +25435,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1256670"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1627720",
@@ -25492,7 +25624,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1627720"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1973530",
@@ -25605,7 +25738,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1973530"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-568220",
@@ -25789,7 +25923,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-568220"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1599340",
@@ -25891,7 +26026,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1599340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4108000",
@@ -26032,7 +26168,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4108000"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-216150",
@@ -26135,7 +26272,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-216150"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2767030",
@@ -26328,7 +26466,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2767030"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1817070",
@@ -26516,7 +26655,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1817070"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1446780",
@@ -26694,7 +26834,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1446780"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2246340",
@@ -26883,7 +27024,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2246340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-582010",
@@ -26983,7 +27125,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-582010"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-261550",
@@ -27166,7 +27309,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-261550"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1203220",
@@ -27272,7 +27416,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1203220"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4356430",
@@ -27409,7 +27554,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4356430"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-704450",
@@ -27582,7 +27728,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-704450"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-524220",
@@ -27694,7 +27841,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-524220"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3681010",
@@ -27879,7 +28027,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3681010"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-275850",
@@ -28013,7 +28162,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-275850"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-881100",
@@ -28131,7 +28281,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-881100"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4508340",
@@ -28265,7 +28416,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4508340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1905180",
@@ -28475,7 +28627,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1905180"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1150690",
@@ -28568,7 +28721,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1150690"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2139460",
@@ -28742,7 +28896,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2139460"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2638890",
@@ -28848,7 +29003,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2638890"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-387290",
@@ -28941,7 +29097,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-387290"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1057090",
@@ -29088,7 +29245,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1057090"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-753640",
@@ -29210,7 +29368,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-753640"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2357570",
@@ -29317,7 +29476,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2357570"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-457140",
@@ -29417,7 +29577,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-457140"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1623730",
@@ -29610,7 +29771,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1623730"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-238960",
@@ -29715,7 +29877,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-238960"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2694490",
@@ -29859,7 +30022,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2694490"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-640820",
@@ -30032,7 +30196,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-640820"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1184370",
@@ -30216,7 +30381,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1184370"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-505230",
@@ -30370,7 +30536,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-505230"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3527290",
@@ -30486,7 +30653,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3527290"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2161700",
@@ -30631,7 +30799,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2161700"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1687950",
@@ -30778,7 +30947,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1687950"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-739630",
@@ -30972,7 +31142,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-739630"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2231450",
@@ -31145,7 +31316,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2231450"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-620",
@@ -31267,7 +31439,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-620"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3357650",
@@ -31368,7 +31541,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3357650"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-108600",
@@ -31563,7 +31737,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-108600"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-578080",
@@ -31697,7 +31872,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-578080"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3241660",
@@ -31854,7 +32030,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3241660"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3985950",
@@ -32026,7 +32203,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3985950"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-648800",
@@ -32206,7 +32384,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-648800"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1144200",
@@ -32386,7 +32565,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1144200"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1174180",
@@ -32486,7 +32666,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1174180"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2050650",
@@ -32591,7 +32772,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2050650"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3764200",
@@ -32703,7 +32885,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3764200"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1196590",
@@ -32815,7 +32998,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1196590"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2058570",
@@ -32933,7 +33117,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2058570"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-294100",
@@ -33127,7 +33312,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-294100"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-632360",
@@ -33296,7 +33482,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-632360"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1466640",
@@ -33434,7 +33621,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1466640"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1111390",
@@ -33518,7 +33706,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1111390"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-252950",
@@ -33702,7 +33891,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-252950"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-872410",
@@ -33830,7 +34020,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-872410"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1374490",
@@ -34028,7 +34219,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1374490"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-252490",
@@ -34161,7 +34353,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-252490"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1643320",
@@ -34359,7 +34552,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1643320"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-526870",
@@ -34534,7 +34728,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-526870"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1172620",
@@ -34716,7 +34911,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1172620"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-814380",
@@ -34831,7 +35027,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-814380"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2436940",
@@ -35020,7 +35217,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2436940"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-346940",
@@ -35183,7 +35381,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-346940"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-234650",
@@ -35359,7 +35558,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-234650"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2444750",
@@ -35541,7 +35741,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2444750"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-289070",
@@ -35679,7 +35880,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-289070"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1295660",
@@ -35832,7 +36034,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1295660"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2124490",
@@ -35981,7 +36184,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2124490"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1147560",
@@ -36161,7 +36365,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1147560"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-646570",
@@ -36339,7 +36544,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-646570"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2868840",
@@ -36507,7 +36713,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2868840"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1326470",
@@ -36675,7 +36882,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1326470"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3447040",
@@ -36814,7 +37022,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3447040"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1825750",
@@ -36898,7 +37107,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1825750"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2001120",
@@ -37003,7 +37213,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-2001120"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-393380",
@@ -37182,7 +37393,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-393380"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-211820",
@@ -37354,7 +37566,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-211820"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-413150",
@@ -37540,7 +37753,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-413150"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1716740",
@@ -37704,7 +37918,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1716740"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3609080",
@@ -37816,7 +38031,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-3609080"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3489700",
@@ -38014,7 +38230,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3489700"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-281990",
@@ -38193,7 +38410,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-281990"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1332010",
@@ -38345,7 +38563,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1332010"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1364780",
@@ -38477,7 +38696,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1364780"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-264710",
@@ -38603,7 +38823,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-264710"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1962700",
@@ -38754,7 +38975,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1962700"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-848450",
@@ -38882,7 +39104,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-848450"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-351970",
@@ -39007,7 +39230,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-351970"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3678970",
@@ -39202,7 +39426,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3678970"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-440",
@@ -39324,7 +39549,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-440"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1778820",
@@ -39469,7 +39695,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1778820"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-105600",
@@ -39596,7 +39823,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-105600"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-250900",
@@ -39770,7 +39998,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-250900"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2623190",
@@ -39902,7 +40131,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2623190"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-489830",
@@ -40066,7 +40296,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-489830"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2073850",
@@ -40244,7 +40475,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2073850"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2074920",
@@ -40429,7 +40661,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2074920"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-242760",
@@ -40607,7 +40840,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-242760"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1888930",
@@ -40808,7 +41042,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1888930"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1284190",
@@ -40978,7 +41213,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1284190"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-5099430",
@@ -41083,7 +41319,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-5099430"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3679080",
@@ -41240,7 +41477,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3679080"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1222670",
@@ -41357,7 +41595,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1222670"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-292030",
@@ -41513,7 +41752,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-292030"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1062090",
@@ -41641,7 +41881,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1062090"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3639520",
@@ -41763,7 +42004,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3639520"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-359550",
@@ -41877,7 +42119,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-359550"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1142710",
@@ -42075,7 +42318,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1142710"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4659620",
@@ -42184,7 +42428,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-4659620"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4225980",
@@ -42336,7 +42581,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-4225980"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-391540",
@@ -42426,7 +42672,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-391540"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1604030",
@@ -42572,7 +42819,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1604030"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-892970",
@@ -42757,7 +43005,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-892970"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1794680",
@@ -42935,7 +43184,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1794680"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-529340",
@@ -43105,7 +43355,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-529340"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-438100",
@@ -43207,7 +43458,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-438100"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-236390",
@@ -43400,7 +43652,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-236390"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1867240",
@@ -43518,7 +43771,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1867240"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-230410",
@@ -43625,7 +43879,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-230410"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2186680",
@@ -43803,7 +44058,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2186680"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-2183900",
@@ -43988,7 +44244,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-2183900"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1879330",
@@ -44108,7 +44365,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1879330"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-719040",
@@ -44290,7 +44548,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-719040"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3564740",
@@ -44481,7 +44740,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3564740"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-763890",
@@ -44600,7 +44860,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-763890"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1407200",
@@ -44769,7 +45030,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1407200"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-3513350",
@@ -44952,7 +45214,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-3513350"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-1449850",
@@ -45130,7 +45393,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-1449850"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "game:steam-4162040",
@@ -45236,7 +45500,8 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-4162040"
     }
-   ]
+   ],
+   "description_origin": "collected"
   },
   {
    "id": "org:07th-expansion",
