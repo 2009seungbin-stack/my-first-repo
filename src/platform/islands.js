@@ -331,7 +331,10 @@ const recentTags={get(){try{const v=JSON.parse(localStorage.getItem('n2-recent-t
 /** The channel bar in the reader's order (pinned first), the pin buttons, 내 채널 lists and the channel sheet. */
 async function channels(signedIn){
  const barLinks=$('[data-channel-links]');
- const known=$$('a[data-ch]',barLinks||document).map(a=>a.dataset.ch).filter(Boolean);
+ // Every pinnable channel has a pin button in the channel sheet; the bar itself only carries the channel
+ // being read and the pinned ones, so it cannot be the list of known channels.
+ const sheetPin=id=>$(`#chsheet [data-pin="${id}"]`);
+ const known=[...new Set([...$$('#chsheet [data-pin]').map(b=>b.dataset.pin),...$$('a[data-ch]',barLinks||document).map(a=>a.dataset.ch)].filter(Boolean))];
  const valid=(/** @type {string[]} */ v)=>v.filter((c,i)=>known.includes(c)&&v.indexOf(c)===i);
  let pins=valid(localPins.get());
  if(signedIn){
@@ -342,10 +345,15 @@ async function channels(signedIn){
    pins=merged;
   }
  }
- const nameOf=id=>$(`a[data-ch="${id}"]`,barLinks||document)?.textContent||id;
- const hrefOf=id=>$(`a[data-ch="${id}"]`,barLinks||document)?.getAttribute('href')||'#';
+ const sheetLink=id=>sheetPin(id)?.closest('li')?.querySelector('.shn a');
+ const nameOf=id=>$(`a[data-ch="${id}"]`,barLinks||document)?.textContent||sheetLink(id)?.textContent||id;
+ const hrefOf=id=>$(`a[data-ch="${id}"]`,barLinks||document)?.getAttribute('href')||sheetLink(id)?.getAttribute('href')||'#';
  const apply=()=>{
-  if(barLinks){const links=$$('a[data-ch]',barLinks);for(const id of [...pins].reverse()){const a=links.find(x=>x.dataset.ch===id);if(a){a.classList.add('pinned');barLinks.prepend(a);}}for(const a of links)if(!pins.includes(a.dataset.ch)){a.classList.remove('pinned');}
+  if(barLinks){
+   // Pinned channels join the bar; ones added for a pin leave it when unpinned (the current channel stays).
+   for(const id of pins)if(!$(`a[data-ch="${id}"]`,barLinks)&&sheetLink(id)){const a=document.createElement('a');a.href=hrefOf(id);a.textContent=nameOf(id);a.dataset.ch=id;a.dataset.pinAdded='';barLinks.append(a);}
+   for(const a of $$('a[data-pin-added]',barLinks))if(!pins.includes(a.dataset.ch))a.remove();
+   const links=$$('a[data-ch]',barLinks);for(const id of [...pins].reverse()){const a=links.find(x=>x.dataset.ch===id);if(a){a.classList.add('pinned');barLinks.prepend(a);}}for(const a of links)if(!pins.includes(a.dataset.ch)){a.classList.remove('pinned');}
    const rest=links.filter(a=>!pins.includes(a.dataset.ch)).sort((a,b)=>known.indexOf(a.dataset.ch)-known.indexOf(b.dataset.ch));for(const a of rest)barLinks.append(a);}
   for(const b of $$('[data-pin]'))b.setAttribute('aria-pressed',String(pins.includes(b.dataset.pin)));
   const my=$('[data-my-channels]'),ml=$('[data-my-list]');
@@ -361,7 +369,7 @@ async function channels(signedIn){
   const b=e.target.closest?.('[data-pin]');if(!b)return;
   const id=b.dataset.pin;if(!known.includes(id))return;
   pins=pins.includes(id)?pins.filter(x=>x!==id):[...pins,id];
-  toast(pins.includes(id)?(L==='ko'?`${nameOf(id)} 채널을 고정했어요. 채널 바 앞에 와요.`:`Pinned ${nameOf(id)}.`):(L==='ko'?'고정을 풀었어요.':'Unpinned.'));
+  toast(pins.includes(id)?(L==='ko'?`${nameOf(id)} 채널을 고정했어요. 채널 바에 보여요.`:`Pinned ${nameOf(id)}.`):(L==='ko'?'고정을 풀었어요.':'Unpinned.'));
   save();
  });
  apply();
@@ -434,10 +442,10 @@ async function main(){
   const mr=await api(`/my-radar?l=${L}`);
   if(mr.ok){
    const d=mr.data;
-   const nav=$('.hd .hn');
-   // The unread count rides on the Radar link (a separate link squeezed the search box on phones).
-   const rl=nav&&$('a[href$="/radar/"]',nav);
-   if(rl&&d.unread>0){rl.href=`/${L}/radar/#mine`;const b=document.createElement('b');b.className='bdg';b.textContent=String(Math.min(99,d.unread));b.setAttribute('aria-label',(L==='ko'?'새 알림 ':'new alerts ')+d.unread);rl.append(' ',b);}
+   // Radar lives under "More" in the menu; a header link to it appears only to carry unread alerts.
+   const hu=$('.hd .hu');
+   if(hu&&d.unread>0){const nav=document.createElement('nav');nav.className='hn';nav.setAttribute('aria-label','Nerulio');
+    const rl=document.createElement('a');rl.className='hb rdr';rl.href=`/${L}/radar/#mine`;const sp=document.createElement('span');sp.textContent=L==='ko'?'레이더':'Radar';rl.title=sp.textContent;rl.append(sp);nav.append(rl);hu.before(nav);const b=document.createElement('b');b.className='bdg';b.textContent=String(Math.min(99,d.unread));b.setAttribute('aria-label',(L==='ko'?'새 알림 ':'new alerts ')+d.unread);rl.append(' ',b);}
    if(mine){
     const ul=$(':scope > ul.rows',mine);mine.hidden=false;
     // 내 글의 새 댓글 / 내 댓글에 달린 답글, above the channel news.

@@ -286,7 +286,7 @@ def main():
             m = b.new_page(viewport={'width': 390, 'height': 900})
             for path in ['/ko/community/', '/ko/community/ai/', '/ko/community/games/?kind=patch', '/ko/community/free/', '/ko/community/best/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/community/ai/write?tag=service:claude', '/ko/community/games/write?tag=game:steam-333640', e2e_post, '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:
                 m.goto(B + path); m.wait_for_timeout(300)
-                assert m.locator('.hd .hn a[href$="/radar/"]').is_visible(), f'{path}: Radar is reachable from the mobile header'
+                assert m.locator('#nav-more a[href$="/radar/"]').count() == 1, f'{path}: Radar is reachable from the menu's More group'
                 w = m.evaluate('document.documentElement.scrollWidth')
                 assert w <= 390, f'{path} scrolls sideways at 390px ({w})'
             # WCAG 2 A/AA with axe-core when available (AXE_CORE=/path/to/axe.min.js); skipped otherwise.
