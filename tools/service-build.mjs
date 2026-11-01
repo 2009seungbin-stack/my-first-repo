@@ -8,6 +8,7 @@ import {socialMetadata} from '../src/seo.js';
 import {withBeacon,TRAFFIC_ROUTES,TRAFFIC_HTML_EXCLUDES,crawlerFile} from './traffic-build.mjs';
 import {SERVICE_ROUTES,text,pricingHTML,accountHTML} from '../src/service-content.js';
 import {emitAdmin} from './admin-build.mjs';
+import {loadDigest,digestDataModule} from './digest-build.mjs';
 /** Build outputs that exist only when SERVICE_API=on: the /api/v1 Worker, its routes,
  * the pricing/account pages and the Turnstile frame. A build without the flag is the
  * unchanged static site. */
@@ -73,6 +74,8 @@ export async function emitService(dist,config,head){
  await cp(new URL('server/',root),path.join(worker,'server'),{recursive:true});
  // Platform renderers/repositories (server/platform/pages.js imports them; they run only with PLATFORM=on).
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
+ // The AI digest: published articles only (drafts in content/ai-digest/ never reach dist/).
+ await writeFile(path.join(worker,'platform','digest-data.js'),digestDataModule(await loadDigest()));
  // Shared market definitions and the compact benchmark aggregate are imported by PC tool SSR.
  await mkdir(path.join(worker,'src','hardware'),{recursive:true});await cp(new URL('src/hardware/market.js',root),path.join(worker,'src','hardware','market.js'));
  await mkdir(path.join(worker,'data','hardware'),{recursive:true});await cp(new URL('data/hardware/blender.js',root),path.join(worker,'data','hardware','blender.js'));

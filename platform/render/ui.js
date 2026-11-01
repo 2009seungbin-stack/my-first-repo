@@ -10,6 +10,7 @@ import {CHANNELS,channelById,channelPath,postPath,flairLabel,patchCollectionPath
 import {FILE_TOOLS,GAME_TOOLS,PC_TOOLS,FUN_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 import {discoveryTopics} from '../discovery.js';
+import {digestLink} from '../digest.js';
 import {pageJsonLd} from './page-seo.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
@@ -114,13 +115,15 @@ const CHEV=html`<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fil
 function shellNav(o){
  const l=o.l,ko=l==='ko',lang=ko?'ko':'en';
  const home=o.toolsOnly?toolsHome(l):homeUrl(l);
+ // The AI digest's entry, after the AI topic, only once an article is published (platform/digest.js).
+ const digest=digestLink(l);
  const item=(/** @type {string} */ href,/** @type {string} */ label,/** @type {boolean|undefined} */ on,/** @type {string} */ ic)=>html`<a class="ln${on?' on':''}" href="${href}"${on?html` aria-current="page"`:''}>${icon(ic,18)}${label}</a>`;
  const tools=(/** @type {string} */ id,/** @type {string} */ title,/** @type {readonly import('../tools-nav.js').NavTool[]} */ list,/** @type {boolean} */ open)=>html`<details class="lg" id="${id}"${open?html` open`:''}><summary>${CHEV}${title}<span class="lgn">${list.length}</span></summary><ul>${list.map(x=>html`<li><a href="${toolHref(l,x)}"><span class="ic" title="${x.ic}">${icon(x.svg,18)}</span>${x[lang]}</a></li>`)}<li><a class="all" href="${toolsHome(l)}">${ko?'도구 전체 보기 ›':'All tools ›'}</a></li></ul></details>`;
  return html`<aside class="lnav" id="lnav" aria-label="${ko?'메뉴와 도구':'Menu and tools'}"><div class="lnh"><a class="brand" href="${home}">${LOGO}<span>nerulio</span></a><a class="lnx" href="#" data-drawer-close aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a></div>
 <nav aria-label="${ko?'페이지':'Pages'}">${item(home,ko?'홈':'Home',o.homeOn,'home')}${o.toolsOnly?'':html`${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}`}${item(`/${l}/preflight/`,'Preflight',false,'check')}${o.toolsOnly?html`${item(`/${l}/preflight/obs/`,'OBS',false,'film')}${item(`/${l}/preflight/studio/`,'Studio',false,'pulse')}${item(`/${l}/preflight/blender/`,'Blender',false,'brush')}${item(`/${l}/preflight/godot/`,'Godot',false,'gamepad')}`:item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
 ${o.toolsOnly?'':html`<details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>`}
 <span class="lsep" aria-hidden="true"></span>
-${o.toolsOnly?'':html`<details class="lg"><summary>${CHEV}${ko?'정보·비교':'Reference pages'}<span class="lgn">5</span></summary><ul>${discoveryTopics(l).map(x=>html`<li><a href="${x.href}"><span class="ic" aria-hidden="true">${icon(CHANNEL_ICON[x.icon]||'chat',14)}</span>${x.name}</a></li>`)}</ul></details>`}
+${o.toolsOnly?'':html`<details class="lg"><summary>${CHEV}${ko?'정보·비교':'Reference pages'}<span class="lgn">${discoveryTopics(l).length+(digest?1:0)}</span></summary><ul>${discoveryTopics(l).map(x=>html`<li><a href="${x.href}"><span class="ic" aria-hidden="true">${icon(CHANNEL_ICON[x.icon]||'chat',14)}</span>${x.name}</a></li>${x.id==='ai'&&digest?html`<li><a href="${digest.href}" data-digest-link><span class="ic" aria-hidden="true">${icon(CHANNEL_ICON.ai||'chat',14)}</span>${digest.name}</a></li>`:''}`)}</ul></details>`}
 ${o.toolsOnly?'':tools('nav-pc',ko?'PC 도구':'PC tools',PC_TOOLS,true)}${o.toolsOnly?'':tools('nav-fun',ko?'놀이 도구':'Fun tools',FUN_TOOLS,true)}${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,false)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}</aside>`;
 }
 
