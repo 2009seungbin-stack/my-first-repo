@@ -121,12 +121,12 @@ def channel_flow(b, errors):
     pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
     pg.on('pageerror', lambda e: errors.append(str(e)))
     pg.goto(B + '/ko/community/hw/'); pg.wait_for_timeout(400)
-    assert pg.locator('.chs a').first.get_attribute('data-ch') == 'free', 'default order before pinning (자유 first)'
+    assert [pg.locator('[data-channel-links] a').nth(i).get_attribute('data-ch') for i in range(pg.locator('[data-channel-links] a').count())] == ['hw'], 'before pinning the bar carries only the channel being read'
     pg.locator('.chead [data-pin=hw]').click(); pg.wait_for_timeout(300)
     assert pg.locator('.chead [data-pin=hw]').get_attribute('aria-pressed') == 'true'
     assert pg.evaluate("localStorage.getItem('n2-pins')") == '["hw"]'
-    pg.reload(); pg.wait_for_timeout(400)
-    assert pg.locator('.chs a').first.get_attribute('data-ch') == 'hw', 'a pinned channel comes first on the bar'
+    pg.goto(B + '/ko/community/ai/'); pg.wait_for_timeout(400)
+    assert pg.locator('[data-channel-links] a').first.get_attribute('data-ch') == 'hw', 'a pinned channel comes first on the bar'
     pg.locator('.chbar .allch').click(); pg.wait_for_selector('dialog#chsheet[open]', timeout=3000)
     assert pg.locator('[data-my-channels]').is_visible() and 'PC·하드웨어' in pg.locator('[data-my-list]').inner_text()
     pg.fill('[data-sheet-q]', '클로드'); pg.wait_for_selector('[data-sheet-results]:not([hidden]) a', timeout=5000)
@@ -286,7 +286,7 @@ def main():
             m = b.new_page(viewport={'width': 390, 'height': 900})
             for path in ['/ko/community/', '/ko/community/ai/', '/ko/community/games/?kind=patch', '/ko/community/free/', '/ko/community/best/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/community/ai/write?tag=service:claude', '/ko/community/games/write?tag=game:steam-333640', e2e_post, '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:
                 m.goto(B + path); m.wait_for_timeout(300)
-                assert m.locator('#nav-more a[href$="/radar/"]').count() == 1, f'{path}: Radar is reachable from the menu's More group'
+                assert m.locator('#nav-more a[href$="/radar/"]').count() == 1, f"{path}: Radar is reachable from the menu's More group"
                 w = m.evaluate('document.documentElement.scrollWidth')
                 assert w <= 390, f'{path} scrolls sideways at 390px ({w})'
             # WCAG 2 A/AA with axe-core when available (AXE_CORE=/path/to/axe.min.js); skipped otherwise.

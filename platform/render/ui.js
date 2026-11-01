@@ -116,7 +116,7 @@ export function primaryBar(l){
  return [...GAME_TOOLS,...FILE_TOOLS].map(x=>({href:toolHref(l,x),name:x[lang]})).concat([{href:`/${l}/ai/`,name:'AI'}]);
 }
 
-/** The menu column (desktop) and the drawer (mobile): pages, the channels, and the file and game tools,
+/** The menu column (desktop) and the drawer (mobile): home, the game and file tools, AI, Preflight, then More,
  * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,toolsOnly?:boolean}} o */
 function shellNav(o){
  const l=o.l,ko=l==='ko',lang=ko?'ko':'en';
@@ -124,8 +124,9 @@ function shellNav(o){
  const item=(/** @type {string} */ href,/** @type {string} */ label,/** @type {boolean|undefined} */ on,/** @type {string} */ ic)=>html`<a class="ln${on?' on':''}" href="${href}"${on?html` aria-current="page"`:''}>${icon(ic,18)}${label}</a>`;
  const tools=(/** @type {string} */ id,/** @type {string} */ title,/** @type {readonly import('../tools-nav.js').NavTool[]} */ list,/** @type {boolean} */ open)=>html`<details class="lg" id="${id}"${open?html` open`:''}><summary>${CHEV}${title}<span class="lgn">${list.length}</span></summary><ul>${list.map(x=>html`<li><a href="${toolHref(l,x)}"><span class="ic" title="${x.ic}">${icon(x.svg,18)}</span>${x[lang]}</a></li>`)}<li><a class="all" href="${toolsHome(l)}">${ko?'도구 전체 보기 ›':'All tools ›'}</a></li></ul></details>`;
  return html`<aside class="lnav" id="lnav" aria-label="${ko?'메뉴와 도구':'Menu and tools'}"><div class="lnh"><a class="brand" href="${home}">${LOGO}<span>nerulio</span></a><a class="lnx" href="#" data-drawer-close aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a></div>
-<nav aria-label="${ko?'페이지':'Pages'}">${item(home,ko?'홈':'Home',o.homeOn,'home')}${item(`/${l}/preflight/`,'Preflight',false,'check')}${o.toolsOnly?html`${item(`/${l}/preflight/obs/`,'OBS',false,'film')}${item(`/${l}/preflight/studio/`,'Studio',false,'pulse')}${item(`/${l}/preflight/blender/`,'Blender',false,'brush')}${item(`/${l}/preflight/godot/`,'Godot',false,'gamepad')}`:''}</nav>
+<nav aria-label="${ko?'페이지':'Pages'}">${item(home,ko?'홈':'Home',o.homeOn,'home')}</nav>
 ${tools('nav-game',ko?'게임 에셋 도구':'Game asset tools',GAME_TOOLS,true)}${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,true)}${o.toolsOnly?'':html`<nav class="lai" aria-label="AI">${item(`/${l}/ai/`,'AI',false,CHANNEL_ICON.ai)}</nav>`}
+<nav class="lai" aria-label="${ko?'환경 점검':'Preflight checks'}">${item(`/${l}/preflight/`,'Preflight',false,'check')}${o.toolsOnly?html`${item(`/${l}/preflight/obs/`,'OBS',false,'film')}${item(`/${l}/preflight/studio/`,'Studio',false,'pulse')}${item(`/${l}/preflight/blender/`,'Blender',false,'brush')}${item(`/${l}/preflight/godot/`,'Godot',false,'gamepad')}`:''}</nav>
 <span class="lsep" aria-hidden="true"></span>
 ${o.toolsOnly?'':html`<details class="lg" id="nav-more"><summary>${CHEV}${ko?'더보기':'More'}</summary><div class="lmore"><nav aria-label="${ko?'더보기 페이지':'More pages'}">${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
 <details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>

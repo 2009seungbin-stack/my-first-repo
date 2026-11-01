@@ -29,6 +29,7 @@ test('shell: portal home addresses, profile links, dark-mode button and the menu
  assert(out.includes('data-theme-toggle')&&out.includes('id="lnav"')&&out.includes('data-drawer-open'));
  assert(out.includes('<details class="lg" id="nav-file" open>')&&out.includes('<details class="lg" id="nav-game" open>'),'both tool groups lead the menu, open');
  assert(out.indexOf('id="nav-game"')<out.indexOf('id="nav-file"')&&out.indexOf('id="nav-file"')<out.indexOf('href="/ko/ai/"')&&out.indexOf('href="/ko/ai/"')<out.indexOf('id="nav-more"'),'order: game tools, file tools, AI, then More');
+ assert(out.indexOf('id="nav-file"')<out.indexOf('href="/ko/preflight/"')&&out.indexOf('href="/ko/preflight/"')<out.indexOf('id="nav-more"'),'Preflight comes after the game and file tools, not ahead of them');
  assert(out.indexOf('id="nav-more"')<out.indexOf('community/sub/')&&out.indexOf('id="nav-more"')<out.indexOf('id="nav-pc"'),'subculture channel and PC data sit under More');
  const hd=out.slice(out.indexOf('<header class="top hd">'),out.indexOf('</header>'));
  assert(!hd.includes('/radar/'),'Radar is not a header button (it sits under More; islands add it only for unread alerts)');
