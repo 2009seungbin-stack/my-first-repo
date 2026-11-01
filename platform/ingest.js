@@ -435,8 +435,11 @@ export async function ingest(db,doc,opts){
  for(const c of changeRows){
   const k=canon([c.entity_id,c.kind,c.property??null,c.scope??'{}',c.old_value??null,c.new_value??null,c.ref_id??null]);
   if(seenChange.has(k))continue;seenChange.add(k);
-  W(`INSERT INTO changes (entity_id,vertical,kind,property,scope,old_value,new_value,summary,importance,source_id,ref_id,visibility,effective_at,detected_at,origin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-   c.entity_id,c.vertical,c.kind,c.property??null,c.scope??'{}',c.old_value??null,c.new_value??null,c.summary??null,c.importance??2,c.source_id??null,c.ref_id??null,c.visibility||'public',c.effective_at??now,now,mode);
+  // origin: the ingest mode, except that a change citing a collector-backed source (sources.adapter set,
+  // e.g. the Steam seed file built by collectors/steam-store/build-seed.mjs and synced in seed mode) is
+  // 'collector': automated data never counts as editorial history (platform/seo.js).
+  W(`INSERT INTO changes (entity_id,vertical,kind,property,scope,old_value,new_value,summary,importance,source_id,ref_id,visibility,effective_at,detected_at,origin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,CASE WHEN EXISTS (SELECT 1 FROM sources s WHERE s.id=? AND s.adapter IS NOT NULL) THEN 'collector' ELSE ? END)`,
+   c.entity_id,c.vertical,c.kind,c.property??null,c.scope??'{}',c.old_value??null,c.new_value??null,c.summary??null,c.importance??2,c.source_id??null,c.ref_id??null,c.visibility||'public',c.effective_at??now,now,c.source_id??null,mode);
  }
  stats.changes=seenChange.size;
  const ids=[...touched];

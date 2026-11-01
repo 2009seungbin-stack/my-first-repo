@@ -4,7 +4,7 @@ import {D1Shim,sqliteAvailable} from './d1-shim.mjs';
 import {seedDatabase} from '../tools/platform/seed-db.mjs';
 import {insertDemoContent} from '../tools/platform/demo-posts.mjs';
 import {ingest,mergeDescriptionSrc} from '../platform/ingest.js';
-import {contentCounts,sitemapEntities} from '../platform/db/channel.js';
+import {contentCounts,sitemapEntities,EDITORIAL_CHANGE_SQL} from '../platform/db/channel.js';
 import {entityIndexable} from '../platform/seo.js';
 import {VERTICALS} from '../platform/schema.js';
 import {matchPlatformRoute,renderPlatformPage,renderSitemap} from '../server/platform/pages.js';
@@ -51,6 +51,27 @@ test('changes remember which ingest mode produced them',{skip},async()=>{
  await ingest(d,doc({id:'provider:a',slug:'a',facts:[{p:'hq_country',v:'KR',ver:'OFFICIAL',src:'src:t'}]}),{mode:'collector',actor:'collector:t',adapter:'t',now:NOW+1});
  const rows=d.raw.prepare('SELECT kind,origin FROM changes ORDER BY id').all().map((/** @type {any} */ r)=>`${r.kind}:${r.origin}`);
  assert.deepEqual(rows,['entity_added:seed','fact_added:seed','fact_changed:collector']);
+});
+
+test('changes citing a collector-backed source are collector output even when synced in seed mode',{skip},async()=>{
+ const d=D1Shim.migrated();
+ const auto=[{id:'src:auto',kind:'OFFICIAL_API',url:'https://example.test/api',retrieved:'2026-09-28',adapter:'steam-news'}];
+ const fact=(/** @type {string} */ v,/** @type {string} */ s)=>({schema:'nerulio.seed/1',vertical:'ai',sources:[...src,...auto],entities:[{id:'provider:a',type:'provider',slug:'a',names:{en:'A'},facts:[{p:'hq_country',v,ver:'OFFICIAL',src:s}]}]});
+ await ingest(d,fact('US','src:auto'),{mode:'seed',actor:'seed',now:NOW});
+ for(const [i,v] of ['KR','JP','DE'].entries())await ingest(d,fact(v,'src:auto'),{mode:'seed',actor:'seed',now:NOW+1+i});
+ const rows=d.raw.prepare("SELECT kind,origin FROM changes WHERE kind='fact_changed'").all().map((/** @type {any} */ r)=>r.origin);
+ assert.deepEqual(rows,['collector','collector','collector']);
+ assert.equal((await contentCounts(d,'provider:a')).editorial_changes,0);
+ // The same edit citing a curated (adapter-less) source is editorial.
+ await ingest(d,fact('FR','src:t'),{mode:'seed',actor:'seed',now:NOW+9});
+ assert.equal((await contentCounts(d,'provider:a')).editorial_changes,1);
+});
+
+test('the collector-built Steam seed file adds no editorial history',{skip},async()=>{
+ const d=D1Shim.migrated();await seedDatabase(d,undefined,NOW);
+ const r=await d.prepare(`SELECT COUNT(*) AS n,(SELECT COUNT(*) FROM changes c WHERE c.entity_id LIKE 'game:steam-%' AND c.kind IN ('fact_changed','version_released')) AS automated FROM changes c WHERE c.entity_id LIKE 'game:steam-%' AND ${EDITORIAL_CHANGE_SQL}`).first();
+ assert(Number(r.automated)>0,'the seed carries Steam version and fact changes');
+ assert.equal(Number(r.n),0);
 });
 
 async function community(){

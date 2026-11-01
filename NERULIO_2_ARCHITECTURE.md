@@ -149,13 +149,14 @@ GitHub Actions cron ─► collectors ─► POST /api/v2/admin/ingest ─► in
 ## 6. SEO rules for platform pages
 - SSR HTML, unique title/description, self canonical, ko↔en hreflang (+x-default = en), OpenGraph.
 - `index` only when an entity page carries ORIGINAL content (`platform/seo.js`): `index_state='index'`, or
-  >= 3 published posts by people (not the Radar bot), or an editor-written description of the page language
-  (>= 300 chars ko / >= 60 words en; descriptions marked `collected` in `entities.description_src` never
+  >= 3 published posts by people (not the Radar bot), or an editor-written description in the page language
+  itself, no fallback (>= 300 chars ko / >= 60 words en; descriptions marked `collected` in `entities.description_src` never
   count), or >= 3 community contributions (moderator-accepted COMMUNITY_VERIFIED facts, member compat /
   benchmark reports). Collector and seed facts/relations alone do not. `index_state='noindex'` always wins.
   Otherwise `noindex,follow` and absent from sitemaps.
 - Derived pages follow their entity: status, local-LLM and change-history pages are noindex (and unlisted)
-  when the entity is, and a history also needs >= 3 non-collector changes (`changes.origin`).
+  when the entity is, and a history also needs >= 3 non-collector changes (`changes.origin`; a change citing a source with an
+  `adapter` is collector output even when synced in seed mode).
 - Per-vertical sitemaps generated from D1; community sub-pages indexed only when non-empty.
 - Related links come from real relations only.
 

@@ -23,7 +23,8 @@ test('content gate: collected-only entities are noindex; posts, editor text, con
  assert.equal(entityIndexable({...entity,descriptions:{ko:'한'.repeat(300)}},none,'en'),false,'English pages never show a Korean-only description');
  assert.equal(entityIndexable({...entity,descriptions:{en:words(59)}},none,'en'),false);
  assert.equal(entityIndexable({...entity,descriptions:{en:words(60)}},none,'en'),true);
- assert.equal(entityIndexable({...entity,descriptions:{en:words(60)}},none,'ko'),true,'Korean pages may display the English fallback');
+ assert.equal(entityIndexable({...entity,descriptions:{en:words(60)}},none,'ko'),false,'an English fallback is not Korean text: the Korean page needs its own');
+ assert.equal(entityIndexable({...entity,descriptions:{en:words(60),ko:'한'.repeat(300)}},none,'ko'),true);
  assert.equal(entityIndexable({...entity,descriptions:{ko:'한'.repeat(300),en:'Short.'}},none,'en'),false);
  assert.equal(entityIndexable({...entity,descriptions:{ko:'   '}},none,'ko'),false);
  // A description composed from collected data (Steam blurb) never counts, however long.
@@ -47,7 +48,8 @@ test('a change history follows its entity and needs three editorial changes of i
  assert.equal(historyIndexable(rich,{editorial_changes:2},'en'),false);
  assert.equal(historyIndexable(entity,{editorial_changes:40},'en'),false,'a non-indexable parent has no indexable history');
  assert.equal(historyIndexable({...rich,index_state:'noindex'},{editorial_changes:40},'en'),false);
- assert.equal(historyIndexable({...entity,descriptions:{en:words(60)}},{editorial_changes:3},'ko'),true);
+ assert.equal(historyIndexable({...entity,descriptions:{en:words(60)}},{editorial_changes:3},'en'),true);
+ assert.equal(historyIndexable({...entity,descriptions:{en:words(60)}},{editorial_changes:3},'ko'),false,'no Korean text: the Korean history follows the noindex Korean page');
 });
 
 test('page graphs retain specialized page identity, publisher and breadcrumbs without duplicate page nodes',()=>{
