@@ -60,21 +60,25 @@ with (OUT / 'server.log').open('w', encoding='utf-8') as log:
                     assert start.is_visible()
                     assert page.locator('h1').count() == 1
                     assert start.bounding_box()['y'] < 400
-                    assert page.locator('[data-home-start] .home-workflows > li').count() == 3
-                    assert page.locator('[data-home-example]').bounding_box()['y'] < page.locator('#home-community').bounding_box()['y']
+                    assert page.locator('[data-home-start] .home-workflows:not(.home-toolgrid) > li').count() == 3
+                    assert page.locator('[data-home-start] [data-home-game-tools] > li').count() >= 5
+                    assert page.locator('[data-home-start] [data-home-file-tools] > li').count() >= 5
+                    # The community feed is hidden while it has no posts (an empty board is low-value content).
+                    if page.locator('#home-community').count():
+                        assert page.locator('[data-home-example]').bounding_box()['y'] < page.locator('#home-community').bounding_box()['y']
                     image = page.locator('[data-home-example] img')
                     image.scroll_into_view_if_needed()
                     image_path = image.get_attribute('src')
                     assert page.request.get(origin + image_path).status == 200
-                    section = page.locator('[data-search-discovery]')
-                    assert section.count() == 1 and section.is_visible()
-                    assert section.locator('ul > li').count() == 5
+                    # Reference topics (auto-collected AI/game/PC data) left the home page; one AI entry remains.
+                    assert page.locator('[data-search-discovery]').count() == 0
+                    assert page.locator('[data-home-ai] a[href="/' + locale + '/ai/"]').count() == 1
                     assert page.locator('link[rel=canonical]').get_attribute('href') == origin + route
                     graph = json.loads(page.locator('script[type="application/ld+json"]').inner_text())['@graph']
                     assert len([n for n in graph if n.get('@id') == origin + route + '#webpage']) == 1
                     assert page.locator('.lnav a[href="/' + locale + '/bracket/"]').count() == 1
                     assert page.evaluate('document.documentElement.scrollWidth') <= width
-                    for href in page.locator('[data-home-start] a, [data-home-example] a, [data-search-discovery] a').evaluate_all('(links)=>links.map(a=>a.getAttribute("href"))'):
+                    for href in page.locator('[data-home-start] a, [data-home-example] a, [data-home-ai] a').evaluate_all('(links)=>links.map(a=>a.getAttribute("href"))'):
                         assert href.startswith('/' + locale + '/')
                         if href not in visited:
                             assert page.request.get(origin + href).status == 200, href
