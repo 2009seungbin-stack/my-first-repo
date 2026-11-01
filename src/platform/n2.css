@@ -1186,3 +1186,5 @@ body.n2{background:var(--page)}
 @media(max-width:640px){.bk-setup,.bk-board,.bk-help{padding:12px}.bk-tree{--sw:92px;--cw:12px;--mw:104px;--sh:30px}.bk-s{font-size:12px;padding:0 6px}.bk-size span{padding:0 11px}.bk-rr{grid-template-columns:minmax(0,1fr) 132px}.bk-ed-m{grid-template-columns:40px minmax(0,1fr) 18px minmax(0,1fr)}.bk-sp,[data-bk-print]{display:none}.bk-tools .btn{flex:1 1 auto}}
 @media(prefers-reduced-motion:reduce){.bk-s{transition:none}.bk-s.land,.bk-s.pop{animation:none}}
 @media print{.bk-setup,.bk-help,.bk-tools,.bk-tip,.bk-toast,.bk-ed,.lnav,.top,.chbar,.ft,.bk-head{display:none!important}.bk-board{border:0}.bk-scroll{overflow:visible}.bk-tree{--sw:104px;--cw:14px;--mw:120px}}
+
+.lmore{padding:2px 0 4px 10px}.lmore details.lg{margin-top:2px}.lai{margin:2px 0}

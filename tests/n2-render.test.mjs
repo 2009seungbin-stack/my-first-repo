@@ -150,7 +150,7 @@ test('portal home: one feed of people\'s posts (인기 · 최신), AI status, Ra
  assert(out.includes('5070 vs 4070 SUPER')&&out.includes('class="fx"'),'cards show the first lines');
  assert(out.includes('AI 서비스 상태')&&['Claude','ChatGPT','Gemini'].every(n=>out.includes(`<b>${n}</b>`)));
  assert(m.rail.news.every(p=>p.bot),'news lists Radar bot posts only');
- assert(out.includes('파일 도구')&&out.includes('게임 도구')&&out.includes('href="/ko/image/compress/"')&&out.includes('href="/ko/tools/"'),'the menu lists the tools');
+ assert(out.includes('파일 도구')&&out.includes('게임 에셋 도구')&&out.includes('href="/ko/image/compress/"')&&out.includes('href="/ko/tools/"'),'the menu lists the tools');
  const latest=await loadFront(d,{l:'ko',now:NOW,sort:'new'});
  assert(latest.posts.every((p,i)=>i===0||latest.posts[i-1].created_at>=p.created_at),'최신 = newest first');
  assert(String(renderFront(latest,SITE)).includes('<meta name="robots" content="noindex,follow">'),'the latest tab is not a second indexed home');
@@ -374,7 +374,7 @@ test('model channels: official API price, price history area, local-run estimate
  assert(g.out.includes('로컬에서 돌리려면')&&g.out.includes('12GB 카드부터'));
  const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec((await channel('games','caves-of-qud')).out)[1]);
  assert.equal(ld['@graph'][0].about.additionalType,'https://schema.org/VideoGame','typed without claiming a rich result it cannot fill');assert.equal(ld['@graph'][1]['@type'],'BreadcrumbList');
- assert(!(await channel('games','caves-of-qud')).out.replace(/<aside class="lnav"[\s\S]*?<\/aside>/,'').includes('스프라이트 랩'),'game-asset tools are not linked from every game (the site menu lists them on every page)');
+ assert(!(await channel('games','caves-of-qud')).out.replace(/<aside class="lnav"[\s\S]*?<\/aside>/,'').replace(/<nav class="chbar"[\s\S]*?<\/nav>/,'').includes('스프라이트 랩'),'game-asset tools are not linked from every game (the site menu lists them on every page)');
 });
 
 test('Korean patch: a game update past the last confirmed version is flagged; patch channel links to the author only',{skip:!sqliteAvailable},async()=>{
@@ -552,4 +552,12 @@ test('status feed: official incidents and user-report spikes, each start and end
  assert(page.includes('<link rel="alternate" type="application/rss+xml" href="/ko/ai/claude/status/feed.xml" title="Claude 장애·상태 알림">'));
  assert.equal(await get('/ko/hardware/rtx-5070/status/feed.xml'),null,'services only');
  assert.equal((await get('/ko/ai/claude/status/feed.xml?x=1')).status,301);
+});
+
+test('portal home with no posts hides the community feed instead of showing an empty board',async()=>{
+ for(const l of ['ko','en']){
+  const out=String(renderFront({l,now:NOW,sort:'hot',posts:[],rail:{now:NOW,status:[],news:[],best:[]},channels:[]},SITE));
+  assert(!out.includes('home-community')&&!/No posts yet|아직 글이 없습니다/.test(out),`${l}: no empty feed`);
+  assert(out.indexOf('data-home-game-tools')>0&&out.indexOf('data-home-game-tools')<out.indexOf('data-home-file-tools')&&out.indexOf('data-home-file-tools')<out.indexOf('data-home-ai'),`${l}: game tools, file tools, then AI`);
+ }
 });
