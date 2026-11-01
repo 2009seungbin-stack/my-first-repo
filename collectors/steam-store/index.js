@@ -98,7 +98,7 @@ export function gameEntity(en,ko,o){
   ko:`${who.ko?who.ko+'의 ':''}PC ${genreKo&&ko?genreKo+' ':''}게임으로${when.ko?when.ko+'습니다':upcoming?' Steam에 출시될 예정입니다':', Steam에서 판매됩니다'}. ${kor.ko}`.replace('예정습니다','예정입니다').replace('으로, Steam','으로 Steam').trim(),
  }:undefined;
  const official_urls=[{label:'Steam',url:storeUrl(o.appid)},...(website?[{label:'Official site',url:website}]:[])];
- return {id:o.id,type:'game',slug:o.slug,names,...(Object.keys(names_src).length?{names_src}:{}),...(aliases.length?{aliases}:{}),...(description?{description}:{}),official_urls,facts,relations};
+ return {id:o.id,type:'game',slug:o.slug,names,...(Object.keys(names_src).length?{names_src}:{}),...(aliases.length?{aliases}:{}),...(description?{description,description_origin:'collected'}:{}),official_urls,facts,relations};
 }
 
 /** @param {{retryDelays?:number[]}} [opts] */

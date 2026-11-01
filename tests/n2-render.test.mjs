@@ -323,22 +323,33 @@ test('status, history and write pages render; status is only for services',{skip
  assert(!w2.includes('value="patch"'),'한글패치 tag only on game channels');
 });
 
-test('content gate: thin name-only channels are noindex and left out of the entity sitemaps',{skip:!sqliteAvailable},async()=>{
- const d=await seeded();
+test('content gate: only original content is indexed; collected and seed-only channels are noindex and out of the entity sitemaps',{skip:!sqliteAvailable},async()=>{
+ const d=D1Shim.migrated();
+ await seedDatabase(d,undefined,NOW-2*864e5);
  const {renderSitemap}=await import('../server/platform/pages.js');
- const xml=await renderSitemap(d,'hardware','https://nerulio.com');
- assert(xml.startsWith('<?xml')&&xml.includes('https://nerulio.com/ko/hardware/rtx-5070/')&&xml.includes('hreflang="en"'));
- assert(xml.includes('/ko/hardware/?type=gpu&amp;vs=rtx-3090,rtx-4090'),'successor GPU pairs are listed');
- const ai=await renderSitemap(d,'ai','https://nerulio.com');
- for(const slug of ['claude','chatgpt','gemini-app'])for(const l of ['ko','en'])assert(ai.includes(`https://nerulio.com/${l}/ai/${slug}/status<`),`${l} ${slug} status page is listed`);
- // A company page with only a name and a relation or two is not indexable.
+ const origin='https://nerulio.com';
+ // Seed facts, relations and one-sentence descriptions are not original content: a "rich" channel is still noindex.
+ const xml=await renderSitemap(d,'hardware',origin);
+ assert(xml.startsWith('<?xml')&&!xml.includes(`${origin}/ko/hardware/rtx-5070/`),'a seed-only GPU page is out of the sitemap');
+ assert(!xml.includes('vs=rtx-3090,rtx-4090'),'a GPU pair needs two indexable cards');
+ const ai=await renderSitemap(d,'ai',origin);
+ for(const slug of ['claude','chatgpt','gemini-app'])for(const l of ['ko','en'])assert(!ai.includes(`${origin}/${l}/ai/${slug}/status<`),`${l} ${slug} status page follows the gate (no exception)`);
+ const get=async(/** @type {string} */ path)=>String(await (await renderPlatformPage(new Request(origin+path),{DB:d},{origin,now:()=>NOW})).text());
+ for(const path of ['/ko/hardware/rtx-5070/','/ko/hardware/rtx-5070/history','/ko/hardware/rtx-5070/local-llm','/ko/ai/claude/status'])assert((await get(path)).includes('<meta name="robots" content="noindex,follow">'),`${path} is noindex`);
+ // The owner's manual override lists a channel and its derived status page again; both cards of a pair make the pair.
+ await d.prepare("UPDATE entities SET index_state='index' WHERE id IN ('service:claude','gpu:rtx-3090','gpu:rtx-4090')").run();
+ const after=await renderSitemap(d,'ai',origin);
+ for(const l of ['ko','en'])assert(after.includes(`${origin}/${l}/ai/claude/status<`)&&after.includes(`${origin}/${l}/ai/claude/<`));
+ assert(!(await get('/ko/ai/claude/status')).includes('content="noindex'));
+ assert((await renderSitemap(d,'hardware',origin)).includes('/ko/hardware/?type=gpu&amp;vs=rtx-3090,rtx-4090'),'successor GPU pairs of indexable cards are listed');
+ // A company page with only a name and a relation or two is not indexable either.
  const thin=(await d.prepare("SELECT e.slug FROM entities e WHERE e.type='org' AND NOT EXISTS (SELECT 1 FROM facts f WHERE f.entity_id=e.id AND f.is_current=1) AND e.descriptions='{}' LIMIT 1").first());
  if(thin){
-  const {out}=await channel('games',thin.slug);
+  const {entity}=await entityBySlug(d,'games',thin.slug);
+  const out=String(renderChannel(await loadChannel(d,entity,{l:'ko',now:NOW}),SITE));
   assert(out.includes('noindex'),`${thin.slug} is thin`);
-  assert(!(await renderSitemap(d,'games','https://nerulio.com')).includes(`/games/${thin.slug}/`));
+  assert(!(await renderSitemap(d,'games',origin)).includes(`/games/${thin.slug}/`));
  }
- assert(!(await channel('hardware','rtx-5070')).out.includes('noindex'),'a rich channel is indexed');
 });
 
 test('per-page queries use indexes (D1 bills rows read)',{skip:!sqliteAvailable},async()=>{

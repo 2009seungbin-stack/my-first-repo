@@ -45,8 +45,7 @@ import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
 import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,writePath,channelBarLinks} from '../../platform/channels.js';
 import {sitemapEntities} from '../../platform/db/channel.js';
-import {entityIndexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
-import {RAIL_SERVICES} from '../../platform/render/rail.js';
+import {entityIndexable,historyIndexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {maybeRefreshStatus} from './status-refresh.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
@@ -233,13 +232,13 @@ const SITEMAP=/^\/sitemap-n2-([a-z]+)\.xml$/;
 const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Record<string,string>} */({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'})[c]);
 /**
  * Entity sitemap of one vertical: only channels that pass the content gate, both languages with
- * hreflang alternates, lastmod = last visible change or post. Service status pages are listed too.
+ * hreflang alternates, lastmod = last visible change or post. Derived pages (status, local-LLM fit, change
+ * history) are listed only in the languages where their entity passes the gate (platform/seo.js), exactly
+ * the pages that render without noindex. No exceptions: the home status services (Claude, ChatGPT, Gemini)
+ * follow the gate too; the owner can set index_state='index' on an entity to list it regardless.
  * @param {any} db @param {string} vertical @param {string} origin
  */
 export async function renderSitemap(db,vertical,origin){
- // The home status box's services (Claude, ChatGPT, Gemini) are always listed: their status pages are
- // what people land on when the service breaks ("클로드 안 됨"), whatever the content gate says.
- const always=new Set(RAIL_SERVICES.map(x=>x.id));
  const rows=(await sitemapEntities(db,vertical)).filter(e=>e.index_state!=='noindex');
  /** @type {string[]} */const urls=[];
  /** One locale-aware sitemap entry per indexable translation. The alternate cluster contains only
@@ -251,8 +250,6 @@ export async function renderSitemap(db,vertical,origin){
  };
  const hub={ko:`${origin}/ko/${vertical}/`,en:`${origin}/en/${vertical}/`};
  add(hub);
- // Change histories with real changes (at least 3 besides first sightings) are pages of their own.
- const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
  // Only populated boards enter discovery. Time-window best lists remain usable but noindex.
  const populated=vertical==='ai'?new Set(((await db.prepare("SELECT DISTINCT channel_id FROM discussions WHERE status='published'").all()).results||[]).map((/** @type {any} */ r)=>String(r.channel_id))):new Set();
  const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[...CHANNEL_IDS.filter(c=>populated.has(c)).map(c=>[`/community/${c}/`]),['/radar/'],['/bracket/']]:[])];
@@ -267,13 +264,15 @@ export async function renderSitemap(db,vertical,origin){
  const gpuFacts=vertical==='hardware'?await factsFor(db,rows.filter(e=>e.type==='gpu').map(e=>e.id)):new Map();
  for(const e of rows){
   const locales=['ko','en'].filter(l=>entityIndexable(e,e,l));
-  const paths=locales.length?['']:[];
-  if(e.type==='service'&&(locales.length||always.has(e.id)))paths.push('status');
-  if(e.type==='gpu'&&Number(pickFact(gpuFacts.get(e.id),'vram_gb')?.value||0)>0)paths.push('local-llm');
-  if(hist.has(e.id))paths.push('history');
-  for(const p of paths){
-   const alt=Object.fromEntries((p?['ko','en']:locales).map(l=>[l,origin+channelUrl(l,e)+p]));
-   add(alt,e.lastmod);
+  /** @type {[string,string[]][]} path → the languages in which that page is indexable (the same gates as the pages' robots meta) */
+  const paths=[['',locales]];
+  if(e.type==='service')paths.push(['status',locales]);
+  if(e.type==='gpu'&&Number(pickFact(gpuFacts.get(e.id),'vram_gb')?.value||0)>0)paths.push(['local-llm',locales]);
+  // A change history is a page of its own once it holds at least 3 editorial (non-collector) changes.
+  paths.push(['history',['ko','en'].filter(l=>historyIndexable(e,e,l))]);
+  for(const [p,ls] of paths){
+   if(!ls.length)continue;
+   add(Object.fromEntries(ls.map(l=>[l,origin+channelUrl(l,e)+p])),e.lastmod);
   }
  }
  // GPU pairs worth a page of their own: a card and the card it succeeds (RTX 4070 → RTX 5070).
