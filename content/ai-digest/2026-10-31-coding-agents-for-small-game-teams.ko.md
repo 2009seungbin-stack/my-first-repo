@@ -26,7 +26,7 @@ sources:
 
 ## 2. Android Studio Rabbit 2 — 쓰던 에이전트를 IDE 안으로
 
-**무슨 일이 있었나.** Google이 10월 28일 Android Studio Rabbit 2를 정식(stable) 버전으로 내놓으면서 "Bring Your Own Agent" 기능을 포함했습니다. Agent Client Protocol(ACP)을 지원하는 40개가 넘는 코딩 에이전트를 IDE 안에서 고를 수 있고, 발표에는 Claude Agent, OpenAI Codex, Junie, Google Antigravity가 예로 나옵니다. 에이전트는 Android 에뮬레이터, 빌드 시스템, Logcat 같은 Android Studio 도구를 쓸 수 있습니다. 함께 발표된 기능으로는 Android 스킬 관리자, 프로파일러의 LeakCanary 작업에서 메모리 누수를 진단하고 수정을 제안하는 기능, 에이전트가 바꾼 내용과 커밋 예정 변경을 검토하는 AI Change Review가 있습니다.
+**무슨 일이 있었나.** Google이 10월 28일 Android Studio Rabbit 2를 정식(stable) 버전으로 내놓으면서 "Bring Your Own Agent" 기능을 포함했습니다. 40개가 넘는 ACP 호환 코딩 에이전트 가운데 원하는 것을 IDE 안에서 고를 수 있고, 발표에는 Claude Agent, OpenAI Codex, Junie, Google Antigravity가 예로 나옵니다. 에이전트는 Android 에뮬레이터, 빌드 시스템, Logcat 같은 Android Studio 도구를 쓸 수 있습니다. 함께 발표된 기능으로는 Android 스킬 관리자, 프로파일러의 LeakCanary 작업에서 메모리 누수를 진단하고 수정을 제안하는 기능, 에이전트가 바꾼 내용과 커밋 예정 변경을 검토하는 AI Change Review가 있습니다.
 
 **게임 작업에서 왜 중요한가.** 모바일 게임을 Android용으로 빌드하는 팀이라면, 에이전트가 **로그와 에뮬레이터를 직접 본다**는 점이 핵심입니다. 에이전트의 실수는 대개 "컴파일은 되는데 기기에서 깨지는" 형태로 나타납니다. 실행 결과를 보면서 고칠 수 있으면 사람이 로그를 복사해 붙여 넣는 왕복이 줄어듭니다. 팀원마다 쓰던 에이전트가 달라도 같은 IDE에서 일할 수 있다는 점도 작은 팀에는 실용적입니다.
 

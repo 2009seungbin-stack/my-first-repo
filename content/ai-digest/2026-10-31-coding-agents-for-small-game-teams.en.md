@@ -26,7 +26,7 @@ Coding-agent news piled up on a single day at the end of October. On October 28 
 
 ## 2. Android Studio Rabbit 2 — bring the agent you already use into the IDE
 
-**What happened.** On October 28 Google released Android Studio Rabbit 2 as stable, including "Bring Your Own Agent". You can pick from over 40 coding agents that support the Agent Client Protocol (ACP) inside the IDE; the announcement names Claude Agent, OpenAI Codex, Junie and Google Antigravity. Agents can use Android Studio tools such as the Android Emulator, build systems and Logcat. Also announced: an Android skills manager, agentic fixes for memory leaks in the Profiler's LeakCanary task, and AI Change Review for agent changes and pending commits.
+**What happened.** On October 28 Google released Android Studio Rabbit 2 as stable, including "Bring Your Own Agent". You can pick from over 40 ACP-compliant coding agents inside the IDE; the announcement names Claude Agent, OpenAI Codex, Junie and Google Antigravity. Agents can use Android Studio tools such as the Android Emulator, build systems and Logcat. Also announced: an Android skills manager, agentic fixes for memory leaks in the Profiler's LeakCanary task, and AI Change Review for agent changes and pending commits.
 
 **Why it matters for game work.** For teams shipping a mobile game on Android, the key point is that the agent **sees logs and the emulator itself**. Agent mistakes usually look like "it compiles but breaks on the device"; fixing while watching the run removes the round trip of a person pasting logs. Teammates can also keep different agents and still work in the same IDE.
 
