@@ -38,10 +38,10 @@ export const COLLECTORS=Object.freeze([
 export const RUNNABLE=Object.freeze(COLLECTORS.filter(c=>c.mode==='auto'&&c.id!=='ecb-fx').map(c=>c.id));
 export const STATUS_ADAPTERS=Object.freeze(['claude-status','openai-status']);
 
-/** Next scheduled start (GitHub cron, UTC): every :00/:30, or at :17 past 00/06/12/18. Actual runs
+/** Next scheduled start (GitHub cron, UTC): every :11/:41, or at :17 past 00/06/12/18. Actual runs
  * start a few minutes late. @param {Schedule} schedule @param {number} now */
 export function nextRun(schedule,now){
- if(schedule==='30m')return Math.floor(now/18e5)*18e5+18e5;
+ if(schedule==='30m'){const offset=11*6e4;return Math.floor((now-offset)/18e5)*18e5+18e5+offset;}
  if(schedule==='6h'){const base=Math.floor(now/216e5)*216e5+17*6e4;return base>now?base:base+216e5;}
  return null;
 }

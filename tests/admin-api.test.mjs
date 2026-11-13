@@ -193,7 +193,7 @@ test('collector registry matches the adapters and the workflow',{skip},async()=>
   assert.equal(def.schedule,a.mode==='manual'?'manual':STATUS_ADAPTERS.includes(id)?'30m':'6h',id);
  }
  const wf=readFileSync(new URL('../.github/workflows/collectors.yml',import.meta.url),'utf8');
- assert.match(wf,/\*\/30 \* \* \* \*/);assert.match(wf,/17 \*\/6 \* \* \*/);
+ assert(wf.includes(`cron: '${STATUS_SCHEDULE}'`));assert.match(wf,/17 \*\/6 \* \* \*/);
  assert(!RUNNABLE.includes('ecb-fx')&&!RUNNABLE.includes('gpu-specs-manual'));
  assert.deepEqual([...STATUS_ADAPTERS],[...PLAN_STATUS],'the 30-minute adapters are the ones collector-plan runs');assert.equal(STATUS_SCHEDULE,'11,41 * * * *');
  // The notify job: its own job, after the collectors, silent without NOTIFY_URL / NOTIFY_TOKEN.
@@ -201,8 +201,12 @@ test('collector registry matches the adapters and the workflow',{skip},async()=>
  assert(job.length>10,'notify job exists');
  assert.match(job,/needs: \[plan, collect, fx\]/);assert.match(job,/always\(\)/);assert.match(job,/secrets\.NOTIFY_TOKEN/);assert.match(job,/vars\.NOTIFY_URL/);
  assert.match(job,/\/api\/v2\/admin\/notify/);assert.match(job,/"kind":"tick"/);assert.match(job,/collector_failed/);assert.match(job,/exit 0/);
- // Next runs (UTC): :00/:30, and :17 past 00/06/12/18.
- assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,31)),Date.UTC(2026,8,29,9,0));
+ // Next runs (UTC): :11/:41, and :17 past 00/06/12/18. At a boundary, show the following run.
+ assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,10,59)),Date.UTC(2026,8,29,8,11));
+ assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,11)),Date.UTC(2026,8,29,8,41));
+ assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,31)),Date.UTC(2026,8,29,8,41));
+ assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,40,59)),Date.UTC(2026,8,29,8,41));
+ assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,41)),Date.UTC(2026,8,29,9,11));
  assert.equal(nextRun('6h',Date.UTC(2026,8,29,8,50)),Date.UTC(2026,8,29,12,17));
  assert.equal(nextRun('6h',Date.UTC(2026,8,29,6,10)),Date.UTC(2026,8,29,6,17));
  assert.equal(nextRun('manual',T0),null);
@@ -218,7 +222,7 @@ test('collectors: states (a collector without a run record is a problem), runs w
  assert.equal(r.status,200,r.text);
  const by=Object.fromEntries(r.json.items.map(x=>[x.id,x]));
  assert.equal(by['claude-status'].state,'ok');assert.equal(by['claude-status'].rows_written,40);assert.equal(by['claude-status'].changes,2);assert.equal(by['claude-status'].schedule,'30m');
- assert.equal(by['claude-status'].next_run_at,Date.UTC(2026,8,29,3,30));
+ assert.equal(by['claude-status'].next_run_at,Date.UTC(2026,8,29,3,11));
  assert.equal(by['steam-news'].state,'failing');assert.match(by['steam-news'].last_error,/write limit/);
  assert.equal(by['openai-status'].state,'stale');
  assert.equal(by['steam-store'].state,'never');assert.equal(by['gpu-specs-manual'].state,'manual');
