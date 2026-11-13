@@ -5,8 +5,8 @@ import {GAME_INTENT_PAGES,GAME_LAB_PAGES,LAB_KINDS,WORKSPACES} from './game-seo.
 export const MATURITY = Object.freeze(['prototype','basic','advanced','pro','flagship']);
 const engines = {
  'pixel-avatar-maker':'16 px original CC0 part grid / nearest-integer OffscreenCanvas PNG / exact indexed GIF worker',
- home:'local browser dispatch', image:'Canvas / immutable transforms / proxy preview', upscale:'Pica / nearest; optional experimental tiled Swin2SR',
- 'remove-bg':'border flood fill / BiRefNet general foreground (experimental)', compress:'browser codecs / proxy SSIM candidate search',
+ home:'local browser dispatch', image:'Canvas / immutable transforms / proxy preview', upscale:'Real-ESRGAN general-x4v3 in the AI tool (native 4x, reduced for 2x); Pica / nearest; Swin2SR in the legacy image editor (experimental)',
+ 'remove-bg':'border flood fill / U-2-Netp quick pass / BiRefNet Lite refinement (experimental)', compress:'browser codecs / proxy SSIM candidate search',
  convert:'browser image codecs', heic:'browser / heic2any', crop:'Canvas region copy', resize:'Pica tiled mks2013 / Lanczos',
  'webtoon-manga-toolkit':'local image worker / source-row partition / re-decoded PNG or JPEG / stored ZIP',
  pixel:'browser Pixel Studio: area-average cells / Wu palette / ordered, error-diffusion and blue-noise dithers / indexed and animation export', pdf:'PDF worker / ranged PDF.js / native annotations',
@@ -166,17 +166,31 @@ export const CAPABILITIES = Object.freeze(Object.fromEntries(Object.entries(INTE
   maxOutput:media?{seconds:null,policy:'codec, temporary storage and container limits; compatibility recorder only, up to 10 minutes'}:pdf?{pages:null,policy:'writer memory; pages rendered sequentially only in raster modes'}:{pixels:null,bytes:recipe?4294967296:null,frames:recipe?4096:null,policy:'actual canvas allocation and operation resource plan'},
   supportedFormats:id==='pixel-avatar-maker'?['no file required','optional png/jpeg/webp background','png/gif output']:pdf?['pdf','png','jpeg']:media?['mp4 (detected)','webm','gif','png','mp3','wav']:['png','jpeg','webp','avif (detected)'],
   preservesAlpha:id==='pixel-avatar-maker'?'PNG alpha retained; GIF has one-bit transparency':pdf?'PDF native objects retained in preserve mode':media?'not promised for video; frame PNG depends on decoded source':'PNG/WebP/AVIF when codec supports alpha; JPEG and explicit fill flatten', preservesMetadata:false, lossless:id==='pixel-avatar-maker'?'16 px authored parts copied at integer pixel scale in PNG; local background reduced to 16 px first':'PNG and native page-copy do not add codec loss; resampling, compression and rasterization are mode-dependent',
-  ai:id==='upscale'?'optional experimental Swin2SR (2x / 4x); explicit classical fallback':id==='remove-bg'?'optional experimental BiRefNet (people and objects)':false, hardwareAcceleration:'browser dependent',
+  ai:id==='upscale'?'experimental Real-ESRGAN general-x4v3 in the tool; Swin2SR in the legacy editor; explicit classical fallback':id==='remove-bg'?'experimental U-2-Netp fast / BiRefNet Lite best':false, hardwareAcceleration:'browser dependent',
   streaming:media?'ranged input; OPFS output (video and GIF) when supported':pdf?'ranged preview reader; writer still parses whole document':false,tiled:['upscale','resize','compress','pixel','refiner','marketplace-pack','print-pack','palette-swap','texture-map','mask-packer','atlas-padding'].includes(id),verifiedBrowsers:id==='pixel-avatar-maker'?['Chromium and Firefox: tests/avatar-browser.py with Pillow output reopen']:pdf?['Chromium 153 / Firefox 155 / WebKit 26.6 synthetic PDF suite']:media?['Chromium 153 and Firefox 155 synthetic media suite, outputs re-decoded with FFprobe/Pillow']:modern?['Chromium 153','Firefox 155 quick image suite','WebKit 26.6 quick image suite']:[],qualityEvidence:[...new Set([...(pdf?['tests/pdf-browser.mjs']:media?['tests/media-browser.mjs']:modern?['tests/quality-browser.mjs']:[]),...(EVIDENCE[id]||[]).map(e=>e.suite)])],
   limitations:id==='pixel-avatar-maker'?['The CC0 part catalog is small and does not synthesize new art.','A local background cannot be serialized into the URL; social link previews use a generic site image.','4096 px exports are device-memory dependent.']:pdf?['Full writer parse; forms flatten; signatures not retained.','Preserve compression only optimizes compatible RGB JPEG image objects.','Aggressive raster mode loses native text, search and vectors.']:media?['Codec support is browser-dependent. Fast cut shrinks to keyframes; precise cut re-encodes.','Compatibility recorder (no WebCodecs) records in real time for up to 10 minutes; compatibility audio decodes sources up to 20 minutes in memory.','A size target is met by measuring each encode; it may lower the resolution, and if the browser encoder cannot go smaller the result is reported as not met instead of silently missing it.','Synthetic benchmarks do not establish arbitrary codec/HDR/multitrack fidelity.']:['8-bit browser color; metadata/profile retention not guaranteed.','AI flagship and broad natural-image quality acceptance remain incomplete.'],
   ...(LAB_CAPABILITY[id]||{}),...(STUDIO_CAPABILITY[id]||{}),...(textTool?{engine:'local Web Worker; Intl.Segmenter; verified legacy encoding tables; official twitter-text 3.1.0',maxInput:{bytes:8388608,policy:'UTF-8 text files only; interactive performance measured at 1 MiB'},maxOutput:{bytes:null,policy:'on-screen values, no file output'},supportedFormats:['UTF-8 plain text (.txt, .md, .text)'],preservesAlpha:false,preservesMetadata:false,lossless:'input text remains unchanged in the editor',streaming:false,tiled:false,verifiedBrowsers:['Chromium and Firefox: tests/character-counter-browser.py; 1 MiB War and Peace in tests/character-counter-performance.py'],limitations:['Manuscript page count is an arithmetic estimate, not exact layout.','No verified Saramin or JobKorea compatibility preset.','A character not encodable in a legacy charset makes that byte total unavailable.']}:{}),
  })];
 })));
+// These two tools have selectable AI/classical paths. Explain the choice in the page's language;
+// the contract above also names the different model retained by the legacy image editor.
+const AI_METHOD_COPY={
+ upscale:{
+  en:'AI uses Real-ESRGAN general-x4v3 for 4×; 2× reduces that result. Smooth uses classical resampling; Keep pixels uses nearest neighbour. Inputs above 4 million pixels or an unavailable AI model use Smooth with a notice.',
+  ko:'AI는 Real-ESRGAN general-x4v3로 4배 확대하며, 2배는 그 결과를 축소합니다. 부드럽게는 일반 리샘플링, 도트 그대로는 최근접 보간을 사용합니다. 입력이 400만 픽셀을 넘거나 AI 모델을 사용할 수 없으면 안내와 함께 부드럽게로 처리합니다.',
+  ja:'AIはReal-ESRGAN general-x4v3で4倍に拡大し、2倍はその結果を縮小します。なめらかは通常のリサンプリング、ドットのままは最近傍補間です。入力が400万画素を超える場合やAIモデルを利用できない場合は、案内を表示してなめらかで処理します。'
+ },
+ 'remove-bg':{
+  en:'Fast uses U-2-Netp. Best uses BiRefNet Lite and may show a U-2-Netp preview while the larger model downloads. If refinement fails after that preview, it keeps the preview with a notice. Solid-colour removal uses border-connected colour matching without an AI model.',
+  ko:'빠르게는 U-2-Netp를 사용합니다. 고품질은 BiRefNet Lite를 사용하며, 큰 모델을 받는 동안 U-2-Netp 미리보기를 먼저 표시할 수 있습니다. 이후 고품질 처리가 실패하면 안내와 함께 미리보기를 유지합니다. 단색 배경 제거는 AI 없이 가장자리와 연결된 색을 찾아 지웁니다.',
+  ja:'高速はU-2-Netp、高品質はBiRefNet Liteを使用します。大きいモデルのダウンロード中はU-2-Netpのプレビューを先に表示することがあります。その後の高品質処理に失敗した場合は、案内とともにプレビューを保持します。単色背景の除去はAIを使わず、画像の端につながる色を判定します。'
+ }
+};
 export function capabilitySummary(id,locale='en') {
  const c=CAPABILITIES[id];
  const title={en:'Implementation and verified quality',ko:'처리 방식과 검증 수준',ja:'処理方式と検証状況'}[locale];
  const note={en:'Quality qualification is in progress. Pro/Flagship quality has not been established.',ko:'품질 검증을 진행 중입니다. Pro·Flagship 수준은 아직 입증되지 않았습니다.',ja:'品質検証中です。Pro・Flagship水準はまだ実証されていません。'}[locale];
- return {title,text:`${c.maturity} · ${c.engine}. ${note}`};
+ return {title,text:AI_METHOD_COPY[id]?`${AI_METHOD_COPY[id][locale]} ${note}`:`${c.maturity} · ${c.engine}. ${note}`};
 }
 
 export const mayPromote=id=>id==='home'||!!CAPABILITIES[id]?.seoPromotable&&MATURITY.indexOf(CAPABILITIES[id].maturity)>=2&&qualifies(CAPABILITIES[id].evidence);
