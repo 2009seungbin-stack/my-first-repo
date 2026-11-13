@@ -27,7 +27,7 @@ export default {
  activate(ctx){
   loadCss();
   const {t,view}=ctx;
-  let worker=null,sent=new Set(),job=0,busy=null,progress=null,error='',warnings=[];
+  let worker=null,sent=new Set(),job=0,busy=null,progress=null,error='',warnings=[],active=true;
   let result=null,model=null,bitmaps=[],variant=0,page=0,selection=[...getFrameSelection().ids],lastExport=null,exporting=null,packedDocKey=null,fitNext=true;
   const layer=ctx.layer(new ShapeLayer({id:'pack-frames',z:10,color:'rgba(76,194,255,.55)',labels:false,handles:false,editable:false}));
   // ------------------------------------------------------------ settings in the document
@@ -48,7 +48,7 @@ export default {
    if(worker)return worker;
    worker=new Worker(new URL('../pack-worker.js',import.meta.url),{type:'module'});
    worker.onmessage=({data})=>onWorker(data);
-   worker.onerror=e=>{error=String(e.message||'worker error');busy=null;renderResult();};
+   worker.onerror=e=>{error=String(e.message||'worker error');stopWorker();busy=null;exporting=null;result=null;model=null;renderAll();drainPack();};
    sent=new Set();return worker;
   }
   function stopWorker(){worker?.terminate();worker=null;sent=new Set();}
@@ -59,24 +59,36 @@ export default {
    for(const id of ids){if(sent.has(id))continue;const b=ctx.images.blob(id);if(!b)continue;out.push({id,bytes:await b.arrayBuffer()});}
    return out;
   }
-  let timer=0;
-  function schedule(ms=180){clearTimeout(timer);timer=setTimeout(pack,ms);}
+  let timer=0,packQueued=false;
+  function schedule(ms=180){
+   clearTimeout(timer);packQueued=true;
+   timer=setTimeout(()=>{timer=0;pack();},ms);
+   renderExport();
+  }
+  function drainPack(){if(active&&packQueued&&!timer&&!busy)schedule(0);}
   async function pack(){
-   const doc=ctx.doc;
+   clearTimeout(timer);timer=0;
+   if(!active)return;
+   // A settings change must not replace the job whose ZIP is still being generated.
+   if(busy?.op==='export'||metering){packQueued=true;renderExport();return;}
+   packQueued=false;
+   const doc=ctx.doc,packSettings=settings();
    if(!doc.assets.length){result=null;bitmaps=[];busy=null;error='';showPage();renderAll();return;}
    if(busy?.op==='pack'){stopWorker();}
-   const w=ensureWorker(),blobs=await blobsFor(doc),id=++job;
-   busy={op:'pack',job:id};progress={phase:'decode'};error='';renderResult();
+   const w=ensureWorker(),id=++job;
+   busy={op:'pack',job:id};progress={phase:'decode'};error='';renderResult();renderExport();
+   const blobs=await blobsFor(doc);
+   if(worker!==w||busy?.job!==id)return;
    for(const b of blobs)sent.add(b.id);
-   w.postMessage({op:'pack',job:id,doc,settings:settings(),blobs,preview:variant},blobs.map(b=>b.bytes));
+   w.postMessage({op:'pack',job:id,doc,settings:packSettings,blobs,preview:variant},blobs.map(b=>b.bytes));
    packedDocKey=docKey(doc);
   }
-  function cancel(){if(!busy)return;stopWorker();busy=null;progress=null;ctx.toast(t('pack.cancelled'));renderResult();}
+  function cancel(){if(!busy)return;clearTimeout(timer);timer=0;packQueued=false;stopWorker();busy=null;progress=null;exporting=null;result=null;model=null;ctx.toast(t('pack.cancelled'));renderAll();}
   function onWorker(m){
    if(m.progress){if(busy&&m.job===busy.job){progress=m.progress;renderProgress();}return;}
    if(!busy||m.job!==busy.job)return;
    const op=busy.op;busy=null;progress=null;ctx.status('selection','');
-   if(!m.ok){error=m.error;if(op==='export'){exporting=null;ctx.toast(m.error,{error:true});}renderAll();return;}
+   if(!m.ok){error=m.error;if(op==='export'){exporting=null;ctx.toast(m.error,{error:true});}renderAll();drainPack();return;}
    if(m.op==='pack'||m.op==='preview'){
     if(m.op==='pack'){result=m.result;model=m.model;warnings=m.warnings||[];result.ms=m.ms;}
     for(const b of bitmaps)b.close?.();
@@ -87,6 +99,7 @@ export default {
     lastExport={target:exporting,name:m.name,files:m.files,notes:m.notes,changed:m.changed,size:m.blob.size};exporting=null;
     ctx.toast(t('pack.exported',{file:m.name,n:m.files.length}));renderExport();renderResult();
     window.dispatchEvent(new CustomEvent('nerulio:pack-export',{detail:{name:m.name,files:m.files,notes:m.notes}}));
+    drainPack();
    }
   }
   // ------------------------------------------------------------ canvas
@@ -209,14 +222,14 @@ export default {
    }
    resultBox.replaceChildren(...parts);
   }
-  function preview(){if(!result)return;const w=ensureWorker(),id=++job;busy={op:'preview',job:id};w.postMessage({op:'preview',job:id,preview:variant});renderResult();}
+  function preview(){if(!result)return;if(busy?.op==='export'||metering){schedule(0);return;}const w=ensureWorker(),id=++job;busy={op:'preview',job:id};w.postMessage({op:'preview',job:id,preview:variant});renderResult();}
   // ------------------------------------------------------------ export panel
   const exportBox=h('div.pk-export',{});
   ctx.panel({id:'pack-export',title:()=>t('panel.packExport'),dock:'right',order:17,render(body){body.append(exportBox);}});
   function describeChange(c){return c.map(x=>t('pack.chg.'+x.key+'.'+String(x.to))).join(', ');}
   const exportTarget=()=>{const id=prefs().target||prefs().preset;return TARGETS[id]&&!TARGETS[id].aseprite?id:(TARGETS[id]?id:'godot4');};
   const exportBlocked=tg=>tg.requiresAnimation&&model&&!model.animations.length?t('pack.requiresAnimation'):tg.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):null;
-  const canExport=tg=>!!tg&&!!result&&!busy&&!exporting&&!exportBlocked(tg);
+  const canExport=tg=>active&&!!tg&&!!result&&!busy&&!exporting&&!metering&&!packQueued&&!timer&&!exportBlocked(tg);
   function verifyBadge(tg,{short=false}={}){
    return h('span.pk-badge'+(tg.verify==='unverified'?'.is-unverified':''),{'data-verify':tg.verify,title:t('pack.verify.'+tg.verify,{engine:tg.engine})},
     short?h('i.pk-dot',{'aria-hidden':'true'}):'',short?'':t('pack.verify.'+tg.verify,{engine:tg.engine}));
@@ -251,13 +264,15 @@ export default {
   const fmtSize=n=>n<1024?`${n} B`:n<1048576?`${Math.round(n/1024)} KB`:`${(n/1048576).toFixed(1)} MB`;
   let metering=false;
   async function runExport(id){
-   if(!result||busy||exporting||metering||!TARGETS[id])return;
+   if(!canExport(TARGETS[id]))return;
    const blocked=exportBlocked(TARGETS[id]);if(blocked){ctx.toast(blocked,{error:true});return;}
+   const base=exportBase();
    // Free daily Studio export (docs/PRICING-MODEL.md); a refusal leaves everything as it was.
-   metering=true;let go=false;try{go=await meter('studio-pack-export');}finally{metering=false;}
-   if(!go||!result||busy||exporting)return;
+   metering=true;renderExport();let go=false;try{go=await meter('studio-pack-export');}finally{metering=false;if(active){renderExport();drainPack();}}
+   if(!active)return;
+   if(!go||!result||busy||exporting){renderExport();return;}
    const w=ensureWorker(),jid=++job;busy={op:'export',job:jid};exporting=id;
-   w.postMessage({op:'export',job:jid,target:id,options:{base:exportBase()}});
+   w.postMessage({op:'export',job:jid,target:id,options:{base}});
    renderExport();renderResult();
   }
   // ------------------------------------------------------------ frames list (bottom)
@@ -299,7 +314,7 @@ export default {
    step(dir){if(!model?.frames.length)return;const i=model.frames.findIndex(f=>f.id===selection[selection.length-1]);const n=Math.max(0,Math.min(model.frames.length-1,i<0?0:i+dir));select([model.frames[n].id],{reveal:true});},
    // the atlas replaces the asset picture while this stage is open (app.js calls present() instead of drawing the asset)
    present(){return showPage();},
-   deactivate(){clearTimeout(timer);offSel();stopWorker();for(const b of bitmaps)b.close?.();bitmaps=[];layer.setItems([]);ctx.status('image','');
+   deactivate(){active=false;clearTimeout(timer);offSel();stopWorker();for(const b of bitmaps)b.close?.();bitmaps=[];layer.setItems([]);ctx.status('image','');
     // after the switch, so the NEXT workspace draws the asset (its own present() or the picture)
     const a=ctx.activeAsset;setTimeout(()=>{if(a)ctx.showAsset(a.id,{restoreView:true});else view.clearImage();},0);}
   };

@@ -207,3 +207,16 @@ wrong order.
 | 48 | `sp-ninja-boxes-aseprite` | `sprites/oga-ninja/1x/` | aseprite | aseprite | **PASS** | (new) |
 | 49 | `sp-ninja-boxes-godot` | `sprites/oga-ninja/1x/` | godot4 | godot | **PASS** | (new) |
 
+## Scheduled packing and exports (2026-11-14)
+
+An export can no longer start from the previous result while a settings repack is scheduled.
+Once an export has requested permission or started generating a ZIP, settings and preview changes
+queue a new pack until that request finishes. The request keeps its original filename and packed
+result. Cancel clears the stopped worker's result and pending work; Repack/settings can rebuild it.
+Leaving the workspace prevents an asynchronous permission response from creating a hidden worker.
+
+`tests/game-landing-browser.py` Part 2 covers immediate preset changes, a deliberately delayed
+export worker, and a permission promise held while settings change, in Chromium and Firefox.
+These are browser/file checks, not additional native engine runs. The full Studio Pack browser
+suite also covers every output format, exact source pixels, cancellation, 1,000 frames and 390px.
+
