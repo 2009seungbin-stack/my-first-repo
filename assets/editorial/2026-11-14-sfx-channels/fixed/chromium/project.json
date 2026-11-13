@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "seed": 1,
+  "rate": 44100,
+  "bpm": 120,
+  "master": 1,
+  "limiter": false,
+  "layers": [
+    {
+      "kind": "synth",
+      "wave": "sine",
+      "gain": 1,
+      "pan": 0,
+      "attack": 0,
+      "decay": 0,
+      "sustain": 1,
+      "hold": 0.5,
+      "release": 0,
+      "lp": 20000,
+      "hp": 0,
+      "crushBits": 16
+    }
+  ],
+  "sequence": []
+}

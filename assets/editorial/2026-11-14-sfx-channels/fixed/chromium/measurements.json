@@ -1,0 +1,262 @@
+{
+  "measuredAtUTC": "2026-11-13T21:07:26.391130+00:00",
+  "ui": "fixed",
+  "browserEngine": "chromium",
+  "browser": "153.0.8010.12",
+  "sourceCommit": "3b4180be5bdb2580c113a41774cdb3f104847e73",
+  "sourceModifiedAfterCommit": false,
+  "reproductionScriptSha256": "2b9830f2053a0f5ef6cb30531fc54d3d30d18baf16cea967ad57fb2d84283a40",
+  "reproduce": "python tools/editorial/measure-sfx-channels.py --ui fixed --browser chromium",
+  "inputDefinition": "Self-generated 440 Hz, 0.5 s, PCM16/44100, peak 8192 integer samples. No recording or third-party audio.",
+  "scope": "Actual source-preview UI and worker PCM, independently decoded downloaded WAV. No listening, native engine or original-stereo preservation claim.",
+  "projectFile": "project.json",
+  "inputs": [
+    {
+      "file": "mono.wav",
+      "channels": 1,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "dd7ded8265a74316f72c133ce0e8da7a61e820c45415e0187d0397b7deb5f052"
+    },
+    {
+      "file": "left-only.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "db4d0bfa672aebc348e9d9e9618b4232817d0da271caecb5f337db696cefd25c"
+    },
+    {
+      "file": "right-only.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "fd71301b2540a2c7673c54ca5ddd418c1bd6fe12c6cb5161f37424d14dd9798b"
+    },
+    {
+      "file": "in-phase.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "b4280a59b2ea8316a1aee1e47f69ec4f3870e9ee35e32f2f3d07e04fea55de31"
+    },
+    {
+      "file": "opposite-phase.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "a82ff9cbcbc3e5f20b4219640e2c928f89f39c7f44ab44f2e3fe198da4ad68f5"
+    }
+  ],
+  "records": [
+    {
+      "input": "mono.wav",
+      "mode": "mix",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999792873859406,
+        "rms": 0.17673210366830558,
+        "sha256": "fcaf6669cd0787c0691a985f03811c35d80fe2c5c559fbbdddb7db280b9a7772"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 1 \u00b7 Average all channels (mono)",
+        "mixCancelled": false
+      },
+      "outputFile": "mono-mix-output.wav",
+      "outputSha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.608296201471,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "left-only.wav",
+      "mode": "mix",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.12499896436929703,
+        "rms": 0.08836605183415279,
+        "sha256": "0a6260e5c11c123280f7096e9da647fbf49914a250e9f2b56ea8b683ef36c12a"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 2 \u00b7 Average all channels (mono)",
+        "mixCancelled": false
+      },
+      "outputFile": "left-only-mix-output.wav",
+      "outputSha256": "327f91c7cb9e3b60c2047d7a1970f3eb0281876561a44cf1b4c227645f301a69",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 2896,
+      "rmsPCM16": 2017.3176843456743,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "right-only.wav",
+      "mode": "mix",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.12499896436929703,
+        "rms": 0.08836605183415279,
+        "sha256": "0a6260e5c11c123280f7096e9da647fbf49914a250e9f2b56ea8b683ef36c12a"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 2 \u00b7 Average all channels (mono)",
+        "mixCancelled": false
+      },
+      "outputFile": "right-only-mix-output.wav",
+      "outputSha256": "327f91c7cb9e3b60c2047d7a1970f3eb0281876561a44cf1b4c227645f301a69",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 2896,
+      "rmsPCM16": 2017.3176843456743,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "in-phase.wav",
+      "mode": "mix",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999792873859406,
+        "rms": 0.17673210366830558,
+        "sha256": "fcaf6669cd0787c0691a985f03811c35d80fe2c5c559fbbdddb7db280b9a7772"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 2 \u00b7 Average all channels (mono)",
+        "mixCancelled": false
+      },
+      "outputFile": "in-phase-mix-output.wav",
+      "outputSha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.608296201471,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "opposite-phase.wav",
+      "mode": "mix",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 3.842877504212083e-06,
+        "rms": 2.6966971493033607e-06,
+        "sha256": "7bfb6837c0dca40bb94b8f68dc3480bdeecb3b55c7dd5dc2635ab3be1f663a50"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 2 \u00b7 Average all channels (mono) The channel average is nearly silent from cancellation. Choose one channel and load the sample again.",
+        "mixCancelled": true
+      },
+      "outputFile": "opposite-phase-mix-output.wav",
+      "outputSha256": "3479947fb5f9b8cd86e63e78f343d60660a4b7b851587b5560502134d87b924e",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 0,
+      "rmsPCM16": 0.0,
+      "nonzeroSamples": 0
+    },
+    {
+      "input": "right-only.wav",
+      "mode": "channel2",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999792873859406,
+        "rms": 0.17673210366830558,
+        "sha256": "fcaf6669cd0787c0691a985f03811c35d80fe2c5c559fbbdddb7db280b9a7772"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 2 \u00b7 Channel 2",
+        "mixCancelled": false
+      },
+      "outputFile": "right-only-channel2-output.wav",
+      "outputSha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.608296201471,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "opposite-phase.wav",
+      "mode": "channel1",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999792873859406,
+        "rms": 0.17673210366830558,
+        "sha256": "fcaf6669cd0787c0691a985f03811c35d80fe2c5c559fbbdddb7db280b9a7772"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 2 \u00b7 Channel 1",
+        "mixCancelled": false
+      },
+      "outputFile": "opposite-phase-channel1-output.wav",
+      "outputSha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.608296201471,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "opposite-phase.wav",
+      "mode": "channel2",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.25000232458114624,
+        "rms": 0.17673210372815745,
+        "sha256": "82ce02c6661b3b85cb85b96a88e2fe24757e236ff51f45c060f48e7fbfac034f"
+      },
+      "notice": {
+        "text": "Last import \u2014 input channels: 2 \u00b7 Channel 2",
+        "mixCancelled": false
+      },
+      "outputFile": "opposite-phase-channel2-output.wav",
+      "outputSha256": "05b65a349d857e1535f490b87d0f6f6b4a1294acddd3a743f2078be8043eab22",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.6082102617756,
+      "nonzeroSamples": 44100
+    }
+  ],
+  "rejected": [
+    {
+      "input": "mono",
+      "mode": "channel2",
+      "message": "This sample does not have a second channel. Choose the channel average or channel 1.",
+      "sampleTransferred": false
+    }
+  ],
+  "externalRequests": [],
+  "unexpectedUploads": []
+}

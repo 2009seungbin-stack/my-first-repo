@@ -1,0 +1,321 @@
+{
+  "scope": "Exact recorded hashes and PCM16 layout verified; JSON scanned for local paths and common credential/private-key patterns. Selected screenshots show the public source-preview UI. Not a general security certification.",
+  "findings": [],
+  "files": [
+    {
+      "file": "fixed/chromium/in-phase-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "fixed/chromium/in-phase.wav",
+      "bytes": 88244,
+      "sha256": "b4280a59b2ea8316a1aee1e47f69ec4f3870e9ee35e32f2f3d07e04fea55de31"
+    },
+    {
+      "file": "fixed/chromium/left-only-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "327f91c7cb9e3b60c2047d7a1970f3eb0281876561a44cf1b4c227645f301a69"
+    },
+    {
+      "file": "fixed/chromium/left-only.wav",
+      "bytes": 88244,
+      "sha256": "db4d0bfa672aebc348e9d9e9618b4232817d0da271caecb5f337db696cefd25c"
+    },
+    {
+      "file": "fixed/chromium/measurements.json",
+      "bytes": 8983,
+      "sha256": "3f173b6dcb01d6629ee07925cafd234ac6c3d0a6318fd9f78a209f2b7917e3e9"
+    },
+    {
+      "file": "fixed/chromium/mono-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "fixed/chromium/mono.wav",
+      "bytes": 44144,
+      "sha256": "dd7ded8265a74316f72c133ce0e8da7a61e820c45415e0187d0397b7deb5f052"
+    },
+    {
+      "file": "fixed/chromium/opposite-phase-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "fixed/chromium/opposite-phase-channel2-output.wav",
+      "bytes": 90892,
+      "sha256": "05b65a349d857e1535f490b87d0f6f6b4a1294acddd3a743f2078be8043eab22"
+    },
+    {
+      "file": "fixed/chromium/opposite-phase-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "3479947fb5f9b8cd86e63e78f343d60660a4b7b851587b5560502134d87b924e"
+    },
+    {
+      "file": "fixed/chromium/opposite-phase-mix.png",
+      "bytes": 344407,
+      "sha256": "059ce4ded8fed7578e269ee8bc9e87b60f3c70e21de4b48dac769330683bb8a0"
+    },
+    {
+      "file": "fixed/chromium/opposite-phase.wav",
+      "bytes": 88244,
+      "sha256": "a82ff9cbcbc3e5f20b4219640e2c928f89f39c7f44ab44f2e3fe198da4ad68f5"
+    },
+    {
+      "file": "fixed/chromium/project.json",
+      "bytes": 400,
+      "sha256": "6b8c51d6a36a691a5f6dbda9463acf1a50e8ac9702905f975776a0357e4eb8ae"
+    },
+    {
+      "file": "fixed/chromium/right-only-channel2-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "fixed/chromium/right-only-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "327f91c7cb9e3b60c2047d7a1970f3eb0281876561a44cf1b4c227645f301a69"
+    },
+    {
+      "file": "fixed/chromium/right-only-mix.png",
+      "bytes": 360621,
+      "sha256": "ba9154c6aab0b70b094d52b1163ca5d627fcf0c57c33f83f1905f964558b420d"
+    },
+    {
+      "file": "fixed/chromium/right-only.wav",
+      "bytes": 88244,
+      "sha256": "fd71301b2540a2c7673c54ca5ddd418c1bd6fe12c6cb5161f37424d14dd9798b"
+    },
+    {
+      "file": "fixed/firefox/in-phase-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "fixed/firefox/in-phase.wav",
+      "bytes": 88244,
+      "sha256": "b4280a59b2ea8316a1aee1e47f69ec4f3870e9ee35e32f2f3d07e04fea55de31"
+    },
+    {
+      "file": "fixed/firefox/left-only-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "85aba17ccf6a547f235e9bf2f987341f24a96018f50c99a2eee6437cdfd35d88"
+    },
+    {
+      "file": "fixed/firefox/left-only.wav",
+      "bytes": 88244,
+      "sha256": "db4d0bfa672aebc348e9d9e9618b4232817d0da271caecb5f337db696cefd25c"
+    },
+    {
+      "file": "fixed/firefox/measurements.json",
+      "bytes": 8972,
+      "sha256": "811d4eb49ad15a3d17e135fa13fe5dcfe8a7eba848f3b87cfd1cd067796319b5"
+    },
+    {
+      "file": "fixed/firefox/mono-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "fixed/firefox/mono.wav",
+      "bytes": 44144,
+      "sha256": "dd7ded8265a74316f72c133ce0e8da7a61e820c45415e0187d0397b7deb5f052"
+    },
+    {
+      "file": "fixed/firefox/opposite-phase-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "fixed/firefox/opposite-phase-channel2-output.wav",
+      "bytes": 90892,
+      "sha256": "bf3359f30a78457648efe0e1065f21f428427b9593dc62a2996be23ae1c110d4"
+    },
+    {
+      "file": "fixed/firefox/opposite-phase-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "3479947fb5f9b8cd86e63e78f343d60660a4b7b851587b5560502134d87b924e"
+    },
+    {
+      "file": "fixed/firefox/opposite-phase-mix.png",
+      "bytes": 354846,
+      "sha256": "05e608b98b72656a73fa02b2226fa8608a7292de9fc7dc5d82fcfbb4bebb5ba0"
+    },
+    {
+      "file": "fixed/firefox/opposite-phase.wav",
+      "bytes": 88244,
+      "sha256": "a82ff9cbcbc3e5f20b4219640e2c928f89f39c7f44ab44f2e3fe198da4ad68f5"
+    },
+    {
+      "file": "fixed/firefox/project.json",
+      "bytes": 400,
+      "sha256": "6b8c51d6a36a691a5f6dbda9463acf1a50e8ac9702905f975776a0357e4eb8ae"
+    },
+    {
+      "file": "fixed/firefox/right-only-channel2-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "fixed/firefox/right-only-mix-output.wav",
+      "bytes": 90892,
+      "sha256": "85aba17ccf6a547f235e9bf2f987341f24a96018f50c99a2eee6437cdfd35d88"
+    },
+    {
+      "file": "fixed/firefox/right-only-mix.png",
+      "bytes": 373234,
+      "sha256": "72ce9e8f19d17f8f48067fdbc2ccda24d899099aac8e70ad8cffbcd16ba92ed5"
+    },
+    {
+      "file": "fixed/firefox/right-only.wav",
+      "bytes": 88244,
+      "sha256": "fd71301b2540a2c7673c54ca5ddd418c1bd6fe12c6cb5161f37424d14dd9798b"
+    },
+    {
+      "file": "legacy/chromium/in-phase-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "legacy/chromium/in-phase.wav",
+      "bytes": 88244,
+      "sha256": "b4280a59b2ea8316a1aee1e47f69ec4f3870e9ee35e32f2f3d07e04fea55de31"
+    },
+    {
+      "file": "legacy/chromium/left-only-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "legacy/chromium/left-only.wav",
+      "bytes": 88244,
+      "sha256": "db4d0bfa672aebc348e9d9e9618b4232817d0da271caecb5f337db696cefd25c"
+    },
+    {
+      "file": "legacy/chromium/measurements.json",
+      "bytes": 5552,
+      "sha256": "4a186ba4e02ea91de2234c1afed3f0c767b90063ad8f6298ae4bb3bae37b93fe"
+    },
+    {
+      "file": "legacy/chromium/mono-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "legacy/chromium/mono.wav",
+      "bytes": 44144,
+      "sha256": "dd7ded8265a74316f72c133ce0e8da7a61e820c45415e0187d0397b7deb5f052"
+    },
+    {
+      "file": "legacy/chromium/opposite-phase-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "d73e86e70f1cb08e2059397b42d91f5d024aed7e478ee1a090bc4d18cab9389d"
+    },
+    {
+      "file": "legacy/chromium/opposite-phase.wav",
+      "bytes": 88244,
+      "sha256": "a82ff9cbcbc3e5f20b4219640e2c928f89f39c7f44ab44f2e3fe198da4ad68f5"
+    },
+    {
+      "file": "legacy/chromium/project.json",
+      "bytes": 400,
+      "sha256": "6b8c51d6a36a691a5f6dbda9463acf1a50e8ac9702905f975776a0357e4eb8ae"
+    },
+    {
+      "file": "legacy/chromium/right-only-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "3479947fb5f9b8cd86e63e78f343d60660a4b7b851587b5560502134d87b924e"
+    },
+    {
+      "file": "legacy/chromium/right-only-legacy-channel1.png",
+      "bytes": 326909,
+      "sha256": "4b49262011b77a0d2590520f4bbd64f9648f98632116bc73cc28c6184edcb399"
+    },
+    {
+      "file": "legacy/chromium/right-only.wav",
+      "bytes": 88244,
+      "sha256": "fd71301b2540a2c7673c54ca5ddd418c1bd6fe12c6cb5161f37424d14dd9798b"
+    },
+    {
+      "file": "legacy/firefox/in-phase-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "legacy/firefox/in-phase.wav",
+      "bytes": 88244,
+      "sha256": "b4280a59b2ea8316a1aee1e47f69ec4f3870e9ee35e32f2f3d07e04fea55de31"
+    },
+    {
+      "file": "legacy/firefox/left-only-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "legacy/firefox/left-only.wav",
+      "bytes": 88244,
+      "sha256": "db4d0bfa672aebc348e9d9e9618b4232817d0da271caecb5f337db696cefd25c"
+    },
+    {
+      "file": "legacy/firefox/measurements.json",
+      "bytes": 5542,
+      "sha256": "d03a6f2142dfa0f81725bd3bf241cd91db24c75571cc47a77f0643ca6f7f65f5"
+    },
+    {
+      "file": "legacy/firefox/mono-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "legacy/firefox/mono.wav",
+      "bytes": 44144,
+      "sha256": "dd7ded8265a74316f72c133ce0e8da7a61e820c45415e0187d0397b7deb5f052"
+    },
+    {
+      "file": "legacy/firefox/opposite-phase-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e"
+    },
+    {
+      "file": "legacy/firefox/opposite-phase.wav",
+      "bytes": 88244,
+      "sha256": "a82ff9cbcbc3e5f20b4219640e2c928f89f39c7f44ab44f2e3fe198da4ad68f5"
+    },
+    {
+      "file": "legacy/firefox/project.json",
+      "bytes": 400,
+      "sha256": "6b8c51d6a36a691a5f6dbda9463acf1a50e8ac9702905f975776a0357e4eb8ae"
+    },
+    {
+      "file": "legacy/firefox/right-only-legacy-channel1-output.wav",
+      "bytes": 90892,
+      "sha256": "3479947fb5f9b8cd86e63e78f343d60660a4b7b851587b5560502134d87b924e"
+    },
+    {
+      "file": "legacy/firefox/right-only-legacy-channel1.png",
+      "bytes": 338515,
+      "sha256": "7386187b309ce11170e4ad34b0b24079781413bcbc8c0246dc5dd4df5da1e8a8"
+    },
+    {
+      "file": "legacy/firefox/right-only.wav",
+      "bytes": 88244,
+      "sha256": "fd71301b2540a2c7673c54ca5ddd418c1bd6fe12c6cb5161f37424d14dd9798b"
+    },
+    {
+      "file": "opposite-phase-comparison.png",
+      "bytes": 170238,
+      "sha256": "78589c570b20f5a3a205670b8743fc86303a4fc4c9354b87cfa77aa2af12b7c8"
+    },
+    {
+      "file": "README.txt",
+      "bytes": 1307,
+      "sha256": "a9e179fcd08e9822386712db4550bf28681383524f9e6492463031445e5a8aa7"
+    },
+    {
+      "file": "right-only-comparison.png",
+      "bytes": 151709,
+      "sha256": "223305efcec9c2bf8cb23dffd8c01dbbe0ca9f84ab940b9c664cf103e798b59d"
+    }
+  ]
+}
