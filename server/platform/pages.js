@@ -246,7 +246,7 @@ const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Recor
  * follow the gate too; the owner can set index_state='index' on an entity to list it regardless.
  * @param {any} db @param {string} vertical @param {string} origin
  */
-export async function renderSitemap(db,vertical,origin){
+export async function renderSitemap(db,vertical,origin,{communityClosed=false}={}){
  const rows=(await sitemapEntities(db,vertical)).filter(e=>e.index_state!=='noindex');
  /** @type {string[]} */const urls=[];
  /** One locale-aware sitemap entry per indexable translation. The alternate cluster contains only
@@ -259,7 +259,7 @@ export async function renderSitemap(db,vertical,origin){
  const hub={ko:`${origin}/ko/${vertical}/`,en:`${origin}/en/${vertical}/`};
  add(hub);
  // Only populated boards enter discovery. Time-window best lists remain usable but noindex.
- const populated=vertical==='ai'?new Set(((await db.prepare("SELECT DISTINCT channel_id FROM discussions WHERE status='published'").all()).results||[]).map((/** @type {any} */ r)=>String(r.channel_id))):new Set();
+ const populated=vertical==='ai'&&!communityClosed?new Set(((await db.prepare("SELECT DISTINCT channel_id FROM discussions WHERE status='published'").all()).results||[]).map((/** @type {any} */ r)=>String(r.channel_id))):new Set();
  const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu','used-prices/','performance/']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[...CHANNEL_IDS.filter(c=>populated.has(c)).map(c=>[`/community/${c}/`]),['/radar/'],['/bracket/']]:[])];
  if(vertical==='ai'){
   const home={ko:`${origin}/`,en:`${origin}/en/`};

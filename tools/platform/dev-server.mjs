@@ -26,13 +26,14 @@ import {serveUpload} from '../../server/platform/uploads.js';
 import {isModeratorRequest} from '../../server/platform/api.js';
 import {useDigestArticles} from '../../platform/digest.js';
 import {loadDigest,publishedDigest} from '../digest-build.mjs';
+import {handlePublicPage,retiredCommunityResponse} from '../../server/platform/public.js';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 const VERIFY_HTML=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Verification</title><style>html,body{margin:0;background:transparent}body{display:flex;justify-content:center;padding:4px}</style><script type="module" src="/src/verify-page.js"></script></head><body><div id="turnstile"></div></body></html>`;
 const VERIFY_CSP="default-src 'none'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";
 const TYPES=/** @type {Record<string,string>} */({'.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.html':'text/html; charset=utf-8','.json':'application/json'});
 
-export async function createDevServer({port=8788,now=Date.now()}={}){
+export async function createDevServer({port=8788,now=Date.now(),publicSite=process.env.PUBLIC_SITE==='on'}={}){
  const db=D1Shim.migrated();
  await seedDatabase(db,undefined,now-2*864e5);
  await insertDemoContent(db,now);
@@ -58,11 +59,12 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
    }
    const body=req.method!=='GET'&&req.method!=='HEAD'?await new Promise(r=>{const c=[];req.on('data',d=>c.push(d));req.on('end',()=>r(Buffer.concat(c)));}):undefined;
    const request=new Request(url,{method:req.method,headers:/** @type {any} */(req.headers),body});
-   let response=null;
-   if(url.pathname.startsWith('/api/v2/'))response=await handlePlatformApi(request,env,null);
+   let response=publicSite?retiredCommunityResponse(request):null;
+   if(response){} // Production closure takes precedence over the legacy fixture handlers below.
+   else if(url.pathname.startsWith('/api/v2/'))response=await handlePlatformApi(request,env,null);
    else if(url.pathname.startsWith('/u/'))response=await serveUpload(request,env,null,{isModerator:()=>isModeratorRequest(request,env)});
    else if(url.pathname==='/verify/')response=new Response(VERIFY_HTML,{headers:{'content-type':'text/html; charset=utf-8','content-security-policy':VERIFY_CSP}});
-   else response=await handlePlatformPage(request,env,null,{origin,providers});
+   else response=publicSite?await handlePublicPage(request,env,null,{origin}):await handlePlatformPage(request,env,null,{origin,providers});
    // The admin PWA (src/admin, as built for PLATFORM=on) with its production CSP; its API comes from the handlers above.
    if(!response&&(url.pathname==='/admin'||url.pathname.startsWith('/admin/'))){
     const {files}=await adminBundle(),rel=url.pathname==='/admin'||url.pathname==='/admin/'?'index.html':decodeURIComponent(url.pathname.slice(7)),data=files.get(rel);

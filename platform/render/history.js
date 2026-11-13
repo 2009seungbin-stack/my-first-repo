@@ -20,7 +20,7 @@ export async function loadHistory(db,entity,o){
  return {entity,rows,index:indexLocales.includes(o.l),indexLocales,l:o.l,now:o.now,channels:o.channels||[]};
 }
 
-/** @param {Awaited<ReturnType<typeof loadHistory>>} m @param {{origin:string}} site */
+/** @param {Awaited<ReturnType<typeof loadHistory>>} m @param {{origin:string,publicOnly?:boolean}} site */
 export function renderHistory(m,site){
  const {entity:e,l}=m,s=t(l),ko=l==='ko',name=nameOf(e,l),base=channelUrl(l,e);
  /** @type {Map<string,typeof m.rows>} */const days=new Map();
@@ -32,7 +32,7 @@ ${m.rows.length?html`<ol class="hist">${[...days.entries()].map(([d,rows])=>html
  return html`<li><span class="tt">${x.title}${x.detail?html` <span class="fine">${x.detail}</span>`:''}</span>${r.source_url?html`<a class="fine" href="${safeHref(r.source_url)}" rel="noopener nofollow" target="_blank">${ko?'출처':'source'} ↗</a>`:''}${r.source_kind?badge(SOURCE_VER[r.source_kind]||'UNKNOWN',l):''}</li>`;})}</ul></li>`)}</ol>`
  :html`<p class="empty">${ko?'아직 기록된 변경이 없습니다.':'No recorded changes yet.'}</p>`}
 <p class="fine pad">${ko?'값이 바뀌면 이전 값은 지우지 않고 기간을 닫아 남깁니다. 공식 값은 커뮤니티 제보로 덮어쓰지 않습니다.':'When a value changes the old one is kept with its period closed. Community reports never overwrite official values.'}</p></section>`;
- return page({l,title:ko?`${name} 변경 기록 — 버전·가격·스펙 이력 | Nerulio`:`${name} change history | Nerulio`,
+ return page({publicOnly:site.publicOnly,l,title:ko?`${name} 변경 기록 — 버전·가격·스펙 이력 | Nerulio`:`${name} change history | Nerulio`,
   description:ko?`${name}의 버전, 가격, 스펙, 일정이 언제 어떻게 바뀌었는지 출처와 함께 정리한 기록.`:`When and how ${name}'s versions, prices, specs and dates changed, with sources.`,
   canonical:site.origin+base+'history',alternates:m.index?Object.fromEntries(m.indexLocales.map(x=>[x,site.origin+channelUrl(x,e)+'history'])):{},noindex:!m.index,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body});

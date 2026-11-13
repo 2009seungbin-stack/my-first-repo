@@ -2,11 +2,9 @@ import {handleApi} from './api.js';
 import {errorResponse,ApiError} from './http.js';
 import {secureResponse} from '../tools/ads-worker.mjs';
 import BUILD from './build-info.js';
-import {handlePlatformPage} from './platform/pages.js';
-import {handlePlatformApi,isModeratorRequest} from './platform/api.js';
-import {serveUpload} from './platform/uploads.js';
+import {handlePlatformApi} from './platform/api.js';
 import {observeRequest} from './traffic.js';
-import {configuredProviders,providerCredentials} from './oauth/providers.js';
+import {handlePublicPage,retiredCommunityResponse} from './platform/public.js';
 /** Cloudflare Pages advanced-mode entry (dist/_worker.js/index.js).
  * The control plane only: accounts, sessions, entitlement, daily usage and billing
  * webhooks. It never receives, stores or processes user files.
@@ -23,15 +21,14 @@ function searchResponse(response){
 export default {
  async fetch(request,env,ctx){
   const url=new URL(request.url);
+  if(BUILD.platform){const closed=retiredCommunityResponse(request);if(closed)return closed;}
   if(url.pathname==='/api/v1'||url.pathname.startsWith('/api/v1/'))return handleApi(request,env,ctx);
   if(BUILD.platform&&(url.pathname==='/api/v2'||url.pathname.startsWith('/api/v2/')))return handlePlatformApi(request,env,ctx);
   if(url.pathname==='/api'||url.pathname.startsWith('/api/')||url.pathname.startsWith('/_worker.js'))return errorResponse(new ApiError('NOT_FOUND'));
   // Visitor/bot statistics: one Analytics Engine data point for pages, robots.txt and sitemaps (server/traffic.js).
   if(BUILD.traffic)observeRequest(request,env,url);
-  // Community images (R2, binding UPLOADS) on the site's own origin (PLATFORM=on builds only).
-  if(BUILD.platform&&url.pathname.startsWith('/u/')){const img=await serveUpload(request,env,ctx,{isModerator:()=>isModeratorRequest(request,env)});if(img)return img;}
-  // Nerulio 2.0 channel/community pages (PLATFORM=on builds only); anything else is the static site.
-  if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,verify:/** @type {any} */(BUILD).verify,providers:configuredProviders({oauth:providerCredentials(env)})});if(page)return searchResponse(BUILD.adsHtml?allowForms(await secureResponse(page)):page);}
+  // Public publishing and read-only reference pages; former community URLs return 410 above.
+  if(BUILD.platform){const page=await handlePublicPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,verify:/** @type {any} */(BUILD).verify});if(page)return searchResponse(BUILD.adsHtml?allowForms(await secureResponse(page)):page);}
   const response=await env.ASSETS.fetch(request);
   return searchResponse(BUILD.adsHtml?await secureResponse(response):response);
  }
