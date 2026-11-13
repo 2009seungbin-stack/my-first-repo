@@ -46,7 +46,7 @@ async function process(file,o,{signal,progress}){
   const resized=!keep&&(r.w!==source.width||r.h!==source.height);
   return {blob,name:keep?file.name:`${stem(file.name)}-min${ext}`,sourceWidth:source.width,sourceHeight:source.height,
    note:keep?text('compress.kept'):`${bytes(file.size)} → ${bytes(blob.size)} · ${text(resized?'compress.newPixels':'compress.samePixels',{w:resized?r.w:source.width,h:resized?r.h:source.height})}`,
-   warn:o.kb&&!r.met&&!keep?text('compress.missed'):''};
+   warn:o.kb&&blob.size>o.kb*1024?text('compress.missed'):''};
  }finally{Im.release(source);}
 }
 async function sample(){

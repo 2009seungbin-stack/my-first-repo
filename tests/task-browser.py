@@ -237,6 +237,16 @@ with sync_playwright() as pw:
     page.locator('[data-action="task-clear"]').click();ok('clear returns to the drop zone',page.locator('.dropzone').is_visible())
     txt=page.evaluate('()=>new Promise(r=>{const i=document.querySelector("#fileInput");const dt=new DataTransfer();dt.items.add(new File(["x"],"notes.txt",{type:"text/plain"}));i.files=dt.files;i.dispatchEvent(new Event("change"));setTimeout(()=>r(document.querySelector("#toast").textContent),200)})')
     ok('wrong file type is explained, not ignored',len(txt)>5)
+    # A retained original is still a target miss when it exceeds the requested byte limit.
+    logo=ROOT/'tests/fixtures/store-art/alloy-transparent-logo.png'
+    page.goto(BASE+'/en/image/compress/?kb=1',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(str(logo));ready(page)
+    ok('retaining the original does not hide a missed size target','Target size not reached' in page.locator('#viewerNote').inner_text())
+    with page.expect_download() as retained:page.locator('#taskDownload').click()
+    ok('target warning keeps the unchanged original downloadable',Path(retained.value.path()).read_bytes()==logo.read_bytes())
+    page.fill('#compressTarget','10');page.locator('#compressTarget').press('Tab')
+    page.wait_for_function('()=>!document.querySelector("#taskDownload").disabled&&!document.querySelector("#viewerNote").textContent.includes("Target size not reached")')
+    ok('a retained original within the target shows no false warning','Target size not reached' not in page.locator('#viewerNote').inner_text())
     # --- crop (src/task/crop.js): an interactive box whose numbers are image pixels ---
     def marker(w,h):
         im=Image.new('RGB',(w,h));px=im.load()
