@@ -30,11 +30,11 @@ PR **#86** merged as **`80a46f39b3634c989747705d26575ed35d5604a7`**: https://git
 - This tool's Godot SpriteFrames exporter needs a tag: its action is disabled with a translated explanation for a wholly static project. Explicit GIF/APNG/WebM output still requests a sequence.
 - The implicit-animation note now correctly says existing frame durations are preserved and the displayed fps is a fallback.
 - Checks: 31 Node pack/export tests; public game-landing Part 2 **59 checks across Chromium and Firefox**; full Studio Pack browser **61 checks**, including all formats, source pixels, 1,000 frames, ko/ja copy and 390px layout. String parity passed after copy changes.
-- Verify actual production None→static export separately from the matching build identifier. Do not equate a successful deployment with Google approval.
+- Actual production None→static exports passed in Chromium 153 and Firefox 155: all 132 frames, no `.anims` file or implicit animation, and Godot SpriteFrames requires a tag. Download hashes matched the recorded reference bundles. Evidence: `test-results/static-atlas-production/results.json`. The first attempt timed out waiting for a download; the diagnostic rerun passed in both engines without page errors. Do not infer a root cause from that one timeout; investigate if it recurs.
 
 ## Current branch: ordered grid edits and the second original case study
 
-Working branch **`codex/sprite-grid-edits`** now includes merged main. Core source/test/reproduction commit **`bb1b9e08233d87e76d48ae6e32a1f8d69e161cc9`** is the measurement reference. This branch is not yet verified in production. **Do not publish the old raw results.**
+PR **#87**: https://github.com/2009seungbin-stack/my-first-repo/pull/87 . Frozen head **`3182e01886712e155d348e93eff214ae8fdaefb2`**, branch **`codex/sprite-grid-edits`**, base main. Validation run **`43494022408`** is live. Core source/test/reproduction commit **`bb1b9e08233d87e76d48ae6e32a1f8d69e161cc9`** is the measurement reference. This PR is not yet verified in production. **Do not publish the old raw results.**
 
 - Input: committed CC0 `tests/fixtures/kenney/tiny-dungeon-tilemap.png` (203×186, 16px cells, 1px gaps, 12×11).
 - Both correct and wrong grids can show 132 frames. Correct 1px gaps match all 132 intended tile crops. A confirmed two-axis 0px grid matches only 1 intended tile; x/y of its final cell are 176/160 instead of 187/170.
@@ -47,7 +47,23 @@ Working branch **`codex/sprite-grid-edits`** now includes merged main. Core sour
 - All four ZIPs were checked for unsafe paths, unexpected file types and known credential/authentication/private-key patterns; findings were empty. Hashes/member paths are in `audit.json`. This is not a general security certification.
 - New Korean/English original commentary: `/ko/ai/digest/sprite-grid-spacing/` and English equivalent. Includes data, source commit, reproduction script, limitations, source/license links and downloads. Godot region-size/margins/separation mapping applies to the original sheet, not its rearranged packed atlas. No native Phaser/Godot execution or separate human review is claimed.
 - Local public-site browser QA passed both articles in both languages at 1440px and 390px, including decoded figures, tables, ZIP links, home visibility, no community UI/API calls and closure. Mobile English table wrapping exposed split words: Markdown tables now keep words intact inside their existing horizontal scroll container; CSS cache version bumped. Eighteen digest/Markdown/public Node tests passed, including platform build and draft isolation. Typecheck and syntax checks passed before the final copy/CSS changes; full remote CI remains required.
-- Next: commit the case-study assets/content, open a PR against main, wait for checks, merge with the exact tested head, then verify production grid edits, both home articles, all evidence hashes and public-reader flows. Do not mark this goal complete before its deadline and remaining required work.
+- Next: wait for #87 checks, merge with the exact tested head, then verify production grid edits, both home articles, all evidence hashes and public-reader flows. Do not mark this goal complete before its deadline and remaining required work.
+
+## Current child branch: Gemini changelog collection
+
+PR **#88**: https://github.com/2009seungbin-stack/my-first-repo/pull/88 . Branch **`codex/gemini-news-feed`** starts from #87's frozen head and targets that branch until #87 merges; then retarget main. Original head `e5db644645b06e7d868a60089451afdb9c423355` failed full CI **`43495355473`** because an admin test still explicitly required the obsolete `*/30` string. The repair also updates the admin's actual next-run calculation from :00/:30 to :11/:41, with exact-boundary coverage. Inspect the PR's new head/checks before merging; do not reuse the failed head.
+
+- Recent failed collector run **`43380987300`** failed `gemini-api-changelog` with “no dated entries parsed”. Later green runs were status-only; they did not prove the Gemini collector recovered.
+- The legacy `ai.google.dev/gemini-api/docs/changelog.md.txt` redirects to **`https://aistudio.google.com/docs/changelog.md`**. Its date headings now end in `{% id="…" %}`. The previous parser returned zero entries for the live HTTP 200 body. Do not treat the remote document's AI-agent preface as task instructions.
+- Fix: fetch the current official endpoint directly with its explicit host allowlist; strip only the recognized heading ID suffix before date parsing. Plain old headings remain supported. Invalid headings stop their section; nested bullets stay in the top-level event. Existing event keys remain unchanged for equivalent content. Non-parseable content still fails without claiming freshness.
+- A live dry run fetched the official source once, returned **50 validated events**, latest dated **2026-11-12**, and wrote no production D1 data. Evidence: `test-results/gemini-collector-recovery.json` and `gemini-changelog-restored.json`. Source checksum matched the redirected legacy body. AI Studio robots.txt was checked: /docs is not disallowed.
+- The status cron had moved to `11,41 * * * *`, but FX exclusion and admin freshness ticks still compared the obsolete `*/30 * * * *`. Align both consumers and extend the existing workflow/planner consistency test. Twenty collector/planner/idempotence tests and typecheck passed.
+- After the child PR passes/merges, run only the restored Gemini adapter on main, inspect its actual D1 ingestion result and source-linked public history/Radar. This adapter emits events, not version rows: the homepage's current release feed reads versions/system-news posts, so do not claim these 50 events appeared on the homepage.
+
+## Current audit observations
+
+- Source sitemap inventory reports **162 distinct tool/search routes × 3 locales = 486 URLs**, excluding hub/policies; no required intent-content sections are missing. Highest text-similarity candidates are Preflight variants (0.491), followed by compression-limit pages (0.297). This is a structural/text audit, not a Google quality verdict. Do not noindex a useful tool merely because it shares a workspace. Private report: `test-results/seo-inventory-current.json`.
+- Hardware market runs most recently succeeded; its read-only prices page still uses the collected facts, so do not disable this collector just because its name includes community. Public posting/community APIs remain closed.
 
 ## Further work after these fixes
 

@@ -17,6 +17,9 @@ test('collector plan: status schedule, explicit list, everything automated other
 test('collectors workflow: the 30-minute cron is the one the planner treats as status-only',()=>{
  const yml=readFileSync(new URL('../.github/workflows/collectors.yml',import.meta.url),'utf8');
  assert.ok(yml.includes(`cron: '${STATUS_SCHEDULE}'`));
+ assert.ok(yml.includes(`github.event.schedule != '${STATUS_SCHEDULE}'`),'status-only runs skip the six-hourly FX work');
+ assert.ok(yml.includes(`if [ "$SCHEDULE" = '${STATUS_SCHEDULE}' ]; then post tick`),'admin freshness ticks use the active status schedule');
+ assert.ok(!yml.includes('*/30 * * * *'),'no consumer retains the superseded on-the-hour cron');
  assert.match(yml,/matrix:\s*\n\s*adapter: \$\{\{ fromJSON\(needs\.plan\.outputs\.adapters\) \}\}/);
  assert.match(yml,/fail-fast: false/);
 });
