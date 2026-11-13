@@ -10,7 +10,7 @@ import {unityFiles} from './unity.js';
 import {phaserFiles,pixiFiles,asepriteJsonFiles,genericJson} from './atlas-json.js';
 import {gamemakerFiles,defoldFiles,loveFiles,spineFiles,starlingFiles,cssFiles} from './engines.js';
 export const TARGETS=Object.freeze({
- godot4:{group:'engine',label:'Godot 4',verify:'verified',engine:'Godot 4.7.2',build:godotFiles,
+ godot4:{group:'engine',label:'Godot 4',verify:'verified',engine:'Godot 4.7.2',build:godotFiles,requiresAnimation:true,
   requires:{allowRotation:false},preset:{allowRotation:false,trimMode:'trim',shapePadding:2,extrude:0,sizeMode:'auto',maxWidth:4096,maxHeight:4096}},
  unity:{group:'engine',label:'Unity 6',verify:'verified',engine:'Unity 6000.5.3f1',build:unityFiles,
   requires:{allowRotation:false},preset:{allowRotation:false,trimMode:'trim',shapePadding:2,extrude:0,sizeMode:'auto',maxWidth:4096,maxHeight:4096}},

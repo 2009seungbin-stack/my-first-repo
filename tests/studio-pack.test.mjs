@@ -316,6 +316,23 @@ test('the document adapter: one composited source per sheet, loose images as who
  assert.equal(commonName(['attack (1)','attack (2)','attack (10)']),'attack');assert.equal(commonName(['run_0','run_5']),'run');assert.equal(commonName(['a','b']),'default');
  assert.notEqual(sourceKey(d.assets[0],'x'),sourceKey(d.assets[1],'x'));
 });
+test('explicit None stays static; implicit animations use only assets without that choice',()=>{
+ let d=P.addAssets(P.createProject({id:'static',name:'Tiles'}),[P.imageAsset({id:'tiles',name:'tiles.png',width:32,height:16,blob:'a'.repeat(64)})]);
+ d=P.addFrames(d,'tiles',[{x:0,y:0,w:16,h:16},{x:16,y:0,w:16,h:16}]);
+ d={...d,assets:d.assets.map(a=>({...a,import:{kind:'sheet',choice:{animations:'none'},decisions:[{id:'animations',chosen:'none'}]}}))};
+ let out=modelFromDoc(d);
+ assert.equal(out.model.frames.length,2);assert.equal(out.packFrames.length,2);
+ assert.deepEqual(out.model.animations,[]);assert.equal(out.model.implicitAnimation,null);
+ const mixed=P.addAssets(d,[P.imageAsset({id:'loose',name:'run_1.png',width:8,height:8,blob:'b'.repeat(64)})]);
+ out=modelFromDoc(mixed);
+ assert.equal(out.model.frames.length,3);assert.equal(out.model.implicitAnimation.frames,1);
+ assert.deepEqual(out.model.animations[0].frameIds,['loose:image']);
+ const tagged=P.addTag(d,'tiles',{name:'chosen',frameIds:d.assets[0].frames.map(f=>f.id),fps:8});
+ out=modelFromDoc(tagged);assert.equal(out.model.animations[0].name,'chosen');assert.equal(out.model.implicitAnimation,null);
+ const grouped={...d,assets:d.assets.map(a=>({...a,import:{kind:'frames',decisions:[{id:'grouping',chosen:'none'}]}}))};
+ assert.deepEqual(modelFromDoc(grouped).model.animations,[]);
+});
+
 test('frame selection is shared, deduplicated, and reports who changed it',()=>{
  const seen=[];const off=onFrameSelection(s=>seen.push(s));
  setFrameSelection(['a','a','b'],'sprite');setFrameSelection(['a','b'],'pack');setFrameSelection(['c'],'pack');off();setFrameSelection([],'x');

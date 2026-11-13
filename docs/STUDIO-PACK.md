@@ -90,7 +90,7 @@ for that export and shows the change next to its button before you click.
   - The **Packed frames** panel lists canvas → stored size, page and flags (trimmed, rotated, same as …).
   - Hovering a row outlines its region; clicking a row or a region selects it.
   - The selection is shared with the Sprite timeline (`src/studio/core/frame-selection.js`), both ways.
-- **Implicit animation.** With no tags (loose images in the Viewer), the panel says which implicit animation the engines will get, before export.
+- **Implicit animation.** With no tags (loose images in the Viewer), the panel says which implicit animation the engines will get, before export. An explicit import choice of Animations/Grouping → None excludes those assets from that fallback: static atlas formats keep their frames without invented animation metadata. Godot SpriteFrames requires an animation tag, so its export is disabled with an explanation for an entirely static project. An explicit GIF/APNG/WebM export still requests a sequence from the frames.
 - **Phone (390 px).** Every panel is a tab of the bottom sheet, with touch-size buttons.
 
 ## Performance (measured)
