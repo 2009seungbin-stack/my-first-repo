@@ -67,7 +67,7 @@ jobs:
   fx:
     # ECB reference rate for ≈ ₩, with the 6-hourly and manual runs.
     needs: plan
-    if: ${{ github.event.schedule != '*/30 * * * *' && !github.event.inputs.adapters }}
+    if: ${{ github.event.schedule != '11,41 * * * *' && !github.event.inputs.adapters }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -102,4 +102,4 @@ jobs:
           if [ -z "$NOTIFY_URL" ] || [ -z "$NOTIFY_TOKEN" ]; then echo 'NOTIFY_URL / NOTIFY_TOKEN not set: skipped'; exit 0; fi
           post() { curl -sS -m 30 -o /dev/null -w "notify $1: HTTP %{http_code}\n" -X POST "${NOTIFY_URL%/}/api/v2/admin/notify" -H "authorization: Bearer $NOTIFY_TOKEN" -H 'content-type: application/json' --data "$2" || true; }
           if [ "$FAILED" = 'true' ]; then post collector_failed "{\"kind\":\"collector_failed\",\"payload\":{\"runUrl\":\"$RUN_URL\"}}"; fi
-          if [ "$SCHEDULE" = '*/30 * * * *' ]; then post tick '{"kind":"tick"}'; fi
+          if [ "$SCHEDULE" = '11,41 * * * *' ]; then post tick '{"kind":"tick"}'; fi
