@@ -37,7 +37,8 @@ try:
             pg.on('pageerror', lambda error: errors.append(str(error)))
             pg.on('request', lambda req: requests.append(req.url) if '/api/v2/' in req.url else None)
             for path in ['/', '/en/', '/ko/news/', '/ko/ai/digest/', '/ko/ai/digest/small-transparent-png/', '/en/ai/digest/small-transparent-png/',
-                         '/ko/ai/digest/sprite-grid-spacing/', '/en/ai/digest/sprite-grid-spacing/', '/ko/ai/', '/en/ai/', '/ko/ai/claude/',
+                         '/ko/ai/digest/sprite-grid-spacing/', '/en/ai/digest/sprite-grid-spacing/',
+                         '/ko/ai/digest/sfx-sample-channels/', '/en/ai/digest/sfx-sample-channels/', '/ko/ai/', '/en/ai/', '/ko/ai/claude/',
                          '/ko/games/', '/en/games/', '/ko/hardware/', '/en/hardware/', '/ko/studio/', '/en/studio/', '/ko/subculture/', '/en/subculture/',
                          '/ko/hardware/performance/', '/en/hardware/performance/', '/ko/bracket/', '/ko/radar/']:
                 assert pg.goto(BASE + path).status == 200, path
@@ -47,8 +48,9 @@ try:
                 if path == '/':
                     assert pg.locator('[data-home-news] li').count() > 0
                     assert pg.locator('[data-home-digest]').count() == 1
-                    assert pg.locator('[data-home-digest] li').count() >= 2
+                    assert pg.locator('[data-home-digest] li').count() >= 3
                     assert pg.locator('[data-home-digest] a[href="/ko/ai/digest/sprite-grid-spacing/"]').count() == 1
+                    assert pg.locator('[data-home-digest] a[href="/ko/ai/digest/sfx-sample-channels/"]').count() == 1
                     assert '12회 실측' in pg.locator('[data-home-digest]').inner_text()
                     assert pg.locator('[data-home-digest]').bounding_box()['y'] < pg.locator('[data-home-game-tools]').bounding_box()['y']
                     before = pg.evaluate('document.documentElement.dataset.theme')
@@ -71,8 +73,8 @@ try:
                     before = pg.locator('select[name="a"] option').count()
                     pg.fill('[data-hw-filter="a"]', 'RTX 4070')
                     assert 0 < pg.locator('select[name="a"] option').count() < before
-                if any('/' + slug + '/' in path for slug in ['small-transparent-png', 'sprite-grid-spacing']):
-                    assert pg.locator('.pbody table tbody tr').count() == 7
+                if any('/' + slug + '/' in path for slug in ['small-transparent-png', 'sprite-grid-spacing', 'sfx-sample-channels']):
+                    assert pg.locator('.pbody table tbody tr').count() == (8 if '/sfx-sample-channels/' in path else 7)
                     assert pg.locator('.pbody img').count() == 2
                     for img in pg.locator('.pbody img').all():
                         img.scroll_into_view_if_needed()

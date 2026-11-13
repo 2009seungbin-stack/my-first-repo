@@ -1,0 +1,165 @@
+{
+  "measuredAtUTC": "2026-11-13T20:49:54.833684+00:00",
+  "ui": "legacy",
+  "browserEngine": "firefox",
+  "browser": "155.0",
+  "sourceCommit": "0d356532384eed4722147b226fa6405e71320fee",
+  "sourceModifiedAfterCommit": false,
+  "reproductionScriptSha256": "2b9830f2053a0f5ef6cb30531fc54d3d30d18baf16cea967ad57fb2d84283a40",
+  "reproduce": "python tools/editorial/measure-sfx-channels.py --ui legacy --browser firefox",
+  "inputDefinition": "Self-generated 440 Hz, 0.5 s, PCM16/44100, peak 8192 integer samples. No recording or third-party audio.",
+  "scope": "Actual source-preview UI and worker PCM, independently decoded downloaded WAV. No listening, native engine or original-stereo preservation claim.",
+  "projectFile": "project.json",
+  "inputs": [
+    {
+      "file": "mono.wav",
+      "channels": 1,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "dd7ded8265a74316f72c133ce0e8da7a61e820c45415e0187d0397b7deb5f052"
+    },
+    {
+      "file": "left-only.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "db4d0bfa672aebc348e9d9e9618b4232817d0da271caecb5f337db696cefd25c"
+    },
+    {
+      "file": "right-only.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "fd71301b2540a2c7673c54ca5ddd418c1bd6fe12c6cb5161f37424d14dd9798b"
+    },
+    {
+      "file": "in-phase.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "b4280a59b2ea8316a1aee1e47f69ec4f3870e9ee35e32f2f3d07e04fea55de31"
+    },
+    {
+      "file": "opposite-phase.wav",
+      "channels": 2,
+      "rate": 44100,
+      "frames": 22050,
+      "sha256": "a82ff9cbcbc3e5f20b4219640e2c928f89f39c7f44ab44f2e3fe198da4ad68f5"
+    }
+  ],
+  "records": [
+    {
+      "input": "mono.wav",
+      "mode": "legacy-channel1",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999946355819702,
+        "rms": 0.17673112132630367,
+        "sha256": "0d7581a5670da2b378301fd5da19ab97519696115ffc9f24b97aa0e9f7405b11"
+      },
+      "notice": null,
+      "outputFile": "mono-legacy-channel1-output.wav",
+      "outputSha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.584073641169,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "left-only.wav",
+      "mode": "legacy-channel1",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999946355819702,
+        "rms": 0.17673112132630367,
+        "sha256": "0d7581a5670da2b378301fd5da19ab97519696115ffc9f24b97aa0e9f7405b11"
+      },
+      "notice": null,
+      "outputFile": "left-only-legacy-channel1-output.wav",
+      "outputSha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.584073641169,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "right-only.wav",
+      "mode": "legacy-channel1",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0,
+        "rms": 0,
+        "sha256": "5b1870cf6b89ae9a9e699ccc42b21a6ebe1ace5234132811234dadaa066a03a6"
+      },
+      "notice": null,
+      "outputFile": "right-only-legacy-channel1-output.wav",
+      "outputSha256": "3479947fb5f9b8cd86e63e78f343d60660a4b7b851587b5560502134d87b924e",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 0,
+      "rmsPCM16": 0.0,
+      "nonzeroSamples": 0
+    },
+    {
+      "input": "in-phase.wav",
+      "mode": "legacy-channel1",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999946355819702,
+        "rms": 0.17673112132630367,
+        "sha256": "0d7581a5670da2b378301fd5da19ab97519696115ffc9f24b97aa0e9f7405b11"
+      },
+      "notice": null,
+      "outputFile": "in-phase-legacy-channel1-output.wav",
+      "outputSha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.584073641169,
+      "nonzeroSamples": 44100
+    },
+    {
+      "input": "opposite-phase.wav",
+      "mode": "legacy-channel1",
+      "importedMono": {
+        "rate": 44100,
+        "frames": 22050,
+        "peak": 0.24999946355819702,
+        "rms": 0.17673112132630367,
+        "sha256": "0d7581a5670da2b378301fd5da19ab97519696115ffc9f24b97aa0e9f7405b11"
+      },
+      "notice": null,
+      "outputFile": "opposite-phase-legacy-channel1-output.wav",
+      "outputSha256": "65a6461f278f1fa94f36ac433c4a8f2121931b8de25080741e69219e5ef3837e",
+      "outputBytes": 90892,
+      "outputChannels": 2,
+      "rate": 44100,
+      "frames": 22712,
+      "durationSeconds": 0.5150113378684807,
+      "peakPCM16": 5792,
+      "rmsPCM16": 4034.584073641169,
+      "nonzeroSamples": 44100
+    }
+  ],
+  "rejected": [],
+  "externalRequests": [],
+  "unexpectedUploads": []
+}

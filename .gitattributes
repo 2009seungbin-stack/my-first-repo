@@ -13,3 +13,6 @@ tests/fixtures/texture/*.png -text
 # Pixel workspace fixtures are compared pixel for pixel
 tests/fixtures/pixel/*.png -text
 tests/fixtures/anon/** -text
+
+# Published measurement files and their manifest retain the exact recorded bytes.
+assets/editorial/2026-11-14-sfx-channels/** -text whitespace=cr-at-eol
