@@ -118,9 +118,13 @@ export function primaryBar(l){
 }
 
 /** The menu column (desktop) and the drawer (mobile): home, the game and file tools, AI, Preflight, then More,
- * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,toolsOnly?:boolean}} o */
+ * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,toolsOnly?:boolean,publicOnly?:boolean}} o */
 function shellNav(o){
  const l=o.l,ko=l==='ko',lang=ko?'ko':'en';
+ if(o.publicOnly){
+  const links=[{href:homeUrl(l),name:ko?'홈':'Home'},{href:toolsHome(l),name:ko?'모든 도구':'All tools'},{href:`/${l}/game/`,name:ko?'게임 에셋 도구':'Game asset tools'},{href:`/${l}/news/`,name:ko?'뉴스':'News'},{href:`/${l}/ai/digest/`,name:ko?'AI 해설':'AI commentary'},{href:`/${l}/ai/`,name:ko?'AI 정보·비교':'AI reference'},{href:`/${l}/radar/`,name:ko?'출시·업데이트':'Releases & updates'},{href:`/${l}/preflight/`,name:'Preflight'}];
+  return html`<aside class="lnav" id="lnav" aria-label="${ko?'메뉴와 도구':'Menu and tools'}"><div class="lnh"><a class="brand" href="${homeUrl(l)}">${LOGO}<span>nerulio</span></a><a class="lnx" href="#" data-drawer-close aria-label="${ko?'닫기':'Close'}">×</a></div><nav aria-label="${ko?'페이지':'Pages'}">${links.map(x=>html`<a class="ln" href="${x.href}">${x.name}</a>`)}</nav><details class="lg" open><summary>${ko?'게임 에셋 도구':'Game asset tools'}</summary><ul>${GAME_TOOLS.map(x=>html`<li><a href="${toolHref(l,x)}">${x[lang]}</a></li>`)}</ul></details><details class="lg" open><summary>${ko?'파일 도구':'File tools'}</summary><ul>${FILE_TOOLS.map(x=>html`<li><a href="${toolHref(l,x)}">${x[lang]}</a></li>`)}</ul></details></aside>`;
+ }
  const home=o.toolsOnly?toolsHome(l):homeUrl(l);
  // The AI digest's entry, right after the primary AI item, only once an article is published (platform/digest.js).
  const digest=digestLink(l);
@@ -167,10 +171,11 @@ export function ogImageUrl(o){
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
  *  verify?:{google?:string,naver?:string,bing?:string}|null,
  *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,feedTitle?:string,ogType?:string,
- *  ogImage?:{url:string,alt?:string}|null,toolsOnly?:boolean}} o `ogImage` = a 1200×630 share card of this page (a site path), instead of the site card.
+ *  ogImage?:{url:string,alt?:string}|null,toolsOnly?:boolean,publicOnly?:boolean}} o `ogImage` = a 1200×630 share card of this page (a site path), instead of the site card.
  */
 export function page(o){
  const s=t(o.l);
+ const simple=o.toolsOnly||o.publicOnly;
  const jsonld=o.noindex?o.jsonld:pageJsonLd(o);
  // Every page with language versions names the English one as x-default, the same way.
  const alts={...(o.alternates||{})};if(alts.en&&alts.ko&&!alts['x-default'])alts['x-default']=alts.en;
@@ -203,7 +208,7 @@ ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" 
 <script src="${THEME_SRC}"></script>
 <link rel="stylesheet" href="${FONTS_HREF}">
 <link rel="stylesheet" href="${CSS_HREF}">
-${o.toolsOnly?'':html`<script type="module" src="${ISLANDS_SRC}"></script>`}
+${o.publicOnly?html`<script type="module" src="/src/platform/public.js"></script>`:o.toolsOnly?'':html`<script type="module" src="${ISLANDS_SRC}"></script>`}
 <script src="/src/hit.js" defer></script>
 ${jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(jsonld).replace(/</g,'\\u003c'))}</script>
 `:''}</head>
@@ -214,14 +219,14 @@ ${shellNav(o)}
 <div class="col">
 <header class="top hd"><a class="menu" href="#lnav" data-drawer-open aria-controls="lnav" aria-label="${o.l==='ko'?'메뉴·도구 열기':'Open menu and tools'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
 <a class="brand" href="${o.toolsOnly?toolsHome(o.l):homeUrl(o.l)}">${LOGO}<span>nerulio</span></a>
-${o.toolsOnly?'':html`<form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>`}
+${simple?'':html`<form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>`}
 <button type="button" class="thm" data-theme-toggle aria-pressed="false" aria-label="${o.l==='ko'?'다크 모드':'Dark mode'}" title="${o.l==='ko'?'다크 모드':'Dark mode'}"><svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-${o.toolsOnly?'':html`<div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>`}
+${simple?'':html`<div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>`}
 </header>
-${o.toolsOnly?'':html`<nav class="chbar" aria-label="${o.l==='ko'?'주요 도구':'Main tools'}"><div class="cr" data-island="channel-bar"><span class="chs">${primaryBar(o.l).map(x=>html`<a href="${x.href}">${x.name}</a>`)}</span><span class="chs" data-channel-links>${o.channels.filter(c=>c.on).map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span></div><a class="allch" href="#lnav" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'더보기':'More'}</span></a></nav>
+${simple?'':html`<nav class="chbar" aria-label="${o.l==='ko'?'주요 도구':'Main tools'}"><div class="cr" data-island="channel-bar"><span class="chs">${primaryBar(o.l).map(x=>html`<a href="${x.href}">${x.name}</a>`)}</span><span class="chs" data-channel-links>${o.channels.filter(c=>c.on).map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span></div><a class="allch" href="#lnav" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'더보기':'More'}</span></a></nav>
 ${channelSheet(o.l)}`}
 ${String(o.body).includes('<main')?html`<div class="pg" id="main">${o.body}</div>`:html`<main class="pg" id="main">${o.body}</main>`}
-<footer class="ft"><div><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a>${o.toolsOnly?'':html` · <a href="/${o.l}/community/policy">${o.l==='ko'?'게시판 운영정책':'Community rules'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a>`}</div></footer>
+<footer class="ft"><div><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a>${simple?'':html` · <a href="/${o.l}/community/policy">${o.l==='ko'?'게시판 운영정책':'Community rules'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a>`}</div></footer>
 </div></div>
 <a class="scrim" href="#" data-drawer-close tabindex="-1" aria-hidden="true"></a>
 </body>

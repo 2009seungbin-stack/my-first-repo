@@ -4,8 +4,8 @@ import {html} from './html.js';
 import {discoveryTopics} from '../discovery.js';
 import {FILE_TOOLS,GAME_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
 
-/** @param {string} l */
-export function renderHomeContent(l){
+/** @param {string} l @param {{hasCommentary?:boolean}} [options] */
+export function renderHomeContent(l,{hasCommentary=true}={}){
  const ko=l==='ko',lang=ko?'ko':'en',base=`/${lang}/`;
  const workflows=ko?[
   {path:'sprite-slicer/',title:'스프라이트 시트를 애니메이션으로',body:'시트를 열고 프레임 크기와 범위를 지정하세요. 애니메이션을 재생해 잘린 부분을 확인하고 엔진용으로 내보냅니다.',result:'결과: 나눈 프레임과 애니메이션',guide:'자르기·미리보기·내보내기 안내'},
@@ -17,7 +17,7 @@ export function renderHomeContent(l){
   {path:'preflight/',title:'Check your setup before a project',body:'Choose an OBS, Blender or Godot workflow and review your environment. Read the evidence and scope of each finding, then save the report.',result:'Output: an environment check report',guide:'Open the workflow checks'}
  ];
  return html`<section class="box home-start" aria-labelledby="home-title" data-home-start>
-<div class="home-intro"><p class="home-kicker">${ko?'게임 에셋 도구 · 파일 도구 · 크리에이터를 위한 AI 해설':'Game asset tools · file tools · AI commentary for creators'}</p><h1 id="home-title">${ko?'게임 에셋과 파일을 브라우저에서 바로 다듬으세요.':'Make game assets and prepare files right in your browser.'}</h1><p>${ko?'Nerulio는 스프라이트·픽셀·타일셋 같은 게임 에셋 도구와 이미지·PDF·영상 파일 도구를 브라우저에서 제공합니다. 파일은 기기 안에서 처리됩니다. 크리에이터를 위한 AI 해설도 함께 다룹니다.':'Nerulio offers game asset tools such as sprites, pixel art and tilesets, plus image, PDF and video file tools, in your browser. Files are processed on your device. It also covers AI commentary for creators.'}</p><div class="home-actions"><a class="btn p" href="${base}game/">${ko?'게임 에셋 도구 보기':'Browse game asset tools'} ›</a><a class="btn" href="${base}tools/">${ko?'파일 도구 보기':'Browse file tools'}</a></div></div>
+<div class="home-intro"><p class="home-kicker">${ko?(hasCommentary?'게임 에셋 도구 · 파일 도구 · 크리에이터를 위한 AI 해설':'게임 에셋 도구 · 파일 도구 · 출처 기반 뉴스'):(hasCommentary?'Game asset tools · file tools · AI commentary for creators':'Game asset tools · file tools · source-based news')}</p><h1 id="home-title">${ko?'게임 에셋과 파일을 브라우저에서 바로 다듬으세요.':'Make game assets and prepare files right in your browser.'}</h1><p>${ko?'Nerulio는 스프라이트·픽셀·타일셋 같은 게임 에셋 도구와 이미지·PDF·영상 파일 도구를 브라우저에서 제공합니다. 파일은 기기 안에서 처리됩니다.':'Nerulio offers game asset tools such as sprites, pixel art and tilesets, plus image, PDF and video file tools, in your browser. Files are processed on your device.'}</p><div class="home-actions"><a class="btn p" href="${base}game/">${ko?'게임 에셋 도구 보기':'Browse game asset tools'} ›</a><a class="btn" href="${base}tools/">${ko?'파일 도구 보기':'Browse file tools'}</a></div></div>
 <div class="bh"><h2>${ko?'게임 에셋 도구':'Game asset tools'}</h2></div><ul class="home-workflows home-toolgrid" data-home-game-tools>${GAME_TOOLS.map(x=>html`<li><h3><a href="${toolHref(lang,x)}">${x[lang]} ›</a></h3></li>`)}</ul>
 <div class="bh"><h2>${ko?'파일 도구':'File tools'}</h2></div><ul class="home-workflows home-toolgrid" data-home-file-tools>${FILE_TOOLS.map(x=>html`<li><h3><a href="${toolHref(lang,x)}">${x[lang]} ›</a></h3></li>`)}<li><h3><a href="${toolsHome(lang)}">${ko?'도구 전체 보기':'All tools'} ›</a></h3></li></ul>
 <div class="bh"><h2>${ko?'어떤 작업을 하시나요?':'What would you like to do?'}</h2></div><ul class="home-workflows">${workflows.map(x=>html`<li><h3><a href="${base}${x.path}">${x.title} ›</a></h3><p>${x.body}</p><span class="fine">${x.result}</span><a class="home-guide" href="${base}${x.path}">${x.guide} ›</a></li>`)}</ul></section>

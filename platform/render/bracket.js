@@ -6,7 +6,7 @@ import {html} from './html.js';
 import {page} from './ui.js';
 import {icon} from './icons.js';
 
-/** @param {{l:string,origin:string,channels:any[]}} o */
+/** @param {{l:string,origin:string,channels:any[],publicOnly?:boolean}} o */
 export function renderBracket(o){
  const ko=o.l==='ko',base='/bracket/';
  const title=ko?'대진표 만들기 · 16강 토너먼트 랜덤 추첨':'Bracket maker · random 16-player tournament draw';
@@ -29,7 +29,7 @@ export function renderBracket(o){
   {'@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))},
  ]};
  const sizes=[4,8,16,32];
- return page({l:o.l,title:title+' | Nerulio',description,canonical:o.origin+`/${o.l}${base}`,alternates:{ko:o.origin+`/ko${base}`,en:o.origin+`/en${base}`},channels:o.channels,jsonld,
+ return page({publicOnly:o.publicOnly,l:o.l,title:title+' | Nerulio',description,canonical:o.origin+`/${o.l}${base}`,alternates:{ko:o.origin+`/ko${base}`,en:o.origin+`/en${base}`},channels:o.channels,jsonld,
   body:html`<div class="bk" data-island="bracket">
 <header class="box chh bk-head"><span class="tile t-hw bk-cue" aria-hidden="true" data-bk-c>${icon('trophy',24)}</span><div class="chm"><h1 data-bk-t>${ko?'대진표 만들기':'Bracket maker'}</h1><p class="desc">${ko?'참가자를 넣고 추첨하면 토너먼트 대진표가 나옵니다. 이름을 눌러 승자를 올리세요.':'Add the players, draw, and tap a name to send the winner on.'}</p></div></header>
 <section class="box bk-setup" aria-labelledby="bk-setup-h"><h2 id="bk-setup-h" class="bk-h2">${ko?'참가자':'Players'}</h2>

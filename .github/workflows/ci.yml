@@ -37,6 +37,7 @@ jobs:
           node tools/audit-platform-seo.mjs
           python tests/platform-seo-browser.py
           python tests/platform-browser.py
+          python tests/public-site-browser.py
           python tests/hardware-benchmarks-test.py
           python tests/hardware-tools-browser.py
           python tests/community-market-browser.py

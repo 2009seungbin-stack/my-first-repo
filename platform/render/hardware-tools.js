@@ -16,8 +16,8 @@ function countryOptions(l,country){return MARKETS.map(m=>html`<option value="${m
 /** @param {any} o @param {string} title @param {string} description @param {unknown} body */
 function shell(o,title,description,body){
  const base=`/${o.l}/hardware/${o.tool}/`,ko=o.l==='ko';
- return page({l:o.l,title:title+' | Nerulio',description,canonical:o.origin+base,alternates:{ko:o.origin+`/ko/hardware/${o.tool}/`,en:o.origin+`/en/hardware/${o.tool}/`},noindex:!!o.query,channels:o.channels,
-  body:html`<div class="hw-tool"><header class="box chh hw-heading"><span class="tile t-hw" aria-hidden="true">${icon('chip',22)}</span><div class="chm"><div class="chn1"><h1>${title}</h1></div><p class="hw-lead">${description}</p></div><div class="cha"><a class="btn" href="/${o.l}/community/hw/">${ko?'PC·하드웨어 채널':'PC community'} ›</a></div></header>${hardwareToolLinks(o.l,o.tool)}${body}</div>`});
+ return page({publicOnly:o.publicOnly,l:o.l,title:title+' | Nerulio',description,canonical:o.origin+base,alternates:{ko:o.origin+`/ko/hardware/${o.tool}/`,en:o.origin+`/en/hardware/${o.tool}/`},noindex:!!o.query,channels:o.channels,
+  body:html`<div class="hw-tool"><header class="box chh hw-heading"><span class="tile t-hw" aria-hidden="true">${icon('chip',22)}</span><div class="chm"><div class="chn1"><h1>${title}</h1></div><p class="hw-lead">${description}</p></div>${o.publicOnly?'':html`<div class="cha"><a class="btn" href="/${o.l}/community/hw/">${ko?'PC·하드웨어 채널':'PC community'} ›</a></div>`}</header>${hardwareToolLinks(o.l,o.tool)}${body}</div>`});
 }
 /** @param {ReturnType<typeof gpuPhoto>} p @param {boolean} ko */
 function photo(p,ko){return p?html`<figure class="hw-photo"><img src="${p.src}" width="960" height="${p.src.endsWith('rx-6600-xt.jpg')||p.src.endsWith('arc-a770.jpg')?720:540}" alt="${p.board}${ko?' 실물':' graphics card'}" decoding="async"><figcaption>${p.board}</figcaption></figure>`:'';}
@@ -28,7 +28,7 @@ function photoCredits(photos,ko){
 }
 /** @param {boolean} ko */
 function priceGuide(ko){return html`<section class="box hw-section"><h2>${ko?'비교할 매물 고르기':'Choose comparable listings'}</h2><ul class="hw-guide"><li>${ko?'모델명과 메모리 용량이 같은 제품':'Same model and memory capacity'}</li><li>${ko?'상태·배송비 포함 기준 통일':'Consistent condition and shipping basis'}</li><li>${ko?'완본체·부품용·박스만·중복 제외':'Exclude full PCs, broken parts, boxes and duplicates'}</li></ul><details class="hw-details"><summary>${ko?'호가와 실거래가의 차이':'Asking vs. sale prices'}</summary><p>${ko?'호가는 실거래가가 아닙니다. 판매 완료 표시 가격도 할인 협상 등으로 최종 결제액과 다를 수 있습니다. 국가 선택은 현지 사이트·통화 기준이며 판매자의 실제 위치는 매물에서 확인하세요.':'Asking prices are not sale prices. Sold displayed prices may differ from final negotiated payments. Country selects the local site and currency; check seller location in each listing.'}</p></details></section>`;}
-/** @param {{l:string,origin:string,tool:string,query:string,q:URLSearchParams,channels:any[],market?:import('../../server/platform/hardware-market.js').Snapshot}} o */
+/** @param {{l:string,origin:string,tool:string,query:string,q:URLSearchParams,channels:any[],publicOnly?:boolean,market?:import('../../server/platform/hardware-market.js').Snapshot}} o */
 export function renderUsedPrices(o){
  const ko=o.l==='ko',m=marketOf(o.q.get('country')||(ko?'KR':'US')),q=o.q.get('q')||'',links=marketLinks(m.id,q),p=gpuPhoto(q);
  const basis=o.q.get('basis')==='sold'?'sold':'asking',days=o.q.get('days')||'30';
@@ -49,7 +49,7 @@ export function renderUsedPrices(o){
  <aside class="side">${p?html`<section class="box hw-section"><h2>${ko?'찾는 GPU':'GPU you searched for'}</h2>${photo(p,ko)}${photoCredits([p],ko)}</section>`:''}${priceGuide(ko)}<section class="box hw-section"><h2>${ko?'성능도 비교하기':'Compare performance'}</h2><p>${ko?'같은 Blender 버전의 렌더링 실측값과 구매 가격을 비교할 수 있습니다.':'Compare rendering measurements and value at your purchase prices.'}</p><a class="hw-text-link" href="/${o.l}/hardware/performance/?country=${m.id}">${ko?'GPU·CPU 성능 비교':'GPU / CPU comparison'} ›</a></section></aside></div>`);
 }
 
-/** @param {{l:string,origin:string,tool:string,query:string,q:URLSearchParams,channels:any[]}} o */
+/** @param {{l:string,origin:string,tool:string,query:string,q:URLSearchParams,channels:any[],publicOnly?:boolean}} o */
 export function renderPerformance(o){
  const ko=o.l==='ko',type=o.q.get('type')==='cpu'?'cpu':'gpu',devices=DATA.devices.filter(d=>d.type===type),m=marketOf(o.q.get('country')||(ko?'KR':'US'));
  const defaults=type==='gpu'?['NVIDIA GeForce RTX 3060','NVIDIA GeForce RTX 4060']:['AMD Ryzen 5 5600 6-Core Processor','AMD Ryzen 5 7600 6-Core Processor'];

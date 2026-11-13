@@ -294,9 +294,10 @@ export async function recentTitles(db,scope,since){
 }
 const XPOST=`SELECT ${POST_COLS},e.id AS e_id,e.vertical AS e_vertical,e.type AS e_type,e.slug AS e_slug,e.names AS e_names FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id LEFT JOIN entities e ON e.id=d.entity_id AND e.status='active'`;
 /** Cross-channel lists for the community front and 전체 베스트. @param {D1} db
- * @param {{mode:'best'|'news'|'kind'|'hot'|'latest',kind?:string,channel?:string|null,since?:number,limit?:number,unanswered?:boolean,people?:boolean}} o */
+ * @param {{mode:'best'|'news'|'kind'|'hot'|'latest',kind?:string,channel?:string|null,locale?:string,since?:number,limit?:number,unanswered?:boolean,people?:boolean}} o */
 export async function frontPosts(db,o){
  const where=["d.status='published'"],params=[];
+ if(o.locale){where.push('d.locale=?');params.push(o.locale);}
  if(o.people)where.push("d.author_id NOT LIKE 'system:%'");   // the home feed: members' and ㅇㅇ posts, not the Radar bot
  if(o.channel){where.push('d.channel_id=?');params.push(o.channel);}
  if(o.since!==undefined){where.push('d.created_at>=?');params.push(o.since);}

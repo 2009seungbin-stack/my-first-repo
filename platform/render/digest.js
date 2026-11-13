@@ -20,7 +20,7 @@ const editorialNote=(/** @type {boolean} */ ko)=>ko
  ?'인디 게임 개발자·픽셀 아티스트·크리에이터를 위해 매주 AI 소식 가운데 게임 에셋과 파일 작업에 영향을 주는 것만 골라 해설합니다. AI 도구로 자료 조사와 초안을 만들고, Nerulio 편집자가 모든 사실을 출처와 대조해 검토한 뒤 게시합니다. 각 글 끝에 확인한 출처를 모두 적습니다.'
  :'Each week we pick the AI news that affects game assets and file workflows for indie developers, pixel artists and creators. Research and a first draft are made with AI tools; a Nerulio editor checks every fact against its source before publishing. Every article lists the sources it was checked against.';
 
-/** @param {{l:string,channels:{name:string,href:string}[]}} o @param {{origin:string}} site */
+/** @param {{l:string,channels:{name:string,href:string}[]}} o @param {{origin:string,publicOnly?:boolean}} site */
 export function renderDigestIndex(o,site){
  const {l}=o,ko=l==='ko',list=digestArticles(l),canonical=site.origin+digestIndexPath(l);
  const title=ko?'AI 주간 해설 — 게임 에셋·파일 작업 관점 | Nerulio':'AI weekly digest for game assets and file workflows | Nerulio';
@@ -33,10 +33,10 @@ export function renderDigestIndex(o,site){
 <section class="box" aria-label="${ko?'게시된 해설':'Published articles'}">${items}</section></div>`;
  const jsonld=list.length?{'@context':'https://schema.org','@graph':[{'@type':'CollectionPage','@id':`${canonical}#webpage`,url:canonical,name:title,description,inLanguage:l,
   mainEntity:{'@type':'ItemList',itemListElement:list.map((a,i)=>({'@type':'ListItem',position:i+1,url:site.origin+digestArticlePath(l,a.slug),name:a.title}))}}]}:null;
- return page({l,title,description,canonical,alternates,noindex:!list.length,channels:o.channels,body,jsonld});
+ return page({publicOnly:site.publicOnly,l,title,description,canonical,alternates,noindex:!list.length,channels:o.channels,body,jsonld});
 }
 
-/** @param {{l:string,slug:string,channels:{name:string,href:string}[]}} o @param {{origin:string}} site */
+/** @param {{l:string,slug:string,channels:{name:string,href:string}[]}} o @param {{origin:string,publicOnly?:boolean}} site */
 export function renderDigestArticle(o,site){
  const {l}=o,ko=l==='ko',a=digestArticle(l,o.slug);
  if(!a)return null;
@@ -62,5 +62,5 @@ ${raw('<!--ad:content-1-->')}
 <p class="fine">${editorialNote(ko)}</p></section>
 ${raw('<!--ad:content-2-->')}</article>
 <p class="pad"><a class="btn" href="${digestIndexPath(l)}">${ko?'AI 주간 해설 목록':'All digest articles'} ›</a></p></div>`;
- return page({l,title:`${a.title} | Nerulio`,description:a.summary,canonical,alternates,channels:o.channels,body,jsonld,ogType:'article'});
+ return page({publicOnly:site.publicOnly,l,title:`${a.title} | Nerulio`,description:a.summary,canonical,alternates,channels:o.channels,body,jsonld,ogType:'article'});
 }

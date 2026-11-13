@@ -26,7 +26,7 @@ export async function loadLocalLlm(db,gpu,o){
  return {gpu,vram,models,index:indexLocales.includes(o.l),indexLocales,l:o.l,now:o.now,channels:o.channels||[]};
 }
 
-/** @param {Awaited<ReturnType<typeof loadLocalLlm>>} m @param {{origin:string}} site */
+/** @param {Awaited<ReturnType<typeof loadLocalLlm>>} m @param {{origin:string,publicOnly?:boolean}} site */
 export function renderLocalLlm(m,site){
  const {gpu,l}=m,ko=l==='ko',name=nameOf(gpu,l),base=channelUrl(l,gpu),url=base+'local-llm';
  // The same words as the method text below (맞음 / 빠듯함 / 안 맞음).
@@ -49,9 +49,9 @@ ${m.models.filter(x=>!noFit(x)).map(row)}
 <label>${ko?'생성 속도 (tok/s)':'Generation (tok/s)'}<input name="tps" inputmode="decimal" required pattern="[0-9]{1,4}([.,][0-9]{1,2})?" placeholder="42.5" title="${ko?'숫자, 소수점 둘째 자리까지 (예: 42.5)':'A number, up to two decimals (e.g. 42.5)'}"></label>
 <label>${ko?'드라이버 / OS (선택)':'Driver / OS (optional)'}<input name="os" maxlength="60" placeholder="${ko?'예: 581.xx · Windows 11':'e.g. Windows 11'}"></label></div>
 <div class="acts"><button class="btn p" type="submit" data-label="${ko?'올리기':'Post'}">${ko?'올리기':'Post'}</button></div></form>`);
- const body=html`<div class="crumb"><a class="chl" href="${base}">${ko?`${name} 채널`:name}</a><span class="sp"></span><a class="btn" href="${base}">${ko?'채널로':'Channel'}</a></div>${summary}${table}${form}`;
+ const body=html`<div class="crumb"><a class="chl" href="${base}">${ko?`${name} 채널`:name}</a><span class="sp"></span><a class="btn" href="${base}">${ko?'채널로':'Channel'}</a></div>${summary}${table}${site.publicOnly?'':form}`;
  const other=ko?'en':'ko';
- return page({l,title:ko?`${name}에서 돌아가는 로컬 LLM — ${m.vram}GB VRAM 적합 모델 (추정·실측) | Nerulio`:`Local LLMs that fit the ${name} (${m.vram} GB) — estimate and measurements | Nerulio`,
+ return page({publicOnly:site.publicOnly,l,title:ko?`${name}에서 돌아가는 로컬 LLM — ${m.vram}GB VRAM 적합 모델 (추정·실측) | Nerulio`:`Local LLMs that fit the ${name} (${m.vram} GB) — estimate and measurements | Nerulio`,
   description:ko?`${name} ${m.vram}GB에 들어가는 공개 LLM ${fitsQ4.length}개(Q4_K_M, 추정)와 커뮤니티 실측 토큰/초.`:`${fitsQ4.length} open LLMs that fit ${m.vram} GB at Q4_K_M (estimate) plus community-measured tokens/s.`,
   canonical:site.origin+url,alternates:m.index?Object.fromEntries(m.indexLocales.map(x=>[x,site.origin+channelUrl(x,gpu)+'local-llm'])):{},noindex:!m.index,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:gpu.id},body});
