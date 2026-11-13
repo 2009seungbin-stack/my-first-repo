@@ -80,10 +80,57 @@ export const COMMUNITY_PRIVACY_NOTE=brandCopy({
  ja:[['ログインなしのコミュニティ投稿','{brand}のコミュニティでログインせずに投稿・コメント・投票・通報・画像のアップロードをすると、サーバーは接続元ネットワークのアドレスの一部（IPv4 /24またはIPv6 /48）と秘密鍵から2つの値を作ります。ニックネームの横に表示される今日のID（韓国時間の0時に毎日変わります）と、上限と利用停止にだけ使うネットワークキーです。IPアドレス自体は保存も表示もしません。ネットワークキーは90日後に投稿・コメント・画像・投票・通報から削除し、1日の件数記録は数日後に削除します。編集用パスワードはソルト付きの低速ハッシュでのみ保存します。入力したニックネームはこのブラウザ（localStorage）にだけ記憶します。'],
   ['コミュニティの画像','画像はアップロード前にブラウザで縮小・再保存されるため位置情報やカメラ情報（EXIF）は消え、サーバーも残ったメタデータを削除します。画像はCloudflare R2に保存し、{brand}上でのみ表示します。投稿に使われなかった画像は1日後、削除された投稿の画像は削除時にストレージから消します。画像はCloudflare経由で配信され、既知の児童性的虐待コンテンツかどうか検査される場合があります。']]
 });
+// Public policy copy describes retired community flows in the past tense. Keep the
+// shared service templates and their existing retention rules available unchanged.
+const RETIRED_COMMUNITY_TEXT=brandCopy({
+ en:[
+  ['Images you explicitly attach to community posts are uploaded separately.','Community image uploads are closed. Earlier attachments were handled separately from editor files.'],
+  ['this does not apply to images you explicitly upload to a community post.','community uploads are closed, and earlier attachments are described below.'],
+  ['When you open the account page or the community,','When you open the account page,'],
+  ['community posts show the nickname you choose.','former community posts displayed a chosen nickname and are no longer publicly available.'],
+  ['When you post, comment, vote, report or upload an image on the {brand} community without signing in, the server derives','Before closure, signed-out community posts, comments, votes, reports and image uploads caused the server to derive'],
+  ['The nickname you type is remembered in this browser (localStorage) only.',"Previously entered community nicknames may remain in this browser's localStorage."],
+  ['Images are resized and re-saved in your browser before upload, which removes location and camera data (EXIF); the server removes remaining metadata.','Before closure, images were resized and re-saved in the browser to remove location and camera data (EXIF); the server removed remaining metadata.'],
+  ['Images are stored in Cloudflare R2 and shown only on {brand}.','Earlier community images may remain in Cloudflare R2. Public serving of community images is closed.'],
+  ['Images are served through Cloudflare, which may scan them for known child sexual abuse material.','Before closure, images were served through Cloudflare, which could scan for known child sexual abuse material.']
+ ],
+ ko:[
+  ['커뮤니티 글에 직접 첨부하는 이미지는 별도로 업로드됩니다.','커뮤니티 이미지 업로드는 종료했습니다. 종료 전 첨부 이미지는 편집 파일과 별도로 처리했습니다.'],
+  ['커뮤니티 글에 직접 업로드하는 이미지는 여기에 해당하지 않습니다.','종료 전에 커뮤니티에 올린 이미지의 처리는 아래에 안내합니다.'],
+  ['계정 페이지나 커뮤니티를 열면','계정 페이지를 열면'],
+  ['커뮤니티 글에는 직접 정한 닉네임만 보입니다.','기존 커뮤니티 글은 공개하지 않으며, 당시에는 직접 정한 닉네임을 표시했습니다.'],
+  ['{brand} 커뮤니티에서 로그인하지 않고 글·댓글·추천·신고·이미지를 올리면, 서버는','운영 종료 전 {brand} 커뮤니티의 비로그인 작성·추천·신고·이미지 업로드에서 서버는'],
+  ['두 가지 값을 만듭니다.','두 가지 값을 만들었습니다.'],
+  ['입력한 닉네임은 이 브라우저(localStorage)에만 기억합니다.','종료 전에 입력한 닉네임은 이 브라우저의 localStorage에 남아 있을 수 있습니다.'],
+  ['이미지는 올리기 전에 브라우저에서 크기를 줄이고 다시 저장하므로 위치·카메라 정보(EXIF)가 지워지고, 서버도 남은 메타데이터를 지웁니다.','종료 전에는 업로드 전에 브라우저에서 이미지를 줄이고 다시 저장해 위치·카메라 정보(EXIF)를 지웠으며, 서버도 남은 메타데이터를 지웠습니다.'],
+  ['이미지는 Cloudflare R2에 저장하고 {brand}에서만 보여 줍니다.','종료 전 이미지는 Cloudflare R2에 저장했으며, 커뮤니티 이미지의 공개 제공은 종료했습니다.'],
+  ['이미지는 Cloudflare를 거쳐 제공되며, Cloudflare가 알려진 아동 성착취물인지 검사할 수 있습니다.','종료 전 이미지 제공은 Cloudflare를 거쳤으며, Cloudflare의 알려진 아동 성착취물 검사 대상이 될 수 있었습니다.']
+ ],
+ ja:[
+  ['コミュニティの投稿に明示的に添付する画像は別途アップロードされます。','コミュニティへの画像アップロードは終了しました。終了前の添付画像は編集用ファイルとは別に処理していました。'],
+  ['コミュニティの投稿に明示的にアップロードする画像は対象外です。','終了前にコミュニティへアップロードした画像の処理は以下で説明します。'],
+  ['アカウントページやコミュニティを開くと','アカウントページを開くと'],
+  ['コミュニティの投稿には自分で決めたニックネームだけが表示されます。','終了前のコミュニティ投稿には選んだニックネームを表示していました。投稿は現在公開していません。'],
+  ['{brand}のコミュニティでログインせずに投稿・コメント・投票・通報・画像のアップロードをすると、サーバーは','終了前の{brand}コミュニティでは、ログインなしの投稿・コメント・投票・通報・画像アップロード時にサーバーが'],
+  ['2つの値を作ります。','2つの値を作っていました。'],
+  ['入力したニックネームはこのブラウザ（localStorage）にだけ記憶します。','終了前に入力したニックネームは、このブラウザのlocalStorageに残っている場合があります。'],
+  ['画像はアップロード前にブラウザで縮小・再保存されるため位置情報やカメラ情報（EXIF）は消え、サーバーも残ったメタデータを削除します。','終了前はアップロード前にブラウザで画像を縮小・再保存して位置情報やカメラ情報（EXIF）を除き、サーバーも残ったメタデータを削除していました。'],
+  ['画像はCloudflare R2に保存し、{brand}上でのみ表示します。','終了前の画像はCloudflare R2に保存していました。コミュニティ画像の公開配信は終了しています。'],
+  ['画像はCloudflare経由で配信され、既知の児童性的虐待コンテンツかどうか検査される場合があります。','終了前はCloudflare経由で配信され、既知の児童性的虐待コンテンツかどうか検査される場合がありました。']
+ ]
+});
+const RETIRED_COMMUNITY_HEADINGS={
+ en:{'Community posts without an account':'Data from former community posts','Community images':'Images uploaded before closure'},
+ ko:{'로그인 없이 쓰는 커뮤니티 글':'종료 전 커뮤니티 글의 데이터','커뮤니티 이미지':'종료 전 업로드한 이미지'},
+ ja:{'ログインなしのコミュニティ投稿':'終了前のコミュニティ投稿データ','コミュニティの画像':'終了前にアップロードした画像'}
+};
+function retiredCommunityText(locale,text){for(const [from,to] of RETIRED_COMMUNITY_TEXT[locale])text=text.replaceAll(from,to);return text;}
 /** @param {string} page @param {string} locale @param {boolean} [ads] @param {boolean|'accounts'} [service] @param {boolean} [analytics] @param {boolean} [traffic] @param {boolean} [platform] */
 export function policyContent(page,locale,ads=false,service=/** @type {boolean|'accounts'} */(false),analytics=false,traffic=false,platform=traffic){
  const l=labels[locale];
+ const closed=page==='privacy'&&platform;
+ const closedNotice=closed?`<section class="community-closed"><h2>${esc({ko:'커뮤니티 운영 종료',en:'Community closed',ja:'コミュニティ終了'}[locale])}</h2><p>${esc({ko:'커뮤니티 게시판·댓글·추천·이미지 업로드는 종료했습니다. 편집 도구는 계속 기기에서 파일을 처리합니다. 종료 전 수집한 데이터와 기존 보관 규칙은 아래에 안내합니다.',en:'Community boards, comments, votes and image uploads are closed. Editing tools continue to process files on your device. Earlier community data and its existing retention rules are described below.',ja:'投稿・コメント・投票・画像アップロードは終了しました。編集ツールは引き続き端末内でファイルを処理します。終了前のコミュニティデータと既存の保存ルールは以下で説明します。'}[locale])}</p></section>`:'';
  const status=ads?{en:'Google AdSense is enabled in this build. Ad delivery depends on account approval, configured units and consent.',ko:'이 빌드에는 Google AdSense가 활성화되어 있습니다. 실제 노출은 계정 승인·광고 단위·동의 설정에 따라 달라집니다.',ja:'このビルドではGoogle AdSenseが有効です。配信はアカウント承認、広告枠、同意設定によります。'}:{en:'Google AdSense is disabled in this build. No Google advertising script or ad units are loaded.',ko:'이 빌드에서는 Google AdSense가 비활성화되어 광고 스크립트와 광고 단위를 불러오지 않습니다.',ja:'このビルドではGoogle AdSenseが無効で、Google広告スクリプトや広告枠は読み込みません。'};
- return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1>${esc(l[page])}</h1>${sections(page,locale,service).map(([h,p])=>`<section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${page==='privacy'&&platform?`<section class="community-closed"><h2>${esc({ko:'커뮤니티 운영 종료',en:'Community closed',ja:'コミュニティ終了'}[locale])}</h2><p>${esc({ko:'커뮤니티 게시판·댓글·추천·이미지 업로드는 종료했습니다. 아래 내용은 종료 전에 수집한 데이터의 처리와 보관에 대한 안내입니다.',en:'Community boards, comments, votes and image uploads are closed. The following describes handling and retention of data collected before closure.',ja:'投稿・コメント・投票・画像アップロードは終了しました。以下は終了前に収集したデータの処理と保存に関する説明です。'}[locale])}</p></section>${COMMUNITY_PRIVACY_NOTE[locale].map(([h,p])=>`<section class="community-privacy"><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('')}`:''}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}`;
+ return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1>${esc(l[page])}</h1>${closedNotice}${sections(page,locale,service).map(([h,p])=>`<section><h2>${esc(h)}</h2><p>${esc(closed?retiredCommunityText(locale,p):p)}</p></section>`).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${closed?COMMUNITY_PRIVACY_NOTE[locale].map(([h,p])=>`<section class="community-privacy"><h2>${esc(RETIRED_COMMUNITY_HEADINGS[locale][h]||h)}</h2><p>${esc(retiredCommunityText(locale,p))}</p></section>`).join(''):''}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}`;
 }
 export {footer};

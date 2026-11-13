@@ -1,10 +1,18 @@
 # Advertising boundaries
 
-## Content readiness changes (2026-10-16)
+## Public publishing after community closure (2026-11-14)
 
-The portal now starts with real tool workflows and the existing licensed Studio example, followed by source-backed reference directories and then community posts. Empty boards link to relevant information and tools. Empty boards and all time-window best lists are `noindex,follow`; the platform sitemap uses the same published-post condition for boards and omits best lists. These are discoverability rules, not an exemption from AdSense review.
+The public site offers game/file tools, original measurements and commentary, source-based news, and read-only references. Community pages, posting, comments, votes and image serving return 410. Stored earlier records remain subject to their existing handling and retention rules. The public privacy page leads with closure, describes former uploads in the past tense, and keeps the account/storage/analytics disclosures. Both server-rendered content and client language changes use this copy.
 
-About pages describe tools, reference sources, corrections and community moderation. File privacy promises apply to files opened for editing; community image attachments are separately uploaded to R2. The community disclosure is tied to the platform feature rather than visit tracking, including after a policy-page language switch.
+Production baseline `4343bc5` was inspected at 1440px and 390px across seven static tool/hub/editor/error surfaces. No ad configuration, advertising script or ad units were observed. The public home, news and new original article were separately checked with the same result. `/ads.txt` returned a formatted Google publisher entry; this alone does not establish that it matches the owner's account or that Google approved the site. Advertised robots rules allow the public-content samples for Googlebot, Mediapartners-Google and Google-Display-Ads-Bot; this does not prove access by verified Google IPs through the edge firewall.
+
+Current Google guidance: [content readiness](https://support.google.com/adsense/answer/7299563), [inventory value](https://support.google.com/publisherpolicies/answer/11112688), [ad/content balance](https://support.google.com/publisherpolicies/answer/11169917), and [AdSense crawlers](https://support.google.com/adsense/answer/99376). Discoverability, advertising eligibility, ownership verification, review submission and approval remain separate states. Do not use a word/article-count threshold as an approval guarantee.
+
+## Historical content readiness changes (2026-10-16)
+
+The October portal started with tool workflows and a licensed Studio example, followed by source-backed reference directories and community posts. Empty boards linked to information and tools. Empty boards and time-window best lists were excluded from search discovery. The community publishing surfaces were subsequently retired as described above; the old fixture modules remain for isolated tests. Discoverability rules are not an exemption from AdSense review.
+
+The October About/privacy copy described tools, sources, corrections and the then-active community. Current copy describes closure and earlier data instead. The retained community disclosure follows the platform feature rather than visit tracking, including after a policy-page language switch.
 
 Before requesting another review, verify the deployed revision, actual publisher ID in `/ads.txt`, and the ownership status in the AdSense account. Continue maintaining source dates and adding useful examples from real work. These changes do not establish traffic, account verification or Google approval. Ad enablement and review submission remain separate operations.
 

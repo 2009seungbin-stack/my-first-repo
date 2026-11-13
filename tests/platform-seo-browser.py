@@ -99,16 +99,23 @@ with (OUT / 'server.log').open('w', encoding='utf-8') as log:
             policy = live.new_page()
             errors = []
             policy.on('pageerror', lambda error: errors.append(str(error)))
+            active_upload = {'ko':'커뮤니티 글에 직접 첨부하는 이미지는 별도로 업로드됩니다.',
+                             'en':'Images you explicitly attach to community posts are uploaded separately.',
+                             'ja':'コミュニティの投稿に明示的に添付する画像は別途アップロードされます。'}
             for locale in ['ko', 'en', 'ja']:
                 assert policy.goto(origin + f'/{locale}/privacy/').status == 200
                 policy.locator('.community-privacy').first.wait_for()
                 assert policy.locator('.community-privacy').count() == 2
                 assert policy.locator('.traffic-status').count() == 0
+                assert policy.locator('main > section').first.get_attribute('class') == 'community-closed'
+                assert active_upload[locale] not in policy.locator('main').inner_text()
                 target = 'en' if locale == 'ko' else 'ko'
                 policy.locator(f'.policy-languages a[lang="{target}"]').click()
                 policy.wait_for_function('(l)=>document.documentElement.lang===l', arg=target)
                 assert policy.locator('.community-privacy').count() == 2
                 assert 'Cloudflare R2' in policy.locator('main').inner_text()
+                assert policy.locator('main > section').first.get_attribute('class') == 'community-closed'
+                assert active_upload[target] not in policy.locator('main').inner_text()
                 assert policy.goto(origin + f'/{locale}/about/').status == 200
                 policy.locator('main nav').wait_for()
                 directory = 'ja/' if locale == 'ja' else f'{locale}/tools/'
