@@ -12,11 +12,12 @@ import {describeChange} from '../change-text.js';
 
 const SOURCE_VER=/** @type {Record<string,string>} */({OFFICIAL:'OFFICIAL',OFFICIAL_API:'AUTOMATED',FEED:'AUTOMATED',CURATED:'OFFICIAL',COMMUNITY:'COMMUNITY',MANUAL_SOURCE:'OFFICIAL',ESTIMATE_METHOD:'ESTIMATE'});
 
-/** @param {any} db @param {import('../db/channel.js').Entity} entity @param {{l:string,now:number,channels?:{name:string,href:string}[]}} o */
+/** @param {any} db @param {import('../db/channel.js').Entity} entity @param {{l:string,now:number,channels?:{name:string,href:string}[],publicOnly?:boolean}} o */
 export async function loadHistory(db,entity,o){
  // A history page is indexed only when its parent entity is and it holds enough editorial (non-collector) changes (platform/seo.js).
  const [rows,counts]=await Promise.all([historyOf(db,entity.id,{limit:200}),contentCounts(db,entity.id)]);
- const indexLocales=['ko','en'].filter(x=>historyIndexable(entity,counts,x));
+ const visibleCounts=o.publicOnly?{...counts,posts:0,contributions:0}:counts;
+ const indexLocales=['ko','en'].filter(x=>historyIndexable(entity,visibleCounts,x));
  return {entity,rows,index:indexLocales.includes(o.l),indexLocales,l:o.l,now:o.now,channels:o.channels||[]};
 }
 

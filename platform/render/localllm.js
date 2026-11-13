@@ -11,7 +11,7 @@ import {entityIndexable} from '../seo.js';
 import {estimateLlmMemory,METHOD} from '../estimates/llm-memory.js';
 
 const QUANTS=/** @type {const} */(['Q4_K_M','Q8_0']);
-/** @param {any} db @param {import('../db/channel.js').Entity} gpu @param {{l:string,now:number,channels?:{name:string,href:string}[]}} o */
+/** @param {any} db @param {import('../db/channel.js').Entity} gpu @param {{l:string,now:number,channels?:{name:string,href:string}[],publicOnly?:boolean}} o */
 export async function loadLocalLlm(db,gpu,o){
  const vram=Number(pickFact((await factsFor(db,[gpu.id])).get(gpu.id),'vram_gb')?.value||0);
  const bench=await benchmarksOn(db,gpu.id);
@@ -22,7 +22,8 @@ export async function loadLocalLlm(db,gpu,o){
  });
  // Derived page: indexed only with a known VRAM and when the card's own page is indexable (platform/seo.js).
  const counts=await contentCounts(db,gpu.id);
- const indexLocales=vram?['ko','en'].filter(x=>entityIndexable(gpu,counts,x)):[];
+ const visibleCounts=o.publicOnly?{...counts,posts:0,contributions:0}:counts;
+ const indexLocales=vram?['ko','en'].filter(x=>entityIndexable(gpu,visibleCounts,x)):[];
  return {gpu,vram,models,index:indexLocales.includes(o.l),indexLocales,l:o.l,now:o.now,channels:o.channels||[]};
 }
 

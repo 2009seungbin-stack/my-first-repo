@@ -1,6 +1,6 @@
-# AI 주간 해설 (AI weekly digest)
+# 도구 실측·AI 해설 (Tool tests and AI commentary)
 
-Weekly, human-reviewed commentary on AI news that matters for game assets and file workflows, written for indie game developers, pixel artists and creators. Claude drafts; the owner reviews, edits and publishes. Nothing is public until the owner flips `status` to `published`.
+Source-based commentary and reproducible tool case studies for game assets and file workflows. On 2026-11-14 the owner authorized autonomous remediation, implementation and publication through 2026-11-15 10:00 KST. An AI agent may publish technically verified original case studies within that scope. It must disclose AI assistance and the actual checks; it must never describe agent verification as human editorial review or personal experience. Existing news drafts remain drafts until their facts and relevance are checked. Nothing is public before `status: published`.
 
 ## Where it lives
 
@@ -60,7 +60,7 @@ With zero published articles in a language, its index stays reachable but is `no
 ## Page details
 
 - canonical per language; `Article` JSON-LD with `headline`, `description`, `datePublished`, `dateModified`, `inLanguage`, `citation` (the sources), and Nerulio as `author` and `publisher` (the site's Organization node); a breadcrumb.
-- The sources are shown at the end of every article with the editorial note (AI-assisted research and draft, reviewed by a Nerulio editor).
+- The sources appear at the end with an honest AI-assistance note. Do not claim human review unless there is evidence of it. Local editorial figures may use `/assets/editorial/` image paths; remote images and traversal paths are rejected. Community Markdown has no access to this opt-in.
 - Ad markers follow [ADS.md](ADS.md): `<!--ad:content-1-->` after the article text and `<!--ad:content-2-->` after the sources, inside a `[data-ad-host]`. Platform pages do not load an ad script today, so the markers are inert until that is decided separately.
 
 ## Quality rules
@@ -71,5 +71,5 @@ With zero published articles in a language, its index stays reachable but is `no
 - **Benchmarks and rankings** are reported as the company's own claim, if at all.
 - **Policy and legal items** say they are not legal advice and point to the source text.
 - **Internal links** go to tools that actually help with the advice (`/ko/game/pixel-lab/`, `/ko/sprite-slicer/` …); no link stuffing.
-- **Weekly cadence.** One article per week, published on a fixed day (for example Friday or Saturday, Korea time), covering the previous seven days. Skip a week rather than publish a thin one. Three to four thousand Korean characters (with spaces) is a good length; the English version follows the Korean one.
+- **Publish when there is evidence.** Do not promise a weekly cadence or pad the archive with summaries. For news, disclose the covered dates and primary sources. For a tool case study, publish the exact inputs, license, settings, browser/version, outputs, reproducible script and limitations. Korean and English versions must agree on measurements and claims.
 - **Length is not the goal.** If a week has only one item that matters, write one good item.

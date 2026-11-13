@@ -6,6 +6,8 @@ import {seedDatabase} from '../tools/platform/seed-db.mjs';
 import {insertDemoContent} from '../tools/platform/demo-posts.mjs';
 import {handlePublicPage,retiredCommunityResponse,homePublishing} from '../server/platform/public.js';
 import {useDigestArticles} from '../platform/digest.js';
+import {createPost} from '../platform/community.js';
+import {renderSitemap} from '../server/platform/pages.js';
 
 const origin='https://nerulio.com';
 const request=(path,method='GET')=>new Request(origin+path,{method});
@@ -48,13 +50,13 @@ test('home exposes only published commentary and system news; former boards neve
    assert(!/data-island="(?:account|follow|bench-form|my-radar|channel-sheet|channel-bar)"/.test(body),path);
    if(path==='/'){assert(body.includes('data-home-news'));assert(body.includes('data-home-digest'));assert(body.includes('Published commentary fixture'));}
   }
-  const news=m.news[0];const nr=await handlePublicPage(request(`/ko/news/${news.channel_id}/${news.channel_no}`),{DB:db},null,site);
+  const news=m.news.find(p=>!p.url);assert(news);const nr=await handlePublicPage(request(`/ko/news/${news.channel_id}/${news.channel_no}`),{DB:db},null,site);
   assert.equal(nr.status,200);assert(!/comment-form|data-island="vote"/.test(await nr.text()));
   const human=await db.prepare("SELECT channel_id,channel_no FROM discussions WHERE author_id NOT LIKE 'system:%' LIMIT 1").first();
   assert.equal((await handlePublicPage(request(`/ko/news/${human.channel_id}/${human.channel_no}`),{DB:db},null,site)).status,404);
   assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM discussions').first()).n,before);
   const sitemap=await(await handlePublicPage(request('/sitemap-n2-ai.xml'),{DB:db},null,site)).text();
-  assert(!sitemap.includes('/community/'));assert(sitemap.includes('/ko/news/'));assert(sitemap.includes('reviewed-example'));assert(!sitemap.includes('draft-secret'));
+  assert(!sitemap.includes('/community/'));assert(!sitemap.includes('/ko/news/'));assert(sitemap.includes('reviewed-example'));assert(!sitemap.includes('draft-secret'));
  }finally{useDigestArticles([]);db.raw.close();}
 });
 
@@ -74,4 +76,22 @@ test('a data failure returns a retryable error rather than claiming there are no
  const r=await handlePublicPage(request('/'),{DB:{prepare(){throw Error('fixture database unavailable');}}},null,site);
  assert.equal(r.status,503);assert.equal(r.headers.get('cache-control'),'no-store');assert.equal(r.headers.get('retry-after'),'30');
  assert(!((await r.text()).includes('아직 게시된')));
+});
+
+test('retained community posts cannot qualify a noindex public reference for sitemap discovery',async()=>{
+ const db=D1Shim.migrated();
+ try{
+  await seedDatabase(db);
+  const e=await db.prepare("SELECT id FROM entities WHERE vertical='ai' AND slug='claude'").first();
+  await db.prepare("UPDATE entities SET descriptions=?,index_state='auto' WHERE id=?").bind(JSON.stringify({ko:'짧은 설명',en:'Short description'}),e.id).run();
+  await db.prepare("INSERT INTO users(id,email,display_name,provider,provider_subject,created_at) VALUES('legacy-reader',NULL,'Reader','github','legacy-reader',0)").run();
+  for(let i=0;i<3;i++)await createPost(db,{id:'retained-'+i,channel:'ai',kind:'info',tags:[e.id],title:'Retained report '+i,body:'A retained community report that is no longer visible on the public site.',locale:'en',authorId:'legacy-reader'},Date.now());
+  assert((await renderSitemap(db,'ai',origin)).includes('/en/ai/claude/'),'legacy adapter still sees its own content');
+  const h=await(await handlePublicPage(request('/en/ai/claude/'),{DB:db},null,site)).text();
+  assert.match(h,/<meta name="robots" content="noindex,follow">/);
+  const sitemap=await(await handlePublicPage(request('/sitemap-n2-ai.xml'),{DB:db},null,site)).text();
+  assert(!sitemap.includes('/en/ai/claude/'));
+  await db.prepare("UPDATE entities SET index_state='index' WHERE id=?").bind(e.id).run();
+  assert((await(await handlePublicPage(request('/sitemap-n2-ai.xml'),{DB:db},null,site)).text()).includes('/en/ai/claude/'),'explicit owner override remains effective');
+ }finally{db.raw.close();}
 });

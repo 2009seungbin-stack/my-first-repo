@@ -1,5 +1,5 @@
 // @ts-check
-/** The AI weekly digest (docs/AI-DIGEST.md): human-reviewed commentary for game-asset and file
+/** Tool tests and AI commentary (docs/AI-DIGEST.md): source-based commentary for game-asset and file
  * workflows, served by the Worker at /{l}/ai/digest/ and /{l}/ai/digest/{slug}/.
  * Only published articles exist here (the build writes nothing else into digest-data.js), and every
  * reader filters on status again, so a draft can never be rendered, listed, linked or sitemapped.
@@ -32,7 +32,7 @@ export const digestArticlePath=(l,slug)=>`/${l}/ai/digest/${slug}/`;
  * @param {string} l @returns {{name:string,href:string}|null} */
 export function digestLink(l){
  if(!digestArticles(l).length)return null;
- return {name:l==='ko'?'AI 주간 해설':'AI weekly digest',href:digestIndexPath(l)};
+ return {name:l==='ko'?'도구 실측·해설':'Tool tests & commentary',href:digestIndexPath(l)};
 }
 
 /** Sitemap entries (published only): the index of every language with an article, then each article;

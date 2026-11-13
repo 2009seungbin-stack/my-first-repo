@@ -248,6 +248,8 @@ const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Recor
  */
 export async function renderSitemap(db,vertical,origin,{communityClosed=false}={}){
  const rows=(await sitemapEntities(db,vertical)).filter(e=>e.index_state!=='noindex');
+ // Retained but no longer visible posts/reports cannot qualify a public reference for indexing.
+ const visibleCounts=(/** @type {any} */ e)=>communityClosed?{...e,posts:0,contributions:0}:e;
  /** @type {string[]} */const urls=[];
  /** One locale-aware sitemap entry per indexable translation. The alternate cluster contains only
   * those same indexable URLs, with an English fallback when it exists. @param {Record<string,string>} alt @param {number} [lastmod] @param {string} [fallback] */
@@ -273,13 +275,13 @@ export async function renderSitemap(db,vertical,origin,{communityClosed=false}={
  if(vertical==='ai')for(const d of digestSitemapEntries(origin))add(d.alt,d.lastmod);
  const gpuFacts=vertical==='hardware'?await factsFor(db,rows.filter(e=>e.type==='gpu').map(e=>e.id)):new Map();
  for(const e of rows){
-  const locales=['ko','en'].filter(l=>entityIndexable(e,e,l));
+  const locales=['ko','en'].filter(l=>entityIndexable(e,visibleCounts(e),l));
   /** @type {[string,string[]][]} path → the languages in which that page is indexable (the same gates as the pages' robots meta) */
   const paths=[['',locales]];
   if(e.type==='service')paths.push(['status',locales]);
   if(e.type==='gpu'&&Number(pickFact(gpuFacts.get(e.id),'vram_gb')?.value||0)>0)paths.push(['local-llm',locales]);
   // A change history is a page of its own once it holds at least 3 editorial (non-collector) changes.
-  paths.push(['history',['ko','en'].filter(l=>historyIndexable(e,e,l))]);
+  paths.push(['history',['ko','en'].filter(l=>historyIndexable(e,visibleCounts(e),l))]);
   for(const [p,ls] of paths){
    if(!ls.length)continue;
    add(Object.fromEntries(ls.map(l=>[l,origin+channelUrl(l,e)+p])),e.lastmod);
@@ -287,7 +289,7 @@ export async function renderSitemap(db,vertical,origin,{communityClosed=false}={
  }
  // GPU pairs worth a page of their own: a card and the card it succeeds (RTX 4070 → RTX 5070).
  if(vertical==='hardware'){
-  const ok=new Set(rows.filter(e=>e.type==='gpu'&&['ko','en'].some(l=>entityIndexable(e,e,l))).map(e=>e.id)),slug=new Map(rows.map(e=>[e.id,e.slug]));
+  const ok=new Set(rows.filter(e=>e.type==='gpu'&&['ko','en'].some(l=>entityIndexable(e,visibleCounts(e),l))).map(e=>e.id)),slug=new Map(rows.map(e=>[e.id,e.slug]));
   const pairs=((await db.prepare("SELECT subject_id,object_id FROM relations WHERE predicate='successor_of' AND valid_until IS NULL").all()).results||[])
    .filter((/** @type {any} */ r)=>ok.has(r.subject_id)&&ok.has(r.object_id)).map((/** @type {any} */ r)=>[slug.get(r.subject_id),slug.get(r.object_id)].sort().join(','));
   for(const pr of [...new Set(pairs)]){
