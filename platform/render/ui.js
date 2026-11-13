@@ -14,7 +14,7 @@ import {digestLink} from '../digest.js';
 import {pageJsonLd} from './page-seo.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
-export const CSS_HREF='/src/platform/n2.css?v=20261031-focus-nav';
+export const CSS_HREF='/src/platform/n2.css?v=20261114-readable-tables';
 /** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
 export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
