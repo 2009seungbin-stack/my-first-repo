@@ -2,7 +2,7 @@
 Uses the static build. No vendor account, production API or install inventory upload.
 """
 from pathlib import Path
-from playwright.sync_api import sync_playwright, Error
+from playwright.sync_api import sync_playwright, Error, expect
 import json, os, socket, subprocess, time, urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -144,7 +144,8 @@ def run():
                 page.locator('#pf-file').set_input_files(str(OUT/'report.json'))
                 page.wait_for_function('()=>document.querySelector("#pf-inventory-count").textContent==="16"')
                 page.locator('#pf-file').set_input_files({'name':'bad.json','mimeType':'application/json','buffer':b'{"schemaVersion":99}'})
-                assert 'Unsupported schemaVersion' in page.locator('#pf-notice').inner_text()
+                # set_input_files dispatches change; the handler still awaits File.text().
+                expect(page.locator('#pf-notice')).to_contain_text('Unsupported schemaVersion')
                 assert page.locator('#pf-inventory-count').inner_text()=='16'
                 page.locator('#pf-clear').click()
                 # Keyboard picker and manual add; unknown is honest, source-backed min-host fail.
