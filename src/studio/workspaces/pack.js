@@ -204,6 +204,7 @@ export default {
      combo.algorithm?h('p.pk-hint',{},t('pack.rules',{alg:t('pack.alg.'+combo.algorithm),heur:t('pack.heur.'+combo.heuristic),sort:combo.sort})):'',
      v.stats.aliases?h('p.pk-hint',{},t('pack.aliasNote',{n:v.stats.aliases})):'',
      model?.implicitAnimation?h('p.pk-note-implicit',{'data-pack':'implicit'},t('pack.implicit',{name:model.implicitAnimation.name,n:model.implicitAnimation.frames,fps:model.implicitAnimation.fps})):'',
+     model?.frames.length&&!model.animations.length?h('p.pk-note-implicit',{'data-pack':'static-frames'},t('pack.staticFrames')):'',
      warnings.length?h('ul.pk-notes',{},...warnings.map(w=>h('li',{},w))):''));
    }
    resultBox.replaceChildren(...parts);
@@ -214,7 +215,8 @@ export default {
   ctx.panel({id:'pack-export',title:()=>t('panel.packExport'),dock:'right',order:17,render(body){body.append(exportBox);}});
   function describeChange(c){return c.map(x=>t('pack.chg.'+x.key+'.'+String(x.to))).join(', ');}
   const exportTarget=()=>{const id=prefs().target||prefs().preset;return TARGETS[id]&&!TARGETS[id].aseprite?id:(TARGETS[id]?id:'godot4');};
-  const canExport=tg=>!!result&&!busy&&!exporting&&!(tg.browserOnly&&typeof VideoEncoder==='undefined');
+  const exportBlocked=tg=>tg.requiresAnimation&&model&&!model.animations.length?t('pack.requiresAnimation'):tg.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):null;
+  const canExport=tg=>!!tg&&!!result&&!busy&&!exporting&&!exportBlocked(tg);
   function verifyBadge(tg,{short=false}={}){
    return h('span.pk-badge'+(tg.verify==='unverified'?'.is-unverified':''),{'data-verify':tg.verify,title:t('pack.verify.'+tg.verify,{engine:tg.engine})},
     short?h('i.pk-dot',{'aria-hidden':'true'}):'',short?'':t('pack.verify.'+tg.verify,{engine:tg.engine}));
@@ -226,7 +228,7 @@ export default {
    const cur=exportTarget(),tg=TARGETS[cur],{changed}=settingsFor(cur,settings());
    const pick=h('select',{'data-pack':'target','aria-label':t('pack.exportTarget')},...Object.entries(TARGET_ORDER).map(([g,ids])=>h('optgroup',{label:t('pack.groups.'+g)},...ids.map(id=>h('option',{value:id,selected:id===cur},TARGETS[id].label)))));
    pick.addEventListener('change',()=>setPrefs({target:pick.value},{mergeKey:'pack-target'}));
-   const main=h('button.st-btn.primary.pk-main',{type:'button','data-export-main':cur,disabled:!canExport(tg),title:tg.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):null},t('pack.exportFor',{name:tg.label}));
+   const main=h('button.st-btn.primary.pk-main',{type:'button','data-export-main':cur,disabled:!canExport(tg),title:exportBlocked(tg)},t('pack.exportFor',{name:tg.label}));
    main.addEventListener('click',()=>runExport(cur));
    const card=h('div.st-sec.pk-card',{},h('div.pk-fields',{},field(t('pack.exportTarget'),pick,{wide:true}),field(t('pack.exportName'),name,{wide:true})),
     main,verifyBadge(tg),changed.length?h('p.pk-change',{'data-pack':'target-change'},t('pack.changed',{name:tg.label,what:describeChange(changed)})):'',
@@ -234,7 +236,7 @@ export default {
    // every target, one line each: name, verification dot, Export
    const groups=Object.entries(TARGET_ORDER).map(([g,ids])=>h('div.pk-group',{},h('h3',{},t('pack.groups.'+g)),...ids.map(id=>{
     const x=TARGETS[id],ch=settingsFor(id,settings()).changed;
-    const btn=h('button.st-btn',{type:'button','data-export':id,disabled:!canExport(x),title:x.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):t('pack.exportFor',{name:x.label})},t('pack.export'));
+    const btn=h('button.st-btn',{type:'button','data-export':id,disabled:!canExport(x),title:exportBlocked(x)||t('pack.exportFor',{name:x.label})},t('pack.export'));
     btn.addEventListener('click',()=>runExport(id));
     return h('div.pk-target'+(id===cur?'.is-current':''),{'data-target':id},verifyBadge(x,{short:true}),h('b',{title:t('pack.verify.'+x.verify,{engine:x.engine})},x.label),
      ch.length?h('span.pk-change',{title:t('pack.changed',{name:x.label,what:describeChange(ch)})},describeChange(ch)):h('span',{}),btn);
@@ -249,7 +251,8 @@ export default {
   const fmtSize=n=>n<1024?`${n} B`:n<1048576?`${Math.round(n/1024)} KB`:`${(n/1048576).toFixed(1)} MB`;
   let metering=false;
   async function runExport(id){
-   if(!result||busy||exporting||metering)return;
+   if(!result||busy||exporting||metering||!TARGETS[id])return;
+   const blocked=exportBlocked(TARGETS[id]);if(blocked){ctx.toast(blocked,{error:true});return;}
    // Free daily Studio export (docs/PRICING-MODEL.md); a refusal leaves everything as it was.
    metering=true;let go=false;try{go=await meter('studio-pack-export');}finally{metering=false;}
    if(!go||!result||busy||exporting)return;
@@ -277,7 +280,7 @@ export default {
   ctx.command({id:'pack.cancel',group:'pack',enabled:()=>!!busy,run:()=>cancel()});
   ctx.command({id:'pack.nextPage',group:'pack',keys:['PageDown'],enabled:()=>!!vr()&&page<vr().pages.length-1,run:()=>{page++;showPage();renderResult();}});
   ctx.command({id:'pack.prevPage',group:'pack',keys:['PageUp'],enabled:()=>page>0,run:()=>{page--;showPage();renderResult();}});
-  ctx.command({id:'pack.exportLast',group:'pack',keys:['Mod+E'],enabled:()=>!!result&&!busy,run:()=>runExport(lastExport?.target||prefs().preset||'godot4')});
+  ctx.command({id:'pack.exportLast',group:'pack',keys:['Mod+E'],enabled:()=>canExport(TARGETS[lastExport?.target||prefs().preset||'godot4']),run:()=>runExport(lastExport?.target||prefs().preset||'godot4')});
   ctx.menu({id:'pack',title:'menu.pack',items:()=>['pack.repack','pack.cancel','-','pack.prevPage','pack.nextPage','-','pack.exportLast']});
   // ------------------------------------------------------------ document events
   const packInput=d=>d.assets;

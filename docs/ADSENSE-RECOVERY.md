@@ -1,39 +1,53 @@
 # AdSense content recovery — bounded autonomous work
 
-Owner request: repeated rejection for “가치가 별로 없는 콘텐츠”; close community and make news/commentary visible on the homepage; work alone until **2026-11-15 10:00 Asia/Seoul (2026-11-15 01:00 UTC)**.
+Owner request: repeated rejection for “가치가 별로 없는 콘텐츠”; close community; make news/commentary visible on home; work alone until **2026-11-15 10:00 Asia/Seoul (2026-11-15 01:00 UTC)**. Google approval itself is not claimed.
 
-Heartbeat automation: `nerulio-11-15-10`, current chat, every 30 minutes until the deadline. Preserve that deadline. Do not create duplicate tasks. This file is the continuation ledger; update it with verified evidence after each batch.
+Heartbeat: `nerulio-11-15-10`, current chat, every 30 minutes until that deadline. Preserve the deadline and avoid duplicate automations. Keep the active goal intact.
 
 ## Authorization and boundaries
 
-Implementation, meaningful local checks, PR, merge, deployment and production verification are authorized. Preserve unrelated edits and retained community data. Do not submit AdSense review, change account/billing settings, delete stored posts/uploads, post external promotion or message other people. Do not claim Google approval or that a particular page count guarantees approval. No invented people, experiences, human review, benchmarks or licensing claims. AI assistance must be disclosed honestly.
+Implementation, local checks, PR, merge, deployment and production verification are authorized. Preserve unrelated work and stored community data. Do not submit AdSense review, change account/billing settings, delete stored posts/uploads, send external promotion or messages, or invent people, human review, experiences, measurements or licenses. No agents: the owner asked to work alone. AI assistance must be disclosed honestly.
 
-Official quality reference: https://support.google.com/adsense/answer/7299563?hl=ko . Source aggregation alone is not an original editorial contribution. Prefer original reproducible work useful to the site's actual tool users.
+Quality reference: https://support.google.com/adsense/answer/7299563?hl=ko . Prefer original reproducible material useful to actual tool users; do not flood the archive with generic summaries or assume a page count guarantees approval.
 
-## Production baseline, verified before this batch
+## Verified production — first batch complete
 
-- Community closure PR #83 merged as `bf0b8aacd60a23fb238f5c3089079427323be41a`; live `/build.txt` matched it.
-- Retired pages, uploads and public v2 community endpoints return 410 before auth/DB access; owner admin and aggregate hit beacon remain. No data deleted.
-- Read-only public UI passed desktop/mobile checks; published news and commentary were both zero on home.
-- Full CI exposed stale service-browser scenarios that still expected a comment form; this is a test migration issue, not a reason to reopen community.
-- `/ko/radar/` already had official release records. Homepage only queried the separate system-news discussion table, so collected releases were invisible on home.
+- PR #84 merged as `f71c92e319f9528d7913b2e852c4b4c816c286d9`; PR #85 merged as **`baf564b6e9129ebf62834afa6834db7e6628138b`**. Live `/build.txt` matched the latter on 2026-11-14 KST.
+- PR validation runs `43480704459` (#84, 29m24s) and `43480888577` (#85, 29m03s) passed all stages. OAuth regression and Cloudflare previews passed. Main push validation may still be running; inspect its current state before making claims.
+- Korean and English home: **6 official release/source news items + 1 published original commentary article per language**. Commentary appears after the intro, before news and the tool directory. About/contact/corrections links are reachable.
+- Original case study: `/ko/ai/digest/small-transparent-png/` and English equivalent. Twelve actual encoder runs; downloadable CC0 logo/Kenney inputs and outputs, settings, hashes, limitations, reproduction script. All 12 deployed output hashes matched the evidence. Both article figures and the four responsive home example images decoded in the real production browser.
+- Community pages, images and public v2 writes/reads remain HTTP 410 before auth/DB access. Owner admin and aggregate hit beacon remain; records are preserved. No community requests from the public browser pages except the allowed beacon.
+- Automated news is explicitly collected metadata, links to official originals, and stays noindex/outside the sitemap. It now reads the existing radar release records rather than an empty discussion-only feed. Future/stale/unverified/unsafe URLs are filtered. Retained community counts no longer qualify references for indexing.
+- Compression target warning is deployed in ko/en/ja: a retained 5,339-byte original at a 1KiB target reports the miss; 10KiB clears it; exact original download bytes preserved.
+- Production evidence: `test-results/adsense-production-release.json`, `test-results/adsense-production-browser/results.json`, `.../home-image-results.json` and screenshots. Desktop 1440px and mobile-size 390px tested; this is browser viewport QA, not physical-device or human continuous review. Ad requests were blocked during tool QA; ad delivery/AdSense approval were not tested.
+- Sitemap baseline audit: 26 URLs all HTTP 200, no noindex or community links (`test-results/adsense-sitemap-before.json`); published digest adds index/article URLs. Python/browser-emulation clients sometimes saw challenges while normal HTTP/browser worked. This does not prove verified Google crawlers are blocked; do not disable security on that assumption.
 
-## Current batch — PR #84, not yet deployed
+## Current unpublished branch — static atlas intent
 
-- `platform/news.js`: merge official recent release metadata with system news; latest release per entity; reject unsafe URLs, future/stale/unverified records. Do not create faux articles. External release links are labeled automatic source collection. Automated news index is noindex and absent from sitemap.
-- Public homepage puts publication streams after the intro, ahead of the long tool directory.
-- Original Korean/English case study `small-transparent-png`: 12 real encoder runs, original CC0 logo + Kenney CC0 tile sheet. Published assets and SHA-256 evidence in `assets/editorial/2026-11-14-png/`; reproduction script `tools/editorial/measure-compression.py`. No fake human review. Existing six AI-news draft files remain private.
-- Editorial note now describes actual AI assistance and technical checks; local editorial images opt-in to Markdown, no remote or traversal image paths.
-- Closed-community counts no longer qualify references or derived pages for indexing; sitemap and robots gates agree while explicit owner overrides remain.
-- Service browser now tests account OAuth/passkeys on Account, production community closure and unchanged retained data. Old community scenarios are no longer default gates; legacy adapter tests remain isolated.
+Working branch: **`codex/static-atlas-intent`**, based on merged production main. Commit `60b9e9ff310124f43ee9721ce1c2ccd9cfdfe505` fixes explicit Animations/Grouping → None being turned into an implicit engine animation during atlas export. Later copy/guard refinements are included on this branch. No new article is published by this branch yet.
 
-Checks so far: full Node suite 2,880 passed / 1 skipped; focused indexing/publication tests 14 passed; typecheck and syntax passed (JSDoc updated after the new public-only counter check). Desktop/mobile article and home browser checks passed. Pages Worker + local D1 passkey/public/meteroff: 50 checks passed; signin/social/traffic: 47 passed; free/ads/studio passed in an earlier all-scenario run before a Windows Wrangler migration subprocess exited without output at the next scenario. Remote CI is the single-run gate. First PR head regression and both Cloudflare preview deployments passed; final CI and live deployment remain pending. PR: https://github.com/2009seungbin-stack/my-first-repo/pull/84 .
+- Explicitly static frames stay in the atlas, with no fabricated Phaser animation JSON. Unlabelled loose assets retain the fallback; manually added tags still work. Mixed assets exclude static choices from implicit animations.
+- This tool's Godot SpriteFrames exporter needs a tag: its action is disabled with a translated explanation for a wholly static project. Explicit GIF/APNG/WebM output still requests a sequence.
+- The implicit-animation note now correctly says existing frame durations are preserved and the displayed fps is a fallback.
+- Checks: 31 Node pack/export tests; public game-landing Part 2 **59 checks across Chromium and Firefox**; full Studio Pack browser **61 checks**, including all formats, source pixels, 1,000 frames, ko/ja copy and 390px layout. String parity passed after copy changes.
+- Publish this source fix as a focused PR, wait for CI, merge, verify exact production build and actual None→static export. Do not include unfinished measurement assets in that PR.
 
-## Next work, in order
+## Open: rapid custom-grid edits can be lost
 
-1. Finish desktop/mobile article QA, original-retention/news safety tests and required CI checks. Correct failures rather than weakening active-function coverage.
-2. Review diff and content for accurate claims/licenses; commit, create and attach PR; wait for CI, merge and verify exact production build and both languages, sources, article figures, sitemap/noindex and community 410.
-3. Audit publicly indexable thin reference pages and duplicate/empty directory routes. Align discovery/sitemaps with actual substantive content; preserve useful tools and valid published commentary.
-4. Add another genuinely useful, measured workflow only if it has separate evidence (for example sprite-sheet frame boundaries/export round-trip). Avoid a flood of generic AI-generated news.
-5. Check news collector freshness and real pipeline failures, including jobs still writing only to closed community tables. Keep read-only official metadata available without enabling user writes.
-6. At the deadline report only verified changes, tests/deployments and remaining limitations; stop this heartbeat. Google review outcome is external and must remain unclaimed.
+A second original case study is in preparation. **Do not publish its old raw results.**
+
+- Input: committed CC0 `tests/fixtures/kenney/tiny-dungeon-tilemap.png` (203×186, 16px cells, 1px gaps, 12×11).
+- Both correct and wrong grids can show 132 frames. Correct 1px gaps match all 132 intended tile crops. A confirmed two-axis 0px grid matches only 1 intended tile; x/y of its final cell are 176/160 instead of 187/170.
+- Earlier Chromium data reported 12 matches because only the vertical gap became 0; horizontal gap silently reverted to 1. This was corrected in the user update. Those results are superseded input-condition evidence, not a valid both-axis comparison.
+- Preserve private evidence under `test-results/sprite-grid-unsettled-input/`, `sprite-grid-before-animation-fix/`, `sprite-grid-case/`. None of those should be published. The candidate public sprite-grid assets were moved into test-results after verifying both absolute paths stayed inside this checkout.
+- Root cause located: `src/studio/sprite/panels-ui.js` custom grid input callbacks capture an entire old grid (`{...g,[k]:v}`). `src/studio/sprite/importers.js::changeChoice` captures `next`, awaits cell measurement, then commits. Fast edits to X/Y overwrite each other. Firefox happened to settle both; Chromium exposed the race.
+- Next fix: preserve ordered choice transitions and merge sparse grid edits against the latest state. Also handle Apply pressed while edits are pending, without deadlocking internal re-application. Inspect callers/undo behavior first; do not merely add sleeps to hide the production race. Drag edits should preserve unrelated spacing fields.
+- Add browser coverage for rapid X/Y edits before and after Apply using the authoritative applied `asset.grid`, preview residuals and final frame coordinates. Preserve the existing static atlas regression.
+- **Untracked** `tools/editorial/measure-sprite-grid.py` is a candidate reproduction tool. It now asserts the exact applied grid before exporting, so it should fail rather than silently publish the wrong condition. Keep it untracked until the race and complete measurement are verified. Its default output is test-results and it refuses overwriting an existing public evidence directory.
+- Once fixed, regenerate both browsers into a fresh dated asset directory, verify every downloaded frame against independent Pillow crops (RGB ignored only under alpha=0), audit generated ZIPs for credentials, inspect figures, then write Korean/English commentary. Distinguish PNG/JSON reconstruction from actual engine execution. Godot TileSetAtlasSource docs were consulted for region size/margins/separation; no native Godot run has been claimed.
+
+## Further work after these fixes
+
+Audit thin/duplicate publicly indexable reference directories against actual usefulness, check collector freshness/failures, and verify broken routes/mobile/accessibility using concrete evidence. Keep useful tool functions; do not noindex a tool solely because its UI is short. Existing six AI-news draft files remain private. Skip weak articles rather than filling a quota.
+
+At the deadline, report verified code/content/deployments and remaining limitations, then stop this heartbeat. Keep technical deployment, Google indexing and AdSense review/approval separate.

@@ -8,9 +8,10 @@
  * it with composeCanvas and the exact PNG decoder.
  *
  * An asset with no frames is one whole-canvas frame (a loose PNG). When the project has no tags at
- * all, one IMPLICIT animation is made so engines that need one (Godot SpriteFrames, Unity clips)
+ * all, unlabelled assets get one IMPLICIT animation so engines that need one (Godot SpriteFrames, Unity clips)
  * get something to play; `implicitAnimation` is set and the UI shows its name, frame count and fps
- * before export — never silently. This is the one place that knows the document shape. */
+ * before export — never silently. An explicit "None" import decision keeps those frames static.
+ * This is the one place that knows the document shape. */
 import {frameDraws} from '../../studio/sprite/frame-image.js';
 const stem=s=>String(s||'frame').replace(/\.[^.]+$/,'');
 const WHOLE='__whole__';
@@ -28,10 +29,11 @@ export function sourceKey(asset,frameId){
 }
 export function modelFromDoc(doc,{assetIds=null,fps=12}={}){
  const assets=(doc.assets||[]).filter(a=>a.kind==='image'&&(!assetIds||assetIds.includes(a.id)));
- const frames=[],packFrames=[],animations=[],sources=new Map(),blobs=new Set();
+ const frames=[],packFrames=[],animations=[],implicitFrames=[],sources=new Map(),blobs=new Set();
  const source=(a,frameId)=>{const key=sourceKey(a,frameId);if(!sources.has(key))sources.set(key,{key,assetId:a.id,frameId});
   for(const d of frameDraws(a,frameId))blobs.add(d.cel.blob);return key;};
  for(const a of assets){
+  const firstFrame=frames.length;
   if(a.frames?.length){
    for(const f of a.frames){
     const inner=f.trimmedRect||f.sourceRect,src=source(a,f.id);
@@ -48,14 +50,16 @@ export function modelFromDoc(doc,{assetIds=null,fps=12}={}){
    frames.push({id,name:stem(a.name),assetId:a.id,canvasW:a.width,canvasH:a.height,pivotX:.5,pivotY:1,duration:null,tag:'',boxes:[],collision:[]});
    packFrames.push({id,name:stem(a.name),src,rect:{x:0,y:0,w:a.width,h:a.height},canvasW:a.width,canvasH:a.height,offX:0,offY:0,pivotX:.5,pivotY:1});
   }
+  const staticImport=a.import?.choice?.animations==='none'||a.import?.decisions?.some(d=>['animations','grouping'].includes(d.id)&&d.chosen==='none');
+  if(!staticImport)implicitFrames.push(...frames.slice(firstFrame));
  }
  // Animation names must be unique across assets (engines key animations by name).
  const taken=new Set();for(const an of animations){let n=an.name,k=2;while(taken.has(n))n=`${an.name}_${k++}`;an.name=n;taken.add(n);}
  let implicitAnimation=null;
- if(!animations.length&&frames.length){
-  const name=commonName(frames.map(f=>f.name));
-  implicitAnimation={name,frames:frames.length,fps};
-  animations.push({id:'implicit',name,frameIds:frames.map(f=>f.id),fps,direction:'forward',loop:true,repeat:0,implicit:true});
+ if(!animations.length&&implicitFrames.length){
+  const name=commonName(implicitFrames.map(f=>f.name));
+  implicitAnimation={name,frames:implicitFrames.length,fps};
+  animations.push({id:'implicit',name,frameIds:implicitFrames.map(f=>f.id),fps,direction:'forward',loop:true,repeat:0,implicit:true});
  }
  return {model:{name:doc.name||'atlas',frames,animations,implicitAnimation},packFrames,sources:[...sources.values()],blobs:[...blobs]};
 }

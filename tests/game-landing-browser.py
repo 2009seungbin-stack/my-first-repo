@@ -325,6 +325,17 @@ def part2(browser, E):
         c = Image.new('RGBA', (src['w'], src['h'])); c.paste(page.crop((f['x'], f['y'], f['x'] + f['w'], f['y'] + f['h'])), (ss['x'], ss['y'])); restored.append(visible(c))
     ok('sprite-sheet-maker: the Phaser atlas gives back every source frame pixel for pixel', sorted(restored) == sorted(visible(im) for im in before), engine=E)
     p.close()
+    # Explicitly static sheets must not become an implicit engine animation at export.
+    p = land(ctx, '/en/sprite-slicer/', [DUNGEON], E)
+    p.locator('button[data-dec="animations"][data-alt="none"]').click()
+    apply_sheet(p, 132)
+    z = to_pack_export(p, 'phaser')
+    atlas = json.loads(z.read(next(n for n in z.namelist() if n.endswith('.json'))))
+    ok('static atlas: None keeps all 132 frames without a fabricated Phaser animation',
+       len(atlas['frames']) == 132 and not any('.anims.' in n for n in z.namelist()) and not p.locator('[data-pack="implicit"]').count(), engine=E)
+    ok('static atlas: Godot SpriteFrames asks for a tag while static export stays available',
+       p.locator('[data-export="godot4"]').is_disabled() and 'animation tag' in p.locator('[data-export="godot4"]').get_attribute('title') and p.locator('[data-pack="static-frames"]').count()==1, engine=E)
+    p.close()
     # tile-lab / autotile-tester / tileset-slicer ---------------------------------------
     p = land(ctx, '/en/game/tile-lab/', [CAVE], E)
     ok('tile-lab: the sheet opens in the Tile workspace with a 64×64 grid suggestion naming GameMaker 47', js(p, 'return S.workspace;') == 'tile' and p.locator('[data-grid-sug="0"]').inner_text().startswith('64×64') and 'GameMaker' in p.locator('[data-grid-sug="0"]').inner_text(), engine=E)
