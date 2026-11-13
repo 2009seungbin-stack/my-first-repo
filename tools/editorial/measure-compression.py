@@ -2,9 +2,11 @@
 
 Run from the checkout: python tools/editorial/measure-compression.py
 Requires the same Python Playwright installation as tests/service-browser.py.
-Public evidence files are written under assets/editorial/2026-11-14-png/.
+New runs go to test-results/editorial-compression/ so published evidence stays unchanged.
+Use --output only when intentionally recording a new, separately dated case study.
 """
 import hashlib
+import argparse
 import json
 import shutil
 import socket
@@ -16,7 +18,9 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / 'assets/editorial/2026-11-14-png'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--output', type=Path, default=ROOT / 'test-results/editorial-compression')
+OUT = parser.parse_args().output.resolve()
 SAMPLES = [
     ('logo', 'tests/fixtures/store-art/alloy-transparent-logo.png',
      'Original test-corpus geometry, CC0; tests/fixtures/store-art/SOURCES.md'),

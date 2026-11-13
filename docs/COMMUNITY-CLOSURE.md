@@ -14,18 +14,25 @@ the unflagged dev server continues to run the historical community fixtures.
 
 The Korean and English home pages show two separate streams:
 
-- News uses published `news` records from system accounts only. Articles use new
+- News combines published `news` records from system accounts with recent verified
+  official release metadata from the existing radar collectors. Releases link to
+  original sources and never become fabricated editorial articles. System stories use new
   `/[ko|en]/news/<channel>/<number>` addresses and have no comments or voting.
   Automated news is labelled and its article pages remain noindex.
-- AI commentary reads only `status: published` articles from the existing digest
+- Tool tests and AI commentary read only `status: published` articles from the existing digest
   pipeline. Drafts are neither published nor exposed by this change. Publishing
-  still follows `docs/AI-DIGEST.md` and requires the owner's editorial review.
+  follows `docs/AI-DIGEST.md`, including the owner's bounded autonomous-publication
+  authorization, evidence requirements and honest AI-assistance disclosure.
 
 When either stream is empty, the home says that there are no published articles.
-Empty indexes are noindex and not added to the sitemap. Closed community URLs are
+Empty commentary indexes and all automatically collected news indexes are noindex
+and not added to the sitemap. Closed community URLs are
 removed from the production sitemap. Reference directories, official facts,
 history, hardware tools, brackets and the static asset/file tools remain public.
 Reference pages no longer show community submission controls.
+Retained community activity does not qualify references or derived pages for
+public search discovery. The owner override and substantive editorial-description
+gate remain, consistently across robots and sitemaps.
 
 Validation: `node --test tests/public-site.test.mjs` verifies server-side closure,
 read-only rendering, separation of news from human posts, draft isolation, retained
