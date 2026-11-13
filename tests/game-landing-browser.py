@@ -335,7 +335,55 @@ def part2(browser, E):
        len(atlas['frames']) == 132 and not any('.anims.' in n for n in z.namelist()) and not p.locator('[data-pack="implicit"]').count(), engine=E)
     ok('static atlas: Godot SpriteFrames asks for a tag while static export stays available',
        p.locator('[data-export="godot4"]').is_disabled() and 'animation tag' in p.locator('[data-export="godot4"]').get_attribute('title') and p.locator('[data-pack="static-frames"]').count()==1, engine=E)
+    # A scheduled settings pack must block a stale export, then wait for an in-flight ZIP.
+    p.evaluate('''()=>{window.packOrder=[];const post=Worker.prototype.postMessage;Worker.prototype.postMessage=function(m,...args){
+      if(!this.packOrderWatched){this.packOrderWatched=true;this.addEventListener('message',({data})=>{
+        if(!data.progress)window.packOrder.push({direction:'response',op:data.op,job:data.job});});}
+      window.packOrder.push({direction:'request',op:m.op,job:m.job,padding:m.settings?.shapePadding});
+      if(m.op==='export'){setTimeout(()=>post.call(this,m,...args),400);return;}return post.call(this,m,...args);
+    };}''')
+    blocked=p.evaluate('''()=>{const s=document.querySelector('[data-pack="preset"]');s.value='phaser';s.dispatchEvent(new Event('change',{bubbles:true}));
+      const b=document.querySelector('[data-export-main="phaser"]');b.click();return b.disabled;}''')
+    ok('pack ordering: a pending preset change immediately blocks a stale export',blocked,engine=E)
+    p.wait_for_function('()=>!document.querySelector("[data-export-main=phaser]").disabled')
+    with p.expect_download(timeout=120000) as download:
+        p.locator('[data-export-main="phaser"]').click()
+        p.wait_for_function('()=>window.packOrder.some(x=>x.direction==="request"&&x.op==="export")')
+        p.evaluate('''()=>{const n=document.querySelector('[data-pack="shapePadding"]');n.value='4';n.dispatchEvent(new Event('change',{bubbles:true}));}''')
+    exported=zipfile.ZipFile(Path(download.value.path()))
+    data=json.loads(exported.read(next(n for n in exported.namelist() if n.endswith('.json'))))
+    ok('pack ordering: changing settings during an export still downloads all 132 static frames',len(data['frames'])==132 and not any('.anims.' in n for n in exported.namelist()),engine=E)
+    p.wait_for_function('()=>!document.querySelector("[data-export-main=phaser]").disabled')
+    order=p.evaluate('window.packOrder')
+    sent=next(i for i,m in enumerate(order) if m['direction']=='request' and m['op']=='export')
+    done=next(i for i,m in enumerate(order) if m['direction']=='response' and m['op']=='export')
+    following=[(i,m) for i,m in enumerate(order) if i>sent and m['direction']=='request' and m['op']=='pack']
+    ok('pack ordering: the latest padding repacks only after the ZIP response',bool(following) and all(i>done for i,m in following) and following[-1][1]['padding']==4,str(order),engine=E)
     p.close()
+    # Hold the permission promise at the caller boundary; account/API behavior is covered by service-browser.py.
+    def gated_meter(route):
+        response=route.fetch()
+        body=response.text().replace('export async function meter(action){',
+            'export async function meter(action){window.packMeterCalls=(window.packMeterCalls||0)+1;await new Promise(r=>window.releasePackMeter=r);return true;')
+        route.fulfill(response=response,body=body)
+    ctx.route('**/src/studio/monetize/meter.js',gated_meter)
+    p=land(ctx,'/en/sprite-slicer/',[DUNGEON],E)
+    p.locator('button[data-dec="animations"][data-alt="none"]').click();apply_sheet(p,132)
+    p.locator('.st-ws-tab[data-ws="pack"]').click()
+    p.wait_for_function('()=>{const b=document.querySelector("[data-export=phaser]");return b&&!b.disabled;}')
+    p.evaluate('''()=>{window.permissionPackOps=[];const post=Worker.prototype.postMessage;Worker.prototype.postMessage=function(m,...args){
+      window.permissionPackOps.push(m.op);return post.call(this,m,...args);};}''')
+    with p.expect_download(timeout=120000) as download:
+        p.locator('[data-export="phaser"]').click()
+        p.wait_for_function('()=>typeof window.releasePackMeter==="function"')
+        p.evaluate('''async()=>{const n=document.querySelector('[data-pack="shapePadding"]');n.value='4';n.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(r=>setTimeout(r,180));}''')
+        ok('pack ordering: pending permission preserves the requested packed result',p.evaluate('window.permissionPackOps.length===0'),engine=E)
+        p.evaluate('window.releasePackMeter()')
+    exported=zipfile.ZipFile(Path(download.value.path()))
+    data=json.loads(exported.read(next(n for n in exported.namelist() if n.endswith('.json'))))
+    p.wait_for_function('()=>!document.querySelector("[data-export=phaser]").disabled')
+    ok('pack ordering: delayed permission downloads once, then applies queued settings',len(data['frames'])==132 and p.evaluate('window.packMeterCalls===1&&window.permissionPackOps[0]==="export"&&window.permissionPackOps.includes("pack")&&window.nerulioStudio.doc.settings.pack.settings.shapePadding===4'),engine=E)
+    p.close();ctx.unroute('**/src/studio/monetize/meter.js',gated_meter)
     # Slow cell analysis must not lose another field or let Apply overtake typed edits.
     p = land(ctx, '/en/sprite-slicer/', [DUNGEON], E)
     p.evaluate('''()=>{const post=Worker.prototype.postMessage;Worker.prototype.postMessage=function(msg,...args){

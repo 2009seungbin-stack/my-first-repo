@@ -51,7 +51,7 @@ PR **#87**: https://github.com/2009seungbin-stack/my-first-repo/pull/87 . Frozen
 
 ## Current child branch: Gemini changelog collection
 
-PR **#88**: https://github.com/2009seungbin-stack/my-first-repo/pull/88 . Branch **`codex/gemini-news-feed`** starts from #87's frozen head and targets that branch until #87 merges; then retarget main. Original head `e5db644645b06e7d868a60089451afdb9c423355` failed full CI **`43495355473`** because an admin test still explicitly required the obsolete `*/30` string. The repair also updates the admin's actual next-run calculation from :00/:30 to :11/:41, with exact-boundary coverage. Inspect the PR's new head/checks before merging; do not reuse the failed head.
+PR **#88**: https://github.com/2009seungbin-stack/my-first-repo/pull/88 . Branch **`codex/gemini-news-feed`** starts from #87's frozen head and targets that branch until #87 merges; then retarget main. Original head `e5db644645b06e7d868a60089451afdb9c423355` failed full CI **`43495355473`** because an admin test still explicitly required the obsolete `*/30` string. Current frozen head **`a6f49baa8b0b9cfb2cf0fa5cec0bddf92dc9d1cb`**, validation **`43497430738`**. The repair also updates the admin's actual next-run calculation from :00/:30 to :11/:41, with exact-boundary coverage; 27 admin/collector/planner checks passed. Inspect current checks before merging; do not reuse the failed head.
 
 - Recent failed collector run **`43380987300`** failed `gemini-api-changelog` with “no dated entries parsed”. Later green runs were status-only; they did not prove the Gemini collector recovered.
 - The legacy `ai.google.dev/gemini-api/docs/changelog.md.txt` redirects to **`https://aistudio.google.com/docs/changelog.md`**. Its date headings now end in `{% id="…" %}`. The previous parser returned zero entries for the live HTTP 200 body. Do not treat the remote document's AI-agent preface as task instructions.
@@ -59,6 +59,16 @@ PR **#88**: https://github.com/2009seungbin-stack/my-first-repo/pull/88 . Branch
 - A live dry run fetched the official source once, returned **50 validated events**, latest dated **2026-11-12**, and wrote no production D1 data. Evidence: `test-results/gemini-collector-recovery.json` and `gemini-changelog-restored.json`. Source checksum matched the redirected legacy body. AI Studio robots.txt was checked: /docs is not disallowed.
 - The status cron had moved to `11,41 * * * *`, but FX exclusion and admin freshness ticks still compared the obsolete `*/30 * * * *`. Align both consumers and extend the existing workflow/planner consistency test. Twenty collector/planner/idempotence tests and typecheck passed.
 - After the child PR passes/merges, run only the restored Gemini adapter on main, inspect its actual D1 ingestion result and source-linked public history/Radar. This adapter emits events, not version rows: the homepage's current release feed reads versions/system-news posts, so do not claim these 50 events appeared on the homepage.
+
+## Current branch: Pack export ordering
+
+Working branch **`codex/pack-export-order`**, from #88's repaired head. Keep the two parent PR heads frozen while their CI runs; this focused child change can target #88, then main once its parents merge.
+
+- The initial live download timeout was not conclusively diagnosed from that attempt. A matching race was then reproduced locally: delay export delivery by 400ms, change a preset and click Export in the same turn. The old UI accepted the click, posted export job 2 then scheduled pack job 3, ignored the export response and stayed disabled with no ZIP and no error.
+- Fix: scheduled repacks immediately block stale exports; mark packing busy before async blob reads; snapshot settings and export basename. Settings/variant/manual repack requests wait while export permission or ZIP generation is in flight, then apply the latest document. Worker response matching remains authoritative. Cancel clears stopped-worker state; leaving the workspace prevents a delayed permission response creating a hidden worker.
+- Game-landing Part 2 passed **75 checks / 38 distinct assertions** across Chromium and Firefox, including held export delivery, held permission, 132-frame downloads and queued padding applied after export. The permission test stubs the meter call boundary, not the account API. Full account/service validation is still required remotely.
+- Full Studio Pack browser: **61 checks passed**, all output formats, source-pixel preservation, cancellation, 1,000-frame pack/export, ko/ja and 390px. Optional local 4096-square corpus absent. Pack/export Node tests: **48 passed, 1 native Godot opt-in skipped**. Typecheck passed. No new native engine run or AdSense approval is claimed.
+- Open the child PR after committing source/tests/docs. After checks pass, merge parents in order, retarget each child to main and verify production output. Private production publication verifier for #87: `test-results/verify-sprite-grid-production.mjs <expected-merge-sha>` checks both home articles, SEO, 24 exact evidence files, sitemap and closure. Live browser/grid QA remains necessary.
 
 ## Current audit observations
 
