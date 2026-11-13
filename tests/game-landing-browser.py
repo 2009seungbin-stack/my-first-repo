@@ -336,6 +336,33 @@ def part2(browser, E):
     ok('static atlas: Godot SpriteFrames asks for a tag while static export stays available',
        p.locator('[data-export="godot4"]').is_disabled() and 'animation tag' in p.locator('[data-export="godot4"]').get_attribute('title') and p.locator('[data-pack="static-frames"]').count()==1, engine=E)
     p.close()
+    # Slow cell analysis must not lose another field or let Apply overtake typed edits.
+    p = land(ctx, '/en/sprite-slicer/', [DUNGEON], E)
+    p.evaluate('''()=>{const post=Worker.prototype.postMessage;Worker.prototype.postMessage=function(msg,...args){
+      if(msg?.op==='cells'){setTimeout(()=>post.call(this,msg,...args),50);return;}
+      return post.call(this,msg,...args);
+    };}''')
+    p.locator('button[data-dec="slice"][data-alt="custom"]').click()
+    p.wait_for_selector('[data-sp="grid-sx"]')
+    for axis in ['sx','sy']:
+        p.locator(f'[data-sp="grid-{axis}"]').fill('0');p.locator(f'[data-sp="grid-{axis}"]').press('Enter')
+    p.locator('[data-sp="import-apply"]').click()
+    p.wait_for_function('()=>{const a=window.nerulioStudio.doc.assets[0];return a.import.applied&&a.grid.sx===0&&a.grid.sy===0;}')
+    a=asset(p)
+    ok('custom grid: immediate Apply keeps both rapidly entered zero gaps',
+       len(a['frames'])==132 and all(f['sourceRect']=={'x':i%12*16,'y':i//12*16,'w':16,'h':16} for i,f in enumerate(a['frames'])),engine=E)
+    for axis in ['sx','sy']:
+        p.locator(f'[data-sp="grid-{axis}"]').fill('1');p.locator(f'[data-sp="grid-{axis}"]').press('Enter')
+    p.wait_for_function('()=>{const a=window.nerulioStudio.doc.assets[0];return a.grid.sx===1&&a.grid.sy===1;}')
+    a=asset(p)
+    ok('custom grid: rapid edits after Apply keep both gaps and every source coordinate',
+       all(f['sourceRect']=={'x':i%12*17,'y':i//12*17,'w':16,'h':16} for i,f in enumerate(a['frames'])),engine=E)
+    p.locator('.st-status').click();p.keyboard.press('Control+z')
+    p.wait_for_function('()=>{const g=window.nerulioStudio.doc.assets[0].grid;return g.sx===1&&g.sy===0;}')
+    p.keyboard.press('Control+Shift+Z')
+    p.wait_for_function('()=>{const g=window.nerulioStudio.doc.assets[0].grid;return g.sx===1&&g.sy===1;}')
+    ok('custom grid: undo and redo preserve the order of the two field edits',True,engine=E)
+    p.close()
     # tile-lab / autotile-tester / tileset-slicer ---------------------------------------
     p = land(ctx, '/en/game/tile-lab/', [CAVE], E)
     ok('tile-lab: the sheet opens in the Tile workspace with a 64×64 grid suggestion naming GameMaker 47', js(p, 'return S.workspace;') == 'tile' and p.locator('[data-grid-sug="0"]').inner_text().startswith('64×64') and 'GameMaker' in p.locator('[data-grid-sug="0"]').inner_text(), engine=E)

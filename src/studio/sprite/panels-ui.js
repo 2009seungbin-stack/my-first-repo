@@ -67,7 +67,7 @@ export function createPanels(W){
  function customEditor(dec,state){
   const g=state.plan.grid,a=W.asset(),fit=dec.fit||{cols:0,rows:0,cells:0,restX:0,restY:0};
   const max={w:a.width,h:a.height,ox:a.width-1,oy:a.height-1,sx:a.width,sy:a.height};
-  const f=k=>numIn(g[k],{min:k==='w'||k==='h'?1:0,max:max[k],id:'grid-'+k,label:t('sp.imp.'+k),change:v=>W.setCustomGrid({...g,[k]:v})});
+  const f=k=>numIn(g[k],{min:k==='w'||k==='h'?1:0,max:max[k],id:'grid-'+k,label:t('sp.imp.'+k),change:v=>W.setCustomGrid({[k]:v})});
   const row=(label,a1,a2)=>h('div.sp-grid-row',{},h('span.sp-grid-row-label',{},label),field(t('sp.imp.axisX'),a1),field(t('sp.imp.axisY'),a2));
   const bad=!fit.cells;
   return h('div.sp-custom-grid',{'data-sp':'custom-grid'},

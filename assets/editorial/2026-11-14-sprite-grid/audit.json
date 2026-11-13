@@ -1,0 +1,42 @@
+{
+  "scope": "Generated case-study ZIP member paths, allowed types and known API/private-key/authentication patterns; no credentials found. Not a general security certification.",
+  "findings": [],
+  "archives": [
+    {
+      "file": "chromium/gap-0-phaser.zip",
+      "sha256": "1477cd7553c4099670136fd78a2cf7ea45142adbc56ced5ab2b21a96970c9076",
+      "members": [
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.json",
+        "tiny-dungeon-tilemap_phaser/README-PHASER.md",
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.png"
+      ]
+    },
+    {
+      "file": "chromium/gap-1-phaser.zip",
+      "sha256": "e286acb1b4a171f919fe2402eef66ea513a2cd7836b75ba2f375b94edf54f17b",
+      "members": [
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.json",
+        "tiny-dungeon-tilemap_phaser/README-PHASER.md",
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.png"
+      ]
+    },
+    {
+      "file": "firefox/gap-0-phaser.zip",
+      "sha256": "2a9c6072c782535678f0331ee07f75968090e35a4c064de59e49250b0b130704",
+      "members": [
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.json",
+        "tiny-dungeon-tilemap_phaser/README-PHASER.md",
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.png"
+      ]
+    },
+    {
+      "file": "firefox/gap-1-phaser.zip",
+      "sha256": "1c6fd376d7340dd4c417ce6864611b37fff3771dcb9e618f2feea3a409563c38",
+      "members": [
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.json",
+        "tiny-dungeon-tilemap_phaser/README-PHASER.md",
+        "tiny-dungeon-tilemap_phaser/tiny-dungeon-tilemap.png"
+      ]
+    }
+  ]
+}

@@ -36,7 +36,8 @@ try:
             pg = ctx.new_page()
             pg.on('pageerror', lambda error: errors.append(str(error)))
             pg.on('request', lambda req: requests.append(req.url) if '/api/v2/' in req.url else None)
-            for path in ['/', '/en/', '/ko/news/', '/ko/ai/digest/', '/ko/ai/digest/small-transparent-png/', '/en/ai/digest/small-transparent-png/', '/ko/ai/', '/ko/ai/claude/',
+            for path in ['/', '/en/', '/ko/news/', '/ko/ai/digest/', '/ko/ai/digest/small-transparent-png/', '/en/ai/digest/small-transparent-png/',
+                         '/ko/ai/digest/sprite-grid-spacing/', '/en/ai/digest/sprite-grid-spacing/', '/ko/ai/', '/ko/ai/claude/',
                          '/ko/hardware/performance/', '/ko/bracket/', '/ko/radar/']:
                 assert pg.goto(BASE + path).status == 200, path
                 assert pg.locator('a[href*="/community/"]').count() == 0, path
@@ -45,7 +46,8 @@ try:
                 if path == '/':
                     assert pg.locator('[data-home-news] li').count() > 0
                     assert pg.locator('[data-home-digest]').count() == 1
-                    assert pg.locator('[data-home-digest] li').count() >= 1
+                    assert pg.locator('[data-home-digest] li').count() >= 2
+                    assert pg.locator('[data-home-digest] a[href="/ko/ai/digest/sprite-grid-spacing/"]').count() == 1
                     assert '12회 실측' in pg.locator('[data-home-digest]').inner_text()
                     assert pg.locator('[data-home-digest]').bounding_box()['y'] < pg.locator('[data-home-game-tools]').bounding_box()['y']
                     before = pg.evaluate('document.documentElement.dataset.theme')
@@ -59,14 +61,19 @@ try:
                     pg.screenshot(path=str(OUT / f'home-{width}.png'), full_page=True)
                 if path == '/ko/bracket/':
                     pg.wait_for_selector('[data-bk-enable]:not([disabled])')
-                if '/small-transparent-png/' in path:
+                if any('/' + slug + '/' in path for slug in ['small-transparent-png', 'sprite-grid-spacing']):
                     assert pg.locator('.pbody table tbody tr').count() == 7
                     assert pg.locator('.pbody img').count() == 2
                     for img in pg.locator('.pbody img').all():
                         img.scroll_into_view_if_needed()
                         img.evaluate('(el)=>el.decode()')
                         assert img.evaluate('(el)=>el.naturalWidth > 0')
-                    pg.screenshot(path=str(OUT / f'case-study-{width}-{path.split("/")[1]}.png'), full_page=True)
+                    pg.screenshot(path=str(OUT / f'{path.split("/")[-2]}-{width}-{path.split("/")[1]}.png'), full_page=True)
+                if '/sprite-grid-spacing/' in path:
+                    for link in pg.locator('.pbody a[href$=".zip"]').all():
+                        response = pg.request.get(BASE + link.get_attribute('href'))
+                        assert response.status == 200
+                        assert response.body().startswith(b'PK\x03\x04')
             assert pg.request.get(BASE + '/ko/community/free/1').status == 410
             assert pg.request.post(BASE + '/api/v2/posts', data='{}').status == 410
             ctx.close()

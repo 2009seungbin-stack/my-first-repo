@@ -1,0 +1,4041 @@
+{
+  "measuredAtUTC": "2026-11-13T19:21:41.670792+00:00",
+  "browserEngine": "chromium",
+  "browser": "153.0.8010.12",
+  "pillow": "12.3.0",
+  "sourceCommit": "bb1b9e08233d87e76d48ae6e32a1f8d69e161cc9",
+  "sourceModifiedAfterCommit": false,
+  "reproduce": "python tools/editorial/measure-sprite-grid.py --browser chromium",
+  "inputSha256": "5653222ac495d89e942f9b636300759b3f38e85b26e9b888676f2e9ab834095a",
+  "inputWidth": 203,
+  "inputHeight": 186,
+  "referenceGrid": {
+    "cellWidth": 16,
+    "cellHeight": 16,
+    "columns": 12,
+    "rows": 11,
+    "gapX": 1,
+    "gapY": 1
+  },
+  "comparison": "RGBA bytes with RGB zeroed only where alpha is zero; PNG file bytes may differ. Pillow reconstructs each frame from the downloaded Phaser atlas. No Phaser engine run is claimed.",
+  "records": [
+    {
+      "gap": 1,
+      "appliedGrid": {
+        "w": 16,
+        "h": 16,
+        "ox": 0,
+        "oy": 0,
+        "sx": 1,
+        "sy": 1
+      },
+      "initialPreview": "132 frames · 11 animation(s)",
+      "previewBeforeApply": "132 frames · 0 animation(s)",
+      "customFit": null,
+      "frames": 132,
+      "declaredAnimationTags": 0,
+      "implicitAnimationNotice": null,
+      "godotExportRequiresTag": true,
+      "animationFiles": [],
+      "downloadBytes": 50156,
+      "downloadSha256": "e286acb1b4a171f919fe2402eef66ea513a2cd7836b75ba2f375b94edf54f17b",
+      "selectedCropMatches": 132,
+      "referenceTileMatches": 132,
+      "referenceCoordinateMatches": 132,
+      "atlasWidth": 196,
+      "atlasHeight": 198,
+      "rows": [
+        {
+          "index": 0,
+          "exportKey": "tiny-dungeon-tilemap_000",
+          "sourceRect": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6dbf8961d00119d9153deba335a7a900be829f2c0e75329eca4bd8ddc95f54c7"
+        },
+        {
+          "index": 1,
+          "exportKey": "tiny-dungeon-tilemap_001",
+          "sourceRect": {
+            "x": 17,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "cacc1859acb2b783734430c23b2ea9da03d41649b29ddcdb83f43425f55e3ecd"
+        },
+        {
+          "index": 2,
+          "exportKey": "tiny-dungeon-tilemap_002",
+          "sourceRect": {
+            "x": 34,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "964b83889a4ea977fa3aaeb374efea9b82df6cfdb129ba172ba35075a7a4cdc7"
+        },
+        {
+          "index": 3,
+          "exportKey": "tiny-dungeon-tilemap_003",
+          "sourceRect": {
+            "x": 51,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "e1766497f1fd2952320242bf1777916fb114d1d11fce9b1ea9cf8f939b894bc4"
+        },
+        {
+          "index": 4,
+          "exportKey": "tiny-dungeon-tilemap_004",
+          "sourceRect": {
+            "x": 68,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "44e52cc52e06e3369c51aff1914acd7fc87573858bf5216e7c326ae7ac10f213"
+        },
+        {
+          "index": 5,
+          "exportKey": "tiny-dungeon-tilemap_005",
+          "sourceRect": {
+            "x": 85,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "ae54a05bb11f30e05a06a60745d79efa25eb5371c91edff665884b88c5d3b656"
+        },
+        {
+          "index": 6,
+          "exportKey": "tiny-dungeon-tilemap_006",
+          "sourceRect": {
+            "x": 102,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "3a15c5ebb21869d857bf5e10159012b07315fc0eeb42692437d816aaa91bf250"
+        },
+        {
+          "index": 7,
+          "exportKey": "tiny-dungeon-tilemap_007",
+          "sourceRect": {
+            "x": 119,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "f3523e4a9ebcf196d81578a04c7c721e96de6969040bcbd48e1ca56fb3853de3"
+        },
+        {
+          "index": 8,
+          "exportKey": "tiny-dungeon-tilemap_008",
+          "sourceRect": {
+            "x": 136,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "a58b65b24b5ea0006bb64d5c0d354de1e67362a5386031f86b554152aa595de9"
+        },
+        {
+          "index": 9,
+          "exportKey": "tiny-dungeon-tilemap_009",
+          "sourceRect": {
+            "x": 153,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "4d150233e45677b938d3e9c375320d5f3e9e9dd6e601f38edb6fe6220f4574b5"
+        },
+        {
+          "index": 10,
+          "exportKey": "tiny-dungeon-tilemap_010",
+          "sourceRect": {
+            "x": 170,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "12a0d759b6458fd26393ca7806e21d610ac2134c94679f667a0a5dd87d5ae3fa"
+        },
+        {
+          "index": 11,
+          "exportKey": "tiny-dungeon-tilemap_011",
+          "sourceRect": {
+            "x": 187,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "7cc48ebb7f3fea681fc78320006b5690dd2cb5de9b03f0bce257506c1849e32d"
+        },
+        {
+          "index": 12,
+          "exportKey": "tiny-dungeon-tilemap_012",
+          "sourceRect": {
+            "x": 0,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "f9339219f92f9da77f7a6ecc9f34d25b6072e015a0ecac91d782b07ebad9a960"
+        },
+        {
+          "index": 13,
+          "exportKey": "tiny-dungeon-tilemap_013",
+          "sourceRect": {
+            "x": 17,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "0e4969c1f80885789cab0d5fa1687a1a451ace8fb7449ef674a2152d0634f733"
+        },
+        {
+          "index": 14,
+          "exportKey": "tiny-dungeon-tilemap_014",
+          "sourceRect": {
+            "x": 34,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "36cc1e891af71f75a7ace383af5a9b485ff0f69ede774915dc57cee5952217b4"
+        },
+        {
+          "index": 15,
+          "exportKey": "tiny-dungeon-tilemap_015",
+          "sourceRect": {
+            "x": 51,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "9d2520d475dc26dd072e35de408417a7b04f79f420d6f78f2eed2f2ddd0d5a61"
+        },
+        {
+          "index": 16,
+          "exportKey": "tiny-dungeon-tilemap_016",
+          "sourceRect": {
+            "x": 68,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "1072fce9fc284450bb627c3ab50c7af2c7cb8c5ea53838006e0fefd66eb55792"
+        },
+        {
+          "index": 17,
+          "exportKey": "tiny-dungeon-tilemap_017",
+          "sourceRect": {
+            "x": 85,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5689dec44efbde4665d5135e64eb2478741f7825ba283fe347459bc3c6409a3b"
+        },
+        {
+          "index": 18,
+          "exportKey": "tiny-dungeon-tilemap_018",
+          "sourceRect": {
+            "x": 102,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "96ab0ba8da365c3e58636913625f7ab49c6c6553b4e59b2085fd9deba1eda3d7"
+        },
+        {
+          "index": 19,
+          "exportKey": "tiny-dungeon-tilemap_019",
+          "sourceRect": {
+            "x": 119,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "15d04bd87d2936b8ddd191bdd5019fa27d2d7cd2ae46a9923adeb2830a5cf674"
+        },
+        {
+          "index": 20,
+          "exportKey": "tiny-dungeon-tilemap_020",
+          "sourceRect": {
+            "x": 136,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "03b97f9a286067cba38b6a0870426c47b68e20bc8294baeb3a51cc9455525b8d"
+        },
+        {
+          "index": 21,
+          "exportKey": "tiny-dungeon-tilemap_021",
+          "sourceRect": {
+            "x": 153,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5fb702862334781b63faf8fa11a29a9a132fcc831bcf2558fdb50da36215b99d"
+        },
+        {
+          "index": 22,
+          "exportKey": "tiny-dungeon-tilemap_022",
+          "sourceRect": {
+            "x": 170,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "448e618a48da1394cb042ac94432f8a33e8dec45b3bbaed30a31374ca126a2ca"
+        },
+        {
+          "index": 23,
+          "exportKey": "tiny-dungeon-tilemap_023",
+          "sourceRect": {
+            "x": 187,
+            "y": 17,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "dd604493ec1eaa2c81adfded6bc8f2cf09d671fabb0212788d50b3785243add5"
+        },
+        {
+          "index": 24,
+          "exportKey": "tiny-dungeon-tilemap_024",
+          "sourceRect": {
+            "x": 0,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "c5ea08001921d8732dc6e504676e8192c21943972b70876a76153893d882f94e"
+        },
+        {
+          "index": 25,
+          "exportKey": "tiny-dungeon-tilemap_025",
+          "sourceRect": {
+            "x": 17,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "2ee975b804037b902ed0a3893b9508276722cb52929588ce09037ec9a07b30cc"
+        },
+        {
+          "index": 26,
+          "exportKey": "tiny-dungeon-tilemap_026",
+          "sourceRect": {
+            "x": 34,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "9996e1def086984942ed1c777d7ce72550d1065805e99345122765e73eef078b"
+        },
+        {
+          "index": 27,
+          "exportKey": "tiny-dungeon-tilemap_027",
+          "sourceRect": {
+            "x": 51,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "833b9f10171020db37069d3608cbf05c8399bde2103aa4d6856b807c6bcc701e"
+        },
+        {
+          "index": 28,
+          "exportKey": "tiny-dungeon-tilemap_028",
+          "sourceRect": {
+            "x": 68,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "a61b0e428684adcafa01164b3a36eded589cc3efc86852904f5873ad25a0d900"
+        },
+        {
+          "index": 29,
+          "exportKey": "tiny-dungeon-tilemap_029",
+          "sourceRect": {
+            "x": 85,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6837e7409d9dadf8b327ccec91fb9c7067f5241d928ea5080240cecf899229fa"
+        },
+        {
+          "index": 30,
+          "exportKey": "tiny-dungeon-tilemap_030",
+          "sourceRect": {
+            "x": 102,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "90c5603ac6999db35c4b279acddc5105d61e4c5e7a4386bdd0e0f7537d20c390"
+        },
+        {
+          "index": 31,
+          "exportKey": "tiny-dungeon-tilemap_031",
+          "sourceRect": {
+            "x": 119,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "e10126e6fc04eaf92d6f917399f0288e935fe29acf0a64ee0cfc78ad99f1024c"
+        },
+        {
+          "index": 32,
+          "exportKey": "tiny-dungeon-tilemap_032",
+          "sourceRect": {
+            "x": 136,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "df097919c1f1a496ccc6637100f16927dc27d1237b8f4f35eaa02ff078348127"
+        },
+        {
+          "index": 33,
+          "exportKey": "tiny-dungeon-tilemap_033",
+          "sourceRect": {
+            "x": 153,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "2ca299afc2e365e63b61f83b0d98812adc31c600663fa69e05fb755797c1d359"
+        },
+        {
+          "index": 34,
+          "exportKey": "tiny-dungeon-tilemap_034",
+          "sourceRect": {
+            "x": 170,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "acb3a1e62aed638a085b54a2a73dc8b715d85aca9a859742bdefb8f446bce10a"
+        },
+        {
+          "index": 35,
+          "exportKey": "tiny-dungeon-tilemap_035",
+          "sourceRect": {
+            "x": 187,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "edce5d78f9ea1210af59b324ff06e337f0c7caa9aa3fc626fbbacf98322b1f69"
+        },
+        {
+          "index": 36,
+          "exportKey": "tiny-dungeon-tilemap_036",
+          "sourceRect": {
+            "x": 0,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6580742eb31e17157e9251452064915339ea325e1f25726d047316a153022a9e"
+        },
+        {
+          "index": 37,
+          "exportKey": "tiny-dungeon-tilemap_037",
+          "sourceRect": {
+            "x": 17,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "50a45b8bfa20d092341947c0ad83ad2c6653ef94caea225e70c75488723e69eb"
+        },
+        {
+          "index": 38,
+          "exportKey": "tiny-dungeon-tilemap_038",
+          "sourceRect": {
+            "x": 34,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "1509eb4f7dd3da9af0ee85f80a3ac7da62b2ae63f82f69336fccd4fa476d19da"
+        },
+        {
+          "index": 39,
+          "exportKey": "tiny-dungeon-tilemap_039",
+          "sourceRect": {
+            "x": 51,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5188dbf57aebab6b9ad92d4cca25fea21f83355694734e80aba6c0008b8adc6a"
+        },
+        {
+          "index": 40,
+          "exportKey": "tiny-dungeon-tilemap_040",
+          "sourceRect": {
+            "x": 68,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "e638f610e542df9d81ab6fd70da78e11af4514bc8b172b888376fadf993a1d7c"
+        },
+        {
+          "index": 41,
+          "exportKey": "tiny-dungeon-tilemap_041",
+          "sourceRect": {
+            "x": 85,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "c9af9bbaf10913ae544e2eaa04d773717d1cb53fc445bbdfff45d13f96e353eb"
+        },
+        {
+          "index": 42,
+          "exportKey": "tiny-dungeon-tilemap_042",
+          "sourceRect": {
+            "x": 102,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "2aeb8bf962fa53510d1217b1c9410d27f149ccae6fe8e0bbc02f14c0680459d4"
+        },
+        {
+          "index": 43,
+          "exportKey": "tiny-dungeon-tilemap_043",
+          "sourceRect": {
+            "x": 119,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "af58f79e45d55412f3c0f982c469b322ed8be6ce9c10439540abbe05ef54bb39"
+        },
+        {
+          "index": 44,
+          "exportKey": "tiny-dungeon-tilemap_044",
+          "sourceRect": {
+            "x": 136,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "99ca839f36b9d384d9322502a03da9c11bdc26ce1487a24c4075edc5ff5e7192"
+        },
+        {
+          "index": 45,
+          "exportKey": "tiny-dungeon-tilemap_045",
+          "sourceRect": {
+            "x": 153,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "8f6e101b9bea7867e5b81a07a06070fabded33754d3fc6ee21d9bd9029233dc2"
+        },
+        {
+          "index": 46,
+          "exportKey": "tiny-dungeon-tilemap_046",
+          "sourceRect": {
+            "x": 170,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6a5dcda6af8e199836c3db4af9987542dd7431a1cc070aeca789e2ae79a21eee"
+        },
+        {
+          "index": 47,
+          "exportKey": "tiny-dungeon-tilemap_047",
+          "sourceRect": {
+            "x": 187,
+            "y": 51,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "480927a970c11f9c487a8d84d6b07a8762e60a301ca95003c8a47fb8a783eedb"
+        },
+        {
+          "index": 48,
+          "exportKey": "tiny-dungeon-tilemap_048",
+          "sourceRect": {
+            "x": 0,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5291e5bff89d220d2b49e5a250633e4469c9706517ff617fdf0905ad929fd863"
+        },
+        {
+          "index": 49,
+          "exportKey": "tiny-dungeon-tilemap_049",
+          "sourceRect": {
+            "x": 17,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "bfc2c47b07810deb9921738e6d61b05ff29d98981978b2fcb36a260ab3ac61af"
+        },
+        {
+          "index": 50,
+          "exportKey": "tiny-dungeon-tilemap_050",
+          "sourceRect": {
+            "x": 34,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "86b753431083605e26c28d2c07a8a74fb7ce8936deefccebb60a14127b998106"
+        },
+        {
+          "index": 51,
+          "exportKey": "tiny-dungeon-tilemap_051",
+          "sourceRect": {
+            "x": 51,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "d9e024c22f153c421a5c6c966525bd6ff9cde2488c94ab64ddc415601acc54e2"
+        },
+        {
+          "index": 52,
+          "exportKey": "tiny-dungeon-tilemap_052",
+          "sourceRect": {
+            "x": 68,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "c7e1d510e32a5cb0c4d93c4beb261d53f9f149052c5af9f5fcd0b1ce77304cbb"
+        },
+        {
+          "index": 53,
+          "exportKey": "tiny-dungeon-tilemap_053",
+          "sourceRect": {
+            "x": 85,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "16e8eea71d19e4e5e10d7a39e044d29a6cdc89adba2369ff83f898b37c84af5a"
+        },
+        {
+          "index": 54,
+          "exportKey": "tiny-dungeon-tilemap_054",
+          "sourceRect": {
+            "x": 102,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "4005d292507c6de5b8bc49dca08077f4cbae8eddb324bedd1901865139c8e86b"
+        },
+        {
+          "index": 55,
+          "exportKey": "tiny-dungeon-tilemap_055",
+          "sourceRect": {
+            "x": 119,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "ce8d6940882ef57cfde5d4146d5735c273268e3c9cd3c061595e587695636f32"
+        },
+        {
+          "index": 56,
+          "exportKey": "tiny-dungeon-tilemap_056",
+          "sourceRect": {
+            "x": 136,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "f2677511c8b0b5ba31ae1d66dbe48b5f18c9fe2aa9d79c3a4a7525d66e14605f"
+        },
+        {
+          "index": 57,
+          "exportKey": "tiny-dungeon-tilemap_057",
+          "sourceRect": {
+            "x": 153,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "8d01dd8665154462aeffc82875fa55422f47a82f7797bc35aa3e64244da29ccb"
+        },
+        {
+          "index": 58,
+          "exportKey": "tiny-dungeon-tilemap_058",
+          "sourceRect": {
+            "x": 170,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "19eede86093150db5d7a4e75b710d3af894ddf6d16fa8863bb96a691ab51b32f"
+        },
+        {
+          "index": 59,
+          "exportKey": "tiny-dungeon-tilemap_059",
+          "sourceRect": {
+            "x": 187,
+            "y": 68,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "282bf3a8d1f2eb861811fbd4b3ebef4497473519947e27c5e322c587cbb30245"
+        },
+        {
+          "index": 60,
+          "exportKey": "tiny-dungeon-tilemap_060",
+          "sourceRect": {
+            "x": 0,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "927d039fa9de49258f242e633ecf5e40ba7ad6ac4b766f63fdec26338e37fccc"
+        },
+        {
+          "index": 61,
+          "exportKey": "tiny-dungeon-tilemap_061",
+          "sourceRect": {
+            "x": 17,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "491d24e8b4546dcb547ddb6e2b83bfc08fdaa1e0c152353ef43c534e588855d8"
+        },
+        {
+          "index": 62,
+          "exportKey": "tiny-dungeon-tilemap_062",
+          "sourceRect": {
+            "x": 34,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "f0ab990a3197493b59a1a5a5552a278c39c8be6d6c4ced559bff632ab2b45086"
+        },
+        {
+          "index": 63,
+          "exportKey": "tiny-dungeon-tilemap_063",
+          "sourceRect": {
+            "x": 51,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "d6898d60d43efffa12c7b16e1e2ff64c04a6245488874dc192941a45fd4aee4b"
+        },
+        {
+          "index": 64,
+          "exportKey": "tiny-dungeon-tilemap_064",
+          "sourceRect": {
+            "x": 68,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5dd1104f11033fff215dd8bf3f933e2f48fbc634582723a08f45e0ec2ed6e8df"
+        },
+        {
+          "index": 65,
+          "exportKey": "tiny-dungeon-tilemap_065",
+          "sourceRect": {
+            "x": 85,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "f68f9afcf868faa571b957761c53fb375c82bd54186f9728b4dfaa0f81501d48"
+        },
+        {
+          "index": 66,
+          "exportKey": "tiny-dungeon-tilemap_066",
+          "sourceRect": {
+            "x": 102,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5b0f8131072be3dd44a5bd11e88de50295a8aa84d4108e3e8c216ecd55a46903"
+        },
+        {
+          "index": 67,
+          "exportKey": "tiny-dungeon-tilemap_067",
+          "sourceRect": {
+            "x": 119,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "b08a3b70cf4e57de9cfd732aebabba1252465a3e051ec7f7e91f9e92d375106a"
+        },
+        {
+          "index": 68,
+          "exportKey": "tiny-dungeon-tilemap_068",
+          "sourceRect": {
+            "x": 136,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "9896d5c90126d7452e8796dae919bbdd880e406607a37e3fa06b4467a511894b"
+        },
+        {
+          "index": 69,
+          "exportKey": "tiny-dungeon-tilemap_069",
+          "sourceRect": {
+            "x": 153,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "66b2f87bac6d4587b60295a15efc5322147e6851918648b7a5e6af6a74394910"
+        },
+        {
+          "index": 70,
+          "exportKey": "tiny-dungeon-tilemap_070",
+          "sourceRect": {
+            "x": 170,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6e3f2fd3d85717dceb96f24647307f9a8e23a01e66c506983718ee8ea0715d1d"
+        },
+        {
+          "index": 71,
+          "exportKey": "tiny-dungeon-tilemap_071",
+          "sourceRect": {
+            "x": 187,
+            "y": 85,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "8a22aa949ccd53da416d578fc66246cf92888366213fad0ca34255f6e0f90842"
+        },
+        {
+          "index": 72,
+          "exportKey": "tiny-dungeon-tilemap_072",
+          "sourceRect": {
+            "x": 0,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6801bd8fb9f1ece60d9463867071416cfd023fb957f38f798053c0c4ebbaa010"
+        },
+        {
+          "index": 73,
+          "exportKey": "tiny-dungeon-tilemap_073",
+          "sourceRect": {
+            "x": 17,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "1cab90cca444f4c5b5d28780a5219f78c4aeaa3d46d9481f4be0464b77f8c5c9"
+        },
+        {
+          "index": 74,
+          "exportKey": "tiny-dungeon-tilemap_074",
+          "sourceRect": {
+            "x": 34,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "80c013f3fd087a65ab24f8aa1b35c23532ea51d5e8bf0863b745de22d59ef6d5"
+        },
+        {
+          "index": 75,
+          "exportKey": "tiny-dungeon-tilemap_075",
+          "sourceRect": {
+            "x": 51,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "2a365064e011deb1c0363e509bef7b947aac94faca1dad1dee1826077aba3eca"
+        },
+        {
+          "index": 76,
+          "exportKey": "tiny-dungeon-tilemap_076",
+          "sourceRect": {
+            "x": 68,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "a4208200ef05a3a3ad0988131dbf52c8c51164f6c5cc14be5fea998f6b586bd3"
+        },
+        {
+          "index": 77,
+          "exportKey": "tiny-dungeon-tilemap_077",
+          "sourceRect": {
+            "x": 85,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "ecbc17e37e398890c5105e96b66ec95ca4746163bb4551180605ff24635b1742"
+        },
+        {
+          "index": 78,
+          "exportKey": "tiny-dungeon-tilemap_078",
+          "sourceRect": {
+            "x": 102,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "148e735bf020a45ee2c49557d1832129129973bd8474d4cf05e227929038e9c1"
+        },
+        {
+          "index": 79,
+          "exportKey": "tiny-dungeon-tilemap_079",
+          "sourceRect": {
+            "x": 119,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "632a73d69f36313c5e726b9172676876296eb28938ec9247f597bbca6a5bba13"
+        },
+        {
+          "index": 80,
+          "exportKey": "tiny-dungeon-tilemap_080",
+          "sourceRect": {
+            "x": 136,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "d05171e72ad380847f966a5324d66e0e4309344a11598f3cd12cee844451d61f"
+        },
+        {
+          "index": 81,
+          "exportKey": "tiny-dungeon-tilemap_081",
+          "sourceRect": {
+            "x": 153,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "1892184c7396a8b715118e4e06be6279bf7e62550cfe7cab5691bd5fa8c48ebb"
+        },
+        {
+          "index": 82,
+          "exportKey": "tiny-dungeon-tilemap_082",
+          "sourceRect": {
+            "x": 170,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "03869b4b802afe404212503202ca1756e3993caed79b718124a978dc98945791"
+        },
+        {
+          "index": 83,
+          "exportKey": "tiny-dungeon-tilemap_083",
+          "sourceRect": {
+            "x": 187,
+            "y": 102,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "1892184c7396a8b715118e4e06be6279bf7e62550cfe7cab5691bd5fa8c48ebb"
+        },
+        {
+          "index": 84,
+          "exportKey": "tiny-dungeon-tilemap_084",
+          "sourceRect": {
+            "x": 0,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "47f26e6e733f9a09bb636677306fb7f35bd6a5307b7160d999c2234aaf0b0c7b"
+        },
+        {
+          "index": 85,
+          "exportKey": "tiny-dungeon-tilemap_085",
+          "sourceRect": {
+            "x": 17,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "faf0c5f28a5d3b17bb8fd4b7de87b15476d2e3d8c84c06317d2a0ebd686168de"
+        },
+        {
+          "index": 86,
+          "exportKey": "tiny-dungeon-tilemap_086",
+          "sourceRect": {
+            "x": 34,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "db9efb750497737f281814354d7d2efcb5fbce52bf6ab08c56c030194db6d77d"
+        },
+        {
+          "index": 87,
+          "exportKey": "tiny-dungeon-tilemap_087",
+          "sourceRect": {
+            "x": 51,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "8a0aff3e702d45f3366b634adbb1543d98ecf6b675a94a11c48cdc1e30d85149"
+        },
+        {
+          "index": 88,
+          "exportKey": "tiny-dungeon-tilemap_088",
+          "sourceRect": {
+            "x": 68,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5ea17547e6c7a08ceba0a53ce62d48b3c25fcad797600ce1e1b1b1184802be9b"
+        },
+        {
+          "index": 89,
+          "exportKey": "tiny-dungeon-tilemap_089",
+          "sourceRect": {
+            "x": 85,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "3b213b3dc264c8a397e07831e13e36823dd63da40a501904cfb1cca4c365403a"
+        },
+        {
+          "index": 90,
+          "exportKey": "tiny-dungeon-tilemap_090",
+          "sourceRect": {
+            "x": 102,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "7ffecb6219496df0b376dc56bbc0a2a6e4efa388a0d54c925e32865f03bf9b0d"
+        },
+        {
+          "index": 91,
+          "exportKey": "tiny-dungeon-tilemap_091",
+          "sourceRect": {
+            "x": 119,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "7a34c1b3215899d31e74e3935f9ebf1b21e7f8fb4f621325a546a2cc41a463a0"
+        },
+        {
+          "index": 92,
+          "exportKey": "tiny-dungeon-tilemap_092",
+          "sourceRect": {
+            "x": 136,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "99589d9c2ce121910012def9259f6eeb31012e76a80b99bbb63ff35db141713b"
+        },
+        {
+          "index": 93,
+          "exportKey": "tiny-dungeon-tilemap_093",
+          "sourceRect": {
+            "x": 153,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "3e83a5488cc052feb58485f56f1022dc7278476546a693e4cf7bfcfea1258851"
+        },
+        {
+          "index": 94,
+          "exportKey": "tiny-dungeon-tilemap_094",
+          "sourceRect": {
+            "x": 170,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6e3f2fd3d85717dceb96f24647307f9a8e23a01e66c506983718ee8ea0715d1d"
+        },
+        {
+          "index": 95,
+          "exportKey": "tiny-dungeon-tilemap_095",
+          "sourceRect": {
+            "x": 187,
+            "y": 119,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "785ef990540ca08532f5cec53ddb28901bedbf815d53d7d4351aff991246eb84"
+        },
+        {
+          "index": 96,
+          "exportKey": "tiny-dungeon-tilemap_096",
+          "sourceRect": {
+            "x": 0,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "b40a4837a4e11f559c6479471e6467daac7348a42d99a99d731583c092d3b470"
+        },
+        {
+          "index": 97,
+          "exportKey": "tiny-dungeon-tilemap_097",
+          "sourceRect": {
+            "x": 17,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "3efa11d4da225a36435360b7ee4860555330c3e11f7aac2d22b0b8c0a3e4657e"
+        },
+        {
+          "index": 98,
+          "exportKey": "tiny-dungeon-tilemap_098",
+          "sourceRect": {
+            "x": 34,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "9008c6a7cce775bc586c4cb8cfcd3b7876f332a0d7ef2085fb6a2266dafdff20"
+        },
+        {
+          "index": 99,
+          "exportKey": "tiny-dungeon-tilemap_099",
+          "sourceRect": {
+            "x": 51,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "9a425e63cd4f1708fd838eebac0de4b56bbda97dc17a263e6cf815bcbf45016a"
+        },
+        {
+          "index": 100,
+          "exportKey": "tiny-dungeon-tilemap_100",
+          "sourceRect": {
+            "x": 68,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "2246a9523e180717d8d3824c1272e900bcf12154249887f4a413b4612a84991f"
+        },
+        {
+          "index": 101,
+          "exportKey": "tiny-dungeon-tilemap_101",
+          "sourceRect": {
+            "x": 85,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "36ad5558aeba783d63e86e26b907f9e0e5b734dfdf7a0ac7dbc0e71837ca2b5f"
+        },
+        {
+          "index": 102,
+          "exportKey": "tiny-dungeon-tilemap_102",
+          "sourceRect": {
+            "x": 102,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "beca89b697f640c4d3195270de09c221dcb70dd61e935702c9a01014e3862390"
+        },
+        {
+          "index": 103,
+          "exportKey": "tiny-dungeon-tilemap_103",
+          "sourceRect": {
+            "x": 119,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "7a3cea54bc7391bbd47b5cf07617d8689ce0c9eb8bc3815dfc4f28fe1b30d78b"
+        },
+        {
+          "index": 104,
+          "exportKey": "tiny-dungeon-tilemap_104",
+          "sourceRect": {
+            "x": 136,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "19733a3ceb1598e84ddfd6325364a3cd47bbd8074413641b4e2d223e911ad237"
+        },
+        {
+          "index": 105,
+          "exportKey": "tiny-dungeon-tilemap_105",
+          "sourceRect": {
+            "x": 153,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "22f5098a5246213d92e659bb0def1b4df762f90a7470676d887f1c79dc3cc7fc"
+        },
+        {
+          "index": 106,
+          "exportKey": "tiny-dungeon-tilemap_106",
+          "sourceRect": {
+            "x": 170,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "1fc4170c99d37f96cb7cb73ecd589e3458f1a24dc93e871e06a8588c229767a4"
+        },
+        {
+          "index": 107,
+          "exportKey": "tiny-dungeon-tilemap_107",
+          "sourceRect": {
+            "x": 187,
+            "y": 136,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "f938110c8f188c36e4b1485fa82dab9f04e8edd01840a6869a08bd36125e3171"
+        },
+        {
+          "index": 108,
+          "exportKey": "tiny-dungeon-tilemap_108",
+          "sourceRect": {
+            "x": 0,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "a5f43bf824b0df91c8d7186e47cab163ca135c988f28f8e21bdb3827c65cdbe2"
+        },
+        {
+          "index": 109,
+          "exportKey": "tiny-dungeon-tilemap_109",
+          "sourceRect": {
+            "x": 17,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "07c6bfe1c3e2a601d3e65893fcc0921c71411c8acca9b831399bad1f54c33550"
+        },
+        {
+          "index": 110,
+          "exportKey": "tiny-dungeon-tilemap_110",
+          "sourceRect": {
+            "x": 34,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "dd1597af800bb10143af8eeaeb0cda01f582ca0163772c601a5761d0804e3bb5"
+        },
+        {
+          "index": 111,
+          "exportKey": "tiny-dungeon-tilemap_111",
+          "sourceRect": {
+            "x": 51,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "d41bf1f6bfdf9f293fe55dd309a4eece45ef922f732339d64466306fabd121bc"
+        },
+        {
+          "index": 112,
+          "exportKey": "tiny-dungeon-tilemap_112",
+          "sourceRect": {
+            "x": 68,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "98198ed98f11e6d56079242da987c6b27a94cf9c9fe5931eeecd704f3676a8c8"
+        },
+        {
+          "index": 113,
+          "exportKey": "tiny-dungeon-tilemap_113",
+          "sourceRect": {
+            "x": 85,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "2155df9263684aca85a1848147db0a7dcbc4da802270b30b46bec3d1439f73ce"
+        },
+        {
+          "index": 114,
+          "exportKey": "tiny-dungeon-tilemap_114",
+          "sourceRect": {
+            "x": 102,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "8c771b15a04755e2ae2aec287129e2b3efff29bbc062441297c4c0bdacba3619"
+        },
+        {
+          "index": 115,
+          "exportKey": "tiny-dungeon-tilemap_115",
+          "sourceRect": {
+            "x": 119,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "d16c02b070422010931c5112739b8ec655944ac7d764b2687d12a4f8104b1567"
+        },
+        {
+          "index": 116,
+          "exportKey": "tiny-dungeon-tilemap_116",
+          "sourceRect": {
+            "x": 136,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "5cd82a230a4b0f5381eae3024d81c1a41cd81b95348573ac1bb27d0376cc6467"
+        },
+        {
+          "index": 117,
+          "exportKey": "tiny-dungeon-tilemap_117",
+          "sourceRect": {
+            "x": 153,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "8a570862503cd7a5def1ffa45ad8ea926fa3e1ccb6d85637b848aa8f591cba32"
+        },
+        {
+          "index": 118,
+          "exportKey": "tiny-dungeon-tilemap_118",
+          "sourceRect": {
+            "x": 170,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "e503105a0afa4726ff101245f7f64f01c7b47d96f37e9436ad345e667784babc"
+        },
+        {
+          "index": 119,
+          "exportKey": "tiny-dungeon-tilemap_119",
+          "sourceRect": {
+            "x": 187,
+            "y": 153,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "cdecd6fb241302a40fcbac59595f2f5ceaedf062e2e526b5ff4311054a32556f"
+        },
+        {
+          "index": 120,
+          "exportKey": "tiny-dungeon-tilemap_120",
+          "sourceRect": {
+            "x": 0,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "fc7e772d4415434378eca137c3aeaa90bfacedce068bdddab76a996d4b9b79d8"
+        },
+        {
+          "index": 121,
+          "exportKey": "tiny-dungeon-tilemap_121",
+          "sourceRect": {
+            "x": 17,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "f5e15fa87279d864d47725a208dc49adb021ff03b0852dc24970d90a1d984939"
+        },
+        {
+          "index": 122,
+          "exportKey": "tiny-dungeon-tilemap_122",
+          "sourceRect": {
+            "x": 34,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "8444c745e0ba1ff3de43c0c6db2fc0d3cc64ec749b01e24d1278f25597e5fb60"
+        },
+        {
+          "index": 123,
+          "exportKey": "tiny-dungeon-tilemap_123",
+          "sourceRect": {
+            "x": 51,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "a7d6f95fa8ba73b4f1f0437ab51e5e79de77a6d495992f6fd56e9e86f36a99bd"
+        },
+        {
+          "index": 124,
+          "exportKey": "tiny-dungeon-tilemap_124",
+          "sourceRect": {
+            "x": 68,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "b3fa6cfad3446981c36e615ff32f3157dd0f774249c18af69124eafc21b17eb2"
+        },
+        {
+          "index": 125,
+          "exportKey": "tiny-dungeon-tilemap_125",
+          "sourceRect": {
+            "x": 85,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6ccaf4c476e97e92d0a2e010f1ef71f6669cd296feaea5c3075de36ef3a727a9"
+        },
+        {
+          "index": 126,
+          "exportKey": "tiny-dungeon-tilemap_126",
+          "sourceRect": {
+            "x": 102,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6cea900bd3a089e81351b0de9e5625d82688b9ac3aabc3c2a33995943bc627a5"
+        },
+        {
+          "index": 127,
+          "exportKey": "tiny-dungeon-tilemap_127",
+          "sourceRect": {
+            "x": 119,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "3584f7e57a93ece9982fbad4379cbb3f52e8ece809ed40cab3d458ce9a4cca79"
+        },
+        {
+          "index": 128,
+          "exportKey": "tiny-dungeon-tilemap_128",
+          "sourceRect": {
+            "x": 136,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "629f68fc355570fd12007cd97d701ef87d4bc5ca7979db4af7229232010f72d8"
+        },
+        {
+          "index": 129,
+          "exportKey": "tiny-dungeon-tilemap_129",
+          "sourceRect": {
+            "x": 153,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "fed665388857a4ded354e8626e9cdb4139be2ff7d46625aeebff5bc030c5474a"
+        },
+        {
+          "index": 130,
+          "exportKey": "tiny-dungeon-tilemap_130",
+          "sourceRect": {
+            "x": 170,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "40de5bf9a4ada0fd2c80662b6b642dae451ffcd16768ef00802e6b038c8c0760"
+        },
+        {
+          "index": 131,
+          "exportKey": "tiny-dungeon-tilemap_131",
+          "sourceRect": {
+            "x": 187,
+            "y": 170,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "7aa6db75ecb44a27b2cd7522011f48b819f6f0fc52f51fdf1ce980662eeff35d"
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "gap": 0,
+      "appliedGrid": {
+        "w": 16,
+        "h": 16,
+        "ox": 0,
+        "oy": 0,
+        "sx": 0,
+        "sy": 0
+      },
+      "initialPreview": "132 frames · 11 animation(s)",
+      "previewBeforeApply": "132 frames · 0 animation(s)",
+      "customFit": "12 × 11 = 132 whole cells fit · 132 hold pixels (11 px right, 10 px bottom left over)",
+      "frames": 132,
+      "declaredAnimationTags": 0,
+      "implicitAnimationNotice": null,
+      "godotExportRequiresTag": true,
+      "animationFiles": [],
+      "downloadBytes": 50747,
+      "downloadSha256": "1477cd7553c4099670136fd78a2cf7ea45142adbc56ced5ab2b21a96970c9076",
+      "selectedCropMatches": 132,
+      "referenceTileMatches": 1,
+      "referenceCoordinateMatches": 1,
+      "atlasWidth": 214,
+      "atlasHeight": 195,
+      "rows": [
+        {
+          "index": 0,
+          "exportKey": "tiny-dungeon-tilemap_000",
+          "sourceRect": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": true,
+          "visiblePixelSha256": "6dbf8961d00119d9153deba335a7a900be829f2c0e75329eca4bd8ddc95f54c7"
+        },
+        {
+          "index": 1,
+          "exportKey": "tiny-dungeon-tilemap_001",
+          "sourceRect": {
+            "x": 16,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "42ee33de5aee77bf181b0659db1ac8f049444cad6cfa568cafe6921e9c1dffab"
+        },
+        {
+          "index": 2,
+          "exportKey": "tiny-dungeon-tilemap_002",
+          "sourceRect": {
+            "x": 32,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "4c6a2dc3f45cf74a2cc7f9556cbdda89964d9cedc0d1f74c25b684d2281b16eb"
+        },
+        {
+          "index": 3,
+          "exportKey": "tiny-dungeon-tilemap_003",
+          "sourceRect": {
+            "x": 48,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "426227ab92e3f9214734eb4db666d5ca02ef0c867a519fc8219e24d7786e6081"
+        },
+        {
+          "index": 4,
+          "exportKey": "tiny-dungeon-tilemap_004",
+          "sourceRect": {
+            "x": 64,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "4fdb9b04d09aec3aa3133a7f2c39138ab6098492efea5167fb0c13807b0ca6a9"
+        },
+        {
+          "index": 5,
+          "exportKey": "tiny-dungeon-tilemap_005",
+          "sourceRect": {
+            "x": 80,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "332f46a2a5ca54828eb8dfbb622f4a96a72dda04e3138d86d2b95ef53eb533f4"
+        },
+        {
+          "index": 6,
+          "exportKey": "tiny-dungeon-tilemap_006",
+          "sourceRect": {
+            "x": 96,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b8a7a72d71e50e90e6e86e3fdf1d5f2d614f1582d7e7948a5ae3c668cd0ed8f4"
+        },
+        {
+          "index": 7,
+          "exportKey": "tiny-dungeon-tilemap_007",
+          "sourceRect": {
+            "x": 112,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "7f72571899944655544b693222111c09125bb0fc41beb615c74b684f350262a8"
+        },
+        {
+          "index": 8,
+          "exportKey": "tiny-dungeon-tilemap_008",
+          "sourceRect": {
+            "x": 128,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "7ae1b18de7357ddaba2bea76d20ab7de2931766ace9c4a1aa92c8a245aa47ac3"
+        },
+        {
+          "index": 9,
+          "exportKey": "tiny-dungeon-tilemap_009",
+          "sourceRect": {
+            "x": 144,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "ada1275798a89d3525c4c463ab3b633f24a679af031317161beb125188441cce"
+        },
+        {
+          "index": 10,
+          "exportKey": "tiny-dungeon-tilemap_010",
+          "sourceRect": {
+            "x": 160,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "d58dc28a8bbb20fb9e64f92919d7042b1805a9f4956cb0b387be66802d017040"
+        },
+        {
+          "index": 11,
+          "exportKey": "tiny-dungeon-tilemap_011",
+          "sourceRect": {
+            "x": 176,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 0,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "440826a337ae3359e8e2a8e5608fc32544c0ece979e5620053b447c1ce876801"
+        },
+        {
+          "index": 12,
+          "exportKey": "tiny-dungeon-tilemap_012",
+          "sourceRect": {
+            "x": 0,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "e3c2af40d478479ef956cbf84f15eed0f08ff4602e2c2eee35ed84ff54d95bf4"
+        },
+        {
+          "index": 13,
+          "exportKey": "tiny-dungeon-tilemap_013",
+          "sourceRect": {
+            "x": 16,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "7d0571fd9d8e08eaaaec872c5c326dbfbba0f0e8d5f282206df83fc29dc4bed8"
+        },
+        {
+          "index": 14,
+          "exportKey": "tiny-dungeon-tilemap_014",
+          "sourceRect": {
+            "x": 32,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "13c6fff3d54390470a4b18735a37b6a8c73fcb4e133406c170c54555360d3371"
+        },
+        {
+          "index": 15,
+          "exportKey": "tiny-dungeon-tilemap_015",
+          "sourceRect": {
+            "x": 48,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "10ad3249fdb6a6b5dcdb7e7a055ecc9765206e965f8bcad6e499831fc8f1c06d"
+        },
+        {
+          "index": 16,
+          "exportKey": "tiny-dungeon-tilemap_016",
+          "sourceRect": {
+            "x": 64,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "c1123bce8768b64a1b27048ed6b3c2a9d12984715bf11b41a94889f8cd886fe2"
+        },
+        {
+          "index": 17,
+          "exportKey": "tiny-dungeon-tilemap_017",
+          "sourceRect": {
+            "x": 80,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "c7902caf016f384700f9b9504f92524c84eddcba1a22e3aa5f87dc81083ce3f2"
+        },
+        {
+          "index": 18,
+          "exportKey": "tiny-dungeon-tilemap_018",
+          "sourceRect": {
+            "x": 96,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "46e2918e849259c84863c3e01c3b37d5560cb3a9e119de9fcd2e903368693acb"
+        },
+        {
+          "index": 19,
+          "exportKey": "tiny-dungeon-tilemap_019",
+          "sourceRect": {
+            "x": 112,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "8a7ef1f6dbf98573866a4bdac061cdf27ee2646027e9b0663ea7f124683bd175"
+        },
+        {
+          "index": 20,
+          "exportKey": "tiny-dungeon-tilemap_020",
+          "sourceRect": {
+            "x": 128,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "fb5e6358b325c30b35605746727d9ee7143871b4512a94fb00eaf9cd9fff2f17"
+        },
+        {
+          "index": 21,
+          "exportKey": "tiny-dungeon-tilemap_021",
+          "sourceRect": {
+            "x": 144,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "5bfd2e702d870b5129cebe3d0352a13ab65e7f031b7e0031b5132b9afaa613d4"
+        },
+        {
+          "index": 22,
+          "exportKey": "tiny-dungeon-tilemap_022",
+          "sourceRect": {
+            "x": 160,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "bd83dc5e122c5fe6f52e965b80844b1913e53c2ce0fde5e7771124139fdf8dba"
+        },
+        {
+          "index": 23,
+          "exportKey": "tiny-dungeon-tilemap_023",
+          "sourceRect": {
+            "x": 176,
+            "y": 16,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 17,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "4792aa295c6a34164ecf32e5bb8ae312c94feb9f5591812b37dd48f2029590cd"
+        },
+        {
+          "index": 24,
+          "exportKey": "tiny-dungeon-tilemap_024",
+          "sourceRect": {
+            "x": 0,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b33f296643c665769585448ed54b557a4234d00ef24955529c7bd59faa642da5"
+        },
+        {
+          "index": 25,
+          "exportKey": "tiny-dungeon-tilemap_025",
+          "sourceRect": {
+            "x": 16,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "f6c8c83e43696459381890905c69c9c726ad7139fac9573d6202c3f4cadb9d09"
+        },
+        {
+          "index": 26,
+          "exportKey": "tiny-dungeon-tilemap_026",
+          "sourceRect": {
+            "x": 32,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b6094bb0aad5d7490eb193a89e5a768609516fa5783aa7aae480dcda5c58abaa"
+        },
+        {
+          "index": 27,
+          "exportKey": "tiny-dungeon-tilemap_027",
+          "sourceRect": {
+            "x": 48,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "a9a1f32c2c351cbb1dcba6704201f3faf95a334dd4d38a74727f2132f18e1aa8"
+        },
+        {
+          "index": 28,
+          "exportKey": "tiny-dungeon-tilemap_028",
+          "sourceRect": {
+            "x": 64,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "a5fbe692bf26600b4f6501c8e9ca87ce4ce552b0597e398b55f3e87aef1f0d9b"
+        },
+        {
+          "index": 29,
+          "exportKey": "tiny-dungeon-tilemap_029",
+          "sourceRect": {
+            "x": 80,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "3d4288387b2a143a4c0b6add55b5032122e979bbe03cbc3ca056fb2972d9299e"
+        },
+        {
+          "index": 30,
+          "exportKey": "tiny-dungeon-tilemap_030",
+          "sourceRect": {
+            "x": 96,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "c106088036385c392cb19eb43441ad21bbcbc30ad394d1d65f8ea2e748c2739d"
+        },
+        {
+          "index": 31,
+          "exportKey": "tiny-dungeon-tilemap_031",
+          "sourceRect": {
+            "x": 112,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "3a1e8d634b1c0e977c5581234792d597bfaa6e637a5d7171e192b377178396f1"
+        },
+        {
+          "index": 32,
+          "exportKey": "tiny-dungeon-tilemap_032",
+          "sourceRect": {
+            "x": 128,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "234523105e4639a09d9fdeeebdedf2822d964e283f88715efca6bfebacb02479"
+        },
+        {
+          "index": 33,
+          "exportKey": "tiny-dungeon-tilemap_033",
+          "sourceRect": {
+            "x": 144,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b5873547fd1b7a4adaa25bce9ca7c51f9e460f9d5f65c3f48c7ed7fedd5871d4"
+        },
+        {
+          "index": 34,
+          "exportKey": "tiny-dungeon-tilemap_034",
+          "sourceRect": {
+            "x": 160,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "07e3449ddd723f7a1e73b1efd63b93777734de67376c488b8daf322c8bbaf0ec"
+        },
+        {
+          "index": 35,
+          "exportKey": "tiny-dungeon-tilemap_035",
+          "sourceRect": {
+            "x": 176,
+            "y": 32,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 34,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "3433eb1881af9b39159a4c85cf523402b84b2dfba74c2e32886eb13d9f843715"
+        },
+        {
+          "index": 36,
+          "exportKey": "tiny-dungeon-tilemap_036",
+          "sourceRect": {
+            "x": 0,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "8f11280dd567088369fc03916feb0270575b501d1d53b93e32066972a7c10f26"
+        },
+        {
+          "index": 37,
+          "exportKey": "tiny-dungeon-tilemap_037",
+          "sourceRect": {
+            "x": 16,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "42da1935147d0ca88bcee882e31a4ce24fe2af055576ed06478b91a5ae7d7ef9"
+        },
+        {
+          "index": 38,
+          "exportKey": "tiny-dungeon-tilemap_038",
+          "sourceRect": {
+            "x": 32,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "7324b179688fd956e7a0686d79b3064dd397eaf1652e27af1fa78fe9492b4dd3"
+        },
+        {
+          "index": 39,
+          "exportKey": "tiny-dungeon-tilemap_039",
+          "sourceRect": {
+            "x": 48,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "978541001ecd13254d20172c4b86b853bfd3c6983afb0919673f15ec425b18a8"
+        },
+        {
+          "index": 40,
+          "exportKey": "tiny-dungeon-tilemap_040",
+          "sourceRect": {
+            "x": 64,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "562c33535d0efa4177b58cde06d9ee3f37e698cf007bd37bb2aaacd5958214ac"
+        },
+        {
+          "index": 41,
+          "exportKey": "tiny-dungeon-tilemap_041",
+          "sourceRect": {
+            "x": 80,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "adbcf81ae66d796e48e693f0e6bb3e83c08a8cf86e5ee16a842e93a84e214d27"
+        },
+        {
+          "index": 42,
+          "exportKey": "tiny-dungeon-tilemap_042",
+          "sourceRect": {
+            "x": 96,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "2d65a83d380db63e23cd2778c39f3034c192c4af143a92c9c50e7a662deac919"
+        },
+        {
+          "index": 43,
+          "exportKey": "tiny-dungeon-tilemap_043",
+          "sourceRect": {
+            "x": 112,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "3b4a45b8da22ab492a0a03a6c420d2677ea8c6ba8e439224bfa6f58ace84ba56"
+        },
+        {
+          "index": 44,
+          "exportKey": "tiny-dungeon-tilemap_044",
+          "sourceRect": {
+            "x": 128,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "e4348f1e4f0991193f3e5c4737a01465864958310140c11427ec933629590a3d"
+        },
+        {
+          "index": 45,
+          "exportKey": "tiny-dungeon-tilemap_045",
+          "sourceRect": {
+            "x": 144,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "9585e4552e605c9949257faed9952cd1533b71bf7c0ecf001097a75eb0c6274b"
+        },
+        {
+          "index": 46,
+          "exportKey": "tiny-dungeon-tilemap_046",
+          "sourceRect": {
+            "x": 160,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "f3f1672030c8f6724fae7dc259d4e26aac70c21e6b567e5d133dada4d583e5e3"
+        },
+        {
+          "index": 47,
+          "exportKey": "tiny-dungeon-tilemap_047",
+          "sourceRect": {
+            "x": 176,
+            "y": 48,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 51,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "da72974370791c6ac99ebb148ecbe77e12331c12d24563ea0546baeab5d2c371"
+        },
+        {
+          "index": 48,
+          "exportKey": "tiny-dungeon-tilemap_048",
+          "sourceRect": {
+            "x": 0,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "109976023591d83f27fb9823362424e860666d4cbb0f693f6c3234820760194e"
+        },
+        {
+          "index": 49,
+          "exportKey": "tiny-dungeon-tilemap_049",
+          "sourceRect": {
+            "x": 16,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "3335dfbb78abb4c548230e6f57e01c2999e0a2c173d021dfb659d10500280b7a"
+        },
+        {
+          "index": 50,
+          "exportKey": "tiny-dungeon-tilemap_050",
+          "sourceRect": {
+            "x": 32,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b894356bf4440b89ec839186b6372b9af8acdca84128b15ff59a61249954858e"
+        },
+        {
+          "index": 51,
+          "exportKey": "tiny-dungeon-tilemap_051",
+          "sourceRect": {
+            "x": 48,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "481c5a39d7089819f9c1031e08f3e16badd39c8db3eac3316a69841f3c84fc09"
+        },
+        {
+          "index": 52,
+          "exportKey": "tiny-dungeon-tilemap_052",
+          "sourceRect": {
+            "x": 64,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b54daf6d6be5de0001ed94bd029fa37201f63afba78f143df8f8fcaf7df6eec7"
+        },
+        {
+          "index": 53,
+          "exportKey": "tiny-dungeon-tilemap_053",
+          "sourceRect": {
+            "x": 80,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "5f21279f6fe0ac01e45ceeea1bc03ee0f62f80a81e004eb7e41bf9cc079301a2"
+        },
+        {
+          "index": 54,
+          "exportKey": "tiny-dungeon-tilemap_054",
+          "sourceRect": {
+            "x": 96,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "24683b32ea053e90434f24b7c6274551773f2519fb889e59348d51774717bc51"
+        },
+        {
+          "index": 55,
+          "exportKey": "tiny-dungeon-tilemap_055",
+          "sourceRect": {
+            "x": 112,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "2fd49e733dd0ba098bc2349b069ec3ce1b17fe03f18b6ad3fb0842af1139f699"
+        },
+        {
+          "index": 56,
+          "exportKey": "tiny-dungeon-tilemap_056",
+          "sourceRect": {
+            "x": 128,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "be89e986f45a5bac5d355a4e1a294f2da60dc5ea0c6c9ee0d3979775a167ded0"
+        },
+        {
+          "index": 57,
+          "exportKey": "tiny-dungeon-tilemap_057",
+          "sourceRect": {
+            "x": 144,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "22f3ecee863ba43ba4864bfd8dd6b5e8f319d15c232f2f72fa6e9c938c55a73b"
+        },
+        {
+          "index": 58,
+          "exportKey": "tiny-dungeon-tilemap_058",
+          "sourceRect": {
+            "x": 160,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "22945c482118b7ee0d27997d08ec0a19519a934d86b6d10cc799ccbc6736c929"
+        },
+        {
+          "index": 59,
+          "exportKey": "tiny-dungeon-tilemap_059",
+          "sourceRect": {
+            "x": 176,
+            "y": 64,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 68,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "ea52cc27035134d1457501fb3e72ebddb21af16e3fb295bbc8f47c2e8cb6fdbe"
+        },
+        {
+          "index": 60,
+          "exportKey": "tiny-dungeon-tilemap_060",
+          "sourceRect": {
+            "x": 0,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "aece6c2dc936314115f9fcb7e4589520d1ec4c14f9b23fdf0bb3cdb1439ab912"
+        },
+        {
+          "index": 61,
+          "exportKey": "tiny-dungeon-tilemap_061",
+          "sourceRect": {
+            "x": 16,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "f2a38fb1f4cff82eb9c157bd4cbe2d2372907a8490b6d853f636046f599af88e"
+        },
+        {
+          "index": 62,
+          "exportKey": "tiny-dungeon-tilemap_062",
+          "sourceRect": {
+            "x": 32,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "d75c1de2e2e3cd587aeb92c5f00d33012294ed43c332b620607194812d10fd54"
+        },
+        {
+          "index": 63,
+          "exportKey": "tiny-dungeon-tilemap_063",
+          "sourceRect": {
+            "x": 48,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "822ca87f74d3ff7c7ae499b03e29056ec2c2ed58c6d90e275fd066a82e2c0dec"
+        },
+        {
+          "index": 64,
+          "exportKey": "tiny-dungeon-tilemap_064",
+          "sourceRect": {
+            "x": 64,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "63b7c451bb2e437f7ed33014089d2cb6f2b14c855581e1e8d0bd81c14b38c5ec"
+        },
+        {
+          "index": 65,
+          "exportKey": "tiny-dungeon-tilemap_065",
+          "sourceRect": {
+            "x": 80,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "eb9ea73eb57ac4a41bf4037dda4c14d657f08b64061aa7990609154dbe8b5f42"
+        },
+        {
+          "index": 66,
+          "exportKey": "tiny-dungeon-tilemap_066",
+          "sourceRect": {
+            "x": 96,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "112891aebf668ab8a6a3993ff53fabcbdf7b7e080154a2f667c65d58c316e255"
+        },
+        {
+          "index": 67,
+          "exportKey": "tiny-dungeon-tilemap_067",
+          "sourceRect": {
+            "x": 112,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "167676570c56de3cff97a6ad8eb0e36a702278f7c92eb4e0602d1bbcbb0cd50d"
+        },
+        {
+          "index": 68,
+          "exportKey": "tiny-dungeon-tilemap_068",
+          "sourceRect": {
+            "x": 128,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "76b18f18363780dec0b00ff752374188ea9b5d263c4311e963215da0c87b7348"
+        },
+        {
+          "index": 69,
+          "exportKey": "tiny-dungeon-tilemap_069",
+          "sourceRect": {
+            "x": 144,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "1fec5ecd1a644975d2bd9049d17e1a0044dd510705e5692cf4fe5cbaabb009ba"
+        },
+        {
+          "index": 70,
+          "exportKey": "tiny-dungeon-tilemap_070",
+          "sourceRect": {
+            "x": 160,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "e75b1b85b441404780fade4bafe9996978efbf9e24677af2d00586d49a463726"
+        },
+        {
+          "index": 71,
+          "exportKey": "tiny-dungeon-tilemap_071",
+          "sourceRect": {
+            "x": 176,
+            "y": 80,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 85,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "372852182c3dbea74ca89b739249060f3b5faaa13fd384926c65713ee641cc4d"
+        },
+        {
+          "index": 72,
+          "exportKey": "tiny-dungeon-tilemap_072",
+          "sourceRect": {
+            "x": 0,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "9f50bd1a2dd5ecd7877996bd5d8e10969408d4bf6b612e0b9c046a00048ca6bc"
+        },
+        {
+          "index": 73,
+          "exportKey": "tiny-dungeon-tilemap_073",
+          "sourceRect": {
+            "x": 16,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "150623d7b67640ce90ab9450039c6b24e0a14a896d5ae16b339c022f07f8b32a"
+        },
+        {
+          "index": 74,
+          "exportKey": "tiny-dungeon-tilemap_074",
+          "sourceRect": {
+            "x": 32,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "eb155d626c031d246eaed7629a0b9fde300bb5304eabfda2258f153a7db4058c"
+        },
+        {
+          "index": 75,
+          "exportKey": "tiny-dungeon-tilemap_075",
+          "sourceRect": {
+            "x": 48,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "566c6070ecc46c80d7b0d91cd36681f4feb5aa0020e0269217a5038e5af2daa8"
+        },
+        {
+          "index": 76,
+          "exportKey": "tiny-dungeon-tilemap_076",
+          "sourceRect": {
+            "x": 64,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "2662909c9de8708a769bcc385b1544ccdcfe3bf0dacca0bd2d719e169564733c"
+        },
+        {
+          "index": 77,
+          "exportKey": "tiny-dungeon-tilemap_077",
+          "sourceRect": {
+            "x": 80,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "1694a2ca9066ebb8e6e08a878f919a0efaa4c82d1244dafc63adf314a5703a5e"
+        },
+        {
+          "index": 78,
+          "exportKey": "tiny-dungeon-tilemap_078",
+          "sourceRect": {
+            "x": 96,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b841d4ead6f82d15001cd51f53c895e461f6d391b68689383c41340795efc868"
+        },
+        {
+          "index": 79,
+          "exportKey": "tiny-dungeon-tilemap_079",
+          "sourceRect": {
+            "x": 112,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "262f67596996c88999b480f4a4bd1b24c77df19bdd6d0159770a54c3a4d9a82f"
+        },
+        {
+          "index": 80,
+          "exportKey": "tiny-dungeon-tilemap_080",
+          "sourceRect": {
+            "x": 128,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "39e22ea9c7ad2d83429dad411eaa814a80dc2a019344a6e0634dabb781f50bd0"
+        },
+        {
+          "index": 81,
+          "exportKey": "tiny-dungeon-tilemap_081",
+          "sourceRect": {
+            "x": 144,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "fade217628da91e5e9f9f76e6875862c5d8beb66f58b70dbdd9acf3677827ad0"
+        },
+        {
+          "index": 82,
+          "exportKey": "tiny-dungeon-tilemap_082",
+          "sourceRect": {
+            "x": 160,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "5325923d08163e1b24b823c2b224b63269c69633529a7b600ad01342e499517d"
+        },
+        {
+          "index": 83,
+          "exportKey": "tiny-dungeon-tilemap_083",
+          "sourceRect": {
+            "x": 176,
+            "y": 96,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 102,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "735495675728b3356763f7d856ac3528715c3ebca476fd40439dec1989c76fd9"
+        },
+        {
+          "index": 84,
+          "exportKey": "tiny-dungeon-tilemap_084",
+          "sourceRect": {
+            "x": 0,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "1eb0ad4c323cd557bdfa239ec2ccff671d16f83e79d1ae2a7a560af471b14d06"
+        },
+        {
+          "index": 85,
+          "exportKey": "tiny-dungeon-tilemap_085",
+          "sourceRect": {
+            "x": 16,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "be891f5f68df5387450e986b83ea0d8339220d459a7ccf016e0c9fa009836757"
+        },
+        {
+          "index": 86,
+          "exportKey": "tiny-dungeon-tilemap_086",
+          "sourceRect": {
+            "x": 32,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "8edb246686c38b331bb1b746cb574269d01f66405e7b98557c9103c61258e789"
+        },
+        {
+          "index": 87,
+          "exportKey": "tiny-dungeon-tilemap_087",
+          "sourceRect": {
+            "x": 48,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "966a8d3b2b962b6b6bb77a18875cdc091fe561a168387a493abe5c2c21094162"
+        },
+        {
+          "index": 88,
+          "exportKey": "tiny-dungeon-tilemap_088",
+          "sourceRect": {
+            "x": 64,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "ead036e64441c6d5336e0b0f76369a31f9002a7880857d7054d8c0b39c7dbd81"
+        },
+        {
+          "index": 89,
+          "exportKey": "tiny-dungeon-tilemap_089",
+          "sourceRect": {
+            "x": 80,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "561ad98a56467c3d1e4614a15dede7e79c159a1c3b70eb79c867db7c1d890ced"
+        },
+        {
+          "index": 90,
+          "exportKey": "tiny-dungeon-tilemap_090",
+          "sourceRect": {
+            "x": 96,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "304894c4fae47b3149f0e1d8c22cec4b536582d45ae7ef0598db8211a05b282a"
+        },
+        {
+          "index": 91,
+          "exportKey": "tiny-dungeon-tilemap_091",
+          "sourceRect": {
+            "x": 112,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "e4deb43bb0cf234a939efdc8f1eaf529263b71eb20729e0fb7601087e91d2f96"
+        },
+        {
+          "index": 92,
+          "exportKey": "tiny-dungeon-tilemap_092",
+          "sourceRect": {
+            "x": 128,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "133e48a1dbd212c7bc05da023762e530f12be10a2a0afce18ea7bfa756645457"
+        },
+        {
+          "index": 93,
+          "exportKey": "tiny-dungeon-tilemap_093",
+          "sourceRect": {
+            "x": 144,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "80b20ee3402a575c84ec08ddc724f968e27c4cf8e5b5237936452d87a855394e"
+        },
+        {
+          "index": 94,
+          "exportKey": "tiny-dungeon-tilemap_094",
+          "sourceRect": {
+            "x": 160,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "ad938d6e7164872c185aace792d4ee0b2f55604b3276883ae684f871ca90def6"
+        },
+        {
+          "index": 95,
+          "exportKey": "tiny-dungeon-tilemap_095",
+          "sourceRect": {
+            "x": 176,
+            "y": 112,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 119,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "494a86d2fbd7c219b193b770983180eb49a80cb81bbf7477df5d6af3a7c9b83f"
+        },
+        {
+          "index": 96,
+          "exportKey": "tiny-dungeon-tilemap_096",
+          "sourceRect": {
+            "x": 0,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "57725796a360dba45212c8ddb9c6189662c00c1ff78970aed9d826b228f194e3"
+        },
+        {
+          "index": 97,
+          "exportKey": "tiny-dungeon-tilemap_097",
+          "sourceRect": {
+            "x": 16,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "eecce874a2f2bec426aad84c586d5e5b1dc59e6654c81026178af7e61aadb95c"
+        },
+        {
+          "index": 98,
+          "exportKey": "tiny-dungeon-tilemap_098",
+          "sourceRect": {
+            "x": 32,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "74d26c52a9eea4978bfd5fa70da7594255e81eb0b99df45c9bbc86821539ae4d"
+        },
+        {
+          "index": 99,
+          "exportKey": "tiny-dungeon-tilemap_099",
+          "sourceRect": {
+            "x": 48,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "f6fcb64a8502b3e3f590c55f9bd90ef5e04904bc15f6ed41f4dfa8ca97ff5485"
+        },
+        {
+          "index": 100,
+          "exportKey": "tiny-dungeon-tilemap_100",
+          "sourceRect": {
+            "x": 64,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "13f7ce579943f0e5851bd4c2a0ddbf70cde0b5bb6d2bcedc0fff61f57a85e7f5"
+        },
+        {
+          "index": 101,
+          "exportKey": "tiny-dungeon-tilemap_101",
+          "sourceRect": {
+            "x": 80,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "e670c145d0bf65bf70dd0cf07659311bca71c345d70afc88f7699742ba7275a0"
+        },
+        {
+          "index": 102,
+          "exportKey": "tiny-dungeon-tilemap_102",
+          "sourceRect": {
+            "x": 96,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "5bd23683000d1bd4831fd1c85c56f7a54a466ff6e822b6995450800adc535a8d"
+        },
+        {
+          "index": 103,
+          "exportKey": "tiny-dungeon-tilemap_103",
+          "sourceRect": {
+            "x": 112,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "897a1969a77b220d0d8a8aed11c1d0b8e9128f7a4f08593a72f43a4e40dff948"
+        },
+        {
+          "index": 104,
+          "exportKey": "tiny-dungeon-tilemap_104",
+          "sourceRect": {
+            "x": 128,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "1bf5d71d9844850c847c1cec1797311daeee73b5e4f2a2afb428cf1213b7f8c6"
+        },
+        {
+          "index": 105,
+          "exportKey": "tiny-dungeon-tilemap_105",
+          "sourceRect": {
+            "x": 144,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "c534e02f85a5a693e8a38c404a95551e5287b58f4e7be82040aa5f8b2f9faf54"
+        },
+        {
+          "index": 106,
+          "exportKey": "tiny-dungeon-tilemap_106",
+          "sourceRect": {
+            "x": 160,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "d1779197469eb002568a09d6d842e0b138dee97756be12768447c1e108583256"
+        },
+        {
+          "index": 107,
+          "exportKey": "tiny-dungeon-tilemap_107",
+          "sourceRect": {
+            "x": 176,
+            "y": 128,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 136,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "b4e33e381d8b24a44fa3238ea985990a04b09359f8cdaae301277d7c5fd98386"
+        },
+        {
+          "index": 108,
+          "exportKey": "tiny-dungeon-tilemap_108",
+          "sourceRect": {
+            "x": 0,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "8c7af9484417327fa4c56f952bee2328974522567a5994452e4fc435b6bc4b76"
+        },
+        {
+          "index": 109,
+          "exportKey": "tiny-dungeon-tilemap_109",
+          "sourceRect": {
+            "x": 16,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "cf747a84b881e5e76096f0c25428b4382674e930c6792751edbb87ee6cf8c43c"
+        },
+        {
+          "index": 110,
+          "exportKey": "tiny-dungeon-tilemap_110",
+          "sourceRect": {
+            "x": 32,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "3199d9b14f5b71e50e174edeed32540b8489dd8082640fe164a661d451869b09"
+        },
+        {
+          "index": 111,
+          "exportKey": "tiny-dungeon-tilemap_111",
+          "sourceRect": {
+            "x": 48,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "23165cdee9ba54202c6b2dc3d0c7802a7014700f736c30b9c07e6451532995fb"
+        },
+        {
+          "index": 112,
+          "exportKey": "tiny-dungeon-tilemap_112",
+          "sourceRect": {
+            "x": 64,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "c18d22fe59d67879b0287f7055add8dde8308f3fc45d7d7f8418e4e9f99c706f"
+        },
+        {
+          "index": 113,
+          "exportKey": "tiny-dungeon-tilemap_113",
+          "sourceRect": {
+            "x": 80,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "980490431053c6b21d9dad1f172837fdb39c90788d1d0ecec2312d7419219157"
+        },
+        {
+          "index": 114,
+          "exportKey": "tiny-dungeon-tilemap_114",
+          "sourceRect": {
+            "x": 96,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "03d1c1ea877eb760ab5af1397ca7185d03bc92af796b67aee03f24100035e448"
+        },
+        {
+          "index": 115,
+          "exportKey": "tiny-dungeon-tilemap_115",
+          "sourceRect": {
+            "x": 112,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "f64db1311e33148796bb045afe7b46576a2445f7668c07337e0e17b9d4894590"
+        },
+        {
+          "index": 116,
+          "exportKey": "tiny-dungeon-tilemap_116",
+          "sourceRect": {
+            "x": 128,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "1be7d5ed7bd5990f234d9fcb91d71ff8b7e2a9cc947010fce71034d2613ab3f0"
+        },
+        {
+          "index": 117,
+          "exportKey": "tiny-dungeon-tilemap_117",
+          "sourceRect": {
+            "x": 144,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "3840b7f88cfaa26bbd8174c7b8993654c173fa218edc2ffd45b528cc14a71efe"
+        },
+        {
+          "index": 118,
+          "exportKey": "tiny-dungeon-tilemap_118",
+          "sourceRect": {
+            "x": 160,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "777f86a66d52fb3e956ae9520c0b87c32a22e012d9f08b1f5650a67cf33d2c70"
+        },
+        {
+          "index": 119,
+          "exportKey": "tiny-dungeon-tilemap_119",
+          "sourceRect": {
+            "x": 176,
+            "y": 144,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 153,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "f759e3b46d8633c57a418aa339c402909916590cec3f12abcfa80efef9d22f42"
+        },
+        {
+          "index": 120,
+          "exportKey": "tiny-dungeon-tilemap_120",
+          "sourceRect": {
+            "x": 0,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 0,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "f23674fac9ba5bea035bb12cf2e56fa331ba8b519b9930f2f7e9962d540bf3f3"
+        },
+        {
+          "index": 121,
+          "exportKey": "tiny-dungeon-tilemap_121",
+          "sourceRect": {
+            "x": 16,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 17,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "a255411404d82bcab06938dc2c0fe598eb433364467fc08a00af7968be780770"
+        },
+        {
+          "index": 122,
+          "exportKey": "tiny-dungeon-tilemap_122",
+          "sourceRect": {
+            "x": 32,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 34,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "76454f3cdd4abe32fc2a0126ee5cb4c31d2c9200c0a2bf2459af3839786d66b8"
+        },
+        {
+          "index": 123,
+          "exportKey": "tiny-dungeon-tilemap_123",
+          "sourceRect": {
+            "x": 48,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 51,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "9d8e9afc799eb96715aaf63377306ca48d7bfb4c33d4f72a70313608abb5758c"
+        },
+        {
+          "index": 124,
+          "exportKey": "tiny-dungeon-tilemap_124",
+          "sourceRect": {
+            "x": 64,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 68,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "ba365ab1826d01ae919f357aaab941da9559ec2fac05bf8c8d839fd9968ab2f9"
+        },
+        {
+          "index": 125,
+          "exportKey": "tiny-dungeon-tilemap_125",
+          "sourceRect": {
+            "x": 80,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 85,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "98aa31791bf84a5be01c1570900186c739ab11ec2332a46999bb08e83c0914dc"
+        },
+        {
+          "index": 126,
+          "exportKey": "tiny-dungeon-tilemap_126",
+          "sourceRect": {
+            "x": 96,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 102,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "08f33774770a0f9b09931ecdb9316204444393cc6057d315d70b5aaedd1511f8"
+        },
+        {
+          "index": 127,
+          "exportKey": "tiny-dungeon-tilemap_127",
+          "sourceRect": {
+            "x": 112,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 119,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "e51a7ef8203a0f5b489b6129c2437c9ebe11cda3efec9a41d5dab1e1afed1ce2"
+        },
+        {
+          "index": 128,
+          "exportKey": "tiny-dungeon-tilemap_128",
+          "sourceRect": {
+            "x": 128,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 136,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "e8c3f28f99780c4e03783bba4d9e86d34b3c9c2a1bde3c541a29034be7f57ab8"
+        },
+        {
+          "index": 129,
+          "exportKey": "tiny-dungeon-tilemap_129",
+          "sourceRect": {
+            "x": 144,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 153,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "da903197af36f8ad6e88e344b681a90e7a342b4f3abffddbb266feee8b69eb0c"
+        },
+        {
+          "index": 130,
+          "exportKey": "tiny-dungeon-tilemap_130",
+          "sourceRect": {
+            "x": 160,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 170,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "200e36a4084bc3a0326a7e869d915e427bd961a8733b3deba92f07a14e2a6a90"
+        },
+        {
+          "index": 131,
+          "exportKey": "tiny-dungeon-tilemap_131",
+          "sourceRect": {
+            "x": 176,
+            "y": 160,
+            "w": 16,
+            "h": 16
+          },
+          "referenceX": 187,
+          "referenceY": 170,
+          "outputMatchesSelectedCrop": true,
+          "outputMatchesReferenceTile": false,
+          "visiblePixelSha256": "716d1a2a83a387ede20ae51499f3e9009d685d60443c73c10bb2d029ccffb495"
+        }
+      ],
+      "pageErrors": []
+    }
+  ]
+}
