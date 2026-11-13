@@ -216,7 +216,7 @@ export default {
   function describeChange(c){return c.map(x=>t('pack.chg.'+x.key+'.'+String(x.to))).join(', ');}
   const exportTarget=()=>{const id=prefs().target||prefs().preset;return TARGETS[id]&&!TARGETS[id].aseprite?id:(TARGETS[id]?id:'godot4');};
   const exportBlocked=tg=>tg.requiresAnimation&&model&&!model.animations.length?t('pack.requiresAnimation'):tg.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):null;
-  const canExport=tg=>!!result&&!busy&&!exporting&&!exportBlocked(tg);
+  const canExport=tg=>!!tg&&!!result&&!busy&&!exporting&&!exportBlocked(tg);
   function verifyBadge(tg,{short=false}={}){
    return h('span.pk-badge'+(tg.verify==='unverified'?'.is-unverified':''),{'data-verify':tg.verify,title:t('pack.verify.'+tg.verify,{engine:tg.engine})},
     short?h('i.pk-dot',{'aria-hidden':'true'}):'',short?'':t('pack.verify.'+tg.verify,{engine:tg.engine}));
@@ -251,7 +251,7 @@ export default {
   const fmtSize=n=>n<1024?`${n} B`:n<1048576?`${Math.round(n/1024)} KB`:`${(n/1048576).toFixed(1)} MB`;
   let metering=false;
   async function runExport(id){
-   if(!result||busy||exporting||metering)return;
+   if(!result||busy||exporting||metering||!TARGETS[id])return;
    const blocked=exportBlocked(TARGETS[id]);if(blocked){ctx.toast(blocked,{error:true});return;}
    // Free daily Studio export (docs/PRICING-MODEL.md); a refusal leaves everything as it was.
    metering=true;let go=false;try{go=await meter('studio-pack-export');}finally{metering=false;}
