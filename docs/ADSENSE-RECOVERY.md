@@ -18,15 +18,16 @@ Official quality reference: https://support.google.com/adsense/answer/7299563?hl
 - Full CI exposed stale service-browser scenarios that still expected a comment form; this is a test migration issue, not a reason to reopen community.
 - `/ko/radar/` already had official release records. Homepage only queried the separate system-news discussion table, so collected releases were invisible on home.
 
-## Current batch — local, not yet deployed
+## Current batch — PR #84, not yet deployed
 
 - `platform/news.js`: merge official recent release metadata with system news; latest release per entity; reject unsafe URLs, future/stale/unverified records. Do not create faux articles. External release links are labeled automatic source collection. Automated news index is noindex and absent from sitemap.
 - Public homepage puts publication streams after the intro, ahead of the long tool directory.
 - Original Korean/English case study `small-transparent-png`: 12 real encoder runs, original CC0 logo + Kenney CC0 tile sheet. Published assets and SHA-256 evidence in `assets/editorial/2026-11-14-png/`; reproduction script `tools/editorial/measure-compression.py`. No fake human review. Existing six AI-news draft files remain private.
 - Editorial note now describes actual AI assistance and technical checks; local editorial images opt-in to Markdown, no remote or traversal image paths.
+- Closed-community counts no longer qualify references or derived pages for indexing; sitemap and robots gates agree while explicit owner overrides remain.
 - Service browser now tests account OAuth/passkeys on Account, production community closure and unchanged retained data. Old community scenarios are no longer default gates; legacy adapter tests remain isolated.
 
-Checks so far: focused Node tests 13 passed; typecheck passed; actual Pages Worker + local D1 passkey/public/meteroff browser checks 50 passed. Social OAuth completed before a separate passkey selector failure, then passkey selectors were corrected and rerun successfully. Full suite and live deployment remain pending at this ledger point.
+Checks so far: full Node suite 2,880 passed / 1 skipped; focused indexing/publication tests 14 passed; typecheck and syntax passed (JSDoc updated after the new public-only counter check). Desktop/mobile article and home browser checks passed. Pages Worker + local D1 passkey/public/meteroff: 50 checks passed; signin/social/traffic: 47 passed; free/ads/studio passed in an earlier all-scenario run before a Windows Wrangler migration subprocess exited without output at the next scenario. Remote CI is the single-run gate. First PR head regression and both Cloudflare preview deployments passed; final CI and live deployment remain pending. PR: https://github.com/2009seungbin-stack/my-first-repo/pull/84 .
 
 ## Next work, in order
 
