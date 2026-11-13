@@ -37,8 +37,9 @@ try:
             pg.on('pageerror', lambda error: errors.append(str(error)))
             pg.on('request', lambda req: requests.append(req.url) if '/api/v2/' in req.url else None)
             for path in ['/', '/en/', '/ko/news/', '/ko/ai/digest/', '/ko/ai/digest/small-transparent-png/', '/en/ai/digest/small-transparent-png/',
-                         '/ko/ai/digest/sprite-grid-spacing/', '/en/ai/digest/sprite-grid-spacing/', '/ko/ai/', '/ko/ai/claude/',
-                         '/ko/hardware/performance/', '/ko/bracket/', '/ko/radar/']:
+                         '/ko/ai/digest/sprite-grid-spacing/', '/en/ai/digest/sprite-grid-spacing/', '/ko/ai/', '/en/ai/', '/ko/ai/claude/',
+                         '/ko/games/', '/en/games/', '/ko/hardware/', '/en/hardware/', '/ko/studio/', '/en/studio/', '/ko/subculture/', '/en/subculture/',
+                         '/ko/hardware/performance/', '/en/hardware/performance/', '/ko/bracket/', '/ko/radar/']:
                 assert pg.goto(BASE + path).status == 200, path
                 assert pg.locator('a[href*="/community/"]').count() == 0, path
                 assert pg.locator('[data-island="account"], [data-island="follow"], [data-island="bench-form"]').count() == 0, path
@@ -61,6 +62,15 @@ try:
                     pg.screenshot(path=str(OUT / f'home-{width}.png'), full_page=True)
                 if path == '/ko/bracket/':
                     pg.wait_for_selector('[data-bk-enable]:not([disabled])')
+                if '/hardware/performance/' in path:
+                    pg.wait_for_selector('[data-hw-enable]:not([disabled])')
+                    pg.fill('input[name="price-a"]', '100000')
+                    pg.fill('input[name="price-b"]', '200000')
+                    pg.locator('[data-island="hardware-value"] button').click()
+                    assert ('렌더링 성능/가격:' if path.startswith('/ko/') else 'Rendering score per price:') in pg.locator('[data-value-result]').inner_text()
+                    before = pg.locator('select[name="a"] option').count()
+                    pg.fill('[data-hw-filter="a"]', 'RTX 4070')
+                    assert 0 < pg.locator('select[name="a"] option').count() < before
                 if any('/' + slug + '/' in path for slug in ['small-transparent-png', 'sprite-grid-spacing']):
                     assert pg.locator('.pbody table tbody tr').count() == 7
                     assert pg.locator('.pbody img').count() == 2
