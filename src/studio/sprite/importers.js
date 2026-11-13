@@ -160,25 +160,44 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
   try{const {cells}=await work({op:'cells',key:id,blob:rec.blob,spec:g});s.cellCache.set(k,cells||null);return cells;}catch{return null;}
  }
  const effective=s=>{const c={...s.choice};delete c.cells;if(c.slice==='custom'&&c.grid)c.cells=s.cellCache?.get((c.keyMode||'auto')+'|'+gridKey(c.grid))||null;return c;};
+ // Measurement is asynchronous. Commit edits and Apply in input order, resolving each
+ // patch against the state left by its predecessor rather than a captured form snapshot.
+ function queueEdit(assetId,run){
+  const s=sheets.get(assetId);if(!s)return Promise.resolve(false);
+  const task=(s.editQueue||Promise.resolve()).then(()=>{
+   if(sheets.get(assetId)!==s||!P.assetById(ctx.doc,assetId))return false;
+   return run(s);
+  });
+  const settled=task.catch(()=>{});s.editQueue=settled;
+  settled.then(()=>{if(s.editQueue===settled)delete s.editQueue;});
+  return task;
+ }
  /** Every change of an import choice is one undo step: before Apply it changes only the preview
   * (a command with do/undo), after Apply it re-cuts the frames (a document edit). */
- async function changeChoice(assetId,patch,label){
-  const s=sheets.get(assetId);if(!s)return;planFor(assetId);// sync with the document first
-  const prev={...s.choice},next={...s.choice,...patch};delete next.cells;delete prev.cells;
-  if(JSON.stringify(next)===JSON.stringify(prev))return;// the same value again (Enter then blur) is not a step
-  if(next.keyMode!==prev.keyMode)await analyzeSheet(assetId,{keyMode:next.keyMode});
-  if(next.slice==='custom'&&next.grid)await measureCells(assetId,next.grid,next.keyMode);
-  const a=P.assetById(ctx.doc,assetId);
-  if(a?.import?.applied){s.choice=next;applySheet(assetId,{label});return;}
-  ctx.execute({label,do(){s.choice=next;onChange(assetId);},undo(){s.choice=prev;onChange(assetId);}});
+ function changeChoice(assetId,patch,label){
+  return queueEdit(assetId,async s=>{
+   planFor(assetId);// sync with the document first
+   const delta=typeof patch==='function'?patch(s.choice):patch;
+   const prev={...s.choice},next={...s.choice,...delta};delete next.cells;delete prev.cells;
+   if(JSON.stringify(next)===JSON.stringify(prev))return false;// Enter then blur is not a second step
+   if(next.keyMode!==prev.keyMode)await analyzeSheet(assetId,{keyMode:next.keyMode});
+   if(next.slice==='custom'&&next.grid)await measureCells(assetId,next.grid,next.keyMode);
+   const a=P.assetById(ctx.doc,assetId);if(!a)return false;
+   const name=typeof label==='function'?label(next):label;
+   if(a.import?.applied){s.choice=next;return applySheetNow(assetId,{label:name});}
+   ctx.execute({label:name,do(){s.choice=next;onChange(assetId);},undo(){s.choice=prev;onChange(assetId);}});
+   return true;
+  });
  }
  /** A grid typed or dragged by hand. Values are clamped to the sheet; zero whole cells is shown
   * as a problem in the panel (Apply stays off), never cut. */
- function setCustomGrid(assetId,g){
-  const a=P.assetById(ctx.doc,assetId);if(!a)return;
-  const n=(v,min,max)=>Math.max(min,Math.min(max,Math.round(Number(v)||0)));
-  const grid={w:n(g.w,1,a.width),h:n(g.h,1,a.height),ox:n(g.ox,0,a.width-1),oy:n(g.oy,0,a.height-1),sx:n(g.sx,0,a.width),sy:n(g.sy,0,a.height)};
-  return changeChoice(assetId,{slice:'custom',grid},t('sp.cmd.customGrid',{w:grid.w,h:grid.h}));
+ function setCustomGrid(assetId,fields){
+  return changeChoice(assetId,()=>{
+   const a=P.assetById(ctx.doc,assetId),g={...seedGrid(assetId),...fields};
+   const n=(v,min,max)=>Math.max(min,Math.min(max,Math.round(Number(v)||0)));
+   const grid={w:n(g.w,1,a.width),h:n(g.h,1,a.height),ox:n(g.ox,0,a.width-1),oy:n(g.oy,0,a.height-1),sx:n(g.sx,0,a.width),sy:n(g.sy,0,a.height)};
+   return {slice:'custom',grid};
+  },next=>t('sp.cmd.customGrid',{w:next.grid.w,h:next.grid.h}));
  }
  /** The plan for the current choice (for the preview), or null while analysing. */
  function planFor(assetId){
@@ -197,8 +216,10 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
   const rs=p?.analysis.auto?.rects||[],med=k=>{const v=rs.map(r=>r[k]).sort((x,y)=>x-y);return v.length?v[v.length>>1]:16;};
   return {w:med('w'),h:med('h'),ox:0,oy:0,sx:0,sy:0};
  }
- /** Cuts the frames the plan shows: one undo step. */
- function applySheet(assetId,{label=null}={}){
+ /** Applies after earlier input edits finish. Returns a Promise<boolean> for the view transition. */
+ function applySheet(assetId,options={}){return queueEdit(assetId,()=>applySheetNow(assetId,options));}
+ /** Internal commit: already inside the edit queue, including re-application after a choice. */
+ function applySheetNow(assetId,{label=null}={}){
   const s=sheets.get(assetId),p=planFor(assetId);if(!p)return false;
   const {analysis:r,plan}=p,a=P.assetById(ctx.doc,assetId);
   if(!plan.rects.length){ctx.toast(t('sp.imp.nothingToCut'),{error:true});return false;}
@@ -219,7 +240,7 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
    const label=t('sp.cmd.decision',{what:t('sp.dec.'+(decisionId==='key'?'key':decisionId==='slice'?'slice':decisionId)),choice:altLabel(alt)});
    if(decisionId==='key')await changeChoice(assetId,{keyMode:alt==='none'?'none':'force'},label);
    // Custom grid starts from the grid on screen (seeded BEFORE switching: the plan needs a grid)
-   else if(decisionId==='slice')await changeChoice(assetId,alt==='custom'?{slice:'custom',grid:sheets.get(assetId).choice.grid||seedGrid(assetId)}:{slice:alt},label);
+   else if(decisionId==='slice')await changeChoice(assetId,alt==='custom'?()=>({slice:'custom',grid:sheets.get(assetId).choice.grid||seedGrid(assetId)}):{slice:alt},label);
    else if(decisionId==='animations')await changeChoice(assetId,{animations:alt},label);
    else if(decisionId==='timing')await changeChoice(assetId,{duration:Number(alt)||100},label);
    return;

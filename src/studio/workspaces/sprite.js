@@ -57,7 +57,7 @@ export default {
    setSelection(sel){S.selection=sel;overlay.invalidate();panels.renderFrame();},
    setCurrent,clickFrame,selectTag,setDurations,moveFrames,newTag,addBox,removeBox,
    choose:(id,alt)=>{const a=asset();if(a)importer.choose(a.id,id,alt);},
-   applyImport:()=>{const a=asset();if(a&&importer.applySheet(a.id)){setMode('frame');setCurrent(0,{select:true});}},
+   applyImport:async()=>{const a=asset();if(a&&await importer.applySheet(a.id)&&asset()?.id===a.id){setMode('frame');setCurrent(0,{select:true});}},
    setCustomGrid:g=>importer.setCustomGrid(S.assetId,g),
    importState:()=>{const a=asset();if(!a)return null;const st=importer.sheetState(a.id),p=importer.planFor(a.id);return p?{...p,choice:st?.choice||{}}:st?{choice:st.choice}:null;},
    jitterReport:()=>S.jitter?.report||null,alignResult:()=>S.alignResult
@@ -83,7 +83,7 @@ export default {
   const customEditor=rectEditor({layer:customLayer,bounds:()=>{const a=asset();return a?{x:0,y:0,w:a.width,h:a.height}:{x:0,y:0,w:0,h:0};},selection:()=>['cell0'],onSelect:()=>{},
    onChange(map,{phase}){
     if(phase==='drag'){const r=map.get('cell0');if(!r)return;customDraft=r;const g=customGridNow();if(g)previewGrid({...g,ox:r.x,oy:r.y,w:r.w,h:r.h});return;}
-    if(phase==='end'&&customDraft){const g=customGridNow(),r=customDraft;customDraft=null;if(g)W.setCustomGrid({...g,ox:r.x,oy:r.y,w:r.w,h:r.h});return;}
+    if(phase==='end'&&customDraft){const g=customGridNow(),r=customDraft;customDraft=null;if(g)W.setCustomGrid({ox:r.x,oy:r.y,w:r.w,h:r.h});return;}
     if(phase==='cancel'){customDraft=null;syncPlanLayer();}
    },create:()=>false});
   function previewGrid(g){
