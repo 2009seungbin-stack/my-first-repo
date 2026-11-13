@@ -516,7 +516,7 @@ class MockProvider:
         threading.Thread(target=self.server.serve_forever,daemon=True).start()
     def close(self):self.server.shutdown();self.server.server_close()
 
-def scenario_social(browser):
+def legacy_scenario_social(browser):
     """PLATFORM + SERVICE_API build (like the preview): a member signs in with GitHub and another with Discord
     through the real redirect flow and each posts a comment; a denied consent shows a Korean message with a
     working retry; the GitHub member links and unlinks Discord on the account page."""
@@ -615,7 +615,7 @@ def scenario_social(browser):
         stack.close();mock.close()
 
 # ------------------------------------------------------------------ member passkeys (고정닉)
-def scenario_passkey(browser):
+def legacy_scenario_passkey(browser):
     """PLATFORM build on the real Pages runtime with Cloudflare's always-pass Turnstile testing keys and Chromium's
     virtual authenticator: a reader signs up with a nickname and a passkey from the sign-in sheet (Turnstile, then
     navigator.credentials.create), comments under the fixed nickname, signs out, signs in with 지문으로 로그인, and
@@ -940,14 +940,11 @@ def scenario_meteroff(browser):
                   f"INSERT INTO discussions(id,entity_id,post_no,kind,flair,channel_id,channel_no,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','question','ai',1,'E2E 질문','미터링 끔 테스트','ko','system:radar-bot',{now},{now},{now});"
                   f"INSERT INTO discussion_tags(discussion_id,entity_id,pos,created_at) VALUES('e2e-post','service:e2e-chat',0,{now});UPDATE channels SET post_seq=1 WHERE id='ai';")
         post=acct.goto(stack.url+'/ko/community/ai/1',wait_until='networkidle')
-        ok('meteroff: a platform post page renders from D1',post.status==200 and 'E2E 질문' in acct.content())
-        front=acct.goto(stack.url+'/ko/community/',wait_until='networkidle')
-        ok('meteroff: the community front renders',front.status==200 and acct.locator('.box.login').count()==1)
+        ok('meteroff: retired post returns 410 without a comment form',post.status==410 and acct.locator('#comment-form').count()==0)
+        front=acct.goto(stack.url+'/',wait_until='networkidle')
+        ok('meteroff: public home has publishing streams and no community account box',front.status==200 and acct.locator('[data-home-news]').count()==1 and acct.locator('.box.login').count()==0)
         uid,token=create_user(stack,'meteroff-member')
         context.add_cookies([{'name':'nerulio_session','value':token,'url':stack.url,'httpOnly':True,'sameSite':'Lax'}])
-        acct.goto(stack.url+'/ko/community/ai/1',wait_until='networkidle')
-        acct.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
-        ok('meteroff: a session signs the member in on platform pages',True)
         acct.goto(stack.url+'/ko/account/',wait_until='networkidle');acct.locator('[data-identities]').wait_for(timeout=15000)
         ok('meteroff: signed-in account page: e-mail, linked sign-ins, sign out; no plan or quota','meteroff-member@example.test' in acct.locator('#accountBody').inner_text() and acct.locator('[data-signout]').count()==1 and acct.locator('[data-usage],[data-studio-usage],[data-ads]').count()==0)
         me=acct.evaluate('fetch("/api/v1/me").then(r=>r.json())')
@@ -962,10 +959,90 @@ def scenario_meteroff(browser):
         context.close()
     finally:stack.close()
 
+
+def scenario_social(browser):
+    """OAuth sign-in/link/unlink/denial remain supported on Account after community retirement."""
+    mock=MockProvider();port=PORT or free_port();origin=f'http://127.0.0.1:{port}'
+    stack=Stack('social-public',{'SITE_URL':origin,'PLATFORM':'on'},
+                {'SITE_URL':origin,'GITHUB_OAUTH_CLIENT_ID':'e2e-github-client','GITHUB_OAUTH_CLIENT_SECRET':'e2e-github-secret','DISCORD_OAUTH_CLIENT_ID':'e2e-discord-client','DISCORD_OAUTH_CLIENT_SECRET':'e2e-discord-secret','OAUTH_TEST_ORIGIN':mock.url},port=port)
+    try:
+        context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url
+        page=context.new_page();instrument(page,[])
+        page.goto(stack.url+'/ko/account/',wait_until='networkidle')
+        with page.expect_navigation(timeout=30000):page.locator('.sibs .sib-github').click()
+        page.locator('[data-identities] [data-linked-provider="github"]').wait_for(timeout=15000)
+        gh=stack.sql("SELECT u.id,u.provider_subject,u.email,i.handle FROM users u JOIN user_identities i ON i.user_id=u.id WHERE i.provider='github'")
+        ok('social: GitHub OAuth retains verified identity on Account',len(gh)==1 and gh[0]['provider_subject']=='4242' and gh[0]['email']=='octo@example.test',gh)
+        with page.expect_navigation(timeout=30000):page.locator('[data-link-provider="discord"] a').click()
+        page.locator('[data-identities] [data-linked-provider="discord"]').wait_for(timeout=15000)
+        ok('social: Discord links to the GitHub account',len(stack.sql(f"SELECT 1 FROM user_identities WHERE user_id='{gh[0]['id']}'"))==2)
+        page.on('dialog',lambda d:d.accept());page.click('[data-unlink="discord"]')
+        page.locator('[data-identities] [data-link-provider="discord"]').wait_for(timeout=15000)
+        ok('social: Discord unlink leaves GitHub intact',len(stack.sql(f"SELECT 1 FROM user_identities WHERE user_id='{gh[0]['id']}'"))==1)
+        context.close()
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url
+        page=context.new_page();instrument(page,[]);page.goto(stack.url+'/ko/account/',wait_until='networkidle')
+        with page.expect_navigation(timeout=30000):page.locator('.sibs .sib-discord').click()
+        page.locator('[data-identities] [data-linked-provider="discord"]').wait_for(timeout=15000)
+        ok('social: independent Discord account signs in on mobile','discord' in mock.tokens)
+        context.close()
+        mock.deny.add('github');context=browser.new_context();context._nerulio_base=stack.url
+        page=context.new_page();instrument(page,[]);page.goto(stack.url+'/ko/account/?return=%2Fko%2Faccount%2F',wait_until='networkidle')
+        with page.expect_navigation(timeout=30000):page.locator('.sibs .sib-github').click()
+        err=page.locator('.service-error');err.wait_for(timeout=15000)
+        ok('social: consent refusal exposes a working retry','GitHub 로그인을 취소했어요' in err.inner_text())
+        mock.deny.clear()
+        with page.expect_navigation(timeout=30000):err.locator('[data-retry]').click()
+        page.locator('[data-identities] [data-linked-provider="github"]').wait_for(timeout=15000)
+        ok('social: retry signs in on Account without restoring the community',True)
+        context.close()
+    finally:stack.close();mock.close()
+
+def scenario_passkey(browser):
+    """Virtual authenticator verifies member signup/signin on Account, without community writes."""
+    port=PORT or free_port();origin=f'http://localhost:{port}'
+    stack=Stack('passkey-public',{'SITE_URL':origin,'PLATFORM':'on'},
+                {'SITE_URL':origin,'TURNSTILE_SITE_KEY':'1x00000000000000000000AA','TURNSTILE_SECRET_KEY':'1x0000000000000000000000000000000AA'},port=port)
+    try:
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=origin
+        page=context.new_page();instrument(page,[])
+        cdp=context.new_cdp_session(page);cdp.send('WebAuthn.enable')
+        auth=cdp.send('WebAuthn.addVirtualAuthenticator',{'options':{'protocol':'ctap2','transport':'internal','hasResidentKey':True,'hasUserVerification':True,'isUserVerified':True,'automaticPresenceSimulation':True}})['authenticatorId']
+        page.goto(origin+'/ko/account/',wait_until='networkidle')
+        page.locator('[data-passkey-signup] input[name="displayName"]').fill('지문테스터')
+        page.locator('[data-passkey-signup] button[type="submit"]').click();page.locator('[data-signout]').wait_for(timeout=60000)
+        creds=cdp.send('WebAuthn.getCredentials',{'authenticatorId':auth})['credentials']
+        ok('passkey: account signup creates a resident member credential',len(creds)==1 and creds[0]['isResidentCredential'])
+        page.locator('[data-signout]').click();page.locator('[data-passkey-signin]').wait_for(timeout=15000)
+        page.locator('[data-passkey-signin]').click();page.locator('[data-signout]').wait_for(timeout=30000)
+        ok('passkey: the same authenticator signs back into Account',True)
+        ok('passkey: no community comments were written',stack.sql('SELECT COUNT(*) n FROM comments')[0]['n']==0)
+        context.close()
+    finally:stack.close()
+
+def scenario_public(browser):
+    """Production Pages Worker, local D1: closed endpoints cannot read or mutate retained content."""
+    port=PORT or free_port();origin=f'http://127.0.0.1:{port}'
+    stack=Stack('public-closure',{'SITE_URL':origin,'PLATFORM':'on'},{'SITE_URL':origin},port=port)
+    try:
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=origin
+        page=context.new_page();instrument(page,[]);page.goto(origin+'/',wait_until='networkidle')
+        ok('public: home has news/commentary streams and no community links',page.locator('[data-home-news],[data-home-digest]').count()==2 and page.locator('a[href*="/community/"]').count()==0)
+        for path in ['/ko/community/','/ko/community/ai/write','/ko/community/free/1','/u/12345678/full.jpg','/ko/ai/claude/write']:
+            r=page.request.get(origin+path)
+            ok('public: retired URL '+path,r.status==410 and 'noindex' in r.headers.get('x-robots-tag',''))
+        before=stack.sql('SELECT COUNT(*) n FROM discussions')[0]['n']
+        for endpoint in ['posts','comments','votes','reports','uploads','profile','facts/propose','tags/propose','follow']:
+            r=page.request.post(origin+'/api/v2/'+endpoint,data='{}',headers={'Origin':origin,'Content-Type':'application/json'})
+            ok('public: retired API '+endpoint,r.status==410 and r.json()['error']['code']=='COMMUNITY_CLOSED')
+        ok('public: closed writes did not create content',stack.sql('SELECT COUNT(*) n FROM discussions')[0]['n']==before)
+        context.close()
+    finally:stack.close()
+
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,anon,meteroff,channels').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,public,meteroff').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
@@ -973,9 +1050,8 @@ with sync_playwright() as p:
         if 'social' in only:scenario_social(browser)
         if 'passkey' in only:scenario_passkey(browser)
         if 'traffic' in only:scenario_traffic(browser)
-        if 'anon' in only:scenario_anon(browser)
+        if 'public' in only or 'anon' in only or 'channels' in only:scenario_public(browser)
         if 'meteroff' in only:scenario_meteroff(browser)
-        if 'channels' in only:scenario_channels(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))
 (OUT/'service-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')

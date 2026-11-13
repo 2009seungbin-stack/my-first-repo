@@ -122,7 +122,7 @@ export function primaryBar(l){
 function shellNav(o){
  const l=o.l,ko=l==='ko',lang=ko?'ko':'en';
  if(o.publicOnly){
-  const links=[{href:homeUrl(l),name:ko?'홈':'Home'},{href:toolsHome(l),name:ko?'모든 도구':'All tools'},{href:`/${l}/game/`,name:ko?'게임 에셋 도구':'Game asset tools'},{href:`/${l}/news/`,name:ko?'뉴스':'News'},{href:`/${l}/ai/digest/`,name:ko?'AI 해설':'AI commentary'},{href:`/${l}/ai/`,name:ko?'AI 정보·비교':'AI reference'},{href:`/${l}/radar/`,name:ko?'출시·업데이트':'Releases & updates'},{href:`/${l}/preflight/`,name:'Preflight'}];
+  const links=[{href:homeUrl(l),name:ko?'홈':'Home'},{href:toolsHome(l),name:ko?'모든 도구':'All tools'},{href:`/${l}/game/`,name:ko?'게임 에셋 도구':'Game asset tools'},{href:`/${l}/news/`,name:ko?'뉴스':'News'},{href:`/${l}/ai/digest/`,name:ko?'실측·해설':'Tests & commentary'},{href:`/${l}/ai/`,name:ko?'AI 정보·비교':'AI reference'},{href:`/${l}/radar/`,name:ko?'출시·업데이트':'Releases & updates'},{href:`/${l}/preflight/`,name:'Preflight'}];
   return html`<aside class="lnav" id="lnav" aria-label="${ko?'메뉴와 도구':'Menu and tools'}"><div class="lnh"><a class="brand" href="${homeUrl(l)}">${LOGO}<span>nerulio</span></a><a class="lnx" href="#" data-drawer-close aria-label="${ko?'닫기':'Close'}">×</a></div><nav aria-label="${ko?'페이지':'Pages'}">${links.map(x=>html`<a class="ln" href="${x.href}">${x.name}</a>`)}</nav><details class="lg" open><summary>${ko?'게임 에셋 도구':'Game asset tools'}</summary><ul>${GAME_TOOLS.map(x=>html`<li><a href="${toolHref(l,x)}">${x[lang]}</a></li>`)}</ul></details><details class="lg" open><summary>${ko?'파일 도구':'File tools'}</summary><ul>${FILE_TOOLS.map(x=>html`<li><a href="${toolHref(l,x)}">${x[lang]}</a></li>`)}</ul></details></aside>`;
  }
  const home=o.toolsOnly?toolsHome(l):homeUrl(l);

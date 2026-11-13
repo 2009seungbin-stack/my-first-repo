@@ -48,13 +48,13 @@ test('home exposes only published commentary and system news; former boards neve
    assert(!/data-island="(?:account|follow|bench-form|my-radar|channel-sheet|channel-bar)"/.test(body),path);
    if(path==='/'){assert(body.includes('data-home-news'));assert(body.includes('data-home-digest'));assert(body.includes('Published commentary fixture'));}
   }
-  const news=m.news[0];const nr=await handlePublicPage(request(`/ko/news/${news.channel_id}/${news.channel_no}`),{DB:db},null,site);
+  const news=m.news.find(p=>!p.url);assert(news);const nr=await handlePublicPage(request(`/ko/news/${news.channel_id}/${news.channel_no}`),{DB:db},null,site);
   assert.equal(nr.status,200);assert(!/comment-form|data-island="vote"/.test(await nr.text()));
   const human=await db.prepare("SELECT channel_id,channel_no FROM discussions WHERE author_id NOT LIKE 'system:%' LIMIT 1").first();
   assert.equal((await handlePublicPage(request(`/ko/news/${human.channel_id}/${human.channel_no}`),{DB:db},null,site)).status,404);
   assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM discussions').first()).n,before);
   const sitemap=await(await handlePublicPage(request('/sitemap-n2-ai.xml'),{DB:db},null,site)).text();
-  assert(!sitemap.includes('/community/'));assert(sitemap.includes('/ko/news/'));assert(sitemap.includes('reviewed-example'));assert(!sitemap.includes('draft-secret'));
+  assert(!sitemap.includes('/community/'));assert(!sitemap.includes('/ko/news/'));assert(sitemap.includes('reviewed-example'));assert(!sitemap.includes('draft-secret'));
  }finally{useDigestArticles([]);db.raw.close();}
 });
 
