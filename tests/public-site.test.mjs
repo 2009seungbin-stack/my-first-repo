@@ -7,6 +7,7 @@ import {insertDemoContent} from '../tools/platform/demo-posts.mjs';
 import {handlePublicPage,retiredCommunityResponse,homePublishing} from '../server/platform/public.js';
 import {useDigestArticles} from '../platform/digest.js';
 import {createPost} from '../platform/community.js';
+import {loadHub,renderHub} from '../platform/render/hub.js';
 import {renderSitemap} from '../server/platform/pages.js';
 
 const origin='https://nerulio.com';
@@ -41,6 +42,10 @@ test('home exposes only published commentary and system news; former boards neve
   const article={slug:'reviewed-example',locale:'ko',date:'2026-11-13',updated:'2026-11-13',title:'Published commentary fixture',summary:'A reviewed test fixture.',status:'published',sources:[{title:'Source',url:'https://example.test/'}],body:'Reviewed fixture text.'};
   useDigestArticles([article,{...article,slug:'draft-secret',title:'DRAFT_MUST_NOT_LEAK',status:'draft'}]);
   const m=await homePublishing(db,'ko');assert(m.news.length>0);assert(m.news.every(p=>p.bot));
+  const hub=await loadHub(db,'ai',{l:'en'}),first=hub.groups.flatMap(g=>g.rows)[0];
+  first.posts=987;
+  assert(String(renderHub(hub,{origin})).includes('posts 987'),'legacy fixture exposes its own post count');
+  assert(!String(renderHub(hub,{origin,publicOnly:true})).includes('posts 987'),'closed posts cannot advertise activity in a public reference directory');
   for(const path of ['/','/en/','/ko/news/','/ko/ai/','/ko/ai/claude/','/ko/ai/claude/status','/ko/ai/digest/','/ko/ai/digest/reviewed-example/','/ko/hardware/performance/','/ko/bracket/','/ko/radar/']){
    const r=await handlePublicPage(request(path),{DB:db},null,site);assert.equal(r.status,200,path);
    const body=await r.text();
