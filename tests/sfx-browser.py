@@ -35,6 +35,54 @@ def make_wav(path):
         w.writeframes(samples.tobytes())
 
 
+def channel_import_checks(context, temp):
+    for name in ['right-only', 'opposite', 'mono']:
+        data = array.array('h')
+        for i in range(2205):
+            v = round(6000 * math.sin(2 * math.pi * 440 * i / 44100))
+            data.extend([v] if name == 'mono' else [0, v] if name == 'right-only' else [v, -v])
+        with wave.open(str(temp / (name + '.wav')), 'wb') as w:
+            w.setnchannels(1 if name == 'mono' else 2); w.setsampwidth(2); w.setframerate(44100); w.writeframes(data.tobytes())
+    cases = [('right-only', 'mix', False), ('right-only', 'channel1', True),
+             ('opposite', 'mix', True), ('opposite', 'channel2', False), ('mono', 'channel2', None)]
+    for name, mode, silent in cases:
+        q = context.new_page()
+        errors = []; external = []
+        q.on('pageerror', lambda e: errors.append(str(e)))
+        q.on('request', lambda r: external.append(r.url) if not r.url.startswith((BASE, 'data:', 'blob:')) else None)
+        q.goto(BASE + '/en/game/sfx-generator/')
+        q.locator('#metrics').filter(has_text='Duration').wait_for()
+        q.locator('#advanced').evaluate('(x)=>x.open=true')
+        q.locator('#sampleChannels').select_option(mode)
+        q.locator('#sampleFile').set_input_files(str(temp / (name + '.wav')))
+        if silent is None:
+            expect(q.locator('#status')).to_have_attribute('data-error', '1')
+            assert 'second channel' in q.locator('#status').inner_text()
+            expect(q.locator('#layers select[data-field="kind"]').first).to_have_value('synth')
+        else:
+            expect(q.locator('#layers select[data-field="kind"]').first).to_have_value('sample')
+            note = q.locator('#sampleImportNote')
+            assert note.get_attribute('data-mode') == mode
+            assert note.get_attribute('data-mix-cancelled') == ('1' if name == 'opposite' and mode == 'mix' else '0')
+            q.locator('#format').select_option('wav'); q.locator('#bits').select_option('16')
+            with q.expect_download() as d: q.locator('#saveAudio').click()
+            with wave.open(str(d.value.path()), 'rb') as w:
+                pcm = array.array('h'); pcm.frombytes(w.readframes(w.getnframes()))
+                assert w.getnchannels() == 2 and (max(abs(x) for x in pcm) == 0) == silent
+            if name == 'right-only' and mode == 'mix':
+                original = Path(d.value.path()).read_bytes()
+                q.locator('#sampleChannels').select_option('channel2')
+                q.locator('#sampleFile').set_input_files(str(temp / 'mono.wav'))
+                expect(q.locator('#status')).to_have_attribute('data-error', '1')
+                assert note.get_attribute('data-mode') == 'mix'
+                with q.expect_download() as saved: q.locator('#saveAudio').click()
+                assert Path(saved.value.path()).read_bytes() == original, 'a rejected import preserves the previous sample'
+        assert not errors, errors
+        assert not external, external
+        q.close()
+    return len(cases)
+
+
 def run():
     checks = 0
     with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
@@ -44,6 +92,7 @@ def run():
         if BROWSER == 'chromium': options['permissions']=['clipboard-read', 'clipboard-write']
         context = browser.new_context(**options)
         page = context.new_page(); errors = []; external = []
+        checks += channel_import_checks(context, temp)
         page.on('pageerror', lambda e: errors.append(str(e.stack or e)))
         page.on('request', lambda req: external.append(req.url) if not req.url.startswith((BASE, 'data:', 'blob:')) else None)
         page.goto(BASE + '/en/game/sfx-generator/', wait_until='domcontentloaded')
@@ -163,8 +212,11 @@ def run():
         assert not errors, errors; assert not external, external; checks += 1
         context.close(); browser.close()
         mobile = getattr(p, BROWSER).launch(headless=True)
-        for locale in ('ko','ja'):
+        for locale in ('en','ko','ja'):
             q=mobile.new_page(viewport={'width':390,'height':844});q.goto(BASE+f'/{locale}/game/sfx-generator/');q.locator('#metrics').filter(has_text='').wait_for()
+            q.locator('#advanced').evaluate('(x)=>x.open=true')
+            assert q.locator('#sampleChannels option').count() == 3
+            assert all(x.inner_text() and 'undefined' not in x.inner_text() for x in q.locator('#sampleChannels option').all())
             assert q.locator('html').get_attribute('lang') == locale and q.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), locale
             assert q.locator('h1').inner_text() and q.locator('.sfx-seo .sd-block').count() >= 3
             checks += 1;q.close()
