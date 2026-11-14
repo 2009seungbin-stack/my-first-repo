@@ -1,0 +1,175 @@
+{
+  "measuredAtUTC": "2026-11-14T13:52:09.898224+00:00",
+  "sourceCommit": "03076e89a814dd84be7f5e9c9507003e4ab529da",
+  "protocolCommit": "0ef8f8250c1c483a5e3d17b0195453fc5b6efee5",
+  "protocolSha256Utf8LF": "8da947aff8e2ec5d893831ba60bfca943b50215a99b2e42663df385cb0024e75",
+  "dimensions": [
+    128,
+    96
+  ],
+  "bmpFormat": "BITMAPV4HEADER 108 bytes,32bpp,BI_BITFIELDS3,bottom-up BGRA8,RGBA masks,sRGB constant",
+  "inputs": [
+    {
+      "name": "opaque-v4.bmp",
+      "sha256": "b5b7f2a932f0edf01eeba3887ddda3e16a2b9c5a63b73388de4d9bf673c1c496",
+      "bytes": 49274,
+      "transparent": false
+    },
+    {
+      "name": "alpha-v4.bmp",
+      "sha256": "494ba10ac809736ccb3d646f21e90e60d724db265050078651ed7ddfea0c4efd",
+      "bytes": 49274,
+      "transparent": true
+    }
+  ],
+  "code": [
+    {
+      "engine": "chromium",
+      "path": "src/task/convert.js",
+      "sha256Utf8LF": "cfd4e470c9acb7c4ccf059a12a4ec7bca38edd68ee3b8340c302a829e3e00219"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/image.js",
+      "sha256Utf8LF": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/image-container.js",
+      "sha256Utf8LF": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/core.js",
+      "sha256Utf8LF": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/task/convert.js",
+      "sha256Utf8LF": "cfd4e470c9acb7c4ccf059a12a4ec7bca38edd68ee3b8340c302a829e3e00219"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/image.js",
+      "sha256Utf8LF": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/image-container.js",
+      "sha256Utf8LF": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/core.js",
+      "sha256Utf8LF": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    }
+  ],
+  "observations": [
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "opaque-v4.bmp",
+      "output": "chromium-opaque-v4.png",
+      "outputSha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228",
+      "outputBytes": 1237,
+      "bands": {
+        "255": {
+          "pixels": 12288,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      },
+      "note": "BMP \u2192 PNG \u00b7 128\u00d796"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "alpha-v4.bmp",
+      "output": "chromium-alpha-v4.png",
+      "outputSha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0",
+      "outputBytes": 4557,
+      "bands": {
+        "0": {
+          "pixels": 3072,
+          "changedRgbPixels": 3071,
+          "maxRgbDelta": 255,
+          "changedAlphaPixels": 0
+        },
+        "64": {
+          "pixels": 3072,
+          "changedRgbPixels": 2679,
+          "maxRgbDelta": 2,
+          "changedAlphaPixels": 0
+        },
+        "128": {
+          "pixels": 3072,
+          "changedRgbPixels": 2295,
+          "maxRgbDelta": 1,
+          "changedAlphaPixels": 0
+        },
+        "255": {
+          "pixels": 3072,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      },
+      "note": "BMP \u2192 PNG \u00b7 128\u00d796"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "opaque-v4.bmp",
+      "output": "firefox-opaque-v4.png",
+      "outputSha256": "6d123853925cfeeed8d1b5d0b9ff8740f00612a9d26ba6f8706ae470c6e1c9fb",
+      "outputBytes": 734,
+      "bands": {
+        "255": {
+          "pixels": 12288,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      },
+      "note": "BMP \u2192 PNG \u00b7 128\u00d796"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "alpha-v4.bmp",
+      "output": "firefox-alpha-v4.png",
+      "outputSha256": "1b5831c4ca14809683bc85682f6d7575798c1382b79d64a85ee835218e889100",
+      "outputBytes": 3514,
+      "bands": {
+        "0": {
+          "pixels": 3072,
+          "changedRgbPixels": 3071,
+          "maxRgbDelta": 255,
+          "changedAlphaPixels": 0
+        },
+        "64": {
+          "pixels": 3072,
+          "changedRgbPixels": 2882,
+          "maxRgbDelta": 4,
+          "changedAlphaPixels": 0
+        },
+        "128": {
+          "pixels": 3072,
+          "changedRgbPixels": 2691,
+          "maxRgbDelta": 2,
+          "changedAlphaPixels": 0
+        },
+        "255": {
+          "pixels": 3072,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      },
+      "note": "BMP \u2192 PNG \u00b7 128\u00d796"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Four actual native BMP-to-PNG downloads, two authored sRGB-tagged RGBA8 BMP V4 patterns. Hidden RGB at alpha0 is not visible quality loss. Does not test all BMP variants, profiles, browsers, perceptual quality or repeated saves."
+}

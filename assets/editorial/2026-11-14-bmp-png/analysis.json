@@ -1,0 +1,142 @@
+{
+  "sourceCommit": "03076e89a814dd84be7f5e9c9507003e4ab529da",
+  "protocolCommit": "0ef8f8250c1c483a5e3d17b0195453fc5b6efee5",
+  "inputs": [
+    {
+      "file": "opaque-v4.bmp",
+      "bitsPerPixel": 32,
+      "dpiFromPixelsPerMetre": [
+        72.009,
+        72.009
+      ]
+    },
+    {
+      "file": "alpha-v4.bmp",
+      "bitsPerPixel": 32,
+      "dpiFromPixelsPerMetre": [
+        72.009,
+        72.009
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "engine": "chromium",
+      "input": "opaque-v4.bmp",
+      "output": "chromium-opaque-v4.png",
+      "pngChunks": [
+        "IHDR",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ],
+      "metadataKeys": [],
+      "bands": {
+        "255": {
+          "pixels": 12288,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      }
+    },
+    {
+      "engine": "chromium",
+      "input": "alpha-v4.bmp",
+      "output": "chromium-alpha-v4.png",
+      "pngChunks": [
+        "IHDR",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ],
+      "metadataKeys": [],
+      "bands": {
+        "0": {
+          "pixels": 3072,
+          "changedRgbPixels": 3071,
+          "maxRgbDelta": 255,
+          "changedAlphaPixels": 0
+        },
+        "64": {
+          "pixels": 3072,
+          "changedRgbPixels": 2679,
+          "maxRgbDelta": 2,
+          "changedAlphaPixels": 0
+        },
+        "128": {
+          "pixels": 3072,
+          "changedRgbPixels": 2295,
+          "maxRgbDelta": 1,
+          "changedAlphaPixels": 0
+        },
+        "255": {
+          "pixels": 3072,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      }
+    },
+    {
+      "engine": "firefox",
+      "input": "opaque-v4.bmp",
+      "output": "firefox-opaque-v4.png",
+      "pngChunks": [
+        "IHDR",
+        "IDAT",
+        "deBG",
+        "IEND"
+      ],
+      "metadataKeys": [],
+      "bands": {
+        "255": {
+          "pixels": 12288,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      }
+    },
+    {
+      "engine": "firefox",
+      "input": "alpha-v4.bmp",
+      "output": "firefox-alpha-v4.png",
+      "pngChunks": [
+        "IHDR",
+        "IDAT",
+        "deBG",
+        "IEND"
+      ],
+      "metadataKeys": [],
+      "bands": {
+        "0": {
+          "pixels": 3072,
+          "changedRgbPixels": 3071,
+          "maxRgbDelta": 255,
+          "changedAlphaPixels": 0
+        },
+        "64": {
+          "pixels": 3072,
+          "changedRgbPixels": 2882,
+          "maxRgbDelta": 4,
+          "changedAlphaPixels": 0
+        },
+        "128": {
+          "pixels": 3072,
+          "changedRgbPixels": 2691,
+          "maxRgbDelta": 2,
+          "changedAlphaPixels": 0
+        },
+        "255": {
+          "pixels": 3072,
+          "changedRgbPixels": 0,
+          "maxRgbDelta": 0,
+          "changedAlphaPixels": 0
+        }
+      }
+    }
+  ],
+  "verified": "All four native outputs match recorded hashes, dimensions and recomputed alpha-band differences. PNG chunk CRCs checked; original BMP samples parsed directly. Hidden RGB at alpha0 is not visible quality loss."
+}

@@ -1090,15 +1090,15 @@ export default {
  'image/bmp-to-png':{
   type:'tool',
   intent:{primary:'convert BMP to PNG',secondary:['make BMP files smaller without losing quality','BMP to PNG lossless','open BMP on the web'],
-   goal:'a lossless PNG, much smaller than the BMP, with identical pixels',input:'BMP (the common uncompressed 24-bit kind; decoding by the browser)',output:'PNG, lossless, same dimensions',target:'web pages, chat, documents, game tools',support:'full',
-   evidence:['src/task/convert.js','measured 2026-09-28, Chromium 153: astronaut.bmp (512×512, 786,486 B), dungeon.bmp from Kenney tiny-dungeon (203×186, 113,886 B)'],
+   goal:'lossless PNG encoding with unchanged dimensions and separately checked source RGBA',input:'browser-decodable BMP; earlier opaque24-bit examples and authored32-bit V4 controls measured separately',output:'PNG, lossless, same dimensions',target:'web pages, chat, documents, game tools',support:'full',
+   evidence:['src/task/convert.js','measured 2026-09-28, Chromium 153: astronaut.bmp (512×512, 786,486 B), dungeon.bmp from Kenney tiny-dungeon (203×186, 113,886 B)','4 native BMP V4 downloads measured2026-11-14 at source03076e89a814dd84be7f5e9c9507003e4ab529da; assets/editorial/2026-11-14-bmp-png/measurements.json'],
    external:['MDN: BMP usually uncompressed, 3 bytes per pixel, rows padded to 4 bytes; avoid for web content']},
   en:{
-   answer:'BMP to PNG is the safe way to shrink a BMP: both formats are lossless, so the PNG has exactly the same pixels, only compressed. How much you save depends on the content — a 512 × 512 photo went from 786,486 to 575,694 bytes (−27 %), while a 203 × 186 tile sheet with flat colours went from 113,886 to 16,685 bytes (−85 %). The width and height are unchanged, and no quality setting is involved.',
+   answer:'PNG can reduce an uncompressed BMP using a lossless output codec. The two earlier opaque 24-bit examples retained their decoded pixels. A browser conversion still needs a separate sample check: the new transparent 32-bit BMP V4 control kept alpha but changed some RGB values. Width and height stay the same; PNG does not use the quality slider.',
    concept:{title:'Why BMPs are so large',body:[
     'The common BMP stores every pixel as three raw bytes (blue, green, red) with no compression, and pads each row to a multiple of 4 bytes. Its size is therefore fixed by the dimensions: 54 header bytes + height × padded row length. MDN recommends avoiding BMP for web content for exactly this reason.',
-    'PNG predicts each pixel from its neighbours and compresses the difference losslessly. Flat colour, text and pixel art predict almost perfectly and shrink dramatically; camera noise does not, so photos shrink only moderately. Either way nothing is lost — the measured PNGs decode to the very same pixels as the BMPs.'],
-    terms:[['Uncompressed','Raw pixel bytes; the file size depends only on width and height.'],['Row padding','Each BMP row is rounded up to a multiple of 4 bytes.'],['Lossless','The PNG decodes to exactly the pixels the BMP held.']]},
+    'PNG predicts pixels and compresses the differences without loss in its output codec. Flat colours often compress well, while camera noise can compress poorly. The two earlier opaque 24-bit examples had matching decoded pixels. That result does not establish preservation of every source RGBA sample through all browser decoding, canvas and export paths.'],
+    terms:[['Uncompressed','Raw pixel bytes; the file size depends only on width and height.'],['Row padding','Each BMP row is rounded up to a multiple of 4 bytes.'],['Lossless','PNG reconstructs the samples encoded in the PNG. Source-to-output RGBA preservation requires a separate comparison.']]},
    example:{title:'Size arithmetic and two measured files',lead:'BMP sizes computed from the format; PNG sizes measured with Nerulio\'s converter in Chromium 153 on 2026-09-28 (BMPs written by Pillow 12.3 from the repository fixtures).',lines:[
     'Photo   512 x 512:  row = 512 x 3 = 1,536 bytes (already a multiple of 4)',
     '        54 + 512 x 1,536 = 786,486 bytes BMP  ->  575,694 bytes PNG  (-27 %)',
@@ -1108,32 +1108,34 @@ export default {
     '',
     'Pixels changed in both PNGs: 0'],
     after:'The tile sheet is Kenney\'s CC0 Tiny Dungeon tilemap flattened onto black; as lossless WebP (quality 100) it shrank further to 6,318 bytes, also pixel-exact.'},
-   mapping:{title:'What the PNG keeps',head:['In the BMP','What the converter does','In the PNG'],rows:[
-    ['24-bit pixels','Stored losslessly','Identical pixels'],
+   mapping:{title:'Conversion stages and measured limits',head:['BMP input','Processing or check','PNG observation'],rows:[
+    ['Earlier opaque 24-bit examples','Two measured files','0 changed pixels in those examples'],
+    ['32-bit V4, alpha 64','3,072 pixels in each browser','Chromium: 2,679 changed RGB, max delta 2; Firefox: 2,882, max 4. Alpha unchanged.'],
+    ['32-bit V4, alpha 128','3,072 pixels in each browser','Chromium: 2,295 changed RGB, max delta 1; Firefox: 2,691, max 2. Alpha unchanged.'],
     ['Row padding and bottom-up order','Handled by the browser\'s decoder','Not needed in PNG'],
     ['File size tied to dimensions','Replaced by DEFLATE compression','Size depends on content'],
-    ['Header resolution (DPI) fields','Not copied','No DPI information']]},
+    ['Header resolution (DPI) fields','Not copied','The four new V4 outputs have no DPI entry']]},
    verify:{steps:[
-    'Open both files at 100 %: they must look identical, because both formats are lossless.',
+    'Compare both at 100%; if exact values matter, compare decoded RGBA samples as well.',
     'Check that width and height match the BMP.',
     'Compare the byte counts: screenshots and graphics usually shrink far more than photos.']},
    trouble:{rows:[
-    ['"This image cannot be opened"','An unusual BMP variant (compressed, odd bit depth) the browser does not decode','Open the BMP directly in the browser','Re-save it as a standard 24-bit BMP or PNG in the program that made it'],
+    ['"This image cannot be opened"','An unusual BMP variant (compressed, odd bit depth) the browser does not decode','Open the BMP directly in the browser','Export a compatible BMP or PNG from the authoring program, preserving transparency when needed'],
     ['The PNG is only a little smaller','A photo: noise compresses poorly even in PNG','Compare sizes','For photos, [[image/bmp-to-jpg|BMP to JPG]] is ten times smaller'],
     ['Print size changed in a layout program','BMP DPI fields are not copied, so the program assumes its default','Look at the image\'s DPI in that program','Set the size in the layout program; the pixel dimensions are unchanged'],
-    ['Colours look different in an old viewer','The PNG has no colour profile, the viewer may treat colours differently','Compare in a browser','Use a current viewer; the pixel values are identical']]},
+    ['Colours or RGB values differ','The browser conversion path can change samples; viewers can also handle colour differently','Compare decoded RGBA and use the same viewer/background','Keep the original if source samples must be retained; inspect the V4 evidence below']]},
    alternatives:{rows:[
     ['[[image/bmp-to-jpg|BMP to JPG]]','Camera photos where a tenth of the size matters more than exact pixels.'],
     ['[[image/convert|Convert]] to WebP at quality 100','The target reads WebP: lossless and smaller still (6,318 vs 16,685 bytes for the tile sheet).']]},
-   limits:['Only BMP variants the browser decodes can be read.','DPI and other header fields are not carried over.'],
-   versions:{body:['BMP sizes follow the layout MDN describes (3 bytes per pixel, rows padded to 4 bytes). PNG sizes and the zero-difference check were measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path, on BMPs written by Pillow 12.3 from `tests/fixtures/astronaut.png` and `tests/fixtures/kenney/tiny-dungeon-tilemap.png`.'],sources:[MDN.en]}
+   limits:['Only BMP variants the browser decodes can be read.','DPI and other header fields are not carried over.','The new V4 controls retain alpha and opaque RGB, while partially transparent RGB can change. Hidden RGB at alpha 0 is reported separately, without calling it visible quality loss.'],
+   versions:{body:['BMP sizes follow the layout MDN describes (3 bytes per pixel, rows padded to 4 bytes). PNG sizes and the zero-difference check were measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path, on BMPs written by Pillow 12.3 from `tests/fixtures/astronaut.png` and `tests/fixtures/kenney/tiny-dungeon-tilemap.png`.','New measurement on 2026-11-14: two authored 128 × 96 RGBA8 BMP V4 patterns, four actual native BMP-to-PNG downloads in Chromium 153.0.8010.12 and Firefox 155.0. Both full opaque controls retain all 12,288 RGB samples. The alpha table reports the separate transparent control; all alpha samples are unchanged. The new package contains no external photo or user file. An AI agent operated the browsers and independently compared files; no human/perceptual or all-BMP guarantee is made.'],sources:[MDN.en,'[BMP V4 method and limits](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/README.md)','[Four native download measurements](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/measurements.json)','[Inputs, outputs and offline verifier](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/bmp-png-evidence.zip)','[Microsoft: BITMAPV4HEADER](https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapv4header)']}
   },
   ko:{
-   answer:'BMP를 PNG로 바꾸는 것은 BMP를 줄이는 가장 안전한 방법입니다. 두 형식 모두 무손실이라 PNG는 픽셀이 완전히 같고 압축만 됩니다. 얼마나 줄지는 내용에 달려 있습니다. 512 × 512 사진은 786,486바이트에서 575,694바이트(−27%)가 됐고, 단색이 많은 203 × 186 타일 시트는 113,886바이트에서 16,685바이트(−85%)가 됐습니다. 가로·세로는 그대로이고 화질 설정도 쓰이지 않습니다.',
+   answer:'PNG는 출력 코덱에서 손실 압축을 추가하지 않고 비압축 BMP의 용량을 줄일 수 있습니다. 앞서 측정한 불투명 24비트 예제 두 건은 디코딩한 픽셀이 같았습니다. 브라우저 변환 전체의 보존 여부는 따로 확인해야 합니다. 새 반투명 32비트 BMP V4 예제는 알파를 유지했지만 일부 RGB 값이 달라졌습니다. 가로·세로는 그대로이며 PNG에는 화질 슬라이더가 적용되지 않습니다.',
    concept:{title:'BMP가 큰 이유',body:[
     '일반적인 BMP는 픽셀마다 파랑·초록·빨강 세 바이트를 압축 없이 저장하고, 각 행을 4바이트의 배수로 채웁니다. 그래서 크기가 해상도만으로 정해집니다. 헤더 54바이트 + 높이 × 채운 행 길이입니다. MDN도 이 때문에 웹 콘텐츠에는 BMP를 피하라고 권합니다.',
-    'PNG는 각 픽셀을 이웃 픽셀로 예측하고 그 차이를 무손실로 압축합니다. 단색·글자·도트 그림은 거의 완벽하게 예측되어 크게 줄지만, 카메라 노이즈는 그렇지 않아 사진은 적당히만 줄어듭니다. 어느 경우든 잃는 것은 없으며, 측정한 PNG는 BMP와 똑같은 픽셀로 디코딩됐습니다.'],
-    terms:[['비압축','픽셀 바이트를 그대로 저장. 파일 크기는 가로·세로로만 정해집니다.'],['행 채움(패딩)','BMP의 각 행은 4바이트의 배수로 올림됩니다.'],['무손실','PNG가 BMP에 있던 픽셀과 정확히 같게 디코딩됩니다.']]},
+    'PNG는 픽셀을 예측하고 차이를 출력 코덱에서 무손실로 압축합니다. 단색은 잘 줄어들 수 있지만 카메라 노이즈는 덜 줄어들 수 있습니다. 앞선 불투명 24비트 예제 두 건은 디코딩한 픽셀이 같았습니다. 이 결과만으로 모든 브라우저의 디코딩·캔버스·내보내기 경로가 원본 RGBA 값을 유지한다고 보장할 수는 없습니다.'],
+    terms:[['비압축','픽셀 바이트를 그대로 저장. 파일 크기는 가로·세로로만 정해집니다.'],['행 채움(패딩)','BMP의 각 행은 4바이트의 배수로 올림됩니다.'],['무손실','PNG에 기록한 샘플을 복원합니다. 원본부터 출력까지 RGBA가 유지됐는지는 별도로 비교해야 합니다.']]},
    example:{title:'크기 계산과 실측 두 건',lead:'BMP 크기는 형식 구조로 계산했고, PNG 크기는 2026-09-28 Chromium 153에서 Nerulio 변환기로 측정했습니다(BMP는 저장소 테스트 자료로 Pillow 12.3이 만든 것).',lines:[
     '사진   512 x 512:  행 = 512 x 3 = 1,536 바이트 (이미 4의 배수)',
     '       54 + 512 x 1,536 = 786,486 바이트 BMP  ->  575,694 바이트 PNG  (-27 %)',
@@ -1143,32 +1145,34 @@ export default {
     '',
     '두 PNG에서 바뀐 픽셀: 0'],
     after:'타일 시트는 Kenney의 CC0 Tiny Dungeon 타일맵을 검은 배경에 합친 것입니다. 무손실 WebP(화질 100)로는 6,318바이트까지 줄었고 역시 픽셀이 같았습니다.'},
-   mapping:{title:'PNG에 남는 것',head:['BMP에 있던 것','변환기가 하는 일','PNG에서는'],rows:[
-    ['24비트 픽셀','무손실로 저장','픽셀 동일'],
+   mapping:{title:'변환 과정과 실측한 보존 범위',head:['BMP 입력','처리·검사','PNG 관측 결과'],rows:[
+    ['앞선 불투명 24비트 예제','파일 두 건 측정','해당 예제에서 바뀐 픽셀 0'],
+    ['32비트 V4, 알파 64','브라우저별 3,072픽셀','Chromium: RGB 2,679개 변경, 최대 차이 2. Firefox: 2,882개, 최대 4. 알파 유지.'],
+    ['32비트 V4, 알파 128','브라우저별 3,072픽셀','Chromium: RGB 2,295개 변경, 최대 차이 1. Firefox: 2,691개, 최대 2. 알파 유지.'],
     ['행 채움과 아래에서 위로 저장하는 순서','브라우저 디코더가 처리','PNG에는 필요 없음'],
     ['해상도에 묶인 파일 크기','DEFLATE 압축으로 대체','크기가 내용에 따라 달라짐'],
-    ['헤더의 해상도(DPI) 값','복사하지 않음','DPI 정보 없음']]},
+    ['헤더의 해상도(DPI) 값','복사하지 않음','새 V4 출력 네 건에는 DPI 항목이 없음']]},
    verify:{steps:[
-    '두 파일을 100%로 열어 보세요. 둘 다 무손실이라 똑같아 보여야 합니다.',
+    '두 파일을 100%로 비교하고, 정확한 값이 중요하면 디코딩한 RGBA 값도 비교하세요.',
     '가로·세로가 BMP와 같은지 확인하세요.',
     '바이트 수를 비교하세요. 스크린샷과 그래픽은 사진보다 훨씬 많이 줄어듭니다.']},
    trouble:{rows:[
-    ['"이미지를 열 수 없습니다"','브라우저가 디코딩하지 못하는 특이한 BMP 변형(압축, 특수 비트 심도)입니다','브라우저에서 BMP를 직접 열어 보기','만든 프로그램에서 표준 24비트 BMP나 PNG로 다시 저장하세요'],
+    ['"이미지를 열 수 없습니다"','브라우저가 디코딩하지 못하는 특이한 BMP 변형(압축, 특수 비트 심도)입니다','브라우저에서 BMP를 직접 열어 보기','원본 편집 프로그램에서 호환되는 BMP나 PNG로 내보내고, 필요하면 투명도를 유지하세요'],
     ['PNG가 조금밖에 안 줄어듦','사진이라 PNG로도 노이즈가 잘 압축되지 않습니다','용량 비교','사진이라면 [[image/bmp-to-jpg|BMP → JPG]]가 10분의 1 크기입니다'],
     ['편집 프로그램에서 인쇄 크기가 달라짐','BMP의 DPI 값이 복사되지 않아 프로그램이 기본값을 씁니다','그 프로그램에서 이미지 DPI 확인','편집 프로그램에서 크기를 지정하세요. 픽셀 수는 그대로입니다'],
-    ['오래된 뷰어에서 색이 달라 보임','PNG에 색상 프로필이 없어 뷰어가 색을 다르게 처리할 수 있습니다','브라우저에서 비교','최신 뷰어를 쓰세요. 픽셀 값은 동일합니다']]},
+    ['색이나 RGB 값이 달라짐','브라우저 변환 경로에서 샘플이 달라질 수 있고 뷰어의 색 처리도 다를 수 있습니다','같은 뷰어·배경에서 비교하고 디코딩한 RGBA 확인','원본 값 보존이 필요하면 원본을 보관하고 아래 V4 실측 자료를 확인하세요']]},
    alternatives:{rows:[
     ['[[image/bmp-to-jpg|BMP → JPG]]','정확한 픽셀보다 10분의 1 크기가 중요한 카메라 사진.'],
     ['화질 100 WebP로 [[image/convert|변환]]','대상이 WebP를 읽을 때. 무손실이면서 더 작습니다(타일 시트 6,318 대 16,685바이트).']]},
-   limits:['브라우저가 디코딩하는 BMP 변형만 읽을 수 있습니다.','DPI 등 헤더 값은 옮겨지지 않습니다.'],
-   versions:{body:['BMP 크기는 MDN이 설명하는 구조(픽셀당 3바이트, 행은 4바이트로 채움)를 따랐습니다. PNG 크기와 픽셀 차이 0은 2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`와 `tests/fixtures/kenney/tiny-dungeon-tilemap.png`로 Pillow 12.3이 만든 BMP를 측정했습니다.'],sources:[MDN.ko]}
+   limits:['브라우저가 디코딩하는 BMP 변형만 읽을 수 있습니다.','DPI 등 헤더 값은 옮겨지지 않습니다.','새 V4 예제는 알파와 불투명 RGB를 유지했지만 반투명 RGB는 달라질 수 있었습니다. 알파 0의 숨은 RGB는 별도로 기록하며 눈에 보이는 화질 손실로 부르지 않습니다.'],
+   versions:{body:['BMP 크기는 MDN이 설명하는 구조(픽셀당 3바이트, 행은 4바이트로 채움)를 따랐습니다. PNG 크기와 픽셀 차이 0은 2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`와 `tests/fixtures/kenney/tiny-dungeon-tilemap.png`로 Pillow 12.3이 만든 BMP를 측정했습니다.','2026-11-14 새 실측: 직접 만든 128 × 96 RGBA8 BMP V4 패턴 두 개를 Chromium 153.0.8010.12와 Firefox 155.0의 실제 BMP → PNG 화면에서 네 번 내려받았습니다. 전체 불투명 대조군은 두 브라우저 모두 RGB 12,288개가 같았습니다. 알파 표는 별도의 반투명 패턴 결과이며 모든 알파 값은 유지됐습니다. 새 자료에는 외부 사진이나 사용자 파일이 없습니다. AI 에이전트가 브라우저 조작과 파일 비교를 수행했으며 사람의 지각 평가나 모든 BMP에 대한 보존을 주장하지 않습니다.'],sources:[MDN.ko,'[BMP V4 측정 방법과 한계](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/README.md)','[실제 다운로드 네 건의 측정값](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/measurements.json)','[입력·출력·오프라인 검증기](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/bmp-png-evidence.zip)','[Microsoft: BITMAPV4HEADER](https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapv4header)']}
   },
   ja:{
-   answer:'BMPをPNGにするのは、BMPを小さくする最も安全な方法です。どちらも可逆形式なので、PNGはピクセルがまったく同じで、圧縮されるだけです。どれだけ減るかは内容次第で、512 × 512の写真は786,486バイトから575,694バイト（−27%）、単色の多い203 × 186のタイルシートは113,886バイトから16,685バイト（−85%）になりました。幅と高さは変わらず、画質の設定も使いません。',
+   answer:'PNGは出力コーデックで非可逆圧縮を加えず、非圧縮BMPを小さくできます。以前の不透明な24ビット例2件は、展開したピクセルが一致しました。ブラウザー変換全体の保存範囲は別に確認する必要があります。新しい半透明32ビットBMP V4の例ではアルファは維持されましたが、一部のRGB値は変わりました。幅・高さはそのままで、PNGには画質スライダーを使いません。',
    concept:{title:'BMPが大きい理由',body:[
     '一般的なBMPは、ピクセルごとに青・緑・赤の3バイトを圧縮せずに保存し、各行を4バイトの倍数に埋めます。そのため容量は解像度だけで決まり、ヘッダー54バイト + 高さ × 埋めた行の長さになります。MDNもこの理由でWebコンテンツにはBMPを避けるよう勧めています。',
-    'PNGは各ピクセルを隣のピクセルから予測し、その差を可逆で圧縮します。単色・文字・ドット絵はほぼ完全に予測できるので大きく縮み、カメラのノイズは予測しにくいので写真はそこそこしか縮みません。どちらでも失うものはなく、計測したPNGはBMPとまったく同じピクセルに展開されました。'],
-    terms:[['非圧縮','ピクセルのバイトをそのまま保存。容量は幅と高さだけで決まります。'],['行のパディング','BMPの各行は4バイトの倍数に切り上げられます。'],['可逆','PNGがBMPにあったピクセルとまったく同じに展開されること。']]},
+    'PNGはピクセルを予測し、差を出力コーデックで可逆圧縮します。単色はよく縮む一方、カメラのノイズは縮みにくい場合があります。以前の不透明24ビット例2件は展開したピクセルが一致しました。この結果だけでは、すべてのブラウザーのデコード・canvas・出力経路で元のRGBA値が保たれるとは保証できません。'],
+    terms:[['非圧縮','ピクセルのバイトをそのまま保存。容量は幅と高さだけで決まります。'],['行のパディング','BMPの各行は4バイトの倍数に切り上げられます。'],['可逆','PNGに記録されたサンプルを復元すること。入力から出力までのRGBA保存は別途比較が必要です。']]},
    example:{title:'容量の計算と実測2件',lead:'BMPの容量は形式の構造から計算し、PNGの容量は2026-09-28にChromium 153でNerulioの変換を使って計測しました（BMPはリポジトリのテスト素材からPillow 12.3で作成）。',lines:[
     '写真    512 x 512:  行 = 512 x 3 = 1,536 バイト（すでに4の倍数）',
     '        54 + 512 x 1,536 = 786,486 バイト BMP  ->  575,694 バイト PNG  (-27 %)',
@@ -1178,25 +1182,27 @@ export default {
     '',
     '両PNGで変化したピクセル: 0'],
     after:'タイルシートはKenneyのCC0「Tiny Dungeon」のタイルマップを黒背景に合成したものです。可逆WebP（画質100）では6,318バイトまで縮み、こちらもピクセルは同一でした。'},
-   mapping:{title:'PNGに残るもの',head:['BMPにあったもの','変換での処理','PNGでは'],rows:[
-    ['24ビットのピクセル','可逆で保存','ピクセル同一'],
+   mapping:{title:'変換処理と実測した保存範囲',head:['BMP入力','処理・確認','PNGの観測結果'],rows:[
+    ['以前の不透明24ビット例','2ファイルを計測','その例では変化したピクセル0'],
+    ['32ビットV4、アルファ64','各ブラウザー3,072ピクセル','Chromium：RGB 2,679個変化、最大差2。Firefox：2,882個、最大4。アルファ維持。'],
+    ['32ビットV4、アルファ128','各ブラウザー3,072ピクセル','Chromium：RGB 2,295個変化、最大差1。Firefox：2,691個、最大2。アルファ維持。'],
     ['行のパディングと下から上への並び','ブラウザのデコーダーが処理','PNGでは不要'],
     ['解像度で決まる容量','DEFLATE圧縮に置き換え','容量は内容次第'],
-    ['ヘッダーの解像度（DPI）','コピーしない','DPI情報なし']]},
+    ['ヘッダーの解像度（DPI）','コピーしない','新しいV4出力4件にDPI項目はなし']]},
    verify:{steps:[
-    '2つのファイルを100%で開きます。どちらも可逆なので、まったく同じに見えるはずです。',
+    '両方を100%で比較し、厳密な値が必要なら展開後のRGBA値も比較してください。',
     '幅と高さがBMPと同じか確認します。',
     'バイト数を比べます。スクリーンショットやグラフィックは写真よりずっと大きく縮みます。']},
    trouble:{rows:[
-    ['「画像を開けません」と出る','ブラウザが展開できない特殊なBMP（圧縮付き、特殊なビット深度）','ブラウザでBMPを直接開いてみる','作成したソフトで標準の24ビットBMPかPNGとして保存し直します'],
+    ['「画像を開けません」と出る','ブラウザが展開できない特殊なBMP（圧縮付き、特殊なビット深度）','ブラウザでBMPを直接開いてみる','元の編集ソフトで対応するBMPまたはPNGを出力し、必要な透明度を維持してください'],
     ['PNGが少ししか小さくならない','写真なので、PNGでもノイズがうまく圧縮できない','容量を比べる','写真なら[[image/bmp-to-jpg|BMP → JPG]]で10分の1になります'],
     ['レイアウトソフトで印刷サイズが変わった','BMPのDPIがコピーされず、ソフトが既定値を使った','そのソフトで画像のDPIを確認','レイアウトソフト側でサイズを指定します。ピクセル数は変わっていません'],
-    ['古いビューアで色が違って見える','PNGにカラープロファイルがなく、ビューアが色を別に扱うことがある','ブラウザで比べる','最新のビューアを使います。ピクセル値は同一です']]},
+    ['色やRGB値が違う','ブラウザーの変換経路でサンプルが変わる場合があり、ビューアーの色処理も異なります','同じビューアー・背景で比較し、展開したRGBAも確認','元の値を保持する必要があれば原本を保管し、下のV4実測資料を確認']]},
    alternatives:{rows:[
     ['[[image/bmp-to-jpg|BMP → JPG]]','ピクセルの正確さより10分の1の容量が大事なカメラ写真。'],
     ['画質100のWebPに[[image/convert|変換]]','渡し先がWebPを読める場合。可逆でさらに小さくなります（タイルシートで6,318対16,685バイト）。']]},
-   limits:['読み込めるのは、ブラウザが展開できるBMPだけです。','DPIなどのヘッダー情報は引き継ぎません。'],
-   versions:{body:['BMPの容量はMDNが説明する構造（1ピクセル3バイト、行は4バイトに埋める）に従って計算しました。PNGの容量とピクセル差0は、2026-09-28にPlaywright Chromium 153でNerulioの変換経路を使い、`tests/fixtures/astronaut.png` と `tests/fixtures/kenney/tiny-dungeon-tilemap.png` からPillow 12.3で作ったBMPで計測しました。'],sources:[MDN.ja]}
+   limits:['読み込めるのは、ブラウザが展開できるBMPだけです。','DPIなどのヘッダー情報は引き継ぎません。','新しいV4例はアルファと不透明RGBを維持しましたが、半透明RGBは変わる場合がありました。アルファ0の隠れたRGBは別に記録し、目に見える画質低下とは呼びません。'],
+   versions:{body:['BMPの容量はMDNが説明する構造（1ピクセル3バイト、行は4バイトに埋める）に従って計算しました。PNGの容量とピクセル差0は、2026-09-28にPlaywright Chromium 153でNerulioの変換経路を使い、`tests/fixtures/astronaut.png` と `tests/fixtures/kenney/tiny-dungeon-tilemap.png` からPillow 12.3で作ったBMPで計測しました。','2026-11-14の追加実測：自作128 × 96 RGBA8 BMP V4パターン2個をChromium 153.0.8010.12とFirefox 155.0の実際のBMP → PNG画面で計4回ダウンロードしました。全体が不透明な対照では両ブラウザーともRGB 12,288個が一致しました。アルファ表は別の半透明パターンの結果で、すべてのアルファ値が維持されました。新しい資料に外部写真や利用者のファイルは含まれません。AIエージェントが操作とファイル比較を行い、人による知覚評価やすべてのBMPの保存は主張しません。'],sources:[MDN.ja,'[BMP V4の測定方法と限界](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/README.md)','[実ダウンロード4件の測定値](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/measurements.json)','[入力・出力・オフライン検証](https://nerulio.com/assets/editorial/2026-11-14-bmp-png/bmp-png-evidence.zip)','[Microsoft: BITMAPV4HEADER](https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapv4header)']}
   }
  },
  'image/bmp-to-jpg':{

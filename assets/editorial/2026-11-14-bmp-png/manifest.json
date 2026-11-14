@@ -1,0 +1,48 @@
+{
+  "files": {
+    "alpha-v4.bmp": {
+      "bytes": 49274,
+      "sha256": "494ba10ac809736ccb3d646f21e90e60d724db265050078651ed7ddfea0c4efd"
+    },
+    "analysis.json": {
+      "bytes": 3228,
+      "sha256": "3a376566db536c15c89ba2bc3f22ce529161646cce54759cb36f52f6d77600f7"
+    },
+    "chromium-alpha-v4.png": {
+      "bytes": 4557,
+      "sha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0"
+    },
+    "chromium-opaque-v4.png": {
+      "bytes": 1237,
+      "sha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228"
+    },
+    "firefox-alpha-v4.png": {
+      "bytes": 3514,
+      "sha256": "1b5831c4ca14809683bc85682f6d7575798c1382b79d64a85ee835218e889100"
+    },
+    "firefox-opaque-v4.png": {
+      "bytes": 734,
+      "sha256": "6d123853925cfeeed8d1b5d0b9ff8740f00612a9d26ba6f8706ae470c6e1c9fb"
+    },
+    "measure-bmp-png.py": {
+      "bytes": 7878,
+      "sha256": "8da947aff8e2ec5d893831ba60bfca943b50215a99b2e42663df385cb0024e75"
+    },
+    "measurements.json": {
+      "bytes": 5450,
+      "sha256": "2fc68c86c4dc9521c79203d3875a6a7544269f570d3788145da38dd2775ddfbf"
+    },
+    "opaque-v4.bmp": {
+      "bytes": 49274,
+      "sha256": "b5b7f2a932f0edf01eeba3887ddda3e16a2b9c5a63b73388de4d9bf673c1c496"
+    },
+    "README.md": {
+      "bytes": 4512,
+      "sha256": "3710939a26c43690f01082b701d4d015a270232233b342638a20ff88f7df4a0d"
+    },
+    "verify-bmp-png.py": {
+      "bytes": 4646,
+      "sha256": "87d6abc572c192d167150517f00e5f85ccb70ce79b1ada13a0a3a30c6acc4b4c"
+    }
+  }
+}
