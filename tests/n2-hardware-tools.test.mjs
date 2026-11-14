@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {MARKETS,parsePrice,priceSummary,marketLinks} from '../src/hardware/market.js';
+import {MARKET_SOURCES} from '../src/hardware/sources.js';
+import {SOURCES} from '../collectors/_hardware-market/collect.js';
 import {renderUsedPrices,renderPerformance} from '../platform/render/hardware-tools.js';
 import {canonicalQuery,matchPlatformRoute,renderPlatformPage,renderSitemap} from '../server/platform/pages.js';
 import DATA from '../data/hardware/blender.js';
@@ -61,4 +63,20 @@ test('real Worker renderer and sitemap expose both utilities in both languages',
  }
  const xml=await renderSitemap(db,'hardware','https://nerulio.com');assert(xml.includes('/ko/hardware/used-prices/')&&xml.includes('/en/hardware/performance/'));
  db.raw.close();
+});
+
+test('idle lookup exposes the scheduled source catalog shared with the collector',()=>{
+ assert.equal(SOURCES,MARKET_SOURCES);
+ for(const l of ['ko','en']){
+  const body=String(renderUsedPrices({l,origin:'https://nerulio.com',channels:[],query:'',tool:'used-prices',q:new URLSearchParams(),publicOnly:true}));
+  assert(body.includes('data-market-status="idle"'));
+  assert.equal((body.match(/data-market-source="/g)||[]).length,SOURCES.length);
+  assert(!body.includes('class="hw-listings"')&&!body.includes('class="hw-stats"'));
+  for(const source of SOURCES){
+   assert(MARKETS.some(m=>m.id===source.country&&m.currency===source.currency));
+   assert.equal(new URL(source.page).protocol,'https:');assert.equal(new URL(source.page).hostname,source.host);
+   assert(body.includes(`data-market-source="${source.id}"`));
+   assert(body.includes(`href="${source.page.replaceAll('&','&amp;')}"`));
+  }
+ }
 });

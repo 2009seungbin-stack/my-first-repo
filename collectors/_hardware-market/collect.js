@@ -1,9 +1,6 @@
 import {decode,text,modelMatches,gigglePost,frenchPost,rssPosts,parseItems} from './parse.js';
-export const SOURCES=Object.freeze([
- {id:'giggle',name:'기글하드웨어',country:'KR',currency:'KRW',host:'gigglehd.com',board:'https://gigglehd.com/gg/index.php?mid=bbs&category=14058'},
- {id:'hardforum',name:'HardForum RSS',country:'US',currency:'USD',host:'hardforum.com',board:'https://hardforum.com/forums/for-sale-trade.17/index.rss'},
- {id:'hardwarefr',name:'Hardware.fr',country:'FR',currency:'EUR',host:'forum.hardware.fr',board:'https://forum.hardware.fr/hfr/AchatsVentes/Hardware/liste_sujet-1.htm'}
-]);
+import {MARKET_SOURCES as SOURCES} from '../../src/hardware/sources.js';
+export {SOURCES};
 const UA='NerulioCollector/1.0 (+https://nerulio.com/about/)';
 /** Robots groups for the actual service UA. Longest matching path wins, Allow wins ties. */
 export function robotsAllowed(raw,url){
