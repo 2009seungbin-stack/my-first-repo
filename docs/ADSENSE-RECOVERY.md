@@ -318,6 +318,16 @@ Before merging the new commentary, the actual old-version diagnostic logs were c
 
 ## Further work after these fixes
 
+### Release-channel provenance — follow-up candidate
+
+The live home includes Ollama **v0.40.17-rc0**. The official GitHub release API confirms **prerelease: true**, **draft: false**, published **2026-11-10T22:25:00Z**: https://github.com/ollama/ollama/releases/tag/v0.40.17-rc0 . The collector already persists that channel, but `recentVersions` omitted the column and news/Radar could not show it. Evidence: `test-results/ollama-prerelease-source.json`. The old generic update label did not establish that the version was stable.
+
+The candidate preserves the stored channel on the shared read path, labels known prereleases on news/home, Radar and RSS, and prevents same-day stable/prerelease builds being collapsed into one upgrade line. It does not guess stability from a version string, change latest-stable facts, fetch upstream on page view or write stored history. Existing Blender source tags remain separate; RSS now also names them source tags with their calendar-date provenance. News explains that dates, versions and release channels come from collected records, rather than asserting a continuous live upstream state. Nine focused cases pass, including real migrated SQLite/D1 data through both readers, news, Radar, RSS and unchanged stored rows/write counter; strict types pass. The full local Node run has **2,905 passes / one platform-dependent skip**, and **711** static dates are unchanged; the final source-provenance wording then passed all nine focused cases again. Evidence: `test-results/news-channel-node-final.log`, `news-channel-types.log`, `news-channel-all-node.log` and `news-channel-lastmod.log`. Full CI, preview and production verification remain pending.
+
+### Latest full public-link audit
+
+Actual production **61d758c** was unchanged before/after a new read-only audit of **540** non-image sitemap documents and **1,414** additional same-origin destinations. It found **zero** failed destinations, noncanonical/noindex sitemap entries or community links in sitemap documents. **33** data/source downloads were outside this link pass; the new C++/log downloads are explicitly excluded alongside the existing asset types. Concurrency was capped at three; the verifier now asserts empty failure lists as well as stable SHA. Evidence: `test-results/all-public-link-audit-61d758c/results.json` and its log. This is not fragment, external-source, physical-device, Google crawl/index or approval evidence.
+
 ### Hardware lookup claims — follow-up candidate
 
 Latest hardware run **43567775653**, job **132365274115**, succeeded on November 14 at 06:44 UTC, but its source results were **giggle BOT_CHALLENGE / zero items**, **HardForum zero accepted / seven excluded** and **Hardware.fr zero accepted / one excluded**. The partial-access warning explicitly says freshness was not advanced. Success does not establish newly available prices or resolution of the original notification's specific failed run.

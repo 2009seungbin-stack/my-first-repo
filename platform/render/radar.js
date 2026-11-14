@@ -11,7 +11,7 @@ import {describeChange} from '../change-text.js';
 import {VERTICALS} from '../schema.js';
 import {verticalOf} from '../verticals/index.js';
 import {label,EVENT_KIND_LABEL} from '../labels.js';
-import {versionNotes} from '../version-source.js';
+import {versionNotes,versionLabel} from '../version-source.js';
 
 const DAY=864e5;
 /** @param {any} db @param {{l:string,now:number,vertical?:string|null,channels?:{name:string,href:string}[]}} o */
@@ -40,7 +40,7 @@ export function renderRadar(m,site){
  const {l,now}=m,ko=l==='ko',base=`/${l}/radar/`;
  const tabs=html`<nav class="ftabs" aria-label="${ko?'분야':'Area'}"><a href="${base}"${!m.vertical?html` class="on" aria-current="page"`:''}>${ko?'전체':'All'}</a>${VERTICALS.map(v=>html`<a href="${base}?v=${v}"${m.vertical===v?html` class="on" aria-current="page"`:''}>${label(/** @type {any} */(verticalOf(v)).label,l)}</a>`)}</nav>`;
  const tile=(/** @type {any} */ e)=>html`<span class="tile sm ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>`;
- const versionLink=(/** @type {any} */ r)=>{const source=versionNotes(r.entity.id,r.version,r.notes_url);return source.url?html`<a class="fine" href="${safeHref(source.url)}" rel="noopener nofollow" target="_blank">${source.kind==='tag'?(ko?'소스 태그':'source tag'):(ko?'노트':'notes')} ↗</a>`:'';};
+ const versionLink=(/** @type {any} */ r)=>{const source=versionNotes(r.entity.id,r.version,r.notes_url);return html`${r.channel==='prerelease'?html`<span class="st" data-release-channel="prerelease">${versionLabel('release',r.channel,l)}</span>`:''}${source.url?html`<a class="fine" href="${safeHref(source.url)}" rel="noopener nofollow" target="_blank">${source.kind==='tag'?(ko?'소스 태그':'source tag'):(ko?'노트':'notes')} ↗</a>`:''}`;};
  const tagNote=m.releases.some(r=>versionNotes(r.entity.id,r.version,r.notes_url).kind==='tag')?html`<p class="pad fine">${ko?'소스 태그 항목의 날짜는 태그 커밋에 기록된 날짜입니다. 실제 배포일과 다를 수 있으며, 서로 다른 LTS·주 버전 태그를 업그레이드 순서로 합치지 않습니다.':'Source-tag dates come from the tag commits and can differ from download release dates. Separate LTS and major-version tags remain separate records.'}</p>`:'';
  const changes=m.changes.length?box({cls:'mf',title:ko?'바뀐 것':'Changed',extra:badge('AUTOMATED',l)},html`<ul class="rows">${m.changes.map(c=>{const d=describeChange(c,{name:nameOf(c.entity,l)},/** @type {'ko'|'en'} */(l));return html`<li><span class="tm">${boardTime(c.detected_at,now,l)}</span>${tile(c.entity)}<a class="tt" href="${channelUrl(l,c.entity)}">${d.title}${d.detail?html` <span class="fine">${d.detail}</span>`:''}</a></li>`;})}</ul>`):'';
  /** @type {Map<string,typeof m.releases>} */const byDay=new Map();for(const r of m.releases){const k=dateText(r.released_at,'day','en');byDay.set(k,[...(byDay.get(k)||[]),r]);}

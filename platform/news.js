@@ -3,7 +3,7 @@
  * of the retired discussion UI. No new articles or user posts are created by this read path. */
 import {frontPosts,recentVersions} from './db/channel.js';
 import {nameOf} from './render/ui.js';
-import {versionNotes} from './version-source.js';
+import {versionNotes,versionLabel} from './version-source.js';
 
 /** @param {unknown} raw */
 function sourceURL(raw){try{const u=new URL(String(raw));return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}}
@@ -23,8 +23,8 @@ export function releaseNews(releases,l,now){
   const {r,notes,url,at}=row;
   if((notes.kind==='tag'&&tags.get(r.entity.id+'|'+at)!==row)||seen.has(r.entity.id))continue;
   seen.add(r.entity.id);
-  const suffix=notes.kind==='tag'?(l==='ko'?'소스 태그':'source tag'):(l==='ko'?'출시·업데이트':'release / update');
-  out.push({id:`release:${r.entity.id}:${r.version}`,kind:'release',source_kind:notes.kind,title:`${nameOf(r.entity,l)} ${r.version} — ${suffix}`,created_at:at,url,locale:l,bot:true});
+  const suffix=versionLabel(notes.kind,r.channel,l);
+  out.push({id:`release:${r.entity.id}:${r.version}`,kind:'release',source_kind:notes.kind,release_channel:String(r.channel||''),title:`${nameOf(r.entity,l)} ${r.version} — ${suffix}`,created_at:at,url,locale:l,bot:true});
  }
  return out;
 }
