@@ -30,6 +30,7 @@ test('toSeed: highest vX.Y.Z tag is latest; LTS tags kept; dates from tag commit
  assert.equal(e.versions[0].released,'2026-09-14');
  assert.ok(e.versions.some(v=>v.version==='4.5.14'));
  assert.ok(e.versions.length<=MAX_VERSIONS);
+ assert(e.versions.every(v=>v.notes_url===`https://projects.blender.org/blender/blender/src/tag/v${v.version}`),'actual source tags, not nonexistent release pages');
  for(let i=1;i<e.versions.length;i++)assert.ok(compareVersions(e.versions[i-1].version,e.versions[i].version)>0);
  assert.equal(doc.sources[0].id,SOURCE_ID);
 });
@@ -37,7 +38,7 @@ test('toSeed: highest vX.Y.Z tag is latest; LTS tags kept; dates from tag commit
 test('toSeed skips non-release tags and duplicates; rejects non-arrays', ()=>{
  const logs=[];
  const doc=toSeed([{name:'v5.3.0-alpha'},{name:'blender-v4.5-release'},{name:'v5.0.0',commit:{created:'garbage'}},{name:'v5.0.0'}],{retrieved:'2026-09-28',log:m=>logs.push(m)});
- assert.deepEqual(doc.entities[0].versions,[{version:'5.0.0',channel:'stable',notes_url:'https://projects.blender.org/blender/blender/releases/tag/v5.0.0',src:SOURCE_ID}]);
+ assert.deepEqual(doc.entities[0].versions,[{version:'5.0.0',channel:'stable',notes_url:'https://projects.blender.org/blender/blender/src/tag/v5.0.0',src:SOURCE_ID}]);
  assert.equal(logs.length,2);
  const none=toSeed([],{retrieved:'2026-09-28'});
  assert.deepEqual(none.entities[0].facts,[]);

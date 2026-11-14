@@ -9,6 +9,7 @@
 
 import {VERIFICATION} from '../schema.js';
 import {plainExcerpt} from '../markdown.js';
+import {versionNotes} from '../version-source.js';
 
 const CHUNK=40;
 const qs=(/** @type {number} */ n)=>Array(n).fill('?').join(',');
@@ -84,7 +85,7 @@ export async function relatedMany(db,ids,predicate){
 /** Newest first. @param {D1} db @param {string} id @param {number} [limit] */
 export async function versionsOf(db,id,limit=10){
  const rows=await all(db,`SELECT version,channel,released_at,notes_url,verification,detected_at FROM versions WHERE entity_id=? ORDER BY COALESCE(released_at,detected_at) DESC,id DESC LIMIT ?`,[id,limit]);
- return rows.map(r=>({version:String(r.version),channel:String(r.channel),released_at:r.released_at===null?null:Number(r.released_at),notes_url:r.notes_url??null,verification:String(r.verification),detected_at:Number(r.detected_at)}));
+ return rows.map(r=>({version:String(r.version),channel:String(r.channel),released_at:r.released_at===null?null:Number(r.released_at),notes_url:versionNotes(id,String(r.version),r.notes_url).url,verification:String(r.verification),detected_at:Number(r.detected_at)}));
 }
 /** Events linked to any of the entities. @param {D1} db @param {string[]} ids @param {{from?:number,to?:number,kinds?:string[],limit?:number,desc?:boolean}} [o] */
 export async function eventsFor(db,ids,o={}){
@@ -469,7 +470,7 @@ export async function fxUsdKrw(db,now){
 export async function recentVersions(db,o){
  const rows=await all(db,`SELECT v.version,v.released_at,v.notes_url,v.verification,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM versions v JOIN entities e ON e.id=v.entity_id
   WHERE v.released_at BETWEEN ? AND ? AND e.status='active'${o.vertical?' AND e.vertical=?':''} ORDER BY v.released_at DESC LIMIT ?`,[o.since,o.until,...(o.vertical?[o.vertical]:[]),o.limit??40]);
- return rows.map(r=>({version:String(r.version),released_at:Number(r.released_at),notes_url:r.notes_url??null,verification:String(r.verification),entity:entityRow(r)}));
+ return rows.map(r=>({version:String(r.version),released_at:Number(r.released_at),notes_url:versionNotes(String(r.id),String(r.version),r.notes_url).url,verification:String(r.verification),entity:entityRow(r)}));
 }
 /** Upcoming events across all channels with the first linked entity (Radar). @param {D1} db @param {{from:number,to:number,vertical?:string|null,limit?:number}} o */
 export async function upcomingEvents(db,o){
