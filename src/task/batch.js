@@ -13,13 +13,14 @@ import {text,toast,download,authorize,track,onLocale,continueWith,toolURL,page} 
  */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function createBatch({el,def},tool){
- const items=[];let current=0,generation=0,controller=null,running=false,options=tool.options(new URLSearchParams(page.query)),seq=0,debounce=0;
+ const items=[];let current=0,generation=0,controller=null,running=false,options=tool.options(new URLSearchParams(page.query)),seq=0,debounce=0,optionsDirty=false;
  const done=()=>items.filter(i=>i.status==='done');
  // A tool may publish a first-pass result (ctx.interim) while it keeps working on a better one:
  // that result is already viewable and downloadable.
- const usable=i=>i.status==='done'||(i.status==='working'&&i.interim),ready=()=>items.filter(usable);
+ const usable=i=>!!i&&!optionsDirty&&(i.status==='done'||(i.status==='working'&&i.interim)),ready=()=>items.filter(usable);
  const pct=(a,b)=>a>0?Math.round((1-b/a)*100):0;
  function empty(){
+  clearTimeout(debounce);debounce=0;optionsDirty=false;
   el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small></div>`;
  }
  function frame(){
@@ -33,13 +34,13 @@ export function createBatch({el,def},tool){
  function renderList(){
   const host=el.querySelector('#taskFiles');if(!host)return;
   host.innerHTML=items.map((it,i)=>{
-   const r=it.result,custom=it.status==='done'&&tool.pill?.(it),state=it.status==='done'?(custom?`<em class="pill good">${esc(custom)}</em>`:`<em class="pill ${r.blob.size<it.file.size?'good':''}">${r.blob.size<it.file.size?'−'+pct(it.file.size,r.blob.size)+'%':'='}</em>`):it.status==='error'?`<em class="pill bad">${esc(text('failed'))}</em>`:`<em class="pill">${esc(it.status==='working'?(it.progress||text('working')):text('waiting'))}</em>`;
-   return `<div class="file ${i===current?'is-current':''}" data-index="${i}"><button type="button" class="file-main" data-action="task-select" data-index="${i}"><img ${it.thumb||it.thumbBroken?`src="${it.thumbBroken&&it.resultURL?it.resultURL:it.thumb}"`:''} data-thumb="${i}" alt=""><span><b>${esc(it.file.name)}</b><small>${it.status==='done'?esc(tool.detail?.(it)??text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)})):it.status==='error'?esc(it.error):esc(bytes(it.file.size))}</small></span>${state}</button>${usable(it)?`<button type="button" class="icon" data-action="task-save" data-index="${i}" title="${esc(text('saveOne'))}" aria-label="${esc(text('saveOne'))}">↓</button>`:''}<button type="button" class="icon" data-action="task-remove" data-index="${i}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`;
+   const r=it.result,complete=it.status==='done'&&!optionsDirty,custom=complete&&tool.pill?.(it),state=optionsDirty?`<em class="pill">${esc(text('calculating'))}</em>`:complete?(custom?`<em class="pill good">${esc(custom)}</em>`:`<em class="pill ${r.blob.size<it.file.size?'good':''}">${r.blob.size<it.file.size?'−'+pct(it.file.size,r.blob.size)+'%':'='}</em>`):it.status==='error'?`<em class="pill bad">${esc(text('failed'))}</em>`:`<em class="pill">${esc(it.status==='working'?(it.progress||text('working')):text('waiting'))}</em>`;
+   return `<div class="file ${i===current?'is-current':''}" data-index="${i}"><button type="button" class="file-main" data-action="task-select" data-index="${i}"><img ${it.thumb||it.thumbBroken?`src="${it.thumbBroken&&it.resultURL?it.resultURL:it.thumb}"`:''} data-thumb="${i}" alt=""><span><b>${esc(it.file.name)}</b><small>${complete?esc(tool.detail?.(it)??text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)})):it.status==='error'&&!optionsDirty?esc(it.error):esc(bytes(it.file.size))}</small></span>${state}</button>${usable(it)?`<button type="button" class="icon" data-action="task-save" data-index="${i}" title="${esc(text('saveOne'))}" aria-label="${esc(text('saveOne'))}">↓</button>`:''}<button type="button" class="icon" data-action="task-remove" data-index="${i}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`;
   }).join('');
  }
  function renderSummary(){
   const box=el.querySelector('#taskSummary'),button=el.querySelector('#taskDownload');if(!box)return;
-  const ok=ready(),a=ok.reduce((s,i)=>s+i.file.size,0),b=ok.reduce((s,i)=>s+i.result.blob.size,0),pending=items.some(i=>['waiting','working'].includes(i.status)&&!usable(i));
+  const ok=ready(),a=ok.reduce((s,i)=>s+i.file.size,0),b=ok.reduce((s,i)=>s+i.result.blob.size,0),pending=optionsDirty||items.some(i=>['waiting','working'].includes(i.status)&&!usable(i));
   const custom=ok.length&&tool.summary?.(ok);
   box.innerHTML=ok.length?`<div class="summary-big">${esc(custom?.big??'−'+pct(a,b)+'%')}</div><div class="summary-line">${custom?.line?esc(custom.line)+' · ':''}${custom?.only?'':esc(bytes(a))+' → '+esc(bytes(b))+' · '}${esc(text('files',{n:ok.length}))}${pending?' · '+esc(text('calculating')):''}</div>`:`<div class="summary-big muted">…</div><div class="summary-line">${esc(text('calculating'))}</div>`;
   button.disabled=!ok.length||pending;button.textContent=ok.length>1?text('downloadAll',{n:ok.length}):text('download');
@@ -50,7 +51,7 @@ export function createBatch({el,def},tool){
   * true size with its own save button — instead of one enlarged preview. */
  let contentURLs=[],contentsOf=null;
  function renderContents(it,cmp){
-  const host=el.querySelector('#viewerContents'),list=it.status==='done'&&tool.contents?.(it)||null;
+  const host=el.querySelector('#viewerContents'),list=usable(it)&&it.status==='done'&&tool.contents?.(it)||null;
   cmp.hidden=!!list;host.hidden=!list;if(!list){if(contentsOf){contentsOf=null;host.innerHTML='';for(const u of contentURLs)URL.revokeObjectURL(u);contentURLs=[];}return;}
   if(contentsOf===it.result)return;contentsOf=it.result;for(const u of contentURLs)URL.revokeObjectURL(u);contentURLs=[];
   host.innerHTML=list.map((e,i)=>{const image=/^image\//.test(e.blob.type)&&!/icon$/.test(e.blob.type),url=image?URL.createObjectURL(e.blob):'';if(url)contentURLs.push(url);const slash=e.name.lastIndexOf('/');
@@ -64,7 +65,7 @@ export function createBatch({el,def},tool){
   const shown=usable(it),compare=tool.compare!==false&&(!tool.compareWhen||!shown||tool.compareWhen(it));if(shown&&compare){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
   cmp.classList.toggle('is-pending',!shown);cmp.classList.toggle('is-upgrading',shown&&it.status!=='done');cmp.classList.toggle('no-compare',!compare);after.classList.toggle('px',!!(typeof tool.pixelated==='function'?tool.pixelated(it):tool.pixelated));
   if(!compare&&shown&&(it.result.preview||it.result.showResult))el.querySelector('#cmpBefore').src=it.result.preview||it.resultURL;
-  el.querySelector('#viewerActions').innerHTML=it.status==='done'&&tool.viewerActions?tool.viewerActions(it):'';
+  el.querySelector('#viewerActions').innerHTML=usable(it)&&it.status==='done'&&tool.viewerActions?tool.viewerActions(it):'';
   if(it.width)cmp.style.aspectRatio=`${it.width} / ${it.height}`;
   renderContents(it,cmp);
   renderNote(it);
@@ -92,6 +93,7 @@ export function createBatch({el,def},tool){
  }
  function reprocess(){generation++;controller?.abort();for(const it of items){it.status='waiting';it.interim=false;}render();run();}
  async function add(files){
+  sync();
   // One Free-plan job per batch that is added; option changes re-run without charging again.
   if(!await authorize(page.id,options))return;
   if(!items.length)frame();
@@ -100,10 +102,12 @@ export function createBatch({el,def},tool){
   track('tool_run',{intent:page.id});render();run();
  }
  function remove(index){
+  const changed=sync(false);
   const [it]=items.splice(index,1);if(!it)return;
   if(it.status==='working'){generation++;controller?.abort();}
   URL.revokeObjectURL(it.thumb);if(it.resultURL)URL.revokeObjectURL(it.resultURL);
-  current=Math.min(current,Math.max(0,items.length-1));if(!items.length){empty();return;}render();run();
+  current=Math.min(current,Math.max(0,items.length-1));if(!items.length){empty();return;}
+  if(changed)reprocess();else{render();run();}
  }
  async function save(){
   const ok=ready();if(!ok.length)return;
@@ -118,29 +122,35 @@ export function createBatch({el,def},tool){
   const b=e.target.closest('[data-action]');if(!b)return;const a=b.dataset.action,i=Number(b.dataset.index);
   if(a==='task-select'){current=i;render();}
   else if(a==='task-remove')remove(i);
-  else if(a==='task-save'){const it=items[i];if(it?.result?.entries?.length>1)download(await zip(it.result.entries),`${stem(it.file.name)}.zip`);else if(it?.result)download(it.result.blob,it.result.name);}
-  else if(a==='task-content'){const e=tool.contents?.(items[current])?.[Number(b.dataset.entry)];if(e)download(e.blob,e.name.split('/').pop());}
-  else if(a==='task-clear'){generation++;controller?.abort();for(const it of items.splice(0)){URL.revokeObjectURL(it.thumb);if(it.resultURL)URL.revokeObjectURL(it.resultURL);}current=0;empty();}
+  else if(a==='task-save'){const it=items[i];if(it&&usable(it)){if(it.result?.entries?.length>1)download(await zip(it.result.entries),`${stem(it.file.name)}.zip`);else if(it.result)download(it.result.blob,it.result.name);}}
+  else if(a==='task-content'){if(usable(items[current])){const e=tool.contents?.(items[current])?.[Number(b.dataset.entry)];if(e)download(e.blob,e.name.split('/').pop());}}
+  else if(a==='task-clear'){sync(false);generation++;controller?.abort();for(const it of items.splice(0)){URL.revokeObjectURL(it.thumb);if(it.resultURL)URL.revokeObjectURL(it.resultURL);}current=0;empty();}
   else if(a==='task-download')save();
   else if(a==='task-sample')add([await tool.sample()]);
-  else if(a==='task-next')continueWith(b.dataset.tool,done().flatMap(it=>(it.result.entries||[it.result]).map(e=>new File([e.blob],e.name,{type:e.blob.type}))));
+  else if(a==='task-next'){const ok=ready();if(ok.length)continueWith(b.dataset.tool,ok.flatMap(it=>(it.result.entries||[it.result]).map(e=>new File([e.blob],e.name,{type:e.blob.type}))));}
   else if(a==='task-option'){for(const s of b.parentElement.querySelectorAll('[data-action="task-option"]'))s.setAttribute('aria-pressed',String(s===b));sync();}
   // Tool-specific buttons (tool.viewerActions) act on the file being viewed and may ask for it to be redone.
   else tool.action?.(a,items[current],{reprocess:it=>{if(!items.includes(it)||it.status==='working')return;it.status='waiting';it.interim=false;render();run();}});
  });
  el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();}});
- function sync(){
-  const form=el.querySelector('#taskOptions');if(!form)return;
-  const next=tool.read(form,options);if(JSON.stringify(next)===JSON.stringify(options))return;
-  options=next;tool.reflect?.(form,options);if(items.length)reprocess();
+ function sync(runAgain=true){
+  clearTimeout(debounce);debounce=0;const wasDirty=optionsDirty;optionsDirty=false;
+  const form=el.querySelector('#taskOptions');if(!form)return false;
+  const next=tool.read(form,options);if(JSON.stringify(next)===JSON.stringify(options)){if(wasDirty)render();return false;}
+  options=next;tool.reflect?.(form,options);if(items.length&&runAgain)reprocess();
+  return true;
  }
  el.addEventListener('input',e=>{
   if(e.target.id==='cmpCut'){el.querySelector('#cmp').style.setProperty('--cut',e.target.value+'%');return;}
-  if(e.target.closest('#taskOptions')){clearTimeout(debounce);debounce=setTimeout(sync,350);}
+  if(e.target.closest('#taskOptions')){
+   // The old output stops being usable immediately, while expensive work stays debounced.
+   if(!optionsDirty){optionsDirty=true;render();}
+   clearTimeout(debounce);debounce=setTimeout(sync,350);
+  }
  });
  el.addEventListener('submit',e=>e.preventDefault());
  el.addEventListener('error',e=>{const i=e.target?.dataset?.thumb;if(i!==undefined&&items[i]?.thumb&&!tool.thumb&&!items[i].thumbBroken){items[i].thumbBroken=true;render();}},true);
- onLocale(()=>{if(!items.length){empty();return;}const open=el.querySelector('#optionsAdvanced')?.open;frame();if(open)el.querySelector('#optionsAdvanced').open=true;render();});
+ onLocale(()=>{sync();if(!items.length){empty();return;}const open=el.querySelector('#optionsAdvanced')?.open;frame();if(open)el.querySelector('#optionsAdvanced').open=true;render();});
  empty();
  return {add,get items(){return items;},editorURL:()=>toolURL(INTENTS[page.id]?.editor==='image'?'image':page.id)};
 }
