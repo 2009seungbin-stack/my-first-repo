@@ -1114,7 +1114,7 @@ export default {
     ['32-bit V4, alpha 128','3,072 pixels in each browser','Chromium: 2,295 changed RGB, max delta 1; Firefox: 2,691, max 2. Alpha unchanged.'],
     ['Row padding and bottom-up order','Handled by the browser\'s decoder','Not needed in PNG'],
     ['File size tied to dimensions','Replaced by DEFLATE compression','Size depends on content'],
-    ['Header resolution (DPI) fields','Not copied','The four new V4 outputs have no DPI entry']]},
+    ['Header resolution (DPI) fields','Not copied','The four new V4 outputs have no DPI entry']],note:['RGB changes count pixels with an unequal 8-bit RGB channel. Maximum delta is an absolute channel difference on the 0–255 scale, rather than a perceptual score. Hidden RGB at alpha 0 is recorded separately in the data.']},
    verify:{steps:[
     'Compare both at 100%; if exact values matter, compare decoded RGBA samples as well.',
     'Check that width and height match the BMP.',
@@ -1151,7 +1151,7 @@ export default {
     ['32비트 V4, 알파 128','브라우저별 3,072픽셀','Chromium: RGB 2,295개 변경, 최대 차이 1. Firefox: 2,691개, 최대 2. 알파 유지.'],
     ['행 채움과 아래에서 위로 저장하는 순서','브라우저 디코더가 처리','PNG에는 필요 없음'],
     ['해상도에 묶인 파일 크기','DEFLATE 압축으로 대체','크기가 내용에 따라 달라짐'],
-    ['헤더의 해상도(DPI) 값','복사하지 않음','새 V4 출력 네 건에는 DPI 항목이 없음']]},
+    ['헤더의 해상도(DPI) 값','복사하지 않음','새 V4 출력 네 건에는 DPI 항목이 없음']],note:['RGB 변경 수는 8비트 RGB 채널 중 하나라도 다른 픽셀 수입니다. 최대 차이는 0–255 채널 값의 절댓값 차이이며 지각 점수가 아닙니다. 알파 0의 숨은 RGB는 측정 자료에 따로 기록했습니다.']},
    verify:{steps:[
     '두 파일을 100%로 비교하고, 정확한 값이 중요하면 디코딩한 RGBA 값도 비교하세요.',
     '가로·세로가 BMP와 같은지 확인하세요.',
@@ -1188,7 +1188,7 @@ export default {
     ['32ビットV4、アルファ128','各ブラウザー3,072ピクセル','Chromium：RGB 2,295個変化、最大差1。Firefox：2,691個、最大2。アルファ維持。'],
     ['行のパディングと下から上への並び','ブラウザのデコーダーが処理','PNGでは不要'],
     ['解像度で決まる容量','DEFLATE圧縮に置き換え','容量は内容次第'],
-    ['ヘッダーの解像度（DPI）','コピーしない','新しいV4出力4件にDPI項目はなし']]},
+    ['ヘッダーの解像度（DPI）','コピーしない','新しいV4出力4件にDPI項目はなし']],note:['RGB変化数は8ビットRGBのいずれかのチャンネルが異なるピクセル数です。最大差は0–255のチャンネル値の絶対差で、知覚評価ではありません。アルファ0の隠れたRGBは測定資料に別記しています。']},
    verify:{steps:[
     '両方を100%で比較し、厳密な値が必要なら展開後のRGBA値も比較してください。',
     '幅と高さがBMPと同じか確認します。',
