@@ -87,12 +87,12 @@ export async function versionsOf(db,id,limit=10){
  const rows=await all(db,`SELECT version,channel,released_at,notes_url,verification,detected_at FROM versions WHERE entity_id=? ORDER BY COALESCE(released_at,detected_at) DESC,id DESC LIMIT ?`,[id,limit]);
  return rows.map(r=>({version:String(r.version),channel:String(r.channel),released_at:r.released_at===null?null:Number(r.released_at),notes_url:versionNotes(id,String(r.version),r.notes_url).url,verification:String(r.verification),detected_at:Number(r.detected_at)}));
 }
-/** Events linked to any of the entities. @param {D1} db @param {string[]} ids @param {{from?:number,to?:number,kinds?:string[],limit?:number,desc?:boolean}} [o] */
+/** Events linked to any of the entities. @param {D1} db @param {string[]} ids @param {{from?:number,to?:number,kinds?:string[],limit?:number,desc?:boolean,officialOnly?:boolean}} [o] */
 export async function eventsFor(db,ids,o={}){
  if(!ids.length)return [];
  const kinds=o.kinds||[];
  const rows=await inChunks(db,ids,ph=>`SELECT DISTINCT ev.id,ev.kind,ev.title,ev.starts_at,ev.ends_at,ev.date_precision,ev.region,ev.location,ev.url,ev.status,ev.verification,ev.updated_at FROM events ev JOIN event_entities x ON x.event_id=ev.id
-  WHERE x.entity_id IN (${ph}) AND ev.status<>'cancelled'${o.from!==undefined?' AND COALESCE(ev.ends_at,ev.starts_at)>=?':''}${o.to!==undefined?' AND ev.starts_at<=?':''}${kinds.length?` AND ev.kind IN (${qs(kinds.length)})`:''}`,[],[...(o.from!==undefined?[o.from]:[]),...(o.to!==undefined?[o.to]:[]),...kinds]);
+  WHERE x.entity_id IN (${ph}) AND ev.status<>'cancelled'${o.from!==undefined?' AND COALESCE(ev.ends_at,ev.starts_at)>=?':''}${o.to!==undefined?' AND ev.starts_at<=?':''}${kinds.length?` AND ev.kind IN (${qs(kinds.length)})`:''}${o.officialOnly?" AND ev.verification='OFFICIAL'":''}`,[],[...(o.from!==undefined?[o.from]:[]),...(o.to!==undefined?[o.to]:[]),...kinds]);
  const seen=new Set(),list=[];
  for(const r of rows){if(seen.has(r.id))continue;seen.add(r.id);list.push({id:Number(r.id),kind:String(r.kind),title:json(r.title,{}),starts_at:r.starts_at===null?null:Number(r.starts_at),ends_at:r.ends_at===null?null:Number(r.ends_at),precision:String(r.date_precision),region:String(r.region),location:r.location??null,url:r.url??null,status:String(r.status),verification:String(r.verification),updated_at:Number(r.updated_at)});}
  list.sort((a,b)=>o.desc?(b.starts_at??0)-(a.starts_at??0):(a.starts_at??Infinity)-(b.starts_at??Infinity));
