@@ -14,7 +14,7 @@ test('adapter contract', ()=>{
  assert.equal(adapter.id,'blender-releases');
  assert.equal(adapter.vertical,'studio');
  assert.equal(adapter.mode,'auto');
- assert.deepEqual(adapter.hosts,['projects.blender.org']);
+ assert.deepEqual(adapter.hosts,['projects.blender.org','api.github.com']);
  assert.equal(new URL(TAGS_URL).hostname,'projects.blender.org');
  assert.ok(adapter.minIntervalMs>=1000);
 });

@@ -2,7 +2,7 @@
 /** Seed documents: curated, sourced graph data under data/seed/<vertical>/*.json
  * (format: docs/n2/SEED-FORMAT.md). validateSeed() is strict on purpose: a seed file that
  * passes can be imported by the same ingest pipeline collectors use. */
-import {VERIFICATION,SOURCE_KINDS,COMPAT_STATUS,AVAILABILITY_STATE,EVENT_KINDS,PREDICATES,PLATFORMS,ENTITY_ID,SLUG,SOURCE_ID,ISO_DATE,REGION,isObject,isHttpURL,VERTICALS,envKey} from './schema.js';
+import {VERIFICATION,SOURCE_KINDS,COMPAT_STATUS,AVAILABILITY_STATE,EVENT_KINDS,PREDICATES,PLATFORMS,ENTITY_ID,SLUG,SOURCE_ID,ISO_DATE,REGION,isObject,isHttpURL,VERTICALS,VERSION_PROPERTIES,envKey} from './schema.js';
 import {verticalOf} from './verticals/index.js';
 
 export const SEED_SCHEMA='nerulio.seed/1';
@@ -74,6 +74,7 @@ export function validateSeed(doc,known={}){
   for(const u of e.official_urls||[])if(!isHttpURL(u?.url)||typeof u.label!=='string')err(`${where}: official_urls entries need {label,url}`);
   for(const f of e.facts||[]){
    const w=`${where} fact ${f?.p}`;
+   if(f.only_if_newer!==undefined&&(typeof f.only_if_newer!=='boolean'||!VERSION_PROPERTIES.has(f.p)))err(`${w}: only_if_newer must be a boolean on a version property`);
    if(v&&!v.properties[f?.p])err(`${w}: property not defined for vertical ${doc.vertical}`);
    if(f.v===undefined||f.v===null||f.v==='')err(`${w}: value required (omit the fact when unknown)`);
    const def=v?.properties[f.p];

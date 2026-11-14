@@ -35,8 +35,19 @@ node tools/platform/validate-seed.mjs data/seed/hardware
 6. Prices: the official list price for the stated region and currency, with the date retrieved. Taxes,
    promotions and regional conversions are not facts — put them in `note` or omit.
 7. Dates: ISO `YYYY`, `YYYY-MM` or `YYYY-MM-DD` — use the precision the source gives.
-   A day is the local calendar day of the place it happens (a Japanese broadcast "Friday 25:23" is
-   Saturday in JST — see `docs/n2/sources-subculture.md`, "Dates of Japanese broadcasts"), never UTC.
+   Event days use the local calendar of the place they happen (a Japanese broadcast "Friday 25:23"
+   is Saturday in JST — see `docs/n2/sources-subculture.md`, "Dates of Japanese broadcasts"), not UTC.
+   Source-commit observations have no event location: preserve the provider's date basis or explicitly
+   document UTC normalization. Label them as commit dates, never as product download-release times.
+
+Version facts may opt into `"only_if_newer": true` when their provider can lag an authoritative source.
+This input-only boolean is valid only for `VERSION_PROPERTIES` in `platform/schema.js`; it is not a
+stored fact field and does not grant extra trust. Exact repeated values follow normal re-confirmation
+rules. A different value replaces a current one only when the existing numeric version comparison
+establishes that it is strictly newer; older, numerically equal or incomparable values are kept without
+advancing their observation time. With no current value, normal insertion rules apply. Absent/false
+leaves the existing ingest behavior intact. The official Blender mirror uses this option while still
+adding its source-tag version records and HTTP provenance.
 
 ## Shape
 
