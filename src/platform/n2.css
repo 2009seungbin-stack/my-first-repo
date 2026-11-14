@@ -79,9 +79,10 @@ body.n2{margin:0;background:var(--bg);font-family:SUIT,system-ui,-apple-system,'
 .scrim{display:none}
 @media (max-width:1000px){
  .app{display:block}
- .lnav{position:fixed;z-index:30;left:0;top:0;bottom:0;height:auto;width:min(318px,86vw);transform:translateX(-102%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.2)}
- .lnav:target,body.drawer .lnav{transform:none}
- .app:has(.lnav:target)~.scrim,body.drawer .scrim{display:block;position:fixed;inset:0;z-index:25;background:var(--scrim)}
+ .lnav{position:fixed;z-index:30;left:0;top:0;bottom:0;height:auto;width:min(318px,86vw);visibility:hidden;transform:translateX(-102%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.2)}
+ .lnav:target:not([data-drawer-controlled]),body.drawer .lnav{visibility:visible;transform:none}
+ body.drawer,body:has(.lnav:target:not([data-drawer-controlled])){overflow:hidden}
+ .app:has(.lnav:target:not([data-drawer-controlled]))~.scrim,body.drawer .scrim{display:block;position:fixed;inset:0;z-index:25;background:var(--scrim)}
  .lnx{display:inline-flex;margin-left:auto;width:44px;height:44px;align-items:center;justify-content:center;color:var(--ink2)}
  .lch{display:block}
  .top{padding:0 12px;height:56px;gap:4px}
