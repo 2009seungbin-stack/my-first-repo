@@ -14,6 +14,21 @@ const origin='https://nerulio.com';
 const request=(path,method='GET')=>new Request(origin+path,{method});
 const site={origin};
 
+test('published article translations are visible links; missing and draft translations have no invented destination',async()=>{
+ const article={slug:'language-pair',locale:'ko',date:'2026-11-14',updated:'2026-11-14',title:'한국어',summary:'원본 자료.',status:'published',sources:[{title:'Source',url:'https://example.test/'}],body:'Article fixture.'};
+ useDigestArticles([article,{...article,locale:'en',title:'English'},{...article,slug:'only-ko'},{...article,slug:'only-ko',locale:'en',status:'draft',title:'UNPUBLISHED_TRANSLATION'}]);
+ try{
+  for(const [locale,other] of [['ko','en'],['en','ko']]){
+   const response=await handlePublicPage(request(`/${locale}/ai/digest/language-pair/`),{DB:{}},null,site);assert.equal(response.status,200);
+   const body=await response.text(),links=body.match(/<a\b[^>]*\bdata-language-switch\b[^>]*>/g)||[];
+   assert.equal(links.length,1);assert(links[0].includes(`href="/${other}/ai/digest/language-pair/"`));
+   assert(links[0].includes(`hreflang="${other}"`)&&links[0].includes(`lang="${other}"`));
+  }
+  const only=await(await handlePublicPage(request('/ko/ai/digest/only-ko/'),{DB:{}},null,site)).text();
+  assert(!only.includes('data-language-switch'));assert(!only.includes('UNPUBLISHED_TRANSLATION'));
+ }finally{useDigestArticles([]);}
+});
+
 test('retired pages, images and all public community API methods return 410 before any database access',async()=>{
  const paths=['/ko/community/','/en/community/free/1','/ko/community/ai/write','/ko/community/u/name','/u/12345678/full.jpg','/ko/ai/claude/write','/ko/ai/claude/1','/ko/ai/claude/feed.xml'];
  for(const path of paths)for(const method of ['GET','HEAD','POST']){

@@ -19,6 +19,26 @@ else:
     proc=subprocess.Popen(['node','tools/platform/dev-server.mjs',str(port)],cwd=ROOT,env={**os.environ,'PUBLIC_SITE':'on'},stdout=log,stderr=log,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
 
 def focus_inside(page):return page.evaluate('()=>!!document.activeElement.closest("#lnav")')
+def switch_language(page,path):
+    locale=page.locator('html').get_attribute('lang');other='en' if locale=='ko' else 'ko'
+    destination=('/en/' if path=='/' else '/') if path in ['/', '/en/'] else '/'+other+path[3:]
+    link=page.locator('[data-language-switch]');expect(link).to_have_count(1);expect(link).to_be_visible()
+    expect(link).to_have_attribute('href',destination);expect(link).to_have_attribute('lang',other);expect(link).to_have_attribute('hreflang',other)
+    viewport=page.viewport_size
+    for width in [320,390]:
+        page.set_viewport_size({**viewport,'width':width})
+        items=page.locator('.top .menu,.top .brand,.top [data-language-switch],.top [data-theme-toggle]')
+        boxes=sorted([item.bounding_box() for item in items.all() if item.is_visible()],key=lambda b:b['x'])
+        bounds=link.bounding_box()
+        assert bounds['x']>=0 and bounds['x']+bounds['width']<=width,(path,locale,width,bounds)
+        assert boxes and all(b['x']+b['width']<=width for b in boxes),(path,locale,width,boxes)
+        assert all(left['x']+left['width']<=right['x']+1 for left,right in zip(boxes,boxes[1:]))
+        assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+    page.set_viewport_size(viewport)
+    link.focus();expect(link).to_be_focused();page.keyboard.press('Enter');page.wait_for_url(BASE+destination)
+    expect(page.locator('html')).to_have_attribute('lang',other)
+    assert not page.locator('a[href*="/community/"]').count()
+
 def focused_end(page,which):
     return page.evaluate('''which=>{const items=[...document.querySelector('#lnav').querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex]')].filter(e=>e.tabIndex>=0&&!e.disabled&&e.getClientRects().length);return document.activeElement===items[which==='first'?0:items.length-1]}''',which)
 def closed(page):
@@ -97,6 +117,8 @@ try:
                 closed(page);expect(page.locator('[data-drawer-open]')).to_be_focused()
                 assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                 checks.append({'engine':engine,'path':path,'case':'JS: closed tab order, dialog focus loop, collapsed groups, Escape/close/scrim, hash/history, desktop/mobile resize'})
+                switch_language(page,path)
+                checks.append({'engine':engine,'path':path,'case':'JS: visible declared translation, native keyboard Enter, same-host destination'})
             # Exercise the animated drawer in dark mode while a reader is midway through an article.
             page.emulate_media(reduced_motion='no-preference')
             page.goto(BASE+paths[-1],wait_until='networkidle')
@@ -123,6 +145,8 @@ try:
                 page.locator('#lnav [data-drawer-close]').focus();page.keyboard.press('Enter')
                 assert page.locator('#lnav').evaluate('(e)=>getComputedStyle(e).visibility')=='hidden'
                 checks.append({'engine':engine,'path':path,'case':'No JS: closed tab order and hash open/close'})
+                switch_language(page,path)
+                checks.append({'engine':engine,'path':path,'case':'No JS: native keyboard translation navigation'})
             ctx.close();browser.close()
     assert not errors,errors
     (OUT/'results.json').write_text(json.dumps({'expectedLiveCommit':args.expected_sha,'checks':checks,'pageErrors':errors,'scope':'Desktop browser engines with desktop/mobile viewports, keyboard and DOM accessibility states. Not physical-device or continuous screen-reader testing.'},ensure_ascii=False,indent=2),encoding='utf-8')
