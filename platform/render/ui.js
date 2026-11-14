@@ -180,6 +180,10 @@ export function page(o){
  // Every page with language versions names the English one as x-default, the same way.
  const alts={...(o.alternates||{})};if(alts.en&&alts.ko&&!alts['x-default'])alts['x-default']=alts.en;
  const alt=Object.entries(alts);
+ const translation=o.publicOnly?alt.find(([l])=>(l==='ko'||l==='en')&&l!==o.l):null;
+ const target=translation?new URL(translation[1],o.canonical):null;
+ // A declared translation stays on this host, including a frozen preview deployment.
+ const language=translation&&target&&target.origin===new URL(o.canonical).origin?{locale:translation[0],path:target.pathname+target.search+target.hash}:null;
  return html`<!doctype html>
 <html lang="${o.l}">
 <head>
@@ -219,6 +223,7 @@ ${shellNav(o)}
 <div class="col">
 <header class="top hd"><a class="menu" href="#lnav" data-drawer-open aria-controls="lnav" aria-label="${o.l==='ko'?'메뉴·도구 열기':'Open menu and tools'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
 <a class="brand" href="${o.toolsOnly?toolsHome(o.l):homeUrl(o.l)}">${LOGO}<span>nerulio</span></a>
+${language?html`<a class="public-language" data-language-switch href="${language.path}" rel="alternate" hreflang="${language.locale}" lang="${language.locale}" aria-label="${language.locale==='ko'?'한국어로 읽기':'Read in English'}">${language.locale==='ko'?'한국어':'English'}</a>`:''}
 ${simple?'':html`<form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>`}
 <button type="button" class="thm" data-theme-toggle aria-pressed="false" aria-label="${o.l==='ko'?'다크 모드':'Dark mode'}" title="${o.l==='ko'?'다크 모드':'Dark mode'}"><svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
 ${simple?'':html`<div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>`}
