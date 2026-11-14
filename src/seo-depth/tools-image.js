@@ -60,7 +60,7 @@ export default {
     ['An animated GIF or WebP is refused','This is a still-image converter; multi-frame input is rejected instead of silently keeping frame 1','—','Export one frame first; for clips from video use [[video/to-gif|video to GIF]]']]},
    alternatives:{rows:[
     ['Keep the original','The destination already accepts the current format — every lossy-to-lossy conversion costs a little quality.'],
-    ['The app that made the file (camera, phone share sheet, the editor\'s own export)','You need the capture date, GPS or a wide-gamut colour profile kept: Nerulio writes no EXIF, and its JPG/WebP carry an sRGB profile.'],
+    ['The app that made the file (camera, phone share sheet, the editor\'s own export)','You need the capture date, GPS or a wide-gamut colour profile kept: Nerulio writes no EXIF. The measured Chromium JPG/WebP carry an sRGB profile; other browsers can write different metadata.'],
     ['[[image/compress|Compress to a size]]','The real goal is a smaller file, not a particular extension: it compares PNG, JPG and WebP candidates and keeps the best-looking one under your limit.']]},
    limits:['EXIF (camera, date, GPS) is not written to any output; JPG and WebP from Chromium carry an sRGB colour profile, PNG output carries none.','Animated GIF, APNG and WebP and multi-image HEIC are rejected; SVG input is not supported.','Output formats depend on the browser\'s encoders: PNG, JPG and WebP in Chromium, no AVIF output there.'],
    versions:{"body":["Measured 2026-11-14 with actual native downloads. The package records browser versions, settings, served code hashes and all downloaded hashes. The inputs and scripts are original CC0 test material; no external photo or user upload is included. An AI agent operated the browsers and compared the files. Human visual review, wide-gamut preservation and all-browser behavior are not claimed. This fixture study does not measure EXIF/GPS, HEIC, animation or repeated saves."],"sources":["[MDN: Image file type and format guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)","[MDN: canvas toBlob quality](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob)","[Google: WebP container specification](https://developers.google.com/speed/webp/docs/riff_container)"]}
@@ -109,7 +109,7 @@ export default {
     ['움직이는 GIF·WebP가 거부됨','정지 이미지 변환기라서 여러 프레임 입력은 첫 프레임만 몰래 남기지 않고 거부합니다','—','먼저 한 프레임을 저장하세요. 영상에서 움짤을 만들려면 [[video/to-gif|영상 → GIF]]를 쓰세요']]},
    alternatives:{rows:[
     ['원본 그대로 쓰기','받는 쪽이 지금 형식을 이미 받는 경우. 손실 형식끼리의 변환은 매번 화질을 조금씩 깎습니다.'],
-    ['파일을 만든 앱(카메라, 휴대폰 공유 메뉴, 편집 프로그램의 내보내기)','촬영 날짜·GPS·넓은 색역 프로필을 유지해야 하는 경우. Nerulio는 EXIF를 쓰지 않고 JPG·WebP에는 sRGB 프로필이 들어갑니다.'],
+    ['파일을 만든 앱(카메라, 휴대폰 공유 메뉴, 편집 프로그램의 내보내기)','촬영 날짜·GPS·넓은 색역 프로필을 유지해야 하는 경우. Nerulio는 EXIF를 쓰지 않습니다. 측정한 Chromium의 JPG·WebP에는 sRGB 프로필이 들어가며 다른 브라우저의 메타데이터는 다를 수 있습니다.'],
     ['[[image/compress|용량 맞춰 압축]]','특정 확장자가 아니라 작은 파일이 목적인 경우. PNG·JPG·WebP 후보를 비교해 제한 안에서 가장 원본에 가까운 것을 고릅니다.']]},
    limits:['EXIF(카메라·날짜·GPS)는 어떤 출력에도 기록되지 않습니다. Chromium의 JPG·WebP에는 sRGB 색상 프로필이 들어가고 PNG에는 프로필이 없습니다.','움직이는 GIF·APNG·WebP와 여러 장이 든 HEIC는 거부하며 SVG 입력은 지원하지 않습니다.','저장 형식은 브라우저 인코더에 따라 달라집니다. Chromium에서는 PNG·JPG·WebP이며 AVIF 출력은 없습니다.'],
    versions:{"body":["2026-11-14 실제 변환 파일을 내려받아 측정했습니다. 자료에는 브라우저 버전, 설정, 제공된 코드와 다운로드 파일의 해시가 있습니다. 입력 패턴과 스크립트는 직접 만든 CC0 시험 자료이며 외부 사진·사용자 업로드를 포함하지 않습니다. AI 에이전트가 브라우저 조작과 파일 비교를 수행했습니다. 사람의 육안 검토, 넓은 색역 보존이나 모든 브라우저의 동작을 주장하지 않습니다. 이번 패턴 시험은 EXIF·GPS, HEIC, 애니메이션이나 반복 저장을 측정하지 않습니다."],"sources":["[MDN: 이미지 파일 형식 가이드](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)","[MDN: canvas toBlob quality](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob)","[Google: WebP container specification](https://developers.google.com/speed/webp/docs/riff_container)"]}
@@ -158,7 +158,7 @@ export default {
     ['アニメーションGIF・WebPが拒否される','静止画用の変換なので、複数フレームの入力は1コマ目だけを黙って残さずに拒否します','—','先に1コマを書き出します。動画から作るなら[[video/to-gif|動画 → GIF]]へ']]},
    alternatives:{rows:[
     ['元の形式のまま使う','提出先が今の形式を受け付ける場合。非可逆形式どうしの変換は毎回わずかに画質を削ります。'],
-    ['ファイルを作ったアプリ（カメラ、スマホの共有メニュー、編集ソフトの書き出し）','撮影日時・GPS・広色域プロファイルを残したい場合。NerulioはEXIFを書かず、JPG・WebPにはsRGBプロファイルが入ります。'],
+    ['ファイルを作ったアプリ（カメラ、スマホの共有メニュー、編集ソフトの書き出し）','撮影日時・GPS・広色域プロファイルを残したい場合。NerulioはEXIFを書きません。計測したChromiumのJPG・WebPにはsRGBプロファイルが入り、ほかのブラウザのメタデータは異なる場合があります。'],
     ['[[image/compress|容量を指定して圧縮]]','特定の拡張子より小さいファイルが目的の場合。PNG・JPG・WebPの候補を比べ、制限内で最も元に近いものを選びます。']]},
    limits:['EXIF（カメラ・日時・GPS）はどの出力にも書き込まれません。ChromiumのJPG・WebPにはsRGBプロファイルが入り、PNGにはプロファイルがありません。','アニメーションGIF・APNG・WebPと複数枚のHEICは拒否し、SVG入力には対応していません。','保存形式はブラウザのエンコーダー次第です。ChromiumではPNG・JPG・WebPで、AVIF出力はありません。'],
    versions:{"body":["2026-11-14、実際の変換ファイルを保存して測定しました。資料にはブラウザの版、設定、配信コードと全出力のハッシュがあります。入力とスクリプトは自作のCC0試験素材で、外部写真やユーザーのアップロードは含みません。AIエージェントが操作とファイル比較を実施しました。人による目視確認、広色域の保持、全ブラウザの動作は主張しません。このパターン試験ではEXIF・GPS、HEIC、アニメーション、反復保存は測定していません。"],"sources":["[MDN: 画像ファイルの種類と形式ガイド](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)","[MDN: canvas toBlob quality](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob)","[Google: WebP container specification](https://developers.google.com/speed/webp/docs/riff_container)"]}
