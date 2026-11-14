@@ -700,6 +700,8 @@ def scenario_traffic(browser):
             with urllib.request.urlopen(stack.url+asset,timeout=20) as response:
                 cache=response.headers.get('Cache-Control','').lower();body=response.read();etag=response.headers.get('ETag')
                 ok('traffic: mutable resource revalidates '+asset,response.status==200 and 'no-cache' in cache and 'no-store' not in cache)
+                directives=[part.strip() for part in cache.split(',')]
+                ok('traffic: mutable resource has one unambiguous cache policy '+asset,len(directives)==len(set(directives)) and sum(part.startswith('max-age=') for part in directives)<=1)
                 if asset=='/src/task/resize.js':
                     ok('traffic: mutable code retains an ETag',bool(etag))
                     try:

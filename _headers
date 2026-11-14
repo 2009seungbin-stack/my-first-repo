@@ -11,12 +11,17 @@
 # Mutable app URLs must revalidate together with the current HTML. Browsers can
 # retain unchanged bytes via ETag/304 without keeping a prior release fresh.
 /src/*
+  ! Cache-Control
   Cache-Control: public, no-cache, must-revalidate
 /ai-runtime/*
+  ! Cache-Control
   Cache-Control: public, no-cache, must-revalidate
 /styles.css
+  ! Cache-Control
   Cache-Control: public, no-cache, must-revalidate
 /experience.css
+  ! Cache-Control
   Cache-Control: public, no-cache, must-revalidate
 /content.css
+  ! Cache-Control
   Cache-Control: public, no-cache, must-revalidate
