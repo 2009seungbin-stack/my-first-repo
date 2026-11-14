@@ -1,6 +1,7 @@
 ---
 title: "투명 WebP의 검은 PDF 배경: 수정 전후 16개 비교"
 date: 2026-11-14
+updated: 2026-11-15
 summary: "같은 RGBA를 가진 PNG와 WebP가 PDF 안에서 서로 다른 경로를 탔습니다. 수정 전후 실제 PDF 16개에서 알파 값 전체와 페이지 렌더링, 불투명 대조군을 비교하고 원본·결과·검증 코드를 공개합니다."
 status: published
 sources:
@@ -14,8 +15,8 @@ sources:
     url: "https://github.com/2009seungbin-stack/my-first-repo/blob/66c351586b1538ab21502f5cd64982cca1b298e0/src/task/pdf-organize.js"
   - title: "WHATWG HTML: 캔버스 비트맵의 이미지 파일 직렬화"
     url: "https://html.spec.whatwg.org/multipage/canvas.html"
-  - title: "pdf-lib: PNG 알파를 별도의 소프트 마스크로 삽입하는 구현"
-    url: "https://github.com/Hopding/pdf-lib/blob/master/src/core/embedders/PngEmbedder.ts"
+  - title: "사용 버전 pdf-lib 1.17.1: PNG 알파를 별도의 소프트 마스크로 삽입하는 구현"
+    url: "https://github.com/Hopding/pdf-lib/blob/4beebbef7a261ed0be089bb1d63a5b6e28cc488a/src/core/embedders/PngEmbedder.ts"
 ---
 ## PDF 안에서 사라진 투명도
 

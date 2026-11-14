@@ -1,6 +1,7 @@
 ---
 title: "Transparent WebP turned black in PDF: 16 files before and after the fix"
 date: 2026-11-14
+updated: 2026-11-15
 summary: "Matching PNG and WebP controls took different paths through image-to-PDF. We compare sixteen real PDF downloads before and after the fix, all image-alpha samples, independent page renders and opaque controls, with the files and verification code."
 status: published
 sources:
@@ -14,8 +15,8 @@ sources:
     url: "https://github.com/2009seungbin-stack/my-first-repo/blob/66c351586b1538ab21502f5cd64982cca1b298e0/src/task/pdf-organize.js"
   - title: "WHATWG HTML: serializing a canvas bitmap to an image file"
     url: "https://html.spec.whatwg.org/multipage/canvas.html"
-  - title: "pdf-lib: PNG alpha embedded as a soft mask"
-    url: "https://github.com/Hopding/pdf-lib/blob/master/src/core/embedders/PngEmbedder.ts"
+  - title: "Installed pdf-lib 1.17.1: PNG alpha embedded as a soft mask"
+    url: "https://github.com/Hopding/pdf-lib/blob/4beebbef7a261ed0be089bb1d63a5b6e28cc488a/src/core/embedders/PngEmbedder.ts"
 ---
 ## Where the alpha disappeared
 
