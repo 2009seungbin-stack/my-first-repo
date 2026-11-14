@@ -1,0 +1,93 @@
+{
+  "repository": "ggml-org/llama.cpp",
+  "revisions": {
+    "v0.9.0": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+    "v1.0.0": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28"
+  },
+  "files": [
+    {
+      "version": "v0.9.0",
+      "path": "include/llama.h",
+      "bytes": 91030,
+      "gitBlobSHA1": "3877b69e2d1e8559e4614ba61a7dcc0e4dc2343e"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-alloc.h",
+      "bytes": 3689,
+      "gitBlobSHA1": "81cce2e2a60778f5fe6d923a74b38f7fa47d7dcc"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-backend.h",
+      "bytes": 29047,
+      "gitBlobSHA1": "afb86338aac80da7c663b23bb5faf585f61a46b8"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-cpu.h",
+      "bytes": 7753,
+      "gitBlobSHA1": "dc6453c6eaa16667f720f987659ad42d03a403a2"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-opt.h",
+      "bytes": 14040,
+      "gitBlobSHA1": "1c2ed79b77420e74fd3b81b83367109164380853"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml.h",
+      "bytes": 119365,
+      "gitBlobSHA1": "3ed4181408fbc6d409a470e1a8ee9b4db379daea"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/gguf.h",
+      "bytes": 11355,
+      "gitBlobSHA1": "b3a1e1230a06110a0a5f04469d849ac2000b467c"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "include/llama.h",
+      "bytes": 89633,
+      "gitBlobSHA1": "181d840a6c8892a677a7ad820a568e31a5c14515"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-alloc.h",
+      "bytes": 3689,
+      "gitBlobSHA1": "81cce2e2a60778f5fe6d923a74b38f7fa47d7dcc"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-backend.h",
+      "bytes": 29047,
+      "gitBlobSHA1": "afb86338aac80da7c663b23bb5faf585f61a46b8"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-cpu.h",
+      "bytes": 7753,
+      "gitBlobSHA1": "dc6453c6eaa16667f720f987659ad42d03a403a2"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-opt.h",
+      "bytes": 14040,
+      "gitBlobSHA1": "1c2ed79b77420e74fd3b81b83367109164380853"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml.h",
+      "bytes": 109072,
+      "gitBlobSHA1": "2341fa6c107e84004d2b604d41f632962e9a54f2"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/gguf.h",
+      "bytes": 11355,
+      "gitBlobSHA1": "b3a1e1230a06110a0a5f04469d849ac2000b467c"
+    }
+  ]
+}

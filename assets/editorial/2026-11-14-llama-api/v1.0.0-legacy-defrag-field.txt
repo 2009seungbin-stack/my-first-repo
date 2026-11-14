@@ -1,0 +1,7 @@
+legacy-defrag-field.cpp
+EVIDENCE_ROOT\legacy-defrag-field.cpp(2,41): error C2039: 'defrag_thold': 'llama_context_params'의 멤버가 아닙니다.
+void check(llama_context_params &p) { p.defrag_thold = 0.0f; }
+                                        ^
+EVIDENCE_ROOT\_upstream\v1.0.0\include\llama.h(367,12): note: 'llama_context_params' 선언을 참조하십시오.
+    struct llama_context_params {
+           ^
