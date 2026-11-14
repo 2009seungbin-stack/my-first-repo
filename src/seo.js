@@ -17,6 +17,9 @@ export function normalizeSiteURL(value){
  * moves to /ko/tools/ and /en/tools/; Japanese keeps /ja/. Set once per build by tools/build.mjs. */
 let portal=false;
 export const setPortal=(/** @type {boolean} */ on)=>{portal=!!on;};
+/** Render in one URL mode without changing the enclosing build's mode.
+ * @template T @param {boolean} on @param {()=>T} render @returns {T} */
+export function withPortal(on,render){const previous=portal;portal=!!on;try{return render();}finally{portal=previous;}}
 export const PORTAL_LOCALES=Object.freeze(['ko','en']);
 export function pagePath(path,locale){
  if(portal&&!path&&PORTAL_LOCALES.includes(locale))return `${locale}/tools/`;
