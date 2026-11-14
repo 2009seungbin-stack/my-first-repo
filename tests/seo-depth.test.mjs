@@ -7,7 +7,7 @@
  *   SEO_DEPTH_PAGE=game/aseprite-to-godot node --test tests/seo-depth.test.mjs   one page */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync,statSync} from 'node:fs';
 import {GROUPS,DEPTH,TYPES,groupFile} from '../src/seo-depth/index.js';
 import {plain,linksIn,DEPTH_ORDER} from '../src/seo-depth/render.js';
 import {sitemapGroups} from '../tools/sitemaps.mjs';
@@ -81,7 +81,7 @@ test('each page has the sections its type needs, in every language, with the sam
   const lines=L.map(l=>e[l].example?.lines?.length||0);assert(lines.every(x=>x===lines[0]),`${p}: example.lines differ between languages ${lines}`);
  }
 });
-test('no placeholders, working internal links, official external sources',()=>{
+test('no placeholders, working internal links, official external sources and existing editorial downloads',()=>{
  for(const p of PAGES){
   const e=DEPTH[p];if(!e)continue;
   for(const l of L){
@@ -90,7 +90,10 @@ test('no placeholders, working internal links, official external sources',()=>{
     for(const k of linksIn(s)){assert(resolveLink(k)!==null,`${p} [${l}]: link to unknown page [[${k}]]`);assert(k!==p,`${p} [${l}]: links to itself`);}
     for(const m of s.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)){
      const u=new URL(m[1]);assert.equal(u.protocol,'https:',`${p}: ${m[1]}`);
-     assert(SOURCE_HOSTS.has(u.host),`${p} [${l}]: ${u.host} is not an allowed official source (src/seo-depth/sources.js)`);
+     if(u.origin==='https://nerulio.com'&&u.pathname.startsWith('/assets/editorial/')){
+      const file=new URL('..'+u.pathname,import.meta.url);
+      assert(!u.search&&!u.hash&&existsSync(file)&&statSync(file).isFile(),`${p} [${l}]: missing editorial download ${u.pathname}`);
+     }else assert(SOURCE_HOSTS.has(u.host),`${p} [${l}]: ${u.host} is not an allowed official source (src/seo-depth/sources.js)`);
     }
    }
    for(const s of e[l].versions?.sources||[])assert(/^\[[^\]]+\]\(https:\/\/[^)\s]+\)/.test(s),`${p} [${l}]: a source must be a [label](https://…) link`);

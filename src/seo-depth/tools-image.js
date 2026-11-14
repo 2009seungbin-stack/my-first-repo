@@ -1,11 +1,13 @@
 /** Intent content for the tools-image pages (docs/SEO-CONTENT-MODEL.md). Keys are canonical paths.
  * Nerulio behaviour: src/task/convert.js, src/task/compress.js, src/task/resize.js, src/compression.js,
- * src/image.js, src/resample.js, src/app.js (classic editor). Every byte count, SSIM and pixel count
- * below was measured on 2026-09-28 with that code in Playwright Chromium 153 on the repository's own
+ * src/image.js, src/resample.js, src/app.js (classic editor). Earlier encoder measurements were
+ * recorded on 2026-09-28 in Playwright Chromium 153 on the repository's own
  * fixtures: tests/fixtures/astronaut.png (NASA, public domain, 512 × 512, 791,555 bytes), Kenney CC0
  * files in tests/fixtures/kenney and tests/fixtures/game-seo, and tests/fixtures/texture/bricks_Color.png
  * (ambientCG CC0). JPG/WebP/AVIF/BMP inputs were derived from the astronaut PNG with Pillow 12.3.
- * Platform sizes come from the platforms' own help pages, checked on 2026-09-28. */
+ * Platform sizes come from the platforms' own help pages, checked on 2026-09-28. Computed photo
+ * dimensions are labelled separately. Resize-limit PNG evidence was downloaded and decoded in
+ * Chromium and Firefox on 2026-11-14; assets/editorial/2026-11-14-resize-dimensions records it. */
 const MDN={en:'[MDN: Image file type and format guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)',ko:'[MDN: 이미지 파일 형식 가이드](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)',ja:'[MDN: 画像ファイルの種類と形式ガイド](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)'};
 export default {
  'image/convert':{
@@ -2230,27 +2232,33 @@ export default {
    evidence:['src/task/resize.js (target(), fit modes, noEnlarge)','src/image.js fitQuality','src/resample.js (Pica 10.0.3, mks2013)'],
    external:[]},
   en:{
-   answer:'Resizing changes how many pixels an image has. Enter a percentage, or a width and/or height in pixels: one side alone keeps the proportions (a 4032 × 3024 photo at width 1080 becomes 1080 × 810); both sides use a fit mode — fit inside, fill and crop the overflow, or stretch. By default Nerulio never makes an image larger than the original when you size by one side or stretch, keeps PNG, JPG and WebP in their format, and resamples with Pica\'s mks2013 filter. Platform presets (Instagram, YouTube, X, LinkedIn, Discord) are one click away under Advanced.',
+   answer:'Resizing changes how many pixels an image has. Enter a percentage, or a width and/or height in pixels: one side alone keeps the proportions (a 4032 × 3024 photo at width 1080 becomes 1080 × 810); both sides use fit inside, fill and crop, or stretch. The enlargement limit applies to every fit mode by default. Choosing a fixed-size preset allows enlargement; you can turn the limit back on under Advanced. PNG, JPG and WebP keep their format unless you choose another, and resampling uses Pica\'s mks2013 filter. Platform presets are under Advanced.',
    concept:{title:'Percent, one side, or both sides',body:[
     'By percent scales both sides by the same factor and rounds: 50 % of 4032 × 3024 is 2016 × 1512. By pixels with one side empty keeps the ratio: height = round(3024 × 1080 ÷ 4032) = 810. With both sides filled the picture usually has a different ratio from the box, so a fit mode decides what happens to the difference.',
-    'Fit inside (contain, the default) scales the whole picture into the box and centres it; the leftover strips are transparent in PNG/WebP, or filled with the margin colour, and white in JPG. Fill and crop (cover) scales until the box is full and cuts the overflow from both sides equally. Stretch ignores the ratio and distorts. "Never make images larger than the original" is on by default, but it only applies to percent, one-side and stretch sizing — fit and fill can enlarge a small image to reach the box.'],
+    'Fit inside (contain, the default) scales the whole picture into the box and centres it; the leftover strips are transparent in PNG/WebP, or filled with the margin colour, and white in JPG. Fill and crop (cover) fills the box and cuts the centred overflow. Stretch ignores the ratio and distorts. "Never make images larger than the original" caps the output box in all three modes, percent and one-side sizing. The result can therefore be smaller than the requested box. This limits pixel dimensions, not file bytes. Choosing a fixed-size preset turns the limit off; the checkbox can turn it back on.'],
     terms:[['Contain (fit inside)','Whole picture visible; margins where the ratios differ.'],['Cover (fill and crop)','Box completely filled; the centred overflow is cut off.'],['mks2013','Magic Kernel Sharp 2013, the Pica resampling filter used for every resize here.']]},
-   example:{title:'One 4032 × 3024 photo, five ways (computed from the code)',lead:'Source size is an example 12-megapixel photo; the results follow `target()` and `fitQuality()` in the resize task.',lines:[
+   example:{title:"Photo calculations and a measured small PNG",lead:"The 4032 × 3024 photo is a calculated example using `target()` and `fitQuality()`. The 32 × 24 diagnostic PNG was actually resized on 2026-11-14: 24 downloads across Chromium and Firefox, independently decoded with Pillow. No third-party photo is used in that measured case.",lines:[
     '50 %                      -> 2016 x 1512',
     'width 1080 only           -> 1080 x 810     (3024 x 1080 / 4032 = 810)',
     '1080 x 1080, contain      -> picture 1080 x 810, centred, 135 px margin top and bottom',
     '1080 x 1080, cover        -> centre 3024 x 3024 cut out, scaled to 1080 x 1080',
     '1080 x 1080, stretch      -> 1080 x 1080, faces squashed by 25 %',
     '',
-    'width 1200 on an 800 x 600 image, "never larger" on -> stays 800 x 600'],
-    after:'Files are named after the result, e.g. `photo-1080x810.jpg`. Several files dropped together are resized with the same settings and can be saved as one ZIP.'},
+    'width 1200 on an 800 x 600 image, "never larger" on -> stays 800 x 600',
+    "",
+    "Measured 32 x 24 PNG; contain / cover / stretch:",
+    "request 128 x 96,  limit on  -> 32 x 24",
+    "request 128 x 96,  limit off -> 128 x 96",
+    "request 128 x 128, limit on  -> 24 x 24",
+    "request 128 x 128, limit off -> 128 x 128"],
+    after:"Equal output dimensions do not mean the same crop: in the capped 24 × 24 case, contain has a 24 × 18 picture with three transparent rows above and below; cover crops, while stretch distorts. Files are named after the result, e.g. `photo-1080x810.jpg`. Multiple files use the same settings and can be saved as a ZIP."},
    verify:{steps:[
     'The result list shows each file\'s new pixel size ("4032×3024 → 1080×810"); check it against what the destination asks for.',
     'With contain, look at the margins: transparent in PNG, white (or your margin colour) in JPG.',
     'With cover, check that nothing important was cut at the sides or the top and bottom.']},
    trouble:{rows:[
     ['The height changed although I typed only a width','One side alone keeps the original ratio','The result is e.g. 1080 × 810','Type both sides and pick a fit mode'],
-    ['The image did not get bigger','"Never make images larger" limits percent, one-side and stretch sizing','The source is smaller than the requested size','Untick it under Advanced; enlarging adds no detail'],
+    ['The image did not get bigger','"Never make images larger" limits every fit mode, percent and one-side sizing','The source is smaller than the requested box; read the output dimensions and limit notice','Untick it under Advanced if you need larger dimensions; enlarging cannot recover missing detail'],
     ['White or transparent bars appeared','Contain keeps the whole picture inside a box of another ratio','Result has margins','Choose cover to fill the box, or pick a margin colour'],
     ['Heads are cut off','Cover crops from the centre','Compare with the source','Frame it first with [[image/crop|crop]], then resize']]},
    alternatives:{rows:[
@@ -2258,30 +2266,36 @@ export default {
     ['[[image/compress|Compress]] with a Max width','The goal is a smaller file; it resizes and compresses in one step.'],
     ['[[game/pixel-art-upscaler|Pixel art upscaler]]','Pixel art must be enlarged with hard edges (whole-number nearest-neighbour), not smoothed.']]},
    limits:['Resampling is always smooth (mks2013); pixel art should use a nearest-neighbour tool instead.','JPG and WebP output use a fixed quality of 0.92; EXIF is not written.'],
-   versions:{body:['Behaviour from `src/task/resize.js`, `fitQuality()` in `src/image.js` and `src/resample.js` (Pica 10.0.3 with the mks2013 filter) in this repository version; the arithmetic above follows that code.'],sources:[]}
+   versions:{body:["Behaviour from `src/task/resize.js`, `fitQuality()` in `src/image.js` and `src/resample.js` (Pica 10.0.3 with the mks2013 filter). Large-photo dimensions are calculations; the small PNG case is a download/decode measurement, not a quality score or a file-byte guarantee. [Download input, 24 PNG results and measurements](https://nerulio.com/assets/editorial/2026-11-14-resize-dimensions/evidence.zip). [Read provenance and reproduction instructions](https://nerulio.com/assets/editorial/2026-11-14-resize-dimensions/README.md)."],sources:[]}
   },
   ko:{
-   answer:'크기 변경은 이미지의 픽셀 수를 바꾸는 작업입니다. 비율(%)이나 너비·높이 픽셀을 입력하세요. 한쪽만 입력하면 비율이 유지되고(4032 × 3024 사진에 너비 1080이면 1080 × 810), 양쪽을 모두 입력하면 맞춤 방식이 적용됩니다. 전체가 보이게 맞춤, 꽉 채우고 넘치는 부분 자르기, 늘리기 중 하나입니다. Nerulio는 기본적으로 한쪽 크기 지정이나 늘리기에서 원본보다 크게 만들지 않고, PNG·JPG·WebP는 원래 형식을 유지하며, Pica의 mks2013 필터로 다시 샘플링합니다. 인스타그램·유튜브·X·링크드인·디스코드 프리셋은 고급 설정에 있습니다.',
+   answer:'크기 변경은 이미지의 픽셀 수를 바꾸는 작업입니다. 비율(%)이나 너비·높이 픽셀을 입력하세요. 한쪽만 입력하면 비율이 유지되고(4032 × 3024 사진에 너비 1080이면 1080 × 810), 양쪽을 모두 입력하면 전체가 보이게 맞춤, 채우고 자르기, 늘리기 중 하나가 적용됩니다. 확대 제한은 기본적으로 모든 맞춤 방식에 적용됩니다. 고정 크기 프리셋을 고르면 확대를 허용하며, 고급의 제한 체크박스로 다시 막을 수 있습니다. PNG·JPG·WebP는 다른 형식을 고르지 않으면 원래 형식을 유지하고, Pica의 mks2013 필터로 다시 샘플링합니다. 각 서비스 프리셋은 고급 설정에 있습니다.',
    concept:{title:'비율, 한쪽, 또는 양쪽',body:[
     '비율로 바꾸면 두 변에 같은 배율을 곱하고 반올림합니다. 4032 × 3024의 50%는 2016 × 1512입니다. 픽셀로 바꾸면서 한쪽을 비우면 비율이 유지됩니다. 높이 = round(3024 × 1080 ÷ 4032) = 810입니다. 양쪽을 모두 채우면 그림과 상자의 비율이 대개 달라서, 맞춤 방식이 그 차이를 어떻게 처리할지 정합니다.',
-    '전체가 보이게 맞춤(contain, 기본값)은 그림 전체를 상자 안에 넣고 가운데에 둡니다. 남는 띠는 PNG·WebP에서는 투명하거나 여백 색으로 채워지고, JPG에서는 흰색입니다. 꽉 채우고 넘치는 부분 자르기(cover)는 상자가 가득 찰 때까지 키운 뒤 넘친 부분을 양쪽에서 똑같이 잘라냅니다. 늘리기는 비율을 무시해 왜곡됩니다. "원본보다 크게 만들지 않기"는 기본으로 켜져 있지만 비율·한쪽·늘리기에만 적용되며, 맞춤과 채우기는 상자에 맞추려고 작은 이미지를 키울 수 있습니다.'],
+    '전체가 보이게 맞춤(contain, 기본값)은 그림 전체를 상자 안에 넣고 가운데에 둡니다. 남는 띠는 PNG·WebP에서는 투명하거나 여백 색으로 채워지고, JPG에서는 흰색입니다. 채우고 자르기(cover)는 상자를 채우고 넘친 부분을 가운데 기준으로 자릅니다. 늘리기는 비율을 무시해 왜곡됩니다. "원본보다 크게 만들지 않기"는 세 맞춤 방식 모두와 비율·한쪽 크기 지정에 적용되므로, 결과가 요청한 상자보다 작을 수 있습니다. 파일 바이트 용량이 아닌 픽셀 크기 제한입니다. 고정 크기 프리셋을 고르면 제한이 꺼지며 체크박스로 다시 켤 수 있습니다.'],
     terms:[['Contain(전체가 보이게 맞춤)','그림 전체가 보이며 비율이 다르면 여백이 생깁니다.'],['Cover(채우고 자르기)','상자를 가득 채우고 가운데 기준으로 넘친 부분을 잘라냅니다.'],['mks2013','Magic Kernel Sharp 2013. 여기서 모든 크기 변경에 쓰는 Pica 리샘플링 필터.']]},
-   example:{title:'4032 × 3024 사진 한 장, 다섯 가지 방법(코드로 계산)',lead:'원본 크기는 1,200만 화소 사진의 예이며, 결과는 크기 변경 작업의 `target()`과 `fitQuality()`를 따릅니다.',lines:[
+   example:{title:"사진 크기 계산과 작은 PNG 실측",lead:"4032 × 3024 사진은 `target()`과 `fitQuality()`로 계산한 예입니다. 32 × 24 진단용 PNG는 2026-11-14 실제로 크기를 바꿨습니다. Chromium·Firefox에서 총 24개 파일을 내려받고 Pillow로 따로 디코딩했습니다. 이 실측에는 제삼자 사진을 쓰지 않았습니다.",lines:[
     '50 %                      -> 2016 x 1512',
     '너비 1080만               -> 1080 x 810     (3024 x 1080 / 4032 = 810)',
     '1080 x 1080, contain      -> 그림 1080 x 810, 가운데, 위아래 여백 135 px',
     '1080 x 1080, cover        -> 가운데 3024 x 3024를 잘라 1080 x 1080으로',
     '1080 x 1080, 늘리기       -> 1080 x 1080, 얼굴이 25 % 눌림',
     '',
-    '800 x 600 이미지에 너비 1200, "크게 만들지 않기" 켬 -> 800 x 600 그대로'],
-    after:'파일 이름은 결과 크기를 따릅니다. 예: `photo-1080x810.jpg`. 여러 파일을 한꺼번에 놓으면 같은 설정으로 바뀌고 ZIP 하나로 저장할 수 있습니다.'},
+    '800 x 600 이미지에 너비 1200, "크게 만들지 않기" 켬 -> 800 x 600 그대로',
+    "",
+    "32 x 24 PNG 실측; contain / cover / 늘리기:",
+    "128 x 96 요청,  제한 켬 -> 32 x 24",
+    "128 x 96 요청,  제한 끔 -> 128 x 96",
+    "128 x 128 요청, 제한 켬 -> 24 x 24",
+    "128 x 128 요청, 제한 끔 -> 128 x 128"],
+    after:"출력 크기가 같아도 잘리는 부분은 다릅니다. 제한된 24 × 24 결과에서 contain은 24 × 18 그림 위아래에 투명한 3줄을 두고, cover는 잘라 채우며, 늘리기는 비율을 바꿉니다. 파일 이름은 결과 크기를 따릅니다. 예: `photo-1080x810.jpg`. 여러 파일은 같은 설정으로 바뀌며 ZIP 하나로 저장할 수 있습니다."},
    verify:{steps:[
     '결과 목록에 파일마다 새 픽셀 크기("4032×3024 → 1080×810")가 나옵니다. 받는 곳이 요구하는 크기와 비교하세요.',
     'contain이라면 여백을 보세요. PNG에서는 투명, JPG에서는 흰색(또는 지정한 여백 색)입니다.',
     'cover라면 양옆이나 위아래에서 중요한 부분이 잘리지 않았는지 확인하세요.']},
    trouble:{rows:[
     ['너비만 입력했는데 높이도 바뀜','한쪽만 입력하면 원래 비율을 유지합니다','결과가 예: 1080 × 810','양쪽을 입력하고 맞춤 방식을 고르세요'],
-    ['이미지가 커지지 않음','"원본보다 크게 만들지 않기"가 비율·한쪽·늘리기를 제한합니다','원본이 요청 크기보다 작음','고급에서 해제하세요. 확대해도 디테일은 늘지 않습니다'],
+    ['이미지가 커지지 않음','"원본보다 크게 만들지 않기"가 모든 맞춤 방식과 비율·한쪽 크기 지정을 제한합니다','원본이 요청 상자보다 작음. 결과 크기와 제한 안내를 확인하세요','더 큰 픽셀이 필요하면 고급에서 해제하세요. 확대해도 없던 디테일은 복원되지 않습니다'],
     ['흰색이나 투명한 띠가 생김','contain은 다른 비율의 상자 안에 그림 전체를 넣습니다','결과에 여백이 있음','상자를 채우려면 cover를 고르거나 여백 색을 정하세요'],
     ['머리가 잘림','cover는 가운데 기준으로 자릅니다','원본과 비교','먼저 [[image/crop|자르기]]로 구도를 잡은 뒤 크기를 바꾸세요']]},
    alternatives:{rows:[
@@ -2289,30 +2303,36 @@ export default {
     ['최대 너비를 지정해 [[image/compress|압축]]','목적이 작은 파일일 때. 크기 변경과 압축을 한 번에 합니다.'],
     ['[[game/pixel-art-upscaler|도트 그림 확대]]','도트 그림을 부드럽게가 아니라 정수배 최근접 방식으로 선명하게 키워야 할 때.']]},
    limits:['리샘플링은 항상 부드러운 방식(mks2013)입니다. 도트 그림은 최근접 방식 도구를 쓰세요.','JPG·WebP 출력은 화질 0.92로 고정이며 EXIF는 기록하지 않습니다.'],
-   versions:{body:['동작은 이 저장소 버전의 `src/task/resize.js`, `src/image.js`의 `fitQuality()`, `src/resample.js`(Pica 10.0.3, mks2013 필터)에서 가져왔고, 위 계산은 그 코드를 따릅니다.'],sources:[]}
+   versions:{body:["동작은 `src/task/resize.js`, `src/image.js`의 `fitQuality()`, `src/resample.js`(Pica 10.0.3, mks2013 필터)를 따릅니다. 큰 사진의 크기는 계산이며, 작은 PNG는 다운로드·디코딩 실측입니다. 화질 점수나 바이트 용량 보장이 아닙니다. [원본·결과 PNG 24개·측정값 받기](https://nerulio.com/assets/editorial/2026-11-14-resize-dimensions/evidence.zip). [출처와 재현 방법 보기](https://nerulio.com/assets/editorial/2026-11-14-resize-dimensions/README.md)."],sources:[]}
   },
   ja:{
-   answer:'サイズ変更は画像のピクセル数を変える処理です。割合（%）か、幅・高さのピクセルを入力します。片方だけなら比率が保たれ（4032 × 3024の写真で幅1080なら1080 × 810）、両方入れると合わせ方が適用されます。全体が見えるように収める、埋めてはみ出しを切り取る、伸ばす、の3つです。Nerulioは初期設定で、片方指定や伸ばすときに元より大きくせず、PNG・JPG・WebPは元の形式を保ち、Picaのmks2013フィルターでリサンプリングします。Instagram・YouTube・X・LinkedIn・Discordのプリセットは詳細設定にあります。',
+   answer:'サイズ変更は画像のピクセル数を変える処理です。割合（%）か、幅・高さを入力します。片方だけなら比率が保たれ（4032 × 3024の写真で幅1080なら1080 × 810）、両方なら収める、埋めて切り取る、伸ばすのいずれかを使います。拡大制限は初期設定で全ての合わせ方に適用されます。固定サイズのプリセットを選ぶと拡大が許可され、詳細設定のチェックで再び制限できます。別形式を選ばなければPNG・JPG・WebPは元の形式を保ち、Picaのmks2013フィルターでリサンプリングします。各サービスのプリセットは詳細設定にあります。',
    concept:{title:'割合、片方、または両方',body:[
     '割合では両辺に同じ倍率を掛けて丸めます。4032 × 3024の50%は2016 × 1512です。ピクセル指定で片方を空けると比率が保たれ、高さ = round(3024 × 1080 ÷ 4032) = 810になります。両方を入れると、画像と枠の比率はたいてい違うので、その差をどう扱うかを合わせ方で決めます。',
-    '全体が見えるように収める（contain、初期値）は画像全体を枠に入れて中央に置きます。余る帯はPNG・WebPでは透明か余白の色、JPGでは白になります。埋めてはみ出しを切り取る（cover）は枠が埋まるまで拡大し、はみ出した分を両側から均等に切り取ります。伸ばすは比率を無視してゆがめます。「元より大きくしない」は初期設定でオンですが、割合・片方・伸ばすにだけ効き、収める・埋めるでは枠に合わせるために小さな画像を拡大することがあります。'],
+    '全体が見えるように収める（contain、初期値）は画像全体を枠に入れて中央に置きます。余る帯はPNG・WebPでは透明か余白の色、JPGでは白になります。埋めて切り取る（cover）は枠を満たし、はみ出した部分を中央基準で切ります。伸ばすは比率を無視してゆがめます。「元より大きくしない」は3つの合わせ方と割合・片方指定の全てに効くため、結果が指定した枠より小さくなることがあります。制限するのはピクセル寸法で、バイト数ではありません。固定サイズのプリセットを選ぶと制限は外れ、チェックで再び有効にできます。'],
     terms:[['Contain（収める）','画像全体が見え、比率が違えば余白ができます。'],['Cover（埋めて切り取る）','枠を完全に埋め、中央基準ではみ出した部分を切り取ります。'],['mks2013','Magic Kernel Sharp 2013。ここでのすべてのサイズ変更に使うPicaのリサンプリングフィルター。']]},
-   example:{title:'4032 × 3024の写真1枚を5通りに（コードから計算）',lead:'元のサイズは1,200万画素の写真の例で、結果はサイズ変更タスクの `target()` と `fitQuality()` に従います。',lines:[
+   example:{title:"写真の寸法計算と小さいPNGの実測",lead:"4032 × 3024の写真は `target()` と `fitQuality()` による計算例です。32 × 24の診断用PNGは2026-11-14に実際にサイズ変更しました。Chromium・Firefoxで計24ファイルを保存し、Pillowで別途デコードしました。この実測に第三者の写真は使っていません。",lines:[
     '50 %                      -> 2016 x 1512',
     '幅1080のみ                -> 1080 x 810     （3024 x 1080 / 4032 = 810）',
     '1080 x 1080、contain      -> 画像 1080 x 810、中央、上下に135 pxの余白',
     '1080 x 1080、cover        -> 中央の3024 x 3024を切り出し 1080 x 1080に',
     '1080 x 1080、伸ばす       -> 1080 x 1080、顔が25 %つぶれる',
     '',
-    '800 x 600の画像に幅1200、「元より大きくしない」オン -> 800 x 600のまま'],
-    after:'ファイル名は結果のサイズになります。例：`photo-1080x810.jpg`。複数のファイルをまとめて入れると同じ設定で変換され、ZIP 1つで保存できます。'},
+    '800 x 600の画像に幅1200、「元より大きくしない」オン -> 800 x 600のまま',
+    "",
+    "32 x 24 PNGの実測：contain / cover / 伸ばす",
+    "128 x 96 指定、 制限オン -> 32 x 24",
+    "128 x 96 指定、 制限オフ -> 128 x 96",
+    "128 x 128 指定、制限オン -> 24 x 24",
+    "128 x 128 指定、制限オフ -> 128 x 128"],
+    after:"出力寸法が同じでも切り取り方は違います。制限付き24 × 24のcontainは24 × 18の画像の上下に透明な3行を置き、coverは切り取って埋め、伸ばすは比率を変えます。ファイル名は結果のサイズです。例：`photo-1080x810.jpg`。複数のファイルは同じ設定で変換され、ZIP 1つで保存できます。"},
    verify:{steps:[
     '結果一覧にファイルごとの新しいピクセルサイズ（「4032×3024 → 1080×810」）が出ます。提出先の求めるサイズと比べます。',
     'containなら余白を見ます。PNGでは透明、JPGでは白（または指定した余白の色）です。',
     'coverなら、左右や上下で大事な部分が切れていないか確認します。']},
    trouble:{rows:[
     ['幅だけ入れたのに高さも変わった','片方だけだと元の比率を保つ','結果が例：1080 × 810','両方を入力し、合わせ方を選びます'],
-    ['画像が大きくならない','「元より大きくしない」が割合・片方・伸ばすを制限している','元画像が指定サイズより小さい','詳細設定で外します。拡大しても細部は増えません'],
+    ['画像が大きくならない','「元より大きくしない」は全ての合わせ方と割合・片方指定を制限する','元画像が指定した枠より小さい。結果の寸法と制限の案内を確認','大きい寸法が必要なら詳細設定で外します。拡大しても失われた細部は復元できません'],
     ['白や透明の帯が出た','containは比率の違う枠に画像全体を収める','結果に余白がある','枠を埋めるならcoverを選ぶか、余白の色を指定します'],
     ['頭が切れた','coverは中央基準で切り取る','元画像と比べる','先に[[image/crop|切り抜き]]で構図を決めてからサイズを変えます']]},
    alternatives:{rows:[
@@ -2320,7 +2340,7 @@ export default {
     ['最大幅を指定して[[image/compress|圧縮]]','目的が小さなファイルの場合。サイズ変更と圧縮を一度に行います。'],
     ['[[game/pixel-art-upscaler|ドット絵の拡大]]','ドット絵をなめらかにではなく、整数倍のニアレストネイバーでくっきり拡大したい場合。']]},
    limits:['リサンプリングは常になめらかな方式（mks2013）です。ドット絵にはニアレストネイバーのツールを使います。','JPG・WebPの出力は画質0.92固定で、EXIFは書き込みません。'],
-   versions:{body:['動作はこのリポジトリの版の `src/task/resize.js`、`src/image.js` の `fitQuality()`、`src/resample.js`（Pica 10.0.3、mks2013フィルター）から取り、上の計算はそのコードに従っています。'],sources:[]}
+   versions:{body:["動作は `src/task/resize.js`、`src/image.js` の `fitQuality()`、`src/resample.js`（Pica 10.0.3、mks2013フィルター）に従います。大きい写真の寸法は計算、小さいPNGは保存・デコードの実測で、画質スコアやバイト数の保証ではありません。[元画像・PNG結果24個・測定値を取得](https://nerulio.com/assets/editorial/2026-11-14-resize-dimensions/evidence.zip)。[出典と再現方法](https://nerulio.com/assets/editorial/2026-11-14-resize-dimensions/README.md)。"],sources:[]}
   }
  },
  'image/resize/instagram-post':{
