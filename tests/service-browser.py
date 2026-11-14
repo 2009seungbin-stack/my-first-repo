@@ -699,7 +699,7 @@ def scenario_traffic(browser):
         for asset in ['/src/task/batch.js','/src/task/resize.js','/src/platform/n2.css','/styles.css','/experience.css','/content.css','/ai-runtime/']:
             with urllib.request.urlopen(stack.url+asset,timeout=20) as response:
                 cache=response.headers.get('Cache-Control','').lower();body=response.read();etag=response.headers.get('ETag')
-                ok('traffic: mutable resource revalidates '+asset,response.status==200 and 'no-cache' in cache and 'no-store' not in cache)
+                ok('traffic: mutable resource forbids cached reuse '+asset,response.status==200 and cache=='no-store')
                 directives=[part.strip() for part in cache.split(',')]
                 ok('traffic: mutable resource has one unambiguous cache policy '+asset,len(directives)==len(set(directives)) and sum(part.startswith('max-age=') for part in directives)<=1)
                 if asset=='/src/task/resize.js':
@@ -708,7 +708,7 @@ def scenario_traffic(browser):
                         with urllib.request.urlopen(urllib.request.Request(stack.url+asset,headers={'If-None-Match':etag}),timeout=20) as again:
                             valid=again.status==200 and again.read()==body
                     except urllib.error.HTTPError as error:valid=error.code==304
-                    ok('traffic: unchanged code revalidates without different bytes',valid)
+                    ok('traffic: explicit conditional request preserves unchanged code bytes',valid)
         try:
             urllib.request.urlopen(urllib.request.Request(stack.url+'/api/v2/hit',data=b'{"p":"/ko/"}',method='POST',headers={'Content-Type':'text/plain','Origin':'https://evil.test','Sec-Fetch-Site':'cross-site'}),timeout=20);cross=200
         except urllib.error.HTTPError as e:cross=e.code
