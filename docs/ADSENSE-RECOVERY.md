@@ -318,6 +318,14 @@ Before merging the new commentary, the actual old-version diagnostic logs were c
 
 ## Further work after these fixes
 
+### Hardware lookup claims — follow-up candidate
+
+Latest hardware run **43567775653**, job **132365274115**, succeeded on November 14 at 06:44 UTC, but its source results were **giggle BOT_CHALLENGE / zero items**, **HardForum zero accepted / seven excluded** and **Hardware.fr zero accepted / one excluded**. The partial-access warning explicitly says freshness was not advanced. Success does not establish newly available prices or resolution of the original notification's specific failed run.
+
+An actual production **61d758c** check, JavaScript disabled at 390px, searched **RTX 4060** in all eight countries: KR stale; US/FR no_results; JP/GB/DE/CA/AU not_connected. There were zero listings/price summaries, one to three original marketplace links each, no overflow, and each query view stayed noindex. This is one query, not proof of empty inventory for every model. Evidence: `test-results/used-prices-audit/results.json` and captured HTML.
+
+The candidate calls the utility **Find used listings / 중고 매물 찾기** throughout discovery/navigation and its page. It describes original marketplace searches/boards and conditionally collected displayed prices, without promising working automatic lookup for every country. Empty results refer to collected records, not the whole marketplace; disconnected results direct readers to original links; community-source timestamps are labelled last successful collection. Existing forms, matching, prices, source gates, schedules, data and indexing behavior are unchanged. The workflow display name becomes **Hardware market collection**, reflecting its retained external-source role after Nerulio's own community closure. **30** existing Node tests, strict types and both existing hardware browser suites pass, covering eight market states, available/empty/error fixtures, forms, CPU/GPU selection, value calculation, source/credit links, SSR, ko/en and 320px/390px layouts. Evidence: `test-results/hardware-claims-node.log`, `hardware-claims-types.log`, `hardware-claims-browser.log` and `hardware-claims-community.log`. Preview/full CI and production validation remain pending.
+
 Audit thin/duplicate publicly indexable reference directories against actual usefulness, check collector freshness/failures, and verify broken routes/mobile/accessibility using concrete evidence. Keep useful tool functions; do not noindex a tool solely because its UI is short. Existing six AI-news draft files remain private. Skip weak articles rather than filling a quota.
 
 At the deadline, report verified code/content/deployments and remaining limitations, then stop this heartbeat. Keep technical deployment, Google indexing and AdSense review/approval separate.

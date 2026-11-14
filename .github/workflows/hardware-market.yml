@@ -1,4 +1,4 @@
-name: Community hardware market
+name: Hardware market collection
 on:
   schedule:
     - cron: '23 * * * *'

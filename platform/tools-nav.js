@@ -28,7 +28,7 @@ export const toolHref=(l,x)=>`/${l}/${x.path}/`;
 export const toolsHome=l=>`/${l}/tools/`;
 /** Worker-rendered PC utilities, separate from the static file/game tool registry. */
 export const PC_TOOLS=Object.freeze(/** @type {NavTool[]} */([
- {id:'used-prices',path:'hardware/used-prices',ic:'USED',svg:'chip',ko:'국가별 중고 시세',en:'Used prices by country'},
+ {id:'used-prices',path:'hardware/used-prices',ic:'USED',svg:'chip',ko:'중고 매물 찾기',en:'Find used listings'},
  {id:'performance',path:'hardware/performance',ic:'BENCH',svg:'chip',ko:'GPU·CPU 성능 비교',en:'GPU / CPU performance'},
 ]));
 /** Worker-rendered pages for fun (놀이 도구): no files, everything runs in the page. */
