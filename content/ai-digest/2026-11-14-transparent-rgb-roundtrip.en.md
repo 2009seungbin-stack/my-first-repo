@@ -40,7 +40,7 @@ Two inputs, two browsers and four diagnostics produce sixteen combinations. **Th
 
 This table compares the alpha-band input with its PNG exports. The WebP100 exports decode to identical RGBA in this test, and their VP8L image data was checked. A changed pixel is counted once if any RGB channel differs.
 
-| Browser | Input alpha | Pixels compared | Pixels with changed RGB | Largest channel difference |
+| Browser | Alpha | Pixels | RGB changed | Max change |
 | --- | ---: | ---: | ---: | ---: |
 | Chromium | 64 | 3,072 | 2,679 | 2 |
 | Chromium | 128 | 3,072 | 2,295 | 1 |
@@ -51,7 +51,7 @@ No alpha values changed. Neither the alpha-255 band nor the separate 12,288-pixe
 
 In the fully transparent band, 3,071 of 3,072 hidden RGB values changed. That data is invisible by itself, so it is not added to the table as visible quality loss. Preserving otherwise invisible channel data and producing an ordinary displayed image are different requirements.
 
-## Differences were present before PNG export, but that was not the entire story
+## Readback and exported files did not always match
 
 Separating `getImageData` readback from the saved file gives the following counts. Each number is how many of the same 3,072 pixels differ in RGB from the input.
 
