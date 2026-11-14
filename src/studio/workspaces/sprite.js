@@ -58,7 +58,7 @@ export default {
    setCurrent,clickFrame,selectTag,setDurations,moveFrames,newTag,addBox,removeBox,
    choose:(id,alt)=>{const a=asset();if(a)importer.choose(a.id,id,alt);},
    applyImport:async()=>{const a=asset();if(a&&await importer.applySheet(a.id)&&asset()?.id===a.id){setMode('frame');setCurrent(0,{select:true});}},
-   setCustomGrid:g=>importer.setCustomGrid(S.assetId,g),
+   setCustomGrid:(g,assetId=S.assetId)=>importer.setCustomGrid(assetId,g),
    importState:()=>{const a=asset();if(!a)return null;const st=importer.sheetState(a.id),p=importer.planFor(a.id);return p?{...p,choice:st?.choice||{}}:st?{choice:st.choice}:null;},
    jitterReport:()=>S.jitter?.report||null,alignResult:()=>S.alignResult
   };

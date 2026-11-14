@@ -244,6 +244,63 @@ def part1(browser):
 
 
 # ======================================================================= part 2: Studio-backed intents, both engines
+def pending_grid_input(ctx,E):
+    """Release a real pending measurement while a different number is uncommitted."""
+    p=land(ctx,'/en/sprite-slicer/',[DUNGEON],E)
+    p.locator('button[data-dec="slice"][data-alt="custom"]').click();p.wait_for_selector('[data-sp="grid-sx"]')
+    p.evaluate('''()=>{
+      window.gridRenders=0;window.gridChanges=[];const post=Worker.prototype.postMessage;
+      Worker.prototype.postMessage=function(m,...args){if(m?.op==='cells'&&window.holdGrid){
+        window.holdGrid=false;window.releaseGrid=()=>post.call(this,m,...args);return;}
+        return post.call(this,m,...args);};
+      document.addEventListener('change',e=>{if(e.target.matches?.('[data-sp^="grid-"]'))window.gridChanges.push({field:e.target.dataset.sp,value:e.target.value})},true);
+      new MutationObserver(()=>window.gridRenders++).observe(document.querySelector('.sp-import'),{childList:true});
+      window.holdGrid=true;
+    }''')
+    p.locator('[data-sp="grid-sx"]').fill('0');p.locator('[data-sp="grid-sx"]').press('Enter')
+    p.wait_for_function('()=>typeof window.releaseGrid==="function"')
+    sy=p.locator('[data-sp="grid-sy"]');sy.fill('14');sy.press('Home');sy.press('ArrowRight')
+    before=p.evaluate('()=>{window.pendingGridInput=document.querySelector("[data-sp=grid-sy]");return window.gridRenders}')
+    p.evaluate('window.releaseGrid()');p.wait_for_function('(n)=>window.gridRenders>n',arg=before)
+    ok('custom grid: a completed earlier edit keeps pending text, focus and the connected input without committing it',
+       sy.input_value()=='14' and p.evaluate('()=>document.activeElement===window.pendingGridInput&&document.querySelector("[data-sp=grid-sy]")===window.pendingGridInput&&window.gridChanges.every(e=>e.field!=="grid-sy")'),engine=E)
+    p.keyboard.press('2')
+    ok('custom grid: a number-input caret stays between digits across the asynchronous refresh',sy.input_value()=='124',engine=E)
+    sy.press('Enter');p.locator('[data-sp="import-apply"]').click()
+    p.wait_for_function('()=>{const a=window.nerulioStudio.doc.assets[0];return a.import.applied&&a.grid.sy===124;}')
+    rects=[f['sourceRect'] for f in asset(p)['frames']]
+    ok('custom grid: the complete typed value cuts the expected 24 source rectangles',len(rects)==24 and all(r=={'x':i%12*16,'y':i//12*140,'w':16,'h':16} for i,r in enumerate(rects)),engine=E)
+    p.locator('.st-status').click();p.keyboard.press('Control+z')
+    p.wait_for_function('()=>!window.nerulioStudio.doc.assets[0].import.applied')
+    p.keyboard.press('Control+z');p.wait_for_function('()=>document.querySelector("[data-sp=grid-sy]").value==="1"')
+    ok('custom grid: the pending multi-digit edit is one undo step, without a committed partial number',p.locator('[data-sp="grid-sx"]').input_value()=='0',engine=E)
+    p.keyboard.press('Control+Shift+Z');p.wait_for_function('()=>document.querySelector("[data-sp=grid-sy]").value==="124"')
+    p.keyboard.press('Control+Shift+Z');p.wait_for_function('()=>window.nerulioStudio.doc.assets[0].import.applied')
+    ok('custom grid: redo restores every source rectangle after the pending-input edit',[f['sourceRect'] for f in asset(p)['frames']]==rects,engine=E)
+    height=asset(p)['height'];sy=p.locator('[data-sp="grid-sy"]');sy.fill('9999');sy.press('Enter')
+    p.wait_for_function('(h)=>window.nerulioStudio.doc.assets[0].grid.sy===h',arg=height)
+    ok('custom grid: a committed out-of-range number shows the clamped model value while focused',sy.input_value()==str(height) and sy.evaluate('e=>e===document.activeElement'),engine=E)
+    w=p.locator('[data-sp="grid-w"]');w.fill('2.7');w.press('Enter');p.wait_for_function('()=>window.nerulioStudio.doc.assets[0].grid.w===3')
+    ok('custom grid: a committed fractional cell size displays its rounded integer',w.input_value()=='3',engine=E)
+    old_id=asset(p)['id'];p.set_input_files('input[type=file][multiple]:not([webkitdirectory])',str(SAMURAI))
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===2')
+    new_id=p.evaluate('(id)=>window.nerulioStudio.doc.assets.find(a=>a.id!==id).id',old_id)
+    p.locator(f'[data-asset="{new_id}"]').click();p.wait_for_function('(id)=>window.nerulioStudio.activeAssetId===id',arg=new_id)
+    p.wait_for_function('()=>document.querySelector("[data-sp=grid-sy]")||document.querySelector("button[data-dec=slice][data-alt=custom]")')
+    if not p.locator('[data-sp="grid-sy"]').count():p.locator('button[data-dec="slice"][data-alt="custom"]').click()
+    p.wait_for_selector('[data-sp="grid-sy"]')
+    p.locator('[data-sp="grid-sy"]').fill('7')
+    before_switch=p.evaluate('()=>{window.previousAssetInput=document.querySelector("[data-sp=grid-sy]");return window.nerulioStudio.history.entries.length}')
+    p.evaluate('(id)=>window.nerulioStudio.showAsset(id)',old_id)
+    p.wait_for_function('(id)=>window.nerulioStudio.activeAssetId===id',arg=old_id)
+    # Chromium can emit this change during removal; replay the late event in both engines.
+    p.evaluate('window.previousAssetInput.dispatchEvent(new Event("change",{bubbles:true}))')
+    p.wait_for_function('(n)=>window.nerulioStudio.history.entries.length>n',arg=before_switch)
+    switched=p.evaluate('()=>({active:window.nerulioStudio.activeAssetId,assets:window.nerulioStudio.doc.assets.map(a=>({id:a.id,grid:a.grid})),fields:[...document.querySelectorAll("[data-sp^=grid-]")].map(e=>({field:e.dataset.sp,value:e.value}))})')
+    ok('custom grid: selecting another asset cannot carry a pending field into its grid',p.locator('[data-sp="grid-sy"]').input_value()==str(height) and p.locator('[data-sp="grid-w"]').input_value()=='3',str(switched),engine=E)
+    p.close()
+
+
 def part2(browser, E):
     ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, accept_downloads=True, locale='en-US')
     sheet = Image.open(SAMURAI).convert('RGBA')
@@ -411,6 +468,7 @@ def part2(browser, E):
     p.wait_for_function('()=>{const g=window.nerulioStudio.doc.assets[0].grid;return g.sx===1&&g.sy===1;}')
     ok('custom grid: undo and redo preserve the order of the two field edits',True,engine=E)
     p.close()
+    pending_grid_input(ctx,E)
     # tile-lab / autotile-tester / tileset-slicer ---------------------------------------
     p = land(ctx, '/en/game/tile-lab/', [CAVE], E)
     ok('tile-lab: the sheet opens in the Tile workspace with a 64×64 grid suggestion naming GameMaker 47', js(p, 'return S.workspace;') == 'tile' and p.locator('[data-grid-sug="0"]').inner_text().startswith('64×64') and 'GameMaker' in p.locator('[data-grid-sug="0"]').inner_text(), engine=E)
