@@ -1,0 +1,11 @@
+CC0 1.0 Universal
+
+Nerulio dedicates the original geometric controls, their measured outputs and
+renders, measurement records, analysis, documentation and original scripts in
+this evidence package to the public domain under CC0 1.0 Universal.
+
+https://creativecommons.org/publicdomain/zero/1.0/
+
+No third-party photograph, brand artwork, private user file or credential is
+included. Third-party software used to acquire, decode or render the files is
+not included and remains subject to its own licenses.

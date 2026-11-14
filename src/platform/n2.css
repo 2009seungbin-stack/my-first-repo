@@ -282,6 +282,7 @@ body.n2{margin:0;background:var(--bg);font-family:SUIT,system-ui,-apple-system,'
 .meta1 .nick{color:var(--ink)}
 .meta1 .sep{color:var(--line)}
 .pbody{padding:16px 18px;font-size:15px;line-height:1.7;overflow-wrap:anywhere}
+.post :is(h1,h2,h3):lang(ko){word-break:keep-all;overflow-wrap:anywhere}
 .pbody p{margin:0 0 .9em}
 .pbody pre{background:var(--bg);padding:10px;border-radius:4px;overflow-x:auto}
 .pbody img{max-width:100%;height:auto}

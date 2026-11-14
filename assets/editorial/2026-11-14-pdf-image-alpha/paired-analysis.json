@@ -1,0 +1,475 @@
+{
+  "beforeSource": "8889f53d61fee2f21b6705310b68fc02a66f4a3b",
+  "afterSource": "66c351586b1538ab21502f5cd64982cca1b298e0",
+  "protocolSHA256": "f9e6cf77e988fe2a4d6dce2ae8d85dd3874ed8a920a3082b3a723632789b1b4e",
+  "identicalInputFiles": true,
+  "browserVersions": {
+    "chromium": "153.0.8010.12",
+    "firefox": "155.0"
+  },
+  "rows": [
+    {
+      "state": "before",
+      "engine": "chromium",
+      "input": "alpha-control.png",
+      "softMask": true,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/FlateDecode",
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          232,
+          142,
+          162
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "before",
+      "engine": "chromium",
+      "input": "alpha-control.webp",
+      "softMask": false,
+      "alphaMismatchPixels": 7168,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          0,
+          0,
+          0
+        ],
+        "half": [
+          104,
+          15,
+          35
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "before",
+      "engine": "chromium",
+      "input": "opaque-control.webp",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "before",
+      "engine": "chromium",
+      "input": "opaque-control.jpg",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "before",
+      "engine": "firefox",
+      "input": "alpha-control.png",
+      "softMask": true,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/FlateDecode",
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          233,
+          143,
+          163
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "before",
+      "engine": "firefox",
+      "input": "alpha-control.webp",
+      "softMask": false,
+      "alphaMismatchPixels": 7168,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          0,
+          0,
+          0
+        ],
+        "half": [
+          105,
+          16,
+          36
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "before",
+      "engine": "firefox",
+      "input": "opaque-control.webp",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "before",
+      "engine": "firefox",
+      "input": "opaque-control.jpg",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "chromium",
+      "input": "alpha-control.png",
+      "softMask": true,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/FlateDecode",
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          232,
+          142,
+          162
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "chromium",
+      "input": "alpha-control.webp",
+      "softMask": true,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/FlateDecode",
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          232,
+          142,
+          162
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "chromium",
+      "input": "opaque-control.webp",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "chromium",
+      "input": "opaque-control.jpg",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "firefox",
+      "input": "alpha-control.png",
+      "softMask": true,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/FlateDecode",
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          233,
+          143,
+          163
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "firefox",
+      "input": "alpha-control.webp",
+      "softMask": true,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 7168,
+      "filter": "/FlateDecode",
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          233,
+          143,
+          163
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "firefox",
+      "input": "opaque-control.webp",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    },
+    {
+      "state": "after",
+      "engine": "firefox",
+      "input": "opaque-control.jpg",
+      "softMask": false,
+      "alphaMismatchPixels": 0,
+      "sourceNonOpaquePixels": 0,
+      "filter": "/DCTDecode",
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "independentRenderPixelsMatch": true
+    }
+  ],
+  "scope": "Image-resource alpha at every source pixel and full independent Poppler render replays of sixteen captured PDFs. No hidden-RGB equality, all-image quality, printing, PDF/A or universal-browser claim.",
+  "opaqueJPEGStreams": [
+    {
+      "engine": "chromium",
+      "input": "opaque-control.jpg",
+      "sameEmbeddedJPEGStream": true,
+      "beforeSHA256": "2e4a169f23134bef206d5daab731e10562c0b9582ce4cdfe52079a6fa61285c6",
+      "afterSHA256": "2e4a169f23134bef206d5daab731e10562c0b9582ce4cdfe52079a6fa61285c6"
+    },
+    {
+      "engine": "chromium",
+      "input": "opaque-control.webp",
+      "sameEmbeddedJPEGStream": true,
+      "beforeSHA256": "2e4a169f23134bef206d5daab731e10562c0b9582ce4cdfe52079a6fa61285c6",
+      "afterSHA256": "2e4a169f23134bef206d5daab731e10562c0b9582ce4cdfe52079a6fa61285c6"
+    },
+    {
+      "engine": "firefox",
+      "input": "opaque-control.jpg",
+      "sameEmbeddedJPEGStream": true,
+      "beforeSHA256": "02e86d678f275d3665bd4f57275358794c3df33de87fa4742f8a6db3c5fb78e8",
+      "afterSHA256": "02e86d678f275d3665bd4f57275358794c3df33de87fa4742f8a6db3c5fb78e8"
+    },
+    {
+      "engine": "firefox",
+      "input": "opaque-control.webp",
+      "sameEmbeddedJPEGStream": true,
+      "beforeSHA256": "02e86d678f275d3665bd4f57275358794c3df33de87fa4742f8a6db3c5fb78e8",
+      "afterSHA256": "02e86d678f275d3665bd4f57275358794c3df33de87fa4742f8a6db3c5fb78e8"
+    }
+  ]
+}
