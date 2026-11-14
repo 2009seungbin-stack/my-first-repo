@@ -39,12 +39,12 @@ function compress(kb){
  }))};
 }
 function resize(name,w,h){
- return {intent:'resize',query:`w=${w}&h=${h}&fit=cover`,text:per(l=>({
+ return {intent:'resize',query:`w=${w}&h=${h}&fit=cover&enlarge=1`,text:per(l=>({
   title:{ko:`${name[l]} 크기 (${w}×${h}) 맞추기`,en:`Resize for ${name[l]} (${w}×${h})`,ja:`${name[l]}サイズ（${w}×${h}）に変更`}[l],
   headline:{ko:`${name[l]}에 딱 맞게`,en:`Exactly right for ${name[l]}`,ja:`${name[l]}にぴったり`}[l],
   description:{ko:`${name[l]}용 ${w}×${h} 픽셀로 이미지 크기를 바꾸세요. 무료, 업로드 없음.`,en:`Resize any image to ${w}×${h} px for ${name[l]}. Free, no upload.`,ja:`${name[l]}向けの${w}×${h}pxに画像サイズを変更。無料・アップロード不要。`}[l],
   intro:[{ko:`가로 ${w}, 세로 ${h} 픽셀(비율 ${ratio(w,h)})로 미리 설정되어 있습니다. 비율이 다른 사진은 가운데를 기준으로 잘라 꽉 채우며(cover), 여백을 넣고 싶으면 맞춤(contain)으로 바꾸면 됩니다.`,en:`Preset to ${w}×${h} px (${ratio(w,h)}). Photos with a different ratio are centre-cropped to fill the frame (cover); switch to contain to add margins instead.`,ja:`横${w}・縦${h}px（比率${ratio(w,h)}）に設定済みです。比率が違う写真は中央基準で切り抜いて埋め（cover）、余白を入れたい場合はcontainに切り替えます。`}[l],
-   {ko:'Pica의 mks2013 필터로 줄이거나 늘리며, 플랫폼 권장 크기는 바뀔 수 있으니 업로드 전 해당 서비스 안내도 확인하세요.',en:'Resampling uses the mks2013 filter of Pica. Platforms change their recommendations, so check their current guidance before posting.',ja:'Picaのmks2013フィルターで拡大縮小します。推奨サイズは変わることがあるため、投稿前に各サービスの案内も確認してください。'}[l],PRIVATE[l]]
+   {ko:'이 프리셋은 정해진 출력 크기에 맞추기 위해 작은 원본도 확대합니다. 확대하지 않으려면 고급 설정의 「원본보다 크게 만들지 않기」를 켜세요. 플랫폼 규격은 바뀔 수 있으니 업로드 전 해당 서비스 안내도 확인하세요.',en:'This fixed-size preset allows small originals to be enlarged. Enable “Never make images larger than the original” under Advanced to cap the output instead. Platform requirements can change; check their current guidance before posting.',ja:'この固定サイズのプリセットは、小さい元画像も拡大します。拡大を防ぐには、詳細設定の「元より大きくしない」をオンにしてください。規格は変わることがあるため、投稿前に各サービスの案内も確認してください。'}[l],PRIVATE[l]]
  }))};
 }
 function ratio(w,h){const g=(a,b)=>b?g(b,a%b):a,d=g(w,h);return `${w/d}:${h/d}`;}

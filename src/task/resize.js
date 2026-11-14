@@ -34,6 +34,8 @@ function wire(el){
  el.addEventListener('click',e=>{const c=e.target.closest('[data-percent]');if(!c)return;const input=el.querySelector('#resizePercent');input.value=c.dataset.percent;input.dispatchEvent(new Event('input',{bubbles:true}));});
  el.addEventListener('change',e=>{if(e.target.id!=='resizePreset'||!e.target.value)return;const [w,h]=e.target.value.split('x');
   el.querySelector('#resizeW').value=w;el.querySelector('#resizeH').value=h;el.querySelector('#resizeFit').value='cover';
+  // A chosen fixed-size preset opts in to upscaling; the visible checkbox can cap it again.
+  el.querySelector('#resizeNoEnlarge').checked=false;
   for(const b of el.querySelectorAll('#resizeMode [data-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mode==='size'));
   el.querySelector('#resizeW').dispatchEvent(new Event('input',{bubbles:true}));});
 }
@@ -44,18 +46,19 @@ export function target(sw,sh,o){
  else if(o.w){w=o.w;h=Math.max(1,Math.round(sh*o.w/sw));}
  else if(o.h){h=o.h;w=Math.max(1,Math.round(sw*o.h/sh));}
  else{w=sw;h=sh;}
- if(o.noEnlarge&&(w>sw||h>sh)&&fit==='stretch'){const k=Math.min(sw/w,sh/h);w=Math.max(1,Math.round(w*k));h=Math.max(1,Math.round(h*k));}
- return {w,h,fit};
+ const capped=o.noEnlarge&&(w>sw||h>sh);
+ if(capped){const k=Math.min(sw/w,sh/h);w=Math.max(1,Math.round(w*k));h=Math.max(1,Math.round(h*k));}
+ return {w,h,fit,capped};
 }
 async function process(file,o,{signal,progress}){
  const source=await Im.decode(file);let out=null;
  try{
-  const {w,h,fit}=target(source.width,source.height,o);
+  const {w,h,fit,capped}=target(source.width,source.height,o);
   out=fit==='stretch'?(w===source.width&&h===source.height?source:await Im.resizeQuality(source,w,h,{signal,progress})):await Im.fitQuality(source,w,h,fit,o.bg||null,{signal,progress});
   const kept=['image/png','image/jpeg','image/webp'].includes(file.type)?file.type.replace('image/',''):'png',format=o.format==='keep'?kept:o.format;
   let flat=null;try{if(format==='jpeg')flat=Im.background(out,o.bg||'#ffffff');
    const blob=await Im.blobOf(flat||out,`image/${format}`,.92);
-   return {blob,name:`${stem(file.name)}-${out.width}x${out.height}.${format==='jpeg'?'jpg':format}`,sourceWidth:out.width,sourceHeight:out.height,pixels:`${out.width}×${out.height}`,note:`${source.width}×${source.height} → ${out.width}×${out.height}`};
+   return {blob,name:`${stem(file.name)}-${out.width}x${out.height}.${format==='jpeg'?'jpg':format}`,sourceWidth:out.width,sourceHeight:out.height,pixels:`${out.width}×${out.height}`,note:`${source.width}×${source.height} → ${out.width}×${out.height}`,warn:capped?text('resize.capped'):''};
   }finally{Im.release(flat);}
  }finally{if(out&&out!==source)Im.release(out);Im.release(source);}
 }
