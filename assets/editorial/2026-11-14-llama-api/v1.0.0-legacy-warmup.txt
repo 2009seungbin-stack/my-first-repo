@@ -1,0 +1,4 @@
+legacy-warmup.cpp
+EVIDENCE_ROOT\legacy-warmup.cpp(2,23): error C2065: 'llama_set_warmup': 선언되지 않은 식별자입니다.
+void check() { (void)&llama_set_warmup; }
+                      ^

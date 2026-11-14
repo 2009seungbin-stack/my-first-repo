@@ -17,3 +17,4 @@ tests/fixtures/anon/** -text
 # Published measurement files and their manifest retain the exact recorded bytes.
 assets/editorial/2026-11-14-sfx-channels/** -text whitespace=cr-at-eol
 assets/editorial/2026-11-14-resize-dimensions/** -text whitespace=cr-at-eol
+assets/editorial/2026-11-14-llama-api/** -text whitespace=cr-at-eol

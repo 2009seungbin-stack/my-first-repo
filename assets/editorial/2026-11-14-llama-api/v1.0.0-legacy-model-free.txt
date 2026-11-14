@@ -1,0 +1,4 @@
+legacy-model-free.cpp
+EVIDENCE_ROOT\legacy-model-free.cpp(2,23): error C2065: 'llama_free_model': 선언되지 않은 식별자입니다.
+void check() { (void)&llama_free_model; }
+                      ^

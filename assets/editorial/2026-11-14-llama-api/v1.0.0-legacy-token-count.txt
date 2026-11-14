@@ -1,0 +1,4 @@
+legacy-token-count.cpp
+EVIDENCE_ROOT\legacy-token-count.cpp(2,23): error C2065: 'llama_n_vocab': 선언되지 않은 식별자입니다.
+void check() { (void)&llama_n_vocab; }
+                      ^

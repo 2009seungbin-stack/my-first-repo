@@ -1,0 +1,404 @@
+{
+  "recordedAtUTC": "2026-11-14T05:40:07.720502+00:00",
+  "scope": "Only the recorded C++ declaration probes and two pinned header versions. No DLL link, ABI compatibility, model loading, inference, GPU or speed test.",
+  "protocol": {
+    "files": [
+      {
+        "name": "measure-llama-api.py",
+        "sha256": "72e7257ba8fbfd0928a85edc475a3a7b08041ae176864850a90407b9da2e38c8"
+      },
+      {
+        "name": "llama-api-source-pins.json",
+        "sha256": "0e00ae749ee57db999477c8925af3b948511ed946e4324cddb5c95547337d9d6"
+      }
+    ],
+    "commit": "f2953754eff160383b971bf5bc4c5bb289b94dcc",
+    "sourceModifiedAfterCommit": false
+  },
+  "environment": {
+    "os": "Windows-10-10.0.26200-SP0",
+    "python": "3.10.11",
+    "compiler": "cl.exe",
+    "compilerLabel": "Microsoft C/C++ 19.51.36256.0 x64",
+    "compilerBinarySHA256": "e6d57100c82ae0310c18b16abfe52bc0df8fbb272ca6c5fb287d485807cfce91",
+    "compilerMode": "MSVC C++17 /Zs",
+    "systemIncludeLabels": [
+      "14.51.36231/include",
+      "10.0.26100.0/ucrt",
+      "10.0.26100.0/shared",
+      "10.0.26100.0/um"
+    ]
+  },
+  "upstream": [
+    {
+      "version": "v0.9.0",
+      "path": "include/llama.h",
+      "bytes": 91030,
+      "gitBlobSHA1": "3877b69e2d1e8559e4614ba61a7dcc0e4dc2343e",
+      "commit": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/cd959bae99ff4bed22bef2604f45241c09bbb8c8/include/llama.h",
+      "sha256": "f07ffbabd3fbe9ef21d97b4d4ce8328d9c2a123ccbf5266f04a3146d70ce4f91"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-alloc.h",
+      "bytes": 3689,
+      "gitBlobSHA1": "81cce2e2a60778f5fe6d923a74b38f7fa47d7dcc",
+      "commit": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/cd959bae99ff4bed22bef2604f45241c09bbb8c8/ggml/include/ggml-alloc.h",
+      "sha256": "d114067f9099c4a0e2bbc0625c676d4894d9cf0ea27168ee072c7de0e71bb51d"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-backend.h",
+      "bytes": 29047,
+      "gitBlobSHA1": "afb86338aac80da7c663b23bb5faf585f61a46b8",
+      "commit": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/cd959bae99ff4bed22bef2604f45241c09bbb8c8/ggml/include/ggml-backend.h",
+      "sha256": "34464da4b46314c710cd634626578c6f2a6811431d41eddaf5e8aa77082fea2a"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-cpu.h",
+      "bytes": 7753,
+      "gitBlobSHA1": "dc6453c6eaa16667f720f987659ad42d03a403a2",
+      "commit": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/cd959bae99ff4bed22bef2604f45241c09bbb8c8/ggml/include/ggml-cpu.h",
+      "sha256": "316279e004cdeb8e6ef78599acb602bf79a8abdf897fed9fd1914808c1518c6e"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml-opt.h",
+      "bytes": 14040,
+      "gitBlobSHA1": "1c2ed79b77420e74fd3b81b83367109164380853",
+      "commit": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/cd959bae99ff4bed22bef2604f45241c09bbb8c8/ggml/include/ggml-opt.h",
+      "sha256": "3586de1bc8a934b5c72339e2b6937b0641e8f149b512231e666f67de0736eea2"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/ggml.h",
+      "bytes": 119365,
+      "gitBlobSHA1": "3ed4181408fbc6d409a470e1a8ee9b4db379daea",
+      "commit": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/cd959bae99ff4bed22bef2604f45241c09bbb8c8/ggml/include/ggml.h",
+      "sha256": "1aef7a5f465b1c19de305dd6f9a0c303f88e485133a94b9a0ee1cce6345c9101"
+    },
+    {
+      "version": "v0.9.0",
+      "path": "ggml/include/gguf.h",
+      "bytes": 11355,
+      "gitBlobSHA1": "b3a1e1230a06110a0a5f04469d849ac2000b467c",
+      "commit": "cd959bae99ff4bed22bef2604f45241c09bbb8c8",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/cd959bae99ff4bed22bef2604f45241c09bbb8c8/ggml/include/gguf.h",
+      "sha256": "e56714aab702e5ce62ee587a409643c08f7e93e8fbb77f48ef7cc85075f96fa4"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "include/llama.h",
+      "bytes": 89633,
+      "gitBlobSHA1": "181d840a6c8892a677a7ad820a568e31a5c14515",
+      "commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b1b770d90d94cad9e9ea5b993bdbc383a522fb28/include/llama.h",
+      "sha256": "19ad09e336dd61317ff816bbf448e9b76c1d925d430191429c17df4679f9a1a4"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-alloc.h",
+      "bytes": 3689,
+      "gitBlobSHA1": "81cce2e2a60778f5fe6d923a74b38f7fa47d7dcc",
+      "commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b1b770d90d94cad9e9ea5b993bdbc383a522fb28/ggml/include/ggml-alloc.h",
+      "sha256": "d114067f9099c4a0e2bbc0625c676d4894d9cf0ea27168ee072c7de0e71bb51d"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-backend.h",
+      "bytes": 29047,
+      "gitBlobSHA1": "afb86338aac80da7c663b23bb5faf585f61a46b8",
+      "commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b1b770d90d94cad9e9ea5b993bdbc383a522fb28/ggml/include/ggml-backend.h",
+      "sha256": "34464da4b46314c710cd634626578c6f2a6811431d41eddaf5e8aa77082fea2a"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-cpu.h",
+      "bytes": 7753,
+      "gitBlobSHA1": "dc6453c6eaa16667f720f987659ad42d03a403a2",
+      "commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b1b770d90d94cad9e9ea5b993bdbc383a522fb28/ggml/include/ggml-cpu.h",
+      "sha256": "316279e004cdeb8e6ef78599acb602bf79a8abdf897fed9fd1914808c1518c6e"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml-opt.h",
+      "bytes": 14040,
+      "gitBlobSHA1": "1c2ed79b77420e74fd3b81b83367109164380853",
+      "commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b1b770d90d94cad9e9ea5b993bdbc383a522fb28/ggml/include/ggml-opt.h",
+      "sha256": "3586de1bc8a934b5c72339e2b6937b0641e8f149b512231e666f67de0736eea2"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/ggml.h",
+      "bytes": 109072,
+      "gitBlobSHA1": "2341fa6c107e84004d2b604d41f632962e9a54f2",
+      "commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b1b770d90d94cad9e9ea5b993bdbc383a522fb28/ggml/include/ggml.h",
+      "sha256": "bdb0e75be8eeb1fc14a742015025505f5810d8200cbb40bda7e981101413440b"
+    },
+    {
+      "version": "v1.0.0",
+      "path": "ggml/include/gguf.h",
+      "bytes": 11355,
+      "gitBlobSHA1": "b3a1e1230a06110a0a5f04469d849ac2000b467c",
+      "commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b1b770d90d94cad9e9ea5b993bdbc383a522fb28/ggml/include/gguf.h",
+      "sha256": "e56714aab702e5ce62ee587a409643c08f7e93e8fbb77f48ef7cc85075f96fa4"
+    }
+  ],
+  "cases": [
+    {
+      "version": "v0.9.0",
+      "case": "control-current",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-control-current.txt",
+      "logSHA256": "1d74627a8083a85a37b85b8aabbf18478c7bc4f80d32d75463a7f84349240b92",
+      "source": "control-current.cpp",
+      "sourceSHA256": "ea5b1f15a1c7063a7d5ed23affad67f639784289839b258ac6651308fa8157ec"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "legacy-model-load",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-legacy-model-load.txt",
+      "logSHA256": "e52b261faa7b8eb9449356cd128669aa35ac55c0d8d4cf3807e954da34bb912f",
+      "source": "legacy-model-load.cpp",
+      "sourceSHA256": "9cde7c282ca97fe644b36c71bb47bd71ecba44bd186ad361d18d8fed1f8059d3"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "current-model-load",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-current-model-load.txt",
+      "logSHA256": "55f65099f594f95d8fc097758e35e29a90521269a13261126ff631cb0b58bcde",
+      "source": "current-model-load.cpp",
+      "sourceSHA256": "02c0cfb81d8ef3eb3416735776c29c728a65d29dbd48e0a2c9ea7bf9fe8ce8ca"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "legacy-context-create",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-legacy-context-create.txt",
+      "logSHA256": "e11339697fb25d50641b1cacfe9ed3e1f3b215b5620ff49a4bb63378d6c34a78",
+      "source": "legacy-context-create.cpp",
+      "sourceSHA256": "1420c5c2c02b7cf544b9f8223542c6dda0bdfa4c3b229c24cd1d2420feffa55d"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "current-context-create",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-current-context-create.txt",
+      "logSHA256": "3f26806a338a22376e9eceb731aed2bf78027e72cf67c449191891b5e01ff451",
+      "source": "current-context-create.cpp",
+      "sourceSHA256": "468dca9918f68a4a489bf64c380e10fbb0017afb391bea00ced4dc4a8e65256e"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "legacy-model-free",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-legacy-model-free.txt",
+      "logSHA256": "fc8ebef93fbfb8d111e24603a1032cb93f6920343322455326c6d28d6ec63969",
+      "source": "legacy-model-free.cpp",
+      "sourceSHA256": "45a27d8a6770ea310ab104a862c6e6449babc06a77f9a126d5e65c469a61b907"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "current-model-free",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-current-model-free.txt",
+      "logSHA256": "ade37c09e514d61a671a400444f77b8801d6afc7b7fcb54b21b15257c4181e3d",
+      "source": "current-model-free.cpp",
+      "sourceSHA256": "760a77fa1842022c2435d5f8257e4f648ac3d121ab5374a3d69fe88e2fdf9189"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "legacy-token-count",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-legacy-token-count.txt",
+      "logSHA256": "07e2bf2a69057929683519da8c26e7654144d44137955c196b4b9132898402b2",
+      "source": "legacy-token-count.cpp",
+      "sourceSHA256": "8ff44d927c9f50f0ac8feefd08b25bb8ceeb43f413e0bd3e8e364a271e3a9d94"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "current-token-count",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-current-token-count.txt",
+      "logSHA256": "16b72bcd6ff42545cfe2183a58ce6dcb0d5c650e8d738c60771945f532df0a4e",
+      "source": "current-token-count.cpp",
+      "sourceSHA256": "1dd4f59f82761565f8791efcfe40b6e956f876380cc4341eef2e769c650ae25b"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "legacy-warmup",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-legacy-warmup.txt",
+      "logSHA256": "833f11e2a01b56c9004d46a4a839c0c91ffebe2dfb16683760ce5170e8e2b546",
+      "source": "legacy-warmup.cpp",
+      "sourceSHA256": "52b78e5cf152814811c9f9ab6010ba854f38f30adeea8abf5d5c1ef9a4dc8d2d"
+    },
+    {
+      "version": "v0.9.0",
+      "case": "legacy-defrag-field",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v0.9.0-legacy-defrag-field.txt",
+      "logSHA256": "1ad271d27d5686f03a7efac15a86af8889131f7b5b3392d6c357c60d8cdb3cee",
+      "source": "legacy-defrag-field.cpp",
+      "sourceSHA256": "689c59be4a574fca13fe5d6e7dbe5cbe5f9284545f18175aebd972b46a9a9e74"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "control-current",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v1.0.0-control-current.txt",
+      "logSHA256": "1d74627a8083a85a37b85b8aabbf18478c7bc4f80d32d75463a7f84349240b92",
+      "source": "control-current.cpp",
+      "sourceSHA256": "ea5b1f15a1c7063a7d5ed23affad67f639784289839b258ac6651308fa8157ec"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "legacy-model-load",
+      "exitCode": 2,
+      "expectedDeclarationAccepted": false,
+      "declarationAccepted": false,
+      "log": "v1.0.0-legacy-model-load.txt",
+      "logSHA256": "b2a4cd071aa5c618c38e0fb31333713d77e9738cbe9c3acac719972e9e8f3e9e",
+      "source": "legacy-model-load.cpp",
+      "sourceSHA256": "9cde7c282ca97fe644b36c71bb47bd71ecba44bd186ad361d18d8fed1f8059d3"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "current-model-load",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v1.0.0-current-model-load.txt",
+      "logSHA256": "55f65099f594f95d8fc097758e35e29a90521269a13261126ff631cb0b58bcde",
+      "source": "current-model-load.cpp",
+      "sourceSHA256": "02c0cfb81d8ef3eb3416735776c29c728a65d29dbd48e0a2c9ea7bf9fe8ce8ca"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "legacy-context-create",
+      "exitCode": 2,
+      "expectedDeclarationAccepted": false,
+      "declarationAccepted": false,
+      "log": "v1.0.0-legacy-context-create.txt",
+      "logSHA256": "22d56e23b1a4264f0022fa450d58c1304bbff54784d0f7999e4fb4635cfeefa9",
+      "source": "legacy-context-create.cpp",
+      "sourceSHA256": "1420c5c2c02b7cf544b9f8223542c6dda0bdfa4c3b229c24cd1d2420feffa55d"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "current-context-create",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v1.0.0-current-context-create.txt",
+      "logSHA256": "3f26806a338a22376e9eceb731aed2bf78027e72cf67c449191891b5e01ff451",
+      "source": "current-context-create.cpp",
+      "sourceSHA256": "468dca9918f68a4a489bf64c380e10fbb0017afb391bea00ced4dc4a8e65256e"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "legacy-model-free",
+      "exitCode": 2,
+      "expectedDeclarationAccepted": false,
+      "declarationAccepted": false,
+      "log": "v1.0.0-legacy-model-free.txt",
+      "logSHA256": "74003bcf033d90c6b31750f6625ca6a375bb16df32a48b7afaac043bf1f5490a",
+      "source": "legacy-model-free.cpp",
+      "sourceSHA256": "45a27d8a6770ea310ab104a862c6e6449babc06a77f9a126d5e65c469a61b907"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "current-model-free",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v1.0.0-current-model-free.txt",
+      "logSHA256": "ade37c09e514d61a671a400444f77b8801d6afc7b7fcb54b21b15257c4181e3d",
+      "source": "current-model-free.cpp",
+      "sourceSHA256": "760a77fa1842022c2435d5f8257e4f648ac3d121ab5374a3d69fe88e2fdf9189"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "legacy-token-count",
+      "exitCode": 2,
+      "expectedDeclarationAccepted": false,
+      "declarationAccepted": false,
+      "log": "v1.0.0-legacy-token-count.txt",
+      "logSHA256": "1b23b9ba5d1abe444c7a909bc9f12da2da4647b521331dbd1479a4812a52ca80",
+      "source": "legacy-token-count.cpp",
+      "sourceSHA256": "8ff44d927c9f50f0ac8feefd08b25bb8ceeb43f413e0bd3e8e364a271e3a9d94"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "current-token-count",
+      "exitCode": 0,
+      "expectedDeclarationAccepted": true,
+      "declarationAccepted": true,
+      "log": "v1.0.0-current-token-count.txt",
+      "logSHA256": "16b72bcd6ff42545cfe2183a58ce6dcb0d5c650e8d738c60771945f532df0a4e",
+      "source": "current-token-count.cpp",
+      "sourceSHA256": "1dd4f59f82761565f8791efcfe40b6e956f876380cc4341eef2e769c650ae25b"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "legacy-warmup",
+      "exitCode": 2,
+      "expectedDeclarationAccepted": false,
+      "declarationAccepted": false,
+      "log": "v1.0.0-legacy-warmup.txt",
+      "logSHA256": "06208004632a7e4c20771e10e5a54f447c0310316eb9e1193f77a7ca3bde439e",
+      "source": "legacy-warmup.cpp",
+      "sourceSHA256": "52b78e5cf152814811c9f9ab6010ba854f38f30adeea8abf5d5c1ef9a4dc8d2d"
+    },
+    {
+      "version": "v1.0.0",
+      "case": "legacy-defrag-field",
+      "exitCode": 2,
+      "expectedDeclarationAccepted": false,
+      "declarationAccepted": false,
+      "log": "v1.0.0-legacy-defrag-field.txt",
+      "logSHA256": "75d2eb4d0ee7e5d2e78f246824b71f628f24d814ed521c6cd5614953f7bfcc1c",
+      "source": "legacy-defrag-field.cpp",
+      "sourceSHA256": "689c59be4a574fca13fe5d6e7dbe5cbe5f9284545f18175aebd972b46a9a9e74"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+legacy-context-create.cpp
+EVIDENCE_ROOT\legacy-context-create.cpp(2,23): error C2065: 'llama_new_context_with_model': 선언되지 않은 식별자입니다.
+void check() { (void)&llama_new_context_with_model; }
+                      ^
