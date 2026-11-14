@@ -1,0 +1,142 @@
+{
+  "applicationCommit": "c8ad20875e9504b29cc7890c98fd7b171afdcbdb",
+  "measurementProtocolCommit": "f9d191aa5d7edc6c584c0b0cdb7b286bd51eacbf",
+  "scope": "Immutable downloaded PNG dimension evidence; no third-party image or account data",
+  "files": [
+    {
+      "file": "authored-32x24.png",
+      "bytes": 190,
+      "sha256": "0c527607b22009b8ca321aacc38be261dee6d2da91dc99fdbf03e66dd12a8b82"
+    },
+    {
+      "file": "chromium-contain-128x128-allow0.png",
+      "bytes": 895,
+      "sha256": "4267c898ddbf30633e768a63c81b1076d5a288a9259eba5f6919be377ff0c3b4"
+    },
+    {
+      "file": "chromium-contain-128x128-allow1.png",
+      "bytes": 7388,
+      "sha256": "86cb91cf4beda475e288055b6270e0c6b69cc8a568dd7fca9d9560dc89977636"
+    },
+    {
+      "file": "chromium-contain-128x96-allow0.png",
+      "bytes": 644,
+      "sha256": "2056a71e5485b7de093f29d763883b825853144dd165b661f7eca70169886e91"
+    },
+    {
+      "file": "chromium-contain-128x96-allow1.png",
+      "bytes": 6667,
+      "sha256": "4c31f3a613c4ede2c24d3744e7e006735b4c59e9215063db2103e79e14294aa8"
+    },
+    {
+      "file": "chromium-cover-128x128-allow0.png",
+      "bytes": 525,
+      "sha256": "7c7797c2d2cd9336403564f1390ec0c9992f0fa7135ad11a2486b48c23af4e85"
+    },
+    {
+      "file": "chromium-cover-128x128-allow1.png",
+      "bytes": 12140,
+      "sha256": "bcc5e000df7c1bfcbebeaa594bfdb3610c4196ede6d5cfc6344da17227efe556"
+    },
+    {
+      "file": "chromium-cover-128x96-allow0.png",
+      "bytes": 644,
+      "sha256": "2056a71e5485b7de093f29d763883b825853144dd165b661f7eca70169886e91"
+    },
+    {
+      "file": "chromium-cover-128x96-allow1.png",
+      "bytes": 6667,
+      "sha256": "4c31f3a613c4ede2c24d3744e7e006735b4c59e9215063db2103e79e14294aa8"
+    },
+    {
+      "file": "chromium-stretch-128x128-allow0.png",
+      "bytes": 625,
+      "sha256": "33b208abcfbe7104e094466be0ed5d3bdb7f2245ae5c9458c7512c02cd7fc872"
+    },
+    {
+      "file": "chromium-stretch-128x128-allow1.png",
+      "bytes": 9771,
+      "sha256": "1d900b5853295e67ec16e914a815f07b8b2e15c863f3d9dc7f741f7cecfbe399"
+    },
+    {
+      "file": "chromium-stretch-128x96-allow0.png",
+      "bytes": 232,
+      "sha256": "384cb3f02368c11983bcf097329daf06263cebf51d7fa29885553efa10fa17b7"
+    },
+    {
+      "file": "chromium-stretch-128x96-allow1.png",
+      "bytes": 6667,
+      "sha256": "4c31f3a613c4ede2c24d3744e7e006735b4c59e9215063db2103e79e14294aa8"
+    },
+    {
+      "file": "firefox-contain-128x128-allow0.png",
+      "bytes": 695,
+      "sha256": "657a7c431feb0c9811c4c7932478b144d6272521b4c8a90c67edd8443ac29c14"
+    },
+    {
+      "file": "firefox-contain-128x128-allow1.png",
+      "bytes": 4580,
+      "sha256": "2e17155bf800ce534870bdcedb4df427a380bf4981c7937f48ae3c7c4dba42d3"
+    },
+    {
+      "file": "firefox-contain-128x96-allow0.png",
+      "bytes": 509,
+      "sha256": "3b8b600fda74a2cce6ccd1173ed64e148b4687b42627e083689bcb44453c744c"
+    },
+    {
+      "file": "firefox-contain-128x96-allow1.png",
+      "bytes": 4446,
+      "sha256": "17f1f59c83f9a50ea6fe700519f8006ceb9eca5c60bb48b5cc84520509f7a358"
+    },
+    {
+      "file": "firefox-cover-128x128-allow0.png",
+      "bytes": 441,
+      "sha256": "3ff6f4e70cf8218138cc869587375fa2c41dc3b750e575aeca53e4b38f324f60"
+    },
+    {
+      "file": "firefox-cover-128x128-allow1.png",
+      "bytes": 9084,
+      "sha256": "3b616c8fc7840cf7c6025107695d674429f1faacf8849cae0045fd9f2fc9a40b"
+    },
+    {
+      "file": "firefox-cover-128x96-allow0.png",
+      "bytes": 509,
+      "sha256": "3b8b600fda74a2cce6ccd1173ed64e148b4687b42627e083689bcb44453c744c"
+    },
+    {
+      "file": "firefox-cover-128x96-allow1.png",
+      "bytes": 4446,
+      "sha256": "17f1f59c83f9a50ea6fe700519f8006ceb9eca5c60bb48b5cc84520509f7a358"
+    },
+    {
+      "file": "firefox-stretch-128x128-allow0.png",
+      "bytes": 609,
+      "sha256": "e67070123e88b246c26d0e4030190f38dc8961bcd46aad8ed0c6d3c3a79a7e36"
+    },
+    {
+      "file": "firefox-stretch-128x128-allow1.png",
+      "bytes": 6989,
+      "sha256": "65085598e74bc574d5355d4edba94d914dd7e982f598d12207ab789e13b19efc"
+    },
+    {
+      "file": "firefox-stretch-128x96-allow0.png",
+      "bytes": 220,
+      "sha256": "477ed4f41df87ffcb38e1fedbfe8e62ad8107b1bb16cde792a6a8dcbf9af7eb4"
+    },
+    {
+      "file": "firefox-stretch-128x96-allow1.png",
+      "bytes": 4446,
+      "sha256": "17f1f59c83f9a50ea6fe700519f8006ceb9eca5c60bb48b5cc84520509f7a358"
+    },
+    {
+      "file": "measurements.json",
+      "bytes": 17924,
+      "sha256": "8d50f885d30d9dd6d714e1db4ce7c7cd98e5bc474e1f4b9a4e59a6340114beed"
+    },
+    {
+      "file": "README.md",
+      "bytes": 2294,
+      "sha256": "239d4bcd7835388d9307cfabfc756b1cf9e67579f77350883d1cef5c41605b8d"
+    }
+  ]
+}
