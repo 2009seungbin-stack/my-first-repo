@@ -35,7 +35,7 @@ try:
     for locale in ['ko','en','ja']:
      home=f'/{locale}/tools/' if portal and locale in ['ko','en'] else f'/{locale}/'
      for path in [f'/{locale}/audio-lab/',f'/{locale}/game/sfx-generator/',home,f'/{locale}/game/',f'/{locale}/atlas-padding/']:
-      response=page.goto(BASE+path,wait_until='domcontentloaded');assert response.status in [200,304],(path,response.status)
+      response=page.goto(BASE+path,wait_until='load');assert response.status in [200,304],(path,response.status)
       skip=page.locator('a.skip,a.gs-skip').first;expect(skip).to_have_attribute('data-local-fragment','main')
       file_name=None;unsaved=None;file_info=None;file_list=None
       if javascript:
@@ -45,7 +45,7 @@ try:
         file_info=page.locator('#fileInfo').inner_text();file_list=page.locator('#file').evaluate('(e)=>Array.from(e.files,x=>x.name)')
        if '/sfx-generator/' in path:unsaved='Keep this unsaved text';page.locator('#foreign').fill(unsaved)
       page.evaluate('window.__fragmentDocumentMarker=true');before=page.url;skip.focus();page.keyboard.press('Enter')
-      page.wait_for_function('document.activeElement===document.querySelector("main")' if javascript else 'document.activeElement.id==="main"')
+      expect(page.locator('main').first if javascript else page.locator('#main')).to_be_focused()
       assert page.evaluate('window.__fragmentDocumentMarker===true'),'skip reloaded the document'
       assert urlsplit(page.url).path==urlsplit(before).path,(path,before,page.url)
       if javascript:
@@ -55,11 +55,11 @@ try:
         assert page.locator('#file').evaluate('(e)=>Array.from(e.files,x=>x.name)')==file_list
        if unsaved:expect(page.locator('#foreign')).to_have_value(unsaved)
       rows.append({'engine':engine,'javascript':javascript,'locale':locale,'path':path,'action':'skip','sameDocument':True,'before':before,'after':page.url,'focus':page.evaluate('({tag:document.activeElement.tagName,id:document.activeElement.id})'),'preservedInput':file_name or unsaved})
-      assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),path
+      assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(path,javascript,page.evaluate('({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ready:document.readyState})'))
       section=('file-tools' if path==home else 'concept' if path.endswith('/atlas-padding/') else None) if args.width>=1000 else None
       if section:
        link=page.locator(f'a[data-local-fragment="{section}"]').first;expect(link).to_be_attached();search=urlsplit(page.url).query
-       link.click();page.wait_for_function('(id)=>location.hash==="#"+id',arg=section)
+       link.click();page.wait_for_url('**#'+section)
        assert page.evaluate('window.__fragmentDocumentMarker===true'),'section link reloaded the document'
        assert urlsplit(page.url).path==urlsplit(before).path and urlsplit(page.url).query==search
        target=page.locator('#'+section);expect(target.locator('summary') if section=='file-tools' else target).to_be_in_viewport()
