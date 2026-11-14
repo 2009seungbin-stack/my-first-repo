@@ -11,7 +11,8 @@
  * `npm test` fails while the ledger is stale (tests/sitemap.test.mjs), so a content change ships
  * with its ledger entry: run `node tools/lastmod.mjs --write` and commit the ledger with the change.
  *
- * What counts as content: the <title>, the meta description and the text of <main> (site header,
+ * What counts as content: the <title>, the meta description and the text of <main> plus the
+ * task pages' sibling #siteContent (including their guides and FAQs; site header,
  * footer, scripts, styles and inline SVG excluded). A new footer link or a new script therefore does
  * not move every page's date; a changed heading, paragraph, FAQ answer or related link does.
  *
@@ -31,6 +32,7 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
+import {withPortal} from '../src/seo.js';
 
 const ROOT=fileURLToPath(new URL('../',import.meta.url));
 export const LEDGER_PATH=path.join(ROOT,'tools','lastmod-ledger.json');
@@ -38,17 +40,28 @@ const LOCALE_ROUTE=/^(ko|en|ja)(\/|$)/;
 
 const strip=(html,tag)=>html.replace(new RegExp(`<${tag}\\b[\\s\\S]*?<\\/${tag}>`,'gi'),' ');
 const decode=s=>s.replace(/&(amp|lt|gt|quot|#39|nbsp);/g,(_,e)=>({amp:'&',lt:'<',gt:'>',quot:'"','#39':"'",nbsp:' '}[e]));
-/** The visible content of a rendered page: title, description and the text of <main>. */
+/** A controlled build template's balanced container, including nested containers of the same tag. */
+function container(html,open,tag){
+ const tokens=new RegExp(`<\\/?${tag}\\b[^>]*>`,'gi');tokens.lastIndex=open.index+open[0].length;
+ let depth=1,next;
+ while((next=tokens.exec(html))){if(next[0].startsWith('</'))depth--;else if(!next[0].endsWith('/>'))depth++;if(!depth)return {start:open.index,end:tokens.lastIndex,text:html.slice(open.index,tokens.lastIndex)};}
+ return null;
+}
+/** The visible content: title, description, main and any editorial sibling #siteContent. */
 export function contentText(html){
  const title=(html.match(/<title>([\s\S]*?)<\/title>/i)||[])[1]||'';
  const description=(html.match(/<meta name="description" content="([^"]*)"/i)||[])[1]||'';
- let main=(html.match(/<main\b[\s\S]*<\/main>/i)||[html.replace(/^[\s\S]*?<body[^>]*>/i,'')])[0];
- for(const tag of ['script','style','template','svg','footer'])main=strip(main,tag);
+ let visible=html;
+ for(const tag of ['script','style','template','svg','footer'])visible=strip(visible,tag);
+ const mainOpen=visible.match(/<main\b[^>]*>/i),main=mainOpen&&container(visible,mainOpen,'main');
+ const editorialOpen=visible.match(/<([a-z][\w:-]*)\b[^>]*\bid=(['"])siteContent\2[^>]*>/i),editorial=editorialOpen&&container(visible,editorialOpen,editorialOpen[1]);
+ let body=main?main.text:visible.replace(/^[\s\S]*?<body[^>]*>/i,'');
+ if(main&&editorial&&(editorial.start<main.start||editorial.end>main.end))body+=' '+editorial.text;
  // Site navigation marked data-chrome (e.g. the "Making a game?" block) is not the page's content.
- main=main.replace(/<(aside|nav|div|section)\b[^>]*\bdata-chrome\b[^>]*>[\s\S]*?<\/\1>/gi,' ');
+ body=body.replace(/<(aside|nav|div|section)\b[^>]*\bdata-chrome\b[^>]*>[\s\S]*?<\/\1>/gi,' ');
  // Link targets are content too (a related link that now points elsewhere is a change).
- main=main.replace(/<a\b[^>]*\bhref="([^"]*)"[^>]*>/gi,' [$1] ').replace(/<[^>]+>/g,' ');
- return decode([title,description,main].join('\n')).replace(/\s+/g,' ').trim();
+ body=body.replace(/<a\b[^>]*\bhref="([^"]*)"[^>]*>/gi,' [$1] ').replace(/<[^>]+>/g,' ');
+ return decode([title,description,body].join('\n')).replace(/\s+/g,' ').trim();
 }
 export const contentHash=html=>createHash('sha256').update(contentText(html)).digest('hex').slice(0,16);
 /** Only language pages carry a date (the language-neutral URL is an x-default alternate, not a <loc>). */
@@ -74,9 +87,11 @@ export function lastmodResolver(hashes,{ledger=readLedger(),fallback=headDate()}
 /** Hash every language page. The pages are rendered with a fixed site URL and no deploy config, so
  * the hash depends on the content only, not on where or how the build is deployed. */
 export function pageHashes(entry,routes,html){
- const out=new Map();
- for(const route of routes)if(isLocaleRoute(route))out.set(route,contentHash(entry(html,route,'https://nerulio.pages.dev/',{})));
- return out;
+ return withPortal(false,()=>{
+  const out=new Map();
+  for(const route of routes)if(isLocaleRoute(route))out.set(route,contentHash(entry(html,route,'https://nerulio.pages.dev/',{})));
+  return out;
+ });
 }
 export async function currentHashes(root=ROOT){
  const {entry,ALL_ROUTES}=await import(pathToFileURL(path.join(root,'tools','build.mjs')).href);
@@ -96,20 +111,30 @@ function hashesAt(sha){
  const dir=mkdtempSync(path.join(os.tmpdir(),'nerulio-lastmod-'));
  try{
   // Relative names: GNU tar on Windows would read "C:" in an absolute path as a remote host.
-  if(git(['archive','--format=tar','-o',path.join(dir,'src.tar'),sha,'index.html','src','tools'])===null)return null;
+  // Follow the build's local imports, including platform pages introduced after the original CLI.
+  // Ask the commit which optional folders exist: an absent path would make git archive fail.
+  const inputs=git(['ls-tree','--name-only',sha,'--','index.html','package.json','src','tools','platform','server']);
+  if(!inputs||git(['archive','--format=tar','-o',path.join(dir,'src.tar'),sha,...inputs.split('\n')])===null)return null;
   if(spawnSync('tar',['-xf','src.tar'],{cwd:dir}).status!==0)return null;
   const script=`import {contentHash,isLocaleRoute} from ${JSON.stringify(pathToFileURL(fileURLToPath(import.meta.url)).href)};import {entry,ALL_ROUTES} from './tools/build.mjs';import {readFileSync} from 'node:fs';const html=readFileSync('index.html','utf8'),o={};for(const r of ALL_ROUTES)if(isLocaleRoute(r))o[r]=contentHash(entry(html,r,'https://nerulio.pages.dev/',{}));console.log(JSON.stringify(o));`;
   const r=spawnSync(process.execPath,['--input-type=module','-e',script],{cwd:dir,encoding:'utf8',maxBuffer:1<<26});
   if(r.status!==0&&process.env.LASTMOD_DEBUG)console.error(r.stderr.slice(0,600));
   return r.status===0?new Map(Object.entries(JSON.parse(r.stdout))):null;
- }finally{rmSync(dir,{recursive:true,force:true});}
+ }finally{
+  const target=path.resolve(dir);
+  if(path.dirname(target)!==path.resolve(os.tmpdir())||!path.basename(target).startsWith('nerulio-lastmod-'))throw Error('Refusing to clear an unexpected historical-build directory');
+  rmSync(target,{recursive:true,force:true});
+ }
 }
 async function bootstrap(hashes){
  git(['fetch','--quiet','origin','main']);
  const log=git(['log','--first-parent','--reverse','--format=%H %cI','origin/main']);
  if(!log)throw Error('git history of origin/main is needed for --bootstrap');
  const commits=log.split('\n').map(l=>l.split(' ')),rendered=[];
- for(const [sha,date] of commits){const h=hashesAt(sha);console.log(`${sha.slice(0,7)} ${date} ${h?h.size+' pages':'not renderable, skipped'}`);if(h)rendered.push({date,h});}
+ for(const [sha,date] of commits){const h=hashesAt(sha);console.log(`${sha.slice(0,7)} ${date} ${h?h.size+' pages':'not renderable, skipped'}`);if(h)rendered.push({sha,date,h});}
+ // Without the latest main tree we cannot distinguish unpublished content from an incomplete
+ // historical import. Leave the ledger untouched rather than dating existing pages as new.
+ if(rendered.at(-1)?.sha!==commits.at(-1)?.[0])throw Error('Latest origin/main could not be rendered; lastmod ledger was not changed. Use LASTMOD_DEBUG=1 to inspect missing build inputs.');
  const now=nowDate(),next={};let fromHistory=0;
  for(const [route,h] of hashes){
   let since=null;

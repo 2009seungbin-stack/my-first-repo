@@ -12,6 +12,7 @@ import {gamePageFor} from '../tools/game-landing-build.mjs';
 import {GUIDES} from '../tools/guides-registry.mjs';
 import {builtPages,changedSince,submission} from '../tools/indexnow.mjs';
 import {pageProblems,liveCheck,waitForCommit} from '../tools/live-check.mjs';
+import {setPortal,withPortal,pagePath} from '../src/seo.js';
 /** Structural checks of what sitemaps.org's sitemap.xsd / siteindex.xsd require, without network or
  * lxml (CI). The full schema validation, with the official XSDs, is tools/validate-sitemaps.py. */
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),origin='https://nerulio.example.test/';
@@ -85,6 +86,32 @@ test('the lastmod ledger is current (run `node tools/lastmod.mjs --write` after 
  const stale=staleRoutes(hashes,readLedger());
  assert.deepEqual(stale.slice(0,10),[],`${stale.length} pages changed since tools/lastmod-ledger.json was written`);
  for(const [,[,d]] of Object.entries(readLedger()))assert.match(d,W3C_DATETIME);
+});
+test('lastmod includes the task guide after main, nested editorial content and FAQ links exactly once',()=>{
+ const outside='<title>T</title><meta name="description" content="D"><header>menu</header><main><h1>Tool</h1></main><div class="copy" id="siteContent"><div>Guide <div>nested body</div> guide end</div><section><h2>FAQ</h2><a href="en/help/">Answer</a></section><footer>not content</footer></div><aside>not editorial</aside>';
+ assert.equal(contentText(outside),'T D Tool Guide nested body guide end FAQ [en/help/] Answer');
+ assert.notEqual(contentHash(outside),contentHash(outside.replace('nested body','corrected dimensions')));
+ assert.notEqual(contentHash(outside),contentHash(outside.replace('en/help/','en/new-help/')));
+ assert.equal(contentHash(outside),contentHash(outside.replace('not content','new footer').replace('not editorial','changed menu')));
+ const inside='<title>T</title><main><h1>Tool</h1><div id="siteContent"><div>Guide</div></div></main>';
+ assert.equal(contentText(inside),'T Tool Guide','an editorial region inside main is not counted twice');
+ for(const route of [`en/${INTENTS.upscale.path}`,`ko/${INTENTS.resize.path}`,`ja/${INTENTS['remove-bg'].path}`]){
+  const rendered=entry(html,route,origin,{}),changed=rendered.replace(/(<div id="siteContent"[^>]*>)/,'$1<p>Corrected actual tool guide.</p>');
+  assert.notEqual(contentHash(rendered),contentHash(changed),route);
+ }
+});
+test('content hashing is independent of the portal build and restores its URL mode even on errors',()=>{
+ setPortal(false);
+ const regular=pageHashes(entry,ALL_ROUTES,html);
+ try{
+  setPortal(true);
+  assert.deepEqual(pageHashes(entry,ALL_ROUTES,html),regular);
+  assert.equal(pagePath('','en'),'en/tools/','hashing must preserve the surrounding sitemap URL mode');
+  assert.throws(()=>pageHashes(()=>{throw Error('render failed');},['en/a'],html),/render failed/);
+  assert.equal(pagePath('','ko'),'ko/tools/','a failed render must also restore the build mode');
+  assert.equal(withPortal(false,()=>pagePath('','ko')),'ko/');
+  assert.equal(pagePath('','ko'),'ko/tools/');
+ }finally{setPortal(false);}
 });
 test('IndexNow follows the index and submits only new or changed pages',async()=>{
  const {mkdtemp,writeFile,rm}=await import('node:fs/promises'),os=await import('node:os'),path=await import('node:path');
