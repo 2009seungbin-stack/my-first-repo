@@ -76,7 +76,8 @@ function wireIntake(intake,{accept}={}){
  addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files'))e.preventDefault();});
  addEventListener('drop',e=>{if(!e.dataTransfer?.files?.length)return;e.preventDefault();depth=0;zone();intake([...e.dataTransfer.files],'drop');});
  addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length&&!/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName||'')){e.preventDefault();intake(files,'paste');}});
- document.addEventListener('click',e=>{if(e.target.closest('[data-action="pick"]'))input?.click();});
+ // A sample button inside the drop zone has its own action, not the zone's picker action.
+ document.addEventListener('click',e=>{if(e.target.closest('[data-action]')?.dataset.action==='pick')input?.click();});
 }
 export async function boot(){
  applyLocation();renderChrome();
