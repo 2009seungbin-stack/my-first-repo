@@ -1,4 +1,4 @@
-import {ABOUT} from './about-copy.js';
+import {ABOUT} from './about-copy.js?v=20261114-editorial-method';
 import {brandCopy} from './brand.js';
 import {labels,footer} from './content.js';
 import {esc} from './ui.js';
@@ -8,7 +8,12 @@ const PROJECT_URL='https://github.com/2009seungbin-stack/my-first-repo';
 function aboutResources(locale,platform=false){
  const text={en:['Explore Nerulio','Game tools and workflows','Public source and development history','Report a problem','Component licenses'],ko:['Nerulio 살펴보기','게임 도구와 작업 흐름','공개 소스와 개발 이력','문제 제보','구성요소 라이선스'],ja:['Nerulioを見る','ゲームツールと作業の流れ','公開ソースと開発履歴','不具合の報告','使用部品のライセンス']}[locale];
  const links=[[platform&&locale!=='ja'?`${locale}/tools/`:`${locale}/`,{en:'All browser tools',ko:'브라우저 도구 전체',ja:'ブラウザツール一覧'}[locale]],[`${locale}/game/`,text[1]],[PROJECT_URL,text[2]],[`${locale}/contact/`,text[3]],['assets/vendor/NOTICES.txt',text[4]]];
- if(platform)links.unshift([locale==='ko'?'/':'/en/',{en:'Tools, news and reference pages',ko:'도구·뉴스·정보 홈',ja:'ツール・ニュース・情報のホーム'}[locale]]);
+ if(platform){
+  const contentLocale=locale==='ko'?'ko':'en';
+  links.unshift([locale==='ko'?'/':'/en/',{en:'Tools, news and reference pages',ko:'도구·뉴스·정보 홈',ja:'ツール・ニュース・情報のホーム'}[locale]],
+   [`/${contentLocale}/ai/digest/`,{en:'Tests, commentary and evidence',ko:'실측·해설과 재현 자료',ja:'実測・解説と再現資料（英語）'}[locale]],
+   [`/${contentLocale}/news/`,{en:'Source-linked collected news',ko:'출처 기반 자동 수집 뉴스',ja:'出典付きの自動収集ニュース（英語）'}[locale]]);
+ }
  return `<nav aria-label="${esc(text[0])}"><h2>${esc(text[0])}</h2><ul>${links.map(([href,label])=>`<li><a href="${esc(href)}">${esc(label)}</a></li>`).join('')}</ul></nav>`;
 }
 export const policies=brandCopy({

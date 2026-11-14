@@ -1,5 +1,5 @@
 import {getLocale,setLocale,localeFromEnvironment,locationParts,savePreference,LANGUAGE_NAMES,LOCALES} from './i18n.js';
-import {policyContent,footer,policies} from './policies.js?v=20261114-community-privacy';
+import {policyContent,footer,policies} from './policies.js?v=20261114-editorial-method';
 import {labels} from './content.js';
 import {seoLinks} from './seo.js';
 import {BRAND} from './brand.js';
