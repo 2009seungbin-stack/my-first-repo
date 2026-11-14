@@ -6,6 +6,7 @@
  *   (observed responding 2026-09-28). Release tags are named vX.Y.Z; each tag carries the commit
  *   timestamp (`commit.created`) of the release commit, which is used as the release date and is
  *   labelled as such (it can differ by a day from the date on blender.org/download).
+ * notes_url is the actual source-tag code view, not a synthesized Forgejo release page.
  * Why not blender.org/download: that page is HTML; the tag API is structured and official.
  *
  * Output: partial entity app:blender with latest_version (highest vX.Y.Z tag) and the newest
@@ -35,7 +36,7 @@ export function toSeed(tags,o){
   if(!m){log(`skip tag ${t?.name}`);continue;}
   const v=`${m[1]}.${m[2]}.${m[3]}`;if(seen.has(v))continue;seen.add(v);
   /** @type {{version:string,channel:string,released?:string,notes_url:string,src:string}} */
-  const out={version:v,channel:'stable',notes_url:`https://projects.blender.org/blender/blender/releases/tag/v${v}`,src:SOURCE_ID};
+  const out={version:v,channel:'stable',notes_url:`https://projects.blender.org/blender/blender/src/tag/v${v}`,src:SOURCE_ID};
   const c=String(t?.commit?.created||'');
   if(/^\d{4}-\d\d-\d\d/.test(c))out.released=c.slice(0,10);
   versions.push(out);
