@@ -44,6 +44,17 @@ try:
                     if fmt:assert image.format==fmt,(label,image.format,fmt)
                     actual_format=image.format
                 rows.append({'engine':engine,'case':label,'dimensions':list(size),'format':actual_format})
+            def mount_controlled(bundle=False):
+                page.goto(BASE+'/en/image/resize/',wait_until='networkidle')
+                page.evaluate('''async bundle=>{
+                  const {createBatch}=await import('/src/task/batch.js');
+                  const el=document.createElement('section');el.id='batchHarness';document.querySelector('#taskApp').replaceWith(el);
+                  const result=async width=>{const c=document.createElement('canvas');c.width=width;c.height=1;c.getContext('2d').fillRect(0,0,width,1);const blob=await new Promise(r=>c.toBlob(r));return {blob,name:`${width}.png`,sourceWidth:width,sourceHeight:1,note:String(width),...(bundle?{entries:[{blob,name:`first-${width}.png`},{blob,name:`second-${width}.png`}]}:{})};};
+                  const h=window.__batchHarness={calls:[]};
+                  h.api=createBatch({el,def:{kinds:['image'],next:['convert']}},{options:()=>({width:16}),simple:o=>`<label>Width<input id="hWidth" type="number" value="${o.width}"></label>`,advanced:()=>'',read:form=>({width:Number(form.querySelector('#hWidth').value)}),contents:bundle?it=>it.result?.entries:undefined,process:(file,o,context)=>new Promise(resolve=>{h.calls.push({width:o.width,interim:async()=>context.interim(await result(o.width)),finish:async()=>resolve(await result(o.width))});})});
+                  await h.api.add([new File([await (await result(32)).blob],'controlled.png',{type:'image/png'})]);
+                }''',bundle)
+                page.wait_for_function('()=>window.__batchHarness.calls.length===1')
             for label,selector in [('pending-main','#taskDownload'),('pending-row','[data-action="task-save"]')]:
                 load()
                 page.evaluate('''()=>document.addEventListener('input',()=>{window.__pendingState={disabled:document.querySelector('#taskDownload').disabled,actions:document.querySelectorAll('[data-action="task-save"],[data-action="task-next"]').length};},{once:true})''')
@@ -83,16 +94,7 @@ try:
             page.locator('#resizePercent').fill('25');page.locator('[data-action="task-remove"]').first.click();ready(page)
             download('pending-remove',(12,8),'PNG')
             # A deterministic slow tool exercises valid interim results and a late completion.
-            page.goto(BASE+'/en/image/resize/',wait_until='networkidle')
-            page.evaluate('''async()=>{
-              const {createBatch}=await import('/src/task/batch.js');
-              const el=document.createElement('section');el.id='batchHarness';document.querySelector('#taskApp').replaceWith(el);
-              const result=async width=>{const c=document.createElement('canvas');c.width=width;c.height=1;c.getContext('2d').fillRect(0,0,width,1);const blob=await new Promise(r=>c.toBlob(r));return {blob,name:`${width}.png`,sourceWidth:width,sourceHeight:1,note:String(width)};};
-              const h=window.__batchHarness={calls:[]};
-              h.api=createBatch({el,def:{kinds:['image'],next:['convert']}},{options:()=>({width:16}),simple:o=>`<label>Width<input id="hWidth" type="number" value="${o.width}"></label>`,advanced:()=>'',read:form=>({width:Number(form.querySelector('#hWidth').value)}),process:(file,o,context)=>new Promise(resolve=>{h.calls.push({width:o.width,interim:async()=>context.interim(await result(o.width)),finish:async()=>resolve(await result(o.width))});})});
-              await h.api.add([new File([await (await result(32)).blob],'controlled.png',{type:'image/png'})]);
-            }''')
-            page.wait_for_function('()=>window.__batchHarness.calls.length===1')
+            mount_controlled()
             page.evaluate('()=>window.__batchHarness.calls[0].interim()');ready(page)
             download('valid-interim',(16,1),'PNG')
             state=page.evaluate('''async()=>{const h=window.__batchHarness,input=document.querySelector('#hWidth');input.value='8';input.dispatchEvent(new Event('input',{bubbles:true}));await h.calls[0].interim();await h.calls[0].finish();await new Promise(r=>setTimeout(r,0));return {disabled:document.querySelector('#taskDownload').disabled,actions:document.querySelectorAll('[data-action="task-save"],[data-action="task-next"]').length};}''')
@@ -103,6 +105,14 @@ try:
             download('current-interim',(8,1),'PNG')
             page.locator('[data-action="task-next"][data-tool="convert"]').click();page.wait_for_url('**/en/image/convert/');ready(page)
             download('interim-handoff',(8,1))
+            mount_controlled(bundle=True)
+            page.evaluate('()=>window.__batchHarness.calls[0].finish()');ready(page)
+            assert page.locator('[data-action="task-content"]').count()==2
+            page.evaluate('''()=>{const e=document.querySelector('#hWidth');e.value='8';e.dispatchEvent(new Event('input',{bubbles:true}));window.__bundlePending={disabled:document.querySelector('#taskDownload').disabled,contents:document.querySelectorAll('[data-action="task-content"]').length};}''')
+            assert page.evaluate('window.__bundlePending')=={'disabled':True,'contents':0}
+            page.wait_for_function('()=>window.__batchHarness.calls.length===2')
+            page.evaluate('()=>window.__batchHarness.calls[1].finish()');ready(page)
+            download('bundle-content-after-edit',(8,1),'PNG','[data-action="task-content"][data-entry="0"]')
             if args.expected_sha:assert ctx.request.get(BASE+'/build.txt').text().strip()==args.expected_sha
             ctx.close();browser.close()
     assert not errors,errors
