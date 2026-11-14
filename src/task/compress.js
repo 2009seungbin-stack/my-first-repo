@@ -41,7 +41,7 @@ async function process(file,o,{signal,progress}){
  try{
   const r=await Im.encode(source,{format:o.format,quality:o.quality,kb:o.kb,width:o.width,allowShrink:o.shrink,bg:o.bg,minSSIM:o.kb?0:FLOOR[o.level],signal,progress,original:file});
   // Never hand back something bigger than what came in (unless a smaller width was asked for).
-  const keep=r.blob.size>=file.size&&!o.width&&(o.format==='auto'||file.type===`image/${o.format}`);
+  const keep=r.blob===file||(r.blob.size>=file.size&&!o.width&&(o.format==='auto'||file.type===`image/${o.format}`));
   const blob=keep?file:r.blob,ext=keep?(file.name.match(/\.[^.]+$/)?.[0]||''):'.'+(r.format==='jpeg'?'jpg':r.format);
   const resized=!keep&&(r.w!==source.width||r.h!==source.height);
   return {blob,name:keep?file.name:`${stem(file.name)}-min${ext}`,sourceWidth:source.width,sourceHeight:source.height,
