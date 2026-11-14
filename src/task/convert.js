@@ -18,7 +18,7 @@ function options(query){
 }
 const simple=o=>`<div class="segmented" role="group" id="convertFormat">${formats.map(f=>`<button type="button" data-action="task-option" data-format="${f}" aria-pressed="${o.format===f}">${NAMES[f]}<small>${esc(text('convert.'+f))}</small></button>`).join('')}</div>`;
 const advanced=o=>`<label class="field"><span>${esc(text('compress.quality'))} <output id="convertQualityOut">${Math.round(o.quality*100)}</output></span><input id="convertQuality" type="range" min="20" max="100" step="1" value="${Math.round(o.quality*100)}"><small>${esc(text('convert.qualityHint'))}</small></label>
-<label class="field inline"><span>${esc(text('compress.bg'))}</span><input id="convertBg" type="color" value="${o.bg}"></label><p class="hint">${esc(text('convert.alpha'))}</p><p class="hint">${esc(text('compress.meta'))}</p>`;
+<label class="field inline"><span>${esc(text('compress.bg'))}</span><input id="convertBg" type="color" value="${o.bg}"></label><p class="hint">${esc(text('convert.alpha'))}</p><p class="hint">${esc(text('convert.meta'))}</p>`;
 const read=(form,o)=>({format:form.querySelector('#convertFormat [aria-pressed="true"]')?.dataset.format||o.format,quality:Number(form.querySelector('#convertQuality').value)/100,bg:form.querySelector('#convertBg').value});
 const reflect=(form,o)=>{form.querySelector('#convertQualityOut').textContent=Math.round(o.quality*100);};
 async function process(file,o){
