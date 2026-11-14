@@ -91,6 +91,7 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
   el.querySelector('#pdfSelection').textContent=selected.size?T('selectedN',{n:selected.size}):T('noneSelected');
   const run=el.querySelector('#pdfRun'),invalid=split&&(!g||!g.length);run.disabled=busy||!n||invalid;
   run.textContent=busy?T('working'):split?(invalid?T(options.mode==='selected'?'needSelection':'badRanges'):T('runSplit',{n:g.length})):T(images?'runPdf':'runMerge');
+  for(const control of el.querySelectorAll('#pdfOptions button,#pdfOptions input'))control.disabled=busy;
   for(const b of el.querySelectorAll('.board-tools button'))if(!['pdf-all','pdf-undo'].includes(b.dataset.action))b.disabled=!selected.size||busy;
   el.querySelector('[data-action="pdf-undo"]').disabled=!ws.history.length||busy;
  }
@@ -114,7 +115,14 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
   finally{busy=false;if(!pages().length){empty();}else changed();}
  }
  /** Page size / margin apply to the image pages, so those are rebuilt from the original files. */
- async function rebuild(){if(busy)return;const files=inputs.splice(0);await ws.clear();selected.clear();clearResult();await add(files);}
+ async function rebuild(){
+  if(busy)return;
+  // Clearing PDF readers is asynchronous: lock settings and retire the old download first.
+  busy=true;clearResult();renderSide();const files=inputs.slice();
+  try{await ws.clear();selected.clear();inputs.length=0;}
+  finally{busy=false;renderSide();}
+  await add(files);
+ }
  async function run(){
   if(busy)return;busy=true;abort=new AbortController();renderSide();const base=(options.name.trim()||defaultName()).replace(/\.pdf$/i,''),progress=p=>{const r=el.querySelector('#pdfRun');if(r)r.textContent=p;};
   try{
