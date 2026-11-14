@@ -1,0 +1,399 @@
+{
+  "checkedAtUTC": "2026-11-14T10:20:03.508381+00:00",
+  "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+  "fixtures": [
+    {
+      "file": "opaque-chart.png",
+      "sha256": "a9ef292730957d354eec28ecf0da8fa96b9d666639275580f60b82ef7af0d8e5",
+      "origin": "Generated procedural fixture, no external image"
+    },
+    {
+      "file": "alpha-chart.png",
+      "sha256": "5662d22270360b64488f6a1d2a331ca5653a4124aeab39f49206c05c599f2574",
+      "origin": "Generated procedural fixture, no external image"
+    }
+  ],
+  "code": [
+    {
+      "engine": "chromium",
+      "path": "src/task/convert.js",
+      "sha256Utf8LF": "0bfa8c1f9d5ba2ce22bb15bc5bc683a3dba205ccbf5e4c0ce45b2a86074e3bc3"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/image.js",
+      "sha256Utf8LF": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/compression.js",
+      "sha256Utf8LF": "704251e7b65d9921dd93e52b28746c3b1e3a3333a314c1bad75e8d8b8d33271b"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/task/convert.js",
+      "sha256Utf8LF": "0bfa8c1f9d5ba2ce22bb15bc5bc683a3dba205ccbf5e4c0ce45b2a86074e3bc3"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/image.js",
+      "sha256Utf8LF": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/compression.js",
+      "sha256Utf8LF": "704251e7b65d9921dd93e52b28746c3b1e3a3333a314c1bad75e8d8b8d33271b"
+    }
+  ],
+  "observations": [
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "opaque-chart.png",
+      "format": "png",
+      "quality": 92,
+      "download": "chromium-opaque-chart-92.png",
+      "bytes": 1237,
+      "sha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "chromium-opaque-chart-92.png"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "opaque-chart.png",
+      "format": "webp",
+      "quality": 92,
+      "download": "chromium-opaque-chart-92.webp",
+      "bytes": 8898,
+      "sha256": "026ed6e5b44bf18c5c344ee96d4a55140aed7bbcac3fbb390ff051ffc12b12fe",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8X",
+        "ICCP",
+        "VP8 "
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 12288,
+      "opaqueRgbChangedPixels": 12288,
+      "comparedTo": "chromium-opaque-chart-92.png"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "opaque-chart.png",
+      "format": "webp",
+      "quality": 100,
+      "download": "chromium-opaque-chart-100.webp",
+      "bytes": 1464,
+      "sha256": "02430b345a6ddd6504f07b8ae13d0d55d4aafd38017fb22b912c0d0caeb1fe22",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8X",
+        "ICCP",
+        "VP8L"
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "chromium-opaque-chart-92.png"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "opaque-chart.png",
+      "format": "jpeg",
+      "quality": 92,
+      "download": "chromium-opaque-chart-92.jpg",
+      "bytes": 10310,
+      "sha256": "94b547b80ff6e5d0eea703e26b8555931d5d0cdaba98957dfb843aee008a4caa",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 12288,
+      "opaqueRgbChangedPixels": 12288,
+      "comparedTo": "chromium-opaque-chart-92.png"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "alpha-chart.png",
+      "format": "png",
+      "quality": 92,
+      "download": "chromium-alpha-chart-92.png",
+      "bytes": 4557,
+      "sha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "chromium-alpha-chart-92.png"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "alpha-chart.png",
+      "format": "webp",
+      "quality": 92,
+      "download": "chromium-alpha-chart-92.webp",
+      "bytes": 6720,
+      "sha256": "d87245ee5c467b89f31308a990b1c3ddfd6fc3d369eda70b57c139ed44e19bee",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8X",
+        "ICCP",
+        "ALPH",
+        "VP8 "
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 9216,
+      "opaqueRgbChangedPixels": 3072,
+      "comparedTo": "chromium-alpha-chart-92.png"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "alpha-chart.png",
+      "format": "webp",
+      "quality": 100,
+      "download": "chromium-alpha-chart-100.webp",
+      "bytes": 3028,
+      "sha256": "1ed245468d71cdafcf6064ea4fe5c34ca54214633fb088260c1a15618e4a1475",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8X",
+        "ICCP",
+        "VP8L"
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "chromium-alpha-chart-92.png"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "fixture": "alpha-chart.png",
+      "format": "jpeg",
+      "quality": 92,
+      "download": "chromium-alpha-chart-92.jpg",
+      "bytes": 6466,
+      "sha256": "851fd7397866a42b450bf4c860bcfad9ac4d1e79ed475a0d1f58250c6405429d",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 9216,
+      "visibleRgbChangedPixels": 9216,
+      "opaqueRgbChangedPixels": 3072,
+      "comparedTo": "chromium-alpha-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "opaque-chart.png",
+      "format": "png",
+      "quality": 92,
+      "download": "firefox-opaque-chart-92.png",
+      "bytes": 734,
+      "sha256": "649814529d4ef1b0cda675ecb1ccd7f42204be2f27c4875467c039da3c609236",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "firefox-opaque-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "opaque-chart.png",
+      "format": "webp",
+      "quality": 92,
+      "download": "firefox-opaque-chart-92.webp",
+      "bytes": 8422,
+      "sha256": "a8115379320b8f0208d026b6d427242eea5deff71db9732b915ce317bbcc5262",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8 "
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 12288,
+      "opaqueRgbChangedPixels": 12288,
+      "comparedTo": "firefox-opaque-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "opaque-chart.png",
+      "format": "webp",
+      "quality": 100,
+      "download": "firefox-opaque-chart-100.webp",
+      "bytes": 68,
+      "sha256": "ee4f4b4fa940bff6034ed64d52d9c1952bde63dad2582d52a2879093360ea490",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8L"
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "firefox-opaque-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "opaque-chart.png",
+      "format": "jpeg",
+      "quality": 92,
+      "download": "firefox-opaque-chart-92.jpg",
+      "bytes": 21118,
+      "sha256": "411070ec3346a72ebb4325608f932c04d83a0a7b070bdde4b38b157d707548e6",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 12238,
+      "opaqueRgbChangedPixels": 12238,
+      "comparedTo": "firefox-opaque-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "alpha-chart.png",
+      "format": "png",
+      "quality": 92,
+      "download": "firefox-alpha-chart-92.png",
+      "bytes": 3514,
+      "sha256": "8b117cb404c4b0222de209d415ae7657b166a3f33ce80d3d6c72108d2bb097a2",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "firefox-alpha-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "alpha-chart.png",
+      "format": "webp",
+      "quality": 92,
+      "download": "firefox-alpha-chart-92.webp",
+      "bytes": 6196,
+      "sha256": "1e17da2d7e63905cd4f1c45804a8551aa1d82e5a8f26c25175511424473fb1de",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8X",
+        "ALPH",
+        "VP8 "
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 9216,
+      "opaqueRgbChangedPixels": 3072,
+      "comparedTo": "firefox-alpha-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "alpha-chart.png",
+      "format": "webp",
+      "quality": 100,
+      "download": "firefox-alpha-chart-100.webp",
+      "bytes": 3408,
+      "sha256": "738046a424557f64438f9f4bc046178fa5103d2cb7a4110fb0008002a47c7587",
+      "mode": "RGBA",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [
+        "VP8L"
+      ],
+      "alphaChangedPixels": 0,
+      "visibleRgbChangedPixels": 0,
+      "opaqueRgbChangedPixels": 0,
+      "comparedTo": "firefox-alpha-chart-92.png"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "fixture": "alpha-chart.png",
+      "format": "jpeg",
+      "quality": 92,
+      "download": "firefox-alpha-chart-92.jpg",
+      "bytes": 12419,
+      "sha256": "67567b67a7e05812e183d1dc17aa756118f22eb53c823185aa86a53ec179d2e8",
+      "mode": "RGB",
+      "dimensions": [
+        128,
+        96
+      ],
+      "webpChunks": [],
+      "alphaChangedPixels": 9216,
+      "visibleRgbChangedPixels": 9205,
+      "opaqueRgbChangedPixels": 3061,
+      "comparedTo": "firefox-alpha-chart-92.png"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Native tool UI downloads decoded independently by Pillow. Differences use each browser PNG output as a baseline to separate canvas decoding from encoding. Fully transparent RGB is excluded. These fixtures do not establish behavior of all inputs or browsers."
+}
