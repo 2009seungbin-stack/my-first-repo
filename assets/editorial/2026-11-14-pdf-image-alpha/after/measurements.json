@@ -1,0 +1,446 @@
+{
+  "protocolCommit": "352360485b268ef345db021b97357f062f082712",
+  "protocolSHA256": "f9e6cf77e988fe2a4d6dce2ae8d85dd3874ed8a920a3082b3a723632789b1b4e",
+  "sourceCommit": "66c351586b1538ab21502f5cd64982cca1b298e0",
+  "base": "https://nerulio.com",
+  "capturedAtUTC": "2026-11-14T16:29:17.037845+00:00",
+  "settings": {
+    "route": "/en/jpg-to-pdf/",
+    "paper": "default A4",
+    "marginPoints": 24,
+    "rasterizer": "pdftoppm, first page, 72 dpi, white page",
+    "sampleInputXY": {
+      "transparent": [
+        8,
+        8
+      ],
+      "half": [
+        32,
+        32
+      ],
+      "opaque": [
+        64,
+        64
+      ]
+    }
+  },
+  "inputs": [
+    {
+      "name": "alpha-control.png",
+      "transparent": true,
+      "sha256": "17d4b53e5db0f36c1fc1ddf7959e70c5db8f0d997abf1c19694b715917c8fc09"
+    },
+    {
+      "name": "alpha-control.webp",
+      "transparent": true,
+      "sha256": "d34fddfdcc2c2d649651f942cc0620275feed7f0117b08b60ef1589cbbc5cd5c"
+    },
+    {
+      "name": "opaque-control.webp",
+      "transparent": false,
+      "sha256": "e9d868063bd7b77cd5390e7a4f845c8137985b2f5d8ee3f6fe66038db700997c"
+    },
+    {
+      "name": "opaque-control.jpg",
+      "transparent": false,
+      "sha256": "d963948d308e336eac64329208f8cc660c507496fd887df690ef8ef4c9a9b1f6"
+    }
+  ],
+  "moduleProofs": [
+    {
+      "path": "src/task/pdf-organize.js",
+      "normalizedSHA256": "743dc070954276b9a365b6180a713c89e9511bbc9fd42bbd4cdebab718a82e72"
+    },
+    {
+      "path": "src/pdf.js",
+      "normalizedSHA256": "eaa33de1e9dee44d6368d2986accadc8eda05ef8e84e101e6ce6e2a021c38d15"
+    },
+    {
+      "path": "src/image.js",
+      "normalizedSHA256": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "path": "src/image-container.js",
+      "normalizedSHA256": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "path": "src/core.js",
+      "normalizedSHA256": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    },
+    {
+      "path": "src/task/pdf-organize.js",
+      "normalizedSHA256": "743dc070954276b9a365b6180a713c89e9511bbc9fd42bbd4cdebab718a82e72"
+    },
+    {
+      "path": "src/pdf.js",
+      "normalizedSHA256": "eaa33de1e9dee44d6368d2986accadc8eda05ef8e84e101e6ce6e2a021c38d15"
+    },
+    {
+      "path": "src/image.js",
+      "normalizedSHA256": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "path": "src/image-container.js",
+      "normalizedSHA256": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "path": "src/core.js",
+      "normalizedSHA256": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    },
+    {
+      "path": "src/task/pdf-organize.js",
+      "normalizedSHA256": "743dc070954276b9a365b6180a713c89e9511bbc9fd42bbd4cdebab718a82e72"
+    },
+    {
+      "path": "src/pdf.js",
+      "normalizedSHA256": "eaa33de1e9dee44d6368d2986accadc8eda05ef8e84e101e6ce6e2a021c38d15"
+    },
+    {
+      "path": "src/image.js",
+      "normalizedSHA256": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "path": "src/image-container.js",
+      "normalizedSHA256": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "path": "src/core.js",
+      "normalizedSHA256": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    },
+    {
+      "path": "src/task/pdf-organize.js",
+      "normalizedSHA256": "743dc070954276b9a365b6180a713c89e9511bbc9fd42bbd4cdebab718a82e72"
+    },
+    {
+      "path": "src/pdf.js",
+      "normalizedSHA256": "eaa33de1e9dee44d6368d2986accadc8eda05ef8e84e101e6ce6e2a021c38d15"
+    },
+    {
+      "path": "src/image.js",
+      "normalizedSHA256": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "path": "src/image-container.js",
+      "normalizedSHA256": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "path": "src/core.js",
+      "normalizedSHA256": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    }
+  ],
+  "results": [
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "alpha-control.png",
+      "output": "chromium-alpha-control.png.pdf",
+      "suggestedFilename": "alpha-control.pdf",
+      "outputSHA256": "95bbdf711dd581a2aef3e07afc0360d9b531c2269eeefbbf333c7da7a404d2c5",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/FlateDecode",
+          "softMask": true,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          232,
+          142,
+          162
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "render": "chromium-alpha-control.png.pdf-poppler.png",
+      "renderSHA256": "c51a2fa82a2f43cafbb2aaf5b8115a3f5659a1d9710fda7c90fccda46d1164cf"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "alpha-control.webp",
+      "output": "chromium-alpha-control.webp.pdf",
+      "suggestedFilename": "alpha-control.pdf",
+      "outputSHA256": "11175bf529d576c0057f631a7fa5caafd818de17498115814ca34cc3ef20f926",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/FlateDecode",
+          "softMask": true,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          232,
+          142,
+          162
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "render": "chromium-alpha-control.webp.pdf-poppler.png",
+      "renderSHA256": "c51a2fa82a2f43cafbb2aaf5b8115a3f5659a1d9710fda7c90fccda46d1164cf"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "opaque-control.webp",
+      "output": "chromium-opaque-control.webp.pdf",
+      "suggestedFilename": "opaque-control.pdf",
+      "outputSHA256": "f905d09aa5097f6dac4e6baee0fc1471589d28743d7edec51ec107f70e0ce73f",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/DCTDecode",
+          "softMask": false,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "render": "chromium-opaque-control.webp.pdf-poppler.png",
+      "renderSHA256": "0e9d45a19bd25338b5d06d1ba3892b0810990994a263cfc25bd6d055efa59f03"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "opaque-control.jpg",
+      "output": "chromium-opaque-control.jpg.pdf",
+      "suggestedFilename": "opaque-control.pdf",
+      "outputSHA256": "543aebd652e2460fa63e44201a248471b96aab3ed33cf4282a3af6c2a62b7c94",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/DCTDecode",
+          "softMask": false,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "render": "chromium-opaque-control.jpg.pdf-poppler.png",
+      "renderSHA256": "0e9d45a19bd25338b5d06d1ba3892b0810990994a263cfc25bd6d055efa59f03"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "alpha-control.png",
+      "output": "firefox-alpha-control.png.pdf",
+      "suggestedFilename": "alpha-control.pdf",
+      "outputSHA256": "75d5c145f823793b9b317d34f292a7c0b9369542914813ad06cbd330ed9a8f7b",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/FlateDecode",
+          "softMask": true,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          233,
+          143,
+          163
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "render": "firefox-alpha-control.png.pdf-poppler.png",
+      "renderSHA256": "e1d2f4264fa720394a693fb094cf3d06de57da8ffedbb7bd6fd6600647b0378b"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "alpha-control.webp",
+      "output": "firefox-alpha-control.webp.pdf",
+      "suggestedFilename": "alpha-control.pdf",
+      "outputSHA256": "baf96660da055d8e0c71738bfcc729b609d2630cb104ec6eb012642eadcb0e0f",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/FlateDecode",
+          "softMask": true,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          255,
+          255,
+          255
+        ],
+        "half": [
+          233,
+          143,
+          163
+        ],
+        "opaque": [
+          210,
+          30,
+          70
+        ]
+      },
+      "render": "firefox-alpha-control.webp.pdf-poppler.png",
+      "renderSHA256": "e1d2f4264fa720394a693fb094cf3d06de57da8ffedbb7bd6fd6600647b0378b"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "opaque-control.webp",
+      "output": "firefox-opaque-control.webp.pdf",
+      "suggestedFilename": "opaque-control.pdf",
+      "outputSHA256": "b5a235aa0cf7043c004e84c677cd88ebd25b54a589dac1ddd8429ceddd4e67be",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/DCTDecode",
+          "softMask": false,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "render": "firefox-opaque-control.webp.pdf-poppler.png",
+      "renderSHA256": "9578f992c9bcfb2044d0bed1ffdd6a09570c1b45e9859b2cb6f515eca4ccd55a"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "opaque-control.jpg",
+      "output": "firefox-opaque-control.jpg.pdf",
+      "suggestedFilename": "opaque-control.pdf",
+      "outputSHA256": "7f236c3c3fb465979b25bbb448a2d49a87168d1d8e723f58da377b16d71ec9b8",
+      "pagePoints": [
+        595.28,
+        841.89
+      ],
+      "images": [
+        {
+          "filter": "/DCTDecode",
+          "softMask": false,
+          "width": 96,
+          "height": 96
+        }
+      ],
+      "samplesRGB": {
+        "transparent": [
+          21,
+          43,
+          66
+        ],
+        "half": [
+          210,
+          29,
+          70
+        ],
+        "opaque": [
+          210,
+          29,
+          70
+        ]
+      },
+      "render": "firefox-opaque-control.jpg.pdf-poppler.png",
+      "renderSHA256": "9578f992c9bcfb2044d0bed1ffdd6a09570c1b45e9859b2cb6f515eca4ccd55a"
+    }
+  ],
+  "pageErrors": []
+}

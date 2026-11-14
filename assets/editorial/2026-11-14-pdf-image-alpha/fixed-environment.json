@@ -1,0 +1,9 @@
+{
+  "observedAtUTC": "2026-11-14T16:28:32.682204+00:00",
+  "scope": "Environment observed immediately before the fixed production acquisition; historical baseline browser versions are recorded in its original measurements.",
+  "python": "3.10.11",
+  "Pillow": "12.3.0",
+  "pypdf": "6.19.0",
+  "Playwright": "1.63.0",
+  "Poppler": "pdftoppm version 26.07.0"
+}

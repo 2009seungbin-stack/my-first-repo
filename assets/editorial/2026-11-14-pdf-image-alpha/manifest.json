@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "license": "CC0-1.0",
+  "beforeSource": "8889f53d61fee2f21b6705310b68fc02a66f4a3b",
+  "afterSource": "66c351586b1538ab21502f5cd64982cca1b298e0",
+  "protocolSHA256": "f9e6cf77e988fe2a4d6dce2ae8d85dd3874ed8a920a3082b3a723632789b1b4e",
+  "files": [
+    {
+      "path": "LICENSE.txt",
+      "bytes": 505,
+      "sha256": "dbf32e74db4d936c11bcaec4a9946deea708838d91d5a695bb52c489bae270bb"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6957,
+      "sha256": "e6e67948808749e93551d0c4d2479c1da151558ae23673397ae83cc3261da662"
+    },
+    {
+      "path": "after-chromium.png",
+      "bytes": 2652,
+      "sha256": "c51a2fa82a2f43cafbb2aaf5b8115a3f5659a1d9710fda7c90fccda46d1164cf"
+    },
+    {
+      "path": "after/alpha-control.png",
+      "bytes": 323,
+      "sha256": "17d4b53e5db0f36c1fc1ddf7959e70c5db8f0d997abf1c19694b715917c8fc09"
+    },
+    {
+      "path": "after/alpha-control.webp",
+      "bytes": 82,
+      "sha256": "d34fddfdcc2c2d649651f942cc0620275feed7f0117b08b60ef1589cbbc5cd5c"
+    },
+    {
+      "path": "after/chromium-alpha-control.png.pdf",
+      "bytes": 1351,
+      "sha256": "95bbdf711dd581a2aef3e07afc0360d9b531c2269eeefbbf333c7da7a404d2c5"
+    },
+    {
+      "path": "after/chromium-alpha-control.png.pdf-poppler.png",
+      "bytes": 2652,
+      "sha256": "c51a2fa82a2f43cafbb2aaf5b8115a3f5659a1d9710fda7c90fccda46d1164cf"
+    },
+    {
+      "path": "after/chromium-alpha-control.webp.pdf",
+      "bytes": 1351,
+      "sha256": "11175bf529d576c0057f631a7fa5caafd818de17498115814ca34cc3ef20f926"
+    },
+    {
+      "path": "after/chromium-alpha-control.webp.pdf-poppler.png",
+      "bytes": 2652,
+      "sha256": "c51a2fa82a2f43cafbb2aaf5b8115a3f5659a1d9710fda7c90fccda46d1164cf"
+    },
+    {
+      "path": "after/chromium-opaque-control.jpg.pdf",
+      "bytes": 1805,
+      "sha256": "543aebd652e2460fa63e44201a248471b96aab3ed33cf4282a3af6c2a62b7c94"
+    },
+    {
+      "path": "after/chromium-opaque-control.jpg.pdf-poppler.png",
+      "bytes": 2802,
+      "sha256": "0e9d45a19bd25338b5d06d1ba3892b0810990994a263cfc25bd6d055efa59f03"
+    },
+    {
+      "path": "after/chromium-opaque-control.webp.pdf",
+      "bytes": 1804,
+      "sha256": "f905d09aa5097f6dac4e6baee0fc1471589d28743d7edec51ec107f70e0ce73f"
+    },
+    {
+      "path": "after/chromium-opaque-control.webp.pdf-poppler.png",
+      "bytes": 2802,
+      "sha256": "0e9d45a19bd25338b5d06d1ba3892b0810990994a263cfc25bd6d055efa59f03"
+    },
+    {
+      "path": "after/firefox-alpha-control.png.pdf",
+      "bytes": 1354,
+      "sha256": "75d5c145f823793b9b317d34f292a7c0b9369542914813ad06cbd330ed9a8f7b"
+    },
+    {
+      "path": "after/firefox-alpha-control.png.pdf-poppler.png",
+      "bytes": 2652,
+      "sha256": "e1d2f4264fa720394a693fb094cf3d06de57da8ffedbb7bd6fd6600647b0378b"
+    },
+    {
+      "path": "after/firefox-alpha-control.webp.pdf",
+      "bytes": 1354,
+      "sha256": "baf96660da055d8e0c71738bfcc729b609d2630cb104ec6eb012642eadcb0e0f"
+    },
+    {
+      "path": "after/firefox-alpha-control.webp.pdf-poppler.png",
+      "bytes": 2652,
+      "sha256": "e1d2f4264fa720394a693fb094cf3d06de57da8ffedbb7bd6fd6600647b0378b"
+    },
+    {
+      "path": "after/firefox-opaque-control.jpg.pdf",
+      "bytes": 1921,
+      "sha256": "7f236c3c3fb465979b25bbb448a2d49a87168d1d8e723f58da377b16d71ec9b8"
+    },
+    {
+      "path": "after/firefox-opaque-control.jpg.pdf-poppler.png",
+      "bytes": 2668,
+      "sha256": "9578f992c9bcfb2044d0bed1ffdd6a09570c1b45e9859b2cb6f515eca4ccd55a"
+    },
+    {
+      "path": "after/firefox-opaque-control.webp.pdf",
+      "bytes": 1921,
+      "sha256": "b5a235aa0cf7043c004e84c677cd88ebd25b54a589dac1ddd8429ceddd4e67be"
+    },
+    {
+      "path": "after/firefox-opaque-control.webp.pdf-poppler.png",
+      "bytes": 2668,
+      "sha256": "9578f992c9bcfb2044d0bed1ffdd6a09570c1b45e9859b2cb6f515eca4ccd55a"
+    },
+    {
+      "path": "after/measurements.json",
+      "bytes": 12027,
+      "sha256": "91209ed866f351f200043dc81608bef86eb7e6ea407f6bde8783ad82c0874a0c"
+    },
+    {
+      "path": "after/opaque-control.jpg",
+      "bytes": 978,
+      "sha256": "d963948d308e336eac64329208f8cc660c507496fd887df690ef8ef4c9a9b1f6"
+    },
+    {
+      "path": "after/opaque-control.webp",
+      "bytes": 58,
+      "sha256": "e9d868063bd7b77cd5390e7a4f845c8137985b2f5d8ee3f6fe66038db700997c"
+    },
+    {
+      "path": "before-chromium.png",
+      "bytes": 2871,
+      "sha256": "71da103528a7f46042adb8e186a6cb9f04b8cbe55612dc9f2bb6c936867dbe5d"
+    },
+    {
+      "path": "before/alpha-control.png",
+      "bytes": 323,
+      "sha256": "17d4b53e5db0f36c1fc1ddf7959e70c5db8f0d997abf1c19694b715917c8fc09"
+    },
+    {
+      "path": "before/alpha-control.webp",
+      "bytes": 82,
+      "sha256": "d34fddfdcc2c2d649651f942cc0620275feed7f0117b08b60ef1589cbbc5cd5c"
+    },
+    {
+      "path": "before/chromium-alpha-control.png.pdf",
+      "bytes": 1351,
+      "sha256": "136f1a574934dc6e463367eaa0a4c514fe481aa1a1d65b5985209a1187d55918"
+    },
+    {
+      "path": "before/chromium-alpha-control.png.pdf-poppler.png",
+      "bytes": 2652,
+      "sha256": "c51a2fa82a2f43cafbb2aaf5b8115a3f5659a1d9710fda7c90fccda46d1164cf"
+    },
+    {
+      "path": "before/chromium-alpha-control.webp.pdf",
+      "bytes": 1815,
+      "sha256": "622b824253d96227846971d479340b34db81f7a6abd02c82801fd85046345c2a"
+    },
+    {
+      "path": "before/chromium-alpha-control.webp.pdf-poppler.png",
+      "bytes": 2871,
+      "sha256": "71da103528a7f46042adb8e186a6cb9f04b8cbe55612dc9f2bb6c936867dbe5d"
+    },
+    {
+      "path": "before/chromium-opaque-control.jpg.pdf",
+      "bytes": 1804,
+      "sha256": "a446cadba49fef4c334149731d1f22e4757539e76d4b0efeb9c4668eacaba80c"
+    },
+    {
+      "path": "before/chromium-opaque-control.jpg.pdf-poppler.png",
+      "bytes": 2802,
+      "sha256": "0e9d45a19bd25338b5d06d1ba3892b0810990994a263cfc25bd6d055efa59f03"
+    },
+    {
+      "path": "before/chromium-opaque-control.webp.pdf",
+      "bytes": 1804,
+      "sha256": "6258fbdf3584f33ee708b37f59144c561083b139fc69ec87471324f633dd092f"
+    },
+    {
+      "path": "before/chromium-opaque-control.webp.pdf-poppler.png",
+      "bytes": 2802,
+      "sha256": "0e9d45a19bd25338b5d06d1ba3892b0810990994a263cfc25bd6d055efa59f03"
+    },
+    {
+      "path": "before/firefox-alpha-control.png.pdf",
+      "bytes": 1354,
+      "sha256": "e1af5e9ec919f565052e5261615d191cb9d25f16630929d49cfead49672a8003"
+    },
+    {
+      "path": "before/firefox-alpha-control.png.pdf-poppler.png",
+      "bytes": 2652,
+      "sha256": "e1d2f4264fa720394a693fb094cf3d06de57da8ffedbb7bd6fd6600647b0378b"
+    },
+    {
+      "path": "before/firefox-alpha-control.webp.pdf",
+      "bytes": 1929,
+      "sha256": "ffe238a7018592858a6b6c2c4d029ac0541ddd3ed137a3290ee509d1fb65d20d"
+    },
+    {
+      "path": "before/firefox-alpha-control.webp.pdf-poppler.png",
+      "bytes": 2679,
+      "sha256": "4903d3e506705a7503223b2dfc933d609fec8d1f158ca8a0345103f3eccdfecb"
+    },
+    {
+      "path": "before/firefox-opaque-control.jpg.pdf",
+      "bytes": 1921,
+      "sha256": "118a202e763c7da578f83ebb43bdaaad59e92ca8390ab1c9ae64695da90c7406"
+    },
+    {
+      "path": "before/firefox-opaque-control.jpg.pdf-poppler.png",
+      "bytes": 2668,
+      "sha256": "9578f992c9bcfb2044d0bed1ffdd6a09570c1b45e9859b2cb6f515eca4ccd55a"
+    },
+    {
+      "path": "before/firefox-opaque-control.webp.pdf",
+      "bytes": 1921,
+      "sha256": "201bdb7ce5f4e5d52b75cc4473456a5138383bf9c46113147560ebac993ca205"
+    },
+    {
+      "path": "before/firefox-opaque-control.webp.pdf-poppler.png",
+      "bytes": 2668,
+      "sha256": "9578f992c9bcfb2044d0bed1ffdd6a09570c1b45e9859b2cb6f515eca4ccd55a"
+    },
+    {
+      "path": "before/measurements.json",
+      "bytes": 12009,
+      "sha256": "9ede16060196d823ef15b596db3b079419bac48f7ffbb922769e5c8a4d3f330b"
+    },
+    {
+      "path": "before/opaque-control.jpg",
+      "bytes": 978,
+      "sha256": "d963948d308e336eac64329208f8cc660c507496fd887df690ef8ef4c9a9b1f6"
+    },
+    {
+      "path": "before/opaque-control.webp",
+      "bytes": 58,
+      "sha256": "e9d868063bd7b77cd5390e7a4f845c8137985b2f5d8ee3f6fe66038db700997c"
+    },
+    {
+      "path": "fixed-environment.json",
+      "bytes": 366,
+      "sha256": "6ee91d3171e2e213befb800e78406ad78e2d4a2393e4e74a0879b9608433dc6a"
+    },
+    {
+      "path": "measure-pdf-image-alpha.py",
+      "bytes": 8093,
+      "sha256": "f9e6cf77e988fe2a4d6dce2ae8d85dd3874ed8a920a3082b3a723632789b1b4e"
+    },
+    {
+      "path": "paired-analysis.json",
+      "bytes": 10096,
+      "sha256": "a3e73f2ef0ae8e01a0568c51170d3bbbe9f800bf9371ad86450da375e7a412ad"
+    },
+    {
+      "path": "verify-pdf-image-alpha.py",
+      "bytes": 8132,
+      "sha256": "f3c40b75314c9dc8abf76bdd9d46357b9e9581883c05a05477c0e14a46c85097"
+    }
+  ]
+}

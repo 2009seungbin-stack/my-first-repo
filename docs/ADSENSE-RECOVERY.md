@@ -4,6 +4,29 @@ Owner request: repeated rejection for “가치가 별로 없는 콘텐츠”; c
 
 Heartbeat: `nerulio-11-15-10`, current chat, every 30 minutes until that deadline. Preserve the deadline and avoid duplicate automations. Keep the active goal intact.
 
+## Completed releases before the PDF study publication
+
+The latest completed production source for this checkpoint is **a3f5df2c50bfa65fc6bdb65d4f3812e26e61bc5a**, identical to the tested #120 tree **209e6b26c47e118e0a9e2e5f0a3f7e30d7c98e1c**. Both projects are successful/canonical on that source: primary **e2947b89-7bed-4e87-a59d-84ec603f7f13**, legacy **80c594cc-abca-4855-9b55-6d41fd888f4f**. Earlier candidate sections below are historical work records; their pending text does not override subsequent release evidence.
+
+| PR | Behavior verified in production | Full CI |
+| --- | --- | --- |
+| #117 | Samples do not open an unrelated file picker; explicit native picker actions and downloads work | 43609077908, 31m58s |
+| #118 | Three-language tool FAQs stop describing retired community uploads as available | 43611283808, 28m16s |
+| #119 | Transparent WebP uses a PNG image and soft mask in PDF instead of becoming opaque JPEG | 43612954507, 28m42s |
+| #120 | PDF paper/options and old export are locked before asynchronous rebuild work | 43615038636, 29m55s |
+
+#117 passed six sample actions, 18 explicit native pickers and six decoded control downloads in actual production. #118 passed 24 live views and six locale switches; all 141 advertised changed canonical dates match their ledger, with 201 other changed entries left unlisted. The earlier BMP guide #116 is also complete: its production reading, exact-byte archive and sitemap evidence are in `bmp-guide-production/results.json`, `bmp-guide-canonical.json` and `bmp-guide-production-sitemap-dates.json` under `test-results`.
+
+#119 has eight unmodified native PDF acquisitions before and eight after the fix, paired by identical input files and protocol hash. Independent parsing and full Poppler replay confirm alpha mismatches of 7,168 to zero for the transparent WebP in each engine; four opaque embedded JPEG streams remain byte-identical across the change. #120 separately passes six actual production PDF downloads and four controlled completion-delay gates, with page dimensions, image placement and rendered pixels checked independently. The timing gates do not replace output bytes and are not natural-latency measurements. Both actual homepages retain six news/five original analyses, and four sampled retired routes remain 410/no-store/no session cookie. Reports: `pdf-alpha-119-canonical.json`, `pdf-alpha-paired-independent-analysis.json`, `pdf-paper-120-production/results.json`, `pdf-paper-120-canonical.json` and their release-overview reports under `test-results`.
+
+At 16:35 UTC, an aggregate read found only `openai-status` and `claude-status` beyond their configured collection interval, with no active/queued collector run. Selected normal dispatch **43616540164** succeeds on source 66c3515. Subsequent reads confirm both databases have new successful timestamps at 16:36–16:37 UTC, no consecutive failure and no registered adapter beyond its configured interval. This refresh does not repair or guarantee GitHub schedule latency, and does not restore public-page writes. Evidence: `collector-health-20261114-1635.json`, `status-collectors-43616540164.json`, `collector-health-20261114-1642.json`.
+
+## Transparent WebP/PDF study — publication candidate
+
+This branch adds the Korean/English `transparent-webp-pdf` article pair, with 16 native PDF outputs, full image-resource alpha comparisons and visible page renders. The authored package contains **50 manifest entries**, a **51-member / 49,199-byte ZIP**, frozen acquisition code and a standalone offline verifier. Every saved PDF is independently rendered again; all 9,216 alpha samples per image are checked, along with four opaque JPEG-stream comparisons. Only newly authored geometry is used. The checked package has no credential-pattern or private-path hit, no personal PDF author/title field and no image EXIF. These bounded checks are not a general rights or credential guarantee.
+
+Local reading checks pass 16 views, 32 loaded illustration observations and eight home/index discovery views. All 52 public files match in two browser request contexts. A subsequent typography check covers 48 mobile views across the six article topics, both languages, two widths and both engines: the checked Korean heading words remain together, English retains normal wrapping, and no page overflow or page error is observed. A scoped Korean article-heading rule fixes the observed split in the word “배경”. Actual source links are anonymously readable. The local public fixture remains read-only. Publication CI, deployed preview and actual production article/download checks remain separate gates; Google indexing and AdSense approval are not established by these results.
+
 ## Verified production snapshot — 2026-11-14 12:08 UTC
 
 Official service history **#111** passed full CI **43589796129**, job **132431889393**, in **32m28s**, plus both Pages checks. Frozen head **4f4f9df2eb9c4a882e9ab82f870f425d21d5c498** and merge **891779a964f753362f0c6c95bd32c8b6a94743cd** have the identical tree **e7eb8c2858d2b7db4ec94c2e7d21acdce1372bbf**. Both projects are successful/canonical: primary **a2775631-1a50-4009-9973-4f1380c98e8e**, legacy **caf117df-bf14-47da-9406-27e4a27b7ec4**.
