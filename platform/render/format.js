@@ -109,13 +109,13 @@ export function factText(vertical,f,l){
 }
 export const PLATFORM_NAMES=/** @type {Record<string,string>} */({web:'Web',ios:'iOS',android:'Android',windows:'Windows',macos:'macOS',linux:'Linux',api:'API'});
 
-/** Several builds of one channel on the same day (Korea time) become one line:
+/** Several builds of one entity and release channel on the same day (Korea time) become one line:
  * "0.60.2 → 0.60.5 (4건)". Input newest first, as recentVersions returns it.
- * @template {{version:string,released_at:number,entity:{id:string}}} V @param {V[]} list @param {string} l @returns {V[]} */
+ * @template {{version:string,channel?:string,released_at:number,entity:{id:string}}} V @param {V[]} list @param {string} l @returns {V[]} */
 export function collapseVersions(list,l){
  /** @type {Map<string,V[]>} */const groups=new Map();/** @type {string[]} */const order=[];
  for(const v of list){
-  const k=v.entity.id+'|'+new Date(v.released_at+(l==='ko'?9*36e5:0)).toISOString().slice(0,10);
+  const k=JSON.stringify([v.entity.id,new Date(v.released_at+(l==='ko'?9*36e5:0)).toISOString().slice(0,10),v.channel||'']);
   if(!groups.has(k)){groups.set(k,[]);order.push(k);}
   /** @type {V[]} */(groups.get(k)).push(v);
  }

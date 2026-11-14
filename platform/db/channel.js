@@ -468,9 +468,9 @@ export async function fxUsdKrw(db,now){
 }
 /** Versions released recently across all channels (Radar). @param {D1} db @param {{since:number,until:number,vertical?:string|null,limit?:number}} o */
 export async function recentVersions(db,o){
- const rows=await all(db,`SELECT v.version,v.released_at,v.notes_url,v.verification,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM versions v JOIN entities e ON e.id=v.entity_id
+ const rows=await all(db,`SELECT v.version,v.channel,v.released_at,v.notes_url,v.verification,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM versions v JOIN entities e ON e.id=v.entity_id
   WHERE v.released_at BETWEEN ? AND ? AND e.status='active'${o.vertical?' AND e.vertical=?':''} ORDER BY v.released_at DESC LIMIT ?`,[o.since,o.until,...(o.vertical?[o.vertical]:[]),o.limit??40]);
- return rows.map(r=>({version:String(r.version),released_at:Number(r.released_at),notes_url:versionNotes(String(r.id),String(r.version),r.notes_url).url,verification:String(r.verification),entity:entityRow(r)}));
+ return rows.map(r=>({version:String(r.version),channel:String(r.channel),released_at:Number(r.released_at),notes_url:versionNotes(String(r.id),String(r.version),r.notes_url).url,verification:String(r.verification),entity:entityRow(r)}));
 }
 /** Upcoming events across all channels with the first linked entity (Radar). @param {D1} db @param {{from:number,to:number,vertical?:string|null,limit?:number}} o */
 export async function upcomingEvents(db,o){

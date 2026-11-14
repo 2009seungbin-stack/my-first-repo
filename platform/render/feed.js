@@ -10,6 +10,7 @@ import {loadStatus} from './status.js';
 import {spikeEpisodes} from '../status-signal.js';
 import {channelPath,flairLabel,channelById} from '../channels.js';
 import {describeChange} from '../change-text.js';
+import {versionNotes,versionLabel} from '../version-source.js';
 
 const x=(/** @type {unknown} */ s)=>String(s??'').replace(/[&<>"']/g,c=>/** @type {Record<string,string>} */({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'})[c]);
 /** @param {{title:string,link:string,description:string,l:string,items:{title:string,link:string,at:number,guid:string,category?:string,description?:string}[]}} f */
@@ -36,7 +37,7 @@ export async function radarFeed(db,l,origin){
  const ko=l==='ko',changes=await radarChanges(db,{limit:40,minImportance:2});
  // Releases of the last 30 days too (the Radar page shows them), so the feed is never empty.
  const now=Date.now(),releases=await recentVersions(db,{since:now-30*864e5,until:now,limit:40});
- const rel=releases.map(r=>({title:ko?`${nameOf(r.entity,l)} ${r.version} 출시`:`${nameOf(r.entity,l)} ${r.version} released`,link:origin+channelUrl(l,r.entity),at:r.released_at,guid:`version:${r.entity.id}:${r.version}`,category:ko?'출시':'release',description:ko?`${nameOf(r.entity,l)}의 새 버전 ${r.version}`:`New version ${r.version} of ${nameOf(r.entity,l)}`}));
+ const rel=releases.map(r=>{const source=versionNotes(r.entity.id,r.version,r.notes_url),kind=versionLabel(source.kind,r.channel,l);return {title:`${nameOf(r.entity,l)} ${r.version} — ${kind}`,link:origin+channelUrl(l,r.entity),at:r.released_at,guid:`version:${r.entity.id}:${r.version}`,category:kind,description:source.kind==='tag'?(ko?'소스 태그 커밋에 기록된 날짜이며 실제 배포일과 다를 수 있습니다.':'The date comes from its source-tag commit and can differ from the download release date.'):(ko?`${nameOf(r.entity,l)}의 새 버전 ${r.version} · ${kind}`:`New version ${r.version} of ${nameOf(r.entity,l)} · ${kind}`)};});
  return rss({title:ko?'Nerulio 레이더':'Nerulio Radar',link:origin+`/${l}/radar/`,description:ko?'AI·게임·하드웨어·창작 도구에서 바뀐 것':'What changed in AI, games, hardware and creator tools',l,
   items:[...rel,...changes.map(c=>{const d=describeChange(c,{name:nameOf(c.entity,l)},/** @type {'ko'|'en'} */(l));return {title:d.detail?`${d.title} — ${d.detail}`:d.title,link:origin+channelUrl(l,c.entity),at:c.detected_at,guid:`change:${c.id}`,category:c.vertical,description:d.detail||d.title};})]});
 }
