@@ -122,7 +122,8 @@ test('build matrix: no domain, production domain, ads, then clean disabled rebui
 });
 test('isolated AI runtime page gets its own headers; site-wide additions stay in the /* block',async()=>{
  const out=headers(await readFile(new URL('../_headers',import.meta.url),'utf8'),{preview:true});
- const [global,runtime]=out.split(/\n(?=\/ai-runtime\/)/);
+ const blocks=out.split(/\n(?=\S)/),global=blocks.find(b=>b.startsWith('/*\n')),runtime=blocks.find(b=>b.startsWith('/ai-runtime/\n'));
+ assert(global&&runtime,'inspect the exact global and isolated-runtime blocks, excluding following path rules');
  assert(global.startsWith('/*')&&global.includes('Cache-Control')&&global.includes("frame-ancestors 'none'"));
  assert(!global.includes('Document-Isolation-Policy'),'the main site must not be isolated (ads, embeds)');
  assert(runtime.includes('! Content-Security-Policy')&&runtime.includes("frame-ancestors 'self'"));
