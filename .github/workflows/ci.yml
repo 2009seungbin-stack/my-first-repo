@@ -26,7 +26,7 @@ jobs:
           python -m pip install -r requirements-test.txt
           python -m playwright install --with-deps chromium firefox
           sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg poppler-utils
       - name: Full syntax, unit, build and real HTTP regression
         run: python tools/regression.py
       - name: Service layer end-to-end (wrangler pages dev + local D1, no production resources)
