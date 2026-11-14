@@ -4,6 +4,12 @@ Owner request: repeated rejection for “가치가 별로 없는 콘텐츠”; c
 
 Heartbeat: `nerulio-11-15-10`, current chat, every 30 minutes until that deadline. Preserve the deadline and avoid duplicate automations. Keep the active goal intact.
 
+## Collected news calendar precision — candidate
+
+Automatic source refresh **43647918124** completes successfully on 62ed027, including all 15 adapters and the final workflow notification. Both databases record successful times after the run starts, with no configured-interval overrun or consecutive failure at 22:48 UTC. Two ordinary home reads during and after collection retain six news/six original topics, and the retired API stays 410/no-store/no cookie. Reports: `scheduled-collectors-43647918124-complete.json`, `scheduled-collectors-43647918124-health-proof.json` and the two `scheduled-site-probe` reports under `test-results`. Some other registered adapters are seeded with long intervals; this is not a claim that all 21 fetched new data in this run.
+
+The refreshed home changes llama.cpp b12378 to **b12385**. Its official release metadata confirms **prerelease**, published **2026-11-14T18:48:53Z**. The collector intentionally stores the calendar date, but ordinary version cards were serializing that day as `2026-11-14T00:00:00.000Z`. Tag cards already omitted the invented time. All collected version cards now emit day precision matching the existing visible KST date; genuine stored news posts keep their actual timestamp. Visible dates, titles, source URLs, ordering and stored observations are preserved. No new measurement or original article is published by this change. Local validation, frozen-preview/full CI and production verification remain separate gates.
+
 ## Verified fixed article-source revisions — 2026-11-14 21:19 UTC
 
 **#126 is deployed and verified** on source **f0d4f4711ada019cafc413fcc5b1ffd353d56b13**, with tree **c0e717a448086a4b9d34cc8a946e5741f24d8092** identical to tested head 499ecc4 and the fresh premerge tree. Full CI **43638895131**, job **132581745915**, passes in **32m40s**, along with both frozen previews. Documentation parent #125 had merged with the exact tested parent tree, so retargeting this change to main required no source update. Both production projects are successful and canonical on the merge: primary **7e9cdc5d-4da3-478f-b6c1-7ce1d9759186**, legacy **a70a7a12-420d-4653-81c2-1cc07545a870**. The actual domain reports that source.
