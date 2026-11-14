@@ -8,3 +8,15 @@
   Content-Security-Policy: default-src 'none'; script-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
   Document-Isolation-Policy: isolate-and-credentialless
   X-Robots-Tag: noindex, nofollow
+# Mutable app URLs must revalidate together with the current HTML. Browsers can
+# retain unchanged bytes via ETag/304 without keeping a prior release fresh.
+/src/*
+  Cache-Control: public, no-cache, must-revalidate
+/ai-runtime/*
+  Cache-Control: public, no-cache, must-revalidate
+/styles.css
+  Cache-Control: public, no-cache, must-revalidate
+/experience.css
+  Cache-Control: public, no-cache, must-revalidate
+/content.css
+  Cache-Control: public, no-cache, must-revalidate

@@ -35,7 +35,9 @@ class Stack:
     """One isolated deployment: build + local D1 + wrangler pages dev. Every stack signs its answers
     (TICKET_PRIVATE_KEY in the Worker, TICKET_PUBLIC_KEY in the pages), as production should."""
     def __init__(self,name,build_env,vars,port=None,toml=(),before=None):
-        self.dir=Path(tempfile.mkdtemp(prefix=f'nerulio-{name}-'));self.port=port or int(os.environ.get('SERVICE_PORT','0')) or free_port();self.url=f'http://127.0.0.1:{self.port}'
+        self.dir=Path(tempfile.mkdtemp(prefix=f'nerulio-{name}-')).resolve()
+        assert self.dir.parent==Path(tempfile.gettempdir()).resolve() and self.dir.name.startswith('nerulio-')
+        self.port=port or int(os.environ.get('SERVICE_PORT','0')) or free_port();self.url=f'http://127.0.0.1:{self.port}'
         keys=ticket_keys();vars={'TICKET_PRIVATE_KEY':keys['privateKey'],**vars};build_env={'TICKET_PUBLIC_KEY':keys['publicKey'],**build_env}
         env={k:v for k,v in os.environ.items() if not k.startswith(('ADSENSE_','CF_PAGES','SITE_','SERVICE_','PRO_PRICE','FREE_DAILY','TICKET_'))}
         env.update(build_env);env['SERVICE_API']='on'
@@ -69,11 +71,14 @@ class Stack:
         if r.returncode:raise RuntimeError(r.stdout+r.stderr)
         return json.loads(r.stdout[r.stdout.index('['):])[0]['results']
     def close(self):
-        if os.name=='nt':subprocess.run(['taskkill','/T','/F','/PID',str(self.proc.pid)],capture_output=True)
-        else:os.killpg(self.proc.pid,signal.SIGTERM)
+        if self.proc.poll() is None:
+            if os.name=='nt':subprocess.run(['taskkill','/T','/F','/PID',str(self.proc.pid)],capture_output=True)
+            else:os.killpg(self.proc.pid,signal.SIGTERM)
         try:self.proc.wait(timeout=10)
         except subprocess.TimeoutExpired:pass
-        self.log.close();shutil.rmtree(self.dir,ignore_errors=True)
+        target=self.dir.resolve()
+        assert target.parent==Path(tempfile.gettempdir()).resolve() and target.name.startswith('nerulio-')
+        self.log.close();shutil.rmtree(target,ignore_errors=True)
 def b64url(raw):return base64.urlsafe_b64encode(raw).rstrip(b'=').decode()
 def create_user(stack,subject):
     uid=b64url(os.urandom(16));token=b64url(os.urandom(32));now=int(time.time()*1000)
@@ -691,6 +696,17 @@ def scenario_traffic(browser):
         ok('traffic: sitemap served through the Worker',sm.status==200 and b'<sitemapindex' in sm.read())
         js=urllib.request.urlopen(stack.url+'/src/hit.js',timeout=20)
         ok('traffic: beacon script is a static asset','javascript' in js.headers.get('content-type','') and b'sendBeacon' in js.read())
+        for asset in ['/src/task/batch.js','/src/task/resize.js','/src/platform/n2.css','/styles.css','/experience.css','/content.css','/ai-runtime/']:
+            with urllib.request.urlopen(stack.url+asset,timeout=20) as response:
+                cache=response.headers.get('Cache-Control','').lower();body=response.read();etag=response.headers.get('ETag')
+                ok('traffic: mutable resource revalidates '+asset,response.status==200 and 'no-cache' in cache and 'no-store' not in cache)
+                if asset=='/src/task/resize.js':
+                    ok('traffic: mutable code retains an ETag',bool(etag))
+                    try:
+                        with urllib.request.urlopen(urllib.request.Request(stack.url+asset,headers={'If-None-Match':etag}),timeout=20) as again:
+                            valid=again.status==200 and again.read()==body
+                    except urllib.error.HTTPError as error:valid=error.code==304
+                    ok('traffic: unchanged code revalidates without different bytes',valid)
         try:
             urllib.request.urlopen(urllib.request.Request(stack.url+'/api/v2/hit',data=b'{"p":"/ko/"}',method='POST',headers={'Content-Type':'text/plain','Origin':'https://evil.test','Sec-Fetch-Site':'cross-site'}),timeout=20);cross=200
         except urllib.error.HTTPError as e:cross=e.code
