@@ -77,7 +77,7 @@ export async function emitService(dist,config,head){
  // The AI digest: published articles only (drafts in content/ai-digest/ never reach dist/).
  await writeFile(path.join(worker,'platform','digest-data.js'),digestDataModule(await loadDigest()));
  // Shared market definitions and the compact benchmark aggregate are imported by PC tool SSR.
- await mkdir(path.join(worker,'src','hardware'),{recursive:true});await cp(new URL('src/hardware/market.js',root),path.join(worker,'src','hardware','market.js'));
+ await mkdir(path.join(worker,'src','hardware'),{recursive:true});for(const file of ['market.js','sources.js'])await cp(new URL('src/hardware/'+file,root),path.join(worker,'src','hardware',file));
  await mkdir(path.join(worker,'data','hardware'),{recursive:true});await cp(new URL('data/hardware/blender.js',root),path.join(worker,'data','hardware','blender.js'));
  // The status collectors run from the Worker too when the schedule is late (server/platform/status-refresh.js).
  await mkdir(path.join(worker,'collectors'),{recursive:true});for(const d of ['_runtime.js','_ai-shared','claude-status','openai-status'])await cp(new URL(`collectors/${d}`,root),path.join(worker,'collectors',d),{recursive:true});
