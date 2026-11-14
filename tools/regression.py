@@ -33,6 +33,7 @@ try:
     env['COUNTER_BASE']='http://127.0.0.1:4173'
     for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','task-resize-browser','task-batch-browser','task-compress-browser','local-fragments-browser','character-counter-browser','avatar-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser','studio-texture-browser','studio-pixel-browser','pixel-converter-browser','studio-monetization-browser','game-landing-browser','design-browser','sfx-browser','store-art-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
     run('task-intake-browser',[sys.executable,'tests/task-intake-browser.py'])
+    run('pdf-image-alpha-browser',[sys.executable,'tests/pdf-image-alpha-browser.py'])
     run('local-fragments-mobile-browser',[sys.executable,'tests/local-fragments-browser.py','--width','390'])
     # Opt-in (REDTEAM=1): the monetization red-team corpus against the real Pages runtime
     # (docs/MONETIZATION-SECURITY.md). The API corpus also runs in `npm test` (tests/redteam.test.mjs).

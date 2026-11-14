@@ -3,18 +3,29 @@ import {blobOf,release,decode} from '../image.js';
 import {bytes,stem,zip} from '../core.js';
 import {BRAND} from '../brand.js';
 import {t} from '../i18n.js';
+import {yieldUI} from '../resources.js';
 import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 /** PDF page organiser behind Merge PDF and Split PDF: every page of every file as a
  * thumbnail you can drag, rotate, duplicate or delete; images may be mixed in as pages.
  * Native page objects are copied (text, vectors and search stay intact) — see src/pdf.js. */
 export const accept='application/pdf,.pdf,image/*,.heic,.heif';
 const PAGE={a4:[595.28,841.89],letter:[612,792]};
+async function hasTransparency(c){
+ const ctx=c.getContext('2d');
+ for(let y=0;y<c.height;y+=64){
+  const data=ctx.getImageData(0,y,c.width,Math.min(64,c.height-y)).data;
+  for(let i=3;i<data.length;i+=4)if(data[i]!==255)return true;
+  await yieldUI();
+ }
+ return false;
+}
 /** One image → one PDF page. JPEG-like inputs stay JPEG (small), PNG keeps its sharp edges and
- * transparency. decode() applies the camera orientation, which raw JPEG embedding would lose. */
+ * transparency. Other transparent inputs also need PNG: JPEG would flatten them on black.
+ * decode() applies the camera orientation, which raw JPEG embedding would lose. */
 async function imagePage(file,o){
  const L=await import('../../assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js'),c=await decode(file);
  try{
-  const png=file.type==='image/png',bytes=await (await blobOf(c,png?'image/png':'image/jpeg',.92)).arrayBuffer(),doc=await L.PDFDocument.create(),img=png?await doc.embedPng(bytes):await doc.embedJpg(bytes);
+  const png=file.type==='image/png'||await hasTransparency(c),bytes=await (await blobOf(c,png?'image/png':'image/jpeg',.92)).arrayBuffer(),doc=await L.PDFDocument.create(),img=png?await doc.embedPng(bytes):await doc.embedJpg(bytes);
   let [pw,ph]=o.pageSize==='fit'?[c.width*.75+o.margin*2,c.height*.75+o.margin*2]:PAGE[o.pageSize];if(o.pageSize!=='fit'&&c.width>c.height)[pw,ph]=[ph,pw];
   const k=Math.min((pw-o.margin*2)/c.width,(ph-o.margin*2)/c.height),w=c.width*k,h=c.height*k;doc.addPage([pw,ph]).drawImage(img,{x:(pw-w)/2,y:(ph-h)/2,width:w,height:h});
   return new File([await doc.save()],file.name,{type:'application/pdf'});
