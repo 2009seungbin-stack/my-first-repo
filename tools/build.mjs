@@ -8,6 +8,7 @@ import {logoMark,faviconSVG} from '../src/logo.js';
 import {LANDINGS,LANDING_PATHS,landingText} from '../src/landings.js';
 import {isTask} from '../src/task/registry.js';
 import {homePage,taskPage} from './task-build.mjs';
+import {withLocalFragments} from './local-fragments-build.mjs';
 import {languageEntryPage} from './language-entry-build.mjs';
 import {DEPTH} from '../src/seo-depth/index.js';
 import {answerHTML,depthSlot} from '../src/seo-depth/render.js';
@@ -57,7 +58,8 @@ const withDepth=(contentHTML,sections)=>sections?contentHTML.replace('<article>'
 export const ICON_LINKS='<link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="96x96" href="assets/brand/favicon-96.png"><link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">';
 export const withIcons=html=>html.replace(/<link rel="icon"(?: type="image\/svg\+xml")? href="favicon\.svg">/,ICON_LINKS);
 /** Localized static HTML remains meaningful before JavaScript runs. */
-export function entry(html,route='',siteURL='',config={}){
+export function entry(html,route='',siteURL='',config={}){return withLocalFragments(renderEntry(html,route,siteURL,config),route);}
+function renderEntry(html,route='',siteURL='',config={}){
  html=html.replaceAll('{{brand}}',escape(BRAND.name)).replaceAll('{{initial}}',escape(BRAND.name[0].toLowerCase())).replaceAll('{{logo}}',logoMark());
  siteURL=normalizeSiteURL(siteURL);
  const parts=locationParts('/'+route);
