@@ -1,4 +1,4 @@
-legacy-model-load.cpp
-EVIDENCE_ROOT\legacy-model-load.cpp(2,23): error C2065: 'llama_load_model_from_file': 선언되지 않은 식별자입니다.
-void check() { (void)&llama_load_model_from_file; }
-                      ^
+legacy-model-load.cpp
+EVIDENCE_ROOT\legacy-model-load.cpp(2,23): error C2065: 'llama_load_model_from_file': 선언되지 않은 식별자입니다.
+void check() { (void)&llama_load_model_from_file; }
+                      ^

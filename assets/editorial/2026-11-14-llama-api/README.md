@@ -7,7 +7,7 @@ Measured by an AI agent on 2026-11-14, without separate human review. Only C++ d
 - Official llama.cpp v0.9.0 source: `cd959bae99ff4bed22bef2604f45241c09bbb8c8`.
 - Official llama.cpp v1.0.0 source: `b1b770d90d94cad9e9ea5b993bdbc383a522fb28`.
 - Seven exact public headers per version. The Git blob hashes/sizes in the pins file were checked before compilation; SHA-256, URLs and commits are in measurements.json.
-- Protocol source: `f2953754eff160383b971bf5bc4c5bb289b94dcc`, with sourceModifiedAfterCommit false. The copied protocol and pins retain their measured bytes.
+- Protocol source: `c1769a4c618510128032f43ef2344ff0f5dc31b7`, with sourceModifiedAfterCommit false. The copied protocol and pins retain their measured bytes. Diagnostic text is decoded, output paths are replaced with EVIDENCE_ROOT, and line endings are normalized to LF before UTF-8 storage; the logs are not raw compiler output bytes.
 - Windows NT build 26200, Python 3.10.11, Microsoft C/C++ cl.exe 19.51.36256.0 x64 (file version), Visual C++ include folder 14.51.36231, Windows SDK headers 10.0.26100.0.
 - C++17, /Zs syntax only. Deprecation warnings are retained and are not promoted to errors. Compiler binary hash and actual include version labels are in measurements.json. No compiler, SDK or upstream header files are redistributed here.
 

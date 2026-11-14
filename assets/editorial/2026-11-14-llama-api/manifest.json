@@ -63,128 +63,128 @@
     },
     {
       "path": "measure-llama-api.py",
-      "bytes": 7153,
-      "sha256": "72e7257ba8fbfd0928a85edc475a3a7b08041ae176864850a90407b9da2e38c8"
+      "bytes": 7193,
+      "sha256": "5c55b0eae16cc177be1ad7f97ffd30f3a122a37083662b63800ec524c91f06ea"
     },
     {
       "path": "measurements.json",
       "bytes": 17394,
-      "sha256": "4c50489958fd32d28fc45067b3840d4592160bfbe372888ac131fceef8963661"
+      "sha256": "5f026d71293213c82d0573d90c048453b9639508b965c1f6d5da2fcaa3ef8256"
     },
     {
       "path": "README.md",
-      "bytes": 3139,
-      "sha256": "8ade4096ecf68f9febf438e2e8fcd1df7e3d80631d49abd2cc4b5c72ded88889"
+      "bytes": 3317,
+      "sha256": "22d61c974cf63bf2122a90233c7c2fb2a870e99a375b17384fe0488b1f179378"
     },
     {
       "path": "v0.9.0-control-current.txt",
-      "bytes": 22,
-      "sha256": "1d74627a8083a85a37b85b8aabbf18478c7bc4f80d32d75463a7f84349240b92"
+      "bytes": 20,
+      "sha256": "4d11c0be2910ac781b129e56a8ce70b13750aafa2375e27268b7dab6b751b242"
     },
     {
       "path": "v0.9.0-current-context-create.txt",
-      "bytes": 29,
-      "sha256": "3f26806a338a22376e9eceb731aed2bf78027e72cf67c449191891b5e01ff451"
+      "bytes": 27,
+      "sha256": "953adca2eb77f8479a6cf61d47fe038179ea74b95eef80f20bffe3e42162b491"
     },
     {
       "path": "v0.9.0-current-model-free.txt",
-      "bytes": 25,
-      "sha256": "ade37c09e514d61a671a400444f77b8801d6afc7b7fcb54b21b15257c4181e3d"
+      "bytes": 23,
+      "sha256": "062e67e2aff29201d1c8c122fb4aa076f1dc468be1590f8bd7ce848b35c42591"
     },
     {
       "path": "v0.9.0-current-model-load.txt",
-      "bytes": 25,
-      "sha256": "55f65099f594f95d8fc097758e35e29a90521269a13261126ff631cb0b58bcde"
+      "bytes": 23,
+      "sha256": "0672362381a528ffd1ba804648cbc0c06a38155050ddeccbfeaad3b8e8a5af06"
     },
     {
       "path": "v0.9.0-current-token-count.txt",
-      "bytes": 26,
-      "sha256": "16b72bcd6ff42545cfe2183a58ce6dcb0d5c650e8d738c60771945f532df0a4e"
+      "bytes": 24,
+      "sha256": "3854e2eff3038ef6371e7ac62b5306e75bddc986e55ce777a3250c0168cb0d00"
     },
     {
       "path": "v0.9.0-legacy-context-create.txt",
-      "bytes": 28,
-      "sha256": "e11339697fb25d50641b1cacfe9ed3e1f3b215b5620ff49a4bb63378d6c34a78"
+      "bytes": 26,
+      "sha256": "ad02af0a5eb29392e5cd4b93bea0d97460bcbee4a524842cda1706dd764c2f94"
     },
     {
       "path": "v0.9.0-legacy-defrag-field.txt",
-      "bytes": 26,
-      "sha256": "1ad271d27d5686f03a7efac15a86af8889131f7b5b3392d6c357c60d8cdb3cee"
+      "bytes": 24,
+      "sha256": "49b893bf3d82b9bd365cf4aa930c9213026a85014e8752b9156a58a7ba3a6f65"
     },
     {
       "path": "v0.9.0-legacy-model-free.txt",
-      "bytes": 24,
-      "sha256": "fc8ebef93fbfb8d111e24603a1032cb93f6920343322455326c6d28d6ec63969"
+      "bytes": 22,
+      "sha256": "097952d0d846d21823d3e06ec137059422bf40c165364588e17bf3b162249720"
     },
     {
       "path": "v0.9.0-legacy-model-load.txt",
-      "bytes": 24,
-      "sha256": "e52b261faa7b8eb9449356cd128669aa35ac55c0d8d4cf3807e954da34bb912f"
+      "bytes": 22,
+      "sha256": "e5b5b8893dc02e874fb46acf4277a7faf56c01fb98a6bf0245647037a97d2f6d"
     },
     {
       "path": "v0.9.0-legacy-token-count.txt",
-      "bytes": 25,
-      "sha256": "07e2bf2a69057929683519da8c26e7654144d44137955c196b4b9132898402b2"
+      "bytes": 23,
+      "sha256": "1c3dfc541cb429c8bd26bb0b868d3761711814f24d8e6df5da260ad88278d790"
     },
     {
       "path": "v0.9.0-legacy-warmup.txt",
-      "bytes": 20,
-      "sha256": "833f11e2a01b56c9004d46a4a839c0c91ffebe2dfb16683760ce5170e8e2b546"
+      "bytes": 18,
+      "sha256": "d6e3d2fc2085d1d8b91259e8ddb13f0ece6efd95ba155d91a87988700b69c105"
     },
     {
       "path": "v1.0.0-control-current.txt",
-      "bytes": 22,
-      "sha256": "1d74627a8083a85a37b85b8aabbf18478c7bc4f80d32d75463a7f84349240b92"
+      "bytes": 20,
+      "sha256": "4d11c0be2910ac781b129e56a8ce70b13750aafa2375e27268b7dab6b751b242"
     },
     {
       "path": "v1.0.0-current-context-create.txt",
-      "bytes": 29,
-      "sha256": "3f26806a338a22376e9eceb731aed2bf78027e72cf67c449191891b5e01ff451"
+      "bytes": 27,
+      "sha256": "953adca2eb77f8479a6cf61d47fe038179ea74b95eef80f20bffe3e42162b491"
     },
     {
       "path": "v1.0.0-current-model-free.txt",
-      "bytes": 25,
-      "sha256": "ade37c09e514d61a671a400444f77b8801d6afc7b7fcb54b21b15257c4181e3d"
+      "bytes": 23,
+      "sha256": "062e67e2aff29201d1c8c122fb4aa076f1dc468be1590f8bd7ce848b35c42591"
     },
     {
       "path": "v1.0.0-current-model-load.txt",
-      "bytes": 25,
-      "sha256": "55f65099f594f95d8fc097758e35e29a90521269a13261126ff631cb0b58bcde"
+      "bytes": 23,
+      "sha256": "0672362381a528ffd1ba804648cbc0c06a38155050ddeccbfeaad3b8e8a5af06"
     },
     {
       "path": "v1.0.0-current-token-count.txt",
-      "bytes": 26,
-      "sha256": "16b72bcd6ff42545cfe2183a58ce6dcb0d5c650e8d738c60771945f532df0a4e"
+      "bytes": 24,
+      "sha256": "3854e2eff3038ef6371e7ac62b5306e75bddc986e55ce777a3250c0168cb0d00"
     },
     {
       "path": "v1.0.0-legacy-context-create.txt",
-      "bytes": 244,
-      "sha256": "22d56e23b1a4264f0022fa450d58c1304bbff54784d0f7999e4fb4635cfeefa9"
+      "bytes": 236,
+      "sha256": "62b1dba8bd8aaf78254d1013fd3ca288a4d13c9cc868182b05bfdd8ab3c1a2b0"
     },
     {
       "path": "v1.0.0-legacy-defrag-field.txt",
-      "bytes": 429,
-      "sha256": "75d2eb4d0ee7e5d2e78f246824b71f628f24d814ed521c6cd5614953f7bfcc1c"
+      "bytes": 415,
+      "sha256": "4d25198341af767ef162c3951ac9543fdbe9ebb7ec87cb3be5651f4c6c64e196"
     },
     {
       "path": "v1.0.0-legacy-model-free.txt",
-      "bytes": 212,
-      "sha256": "74003bcf033d90c6b31750f6625ca6a375bb16df32a48b7afaac043bf1f5490a"
+      "bytes": 204,
+      "sha256": "cd8eab4c7f9cfcda3a36205e0fbc1f01e1ddae84a10c9ec6ae60d9c9f1adaef0"
     },
     {
       "path": "v1.0.0-legacy-model-load.txt",
-      "bytes": 232,
-      "sha256": "b2a4cd071aa5c618c38e0fb31333713d77e9738cbe9c3acac719972e9e8f3e9e"
+      "bytes": 224,
+      "sha256": "b676efa5974737a47383b7adaed07ef606f8cb1f2b4d3760618619391d1c955c"
     },
     {
       "path": "v1.0.0-legacy-token-count.txt",
-      "bytes": 208,
-      "sha256": "1b23b9ba5d1abe444c7a909bc9f12da2da4647b521331dbd1479a4812a52ca80"
+      "bytes": 200,
+      "sha256": "91813b0744bcef7261826cb959f60b3630e1de451cae65740994a6d239a83c71"
     },
     {
       "path": "v1.0.0-legacy-warmup.txt",
-      "bytes": 204,
-      "sha256": "06208004632a7e4c20771e10e5a54f447c0310316eb9e1193f77a7ca3bde439e"
+      "bytes": 196,
+      "sha256": "9822ec9f4ab27188e4219eaf37bb88150b62551395a89fea62b6e7ae86c5ea8b"
     }
   ]
 }
