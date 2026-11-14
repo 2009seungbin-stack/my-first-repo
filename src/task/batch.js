@@ -21,7 +21,7 @@ export function createBatch({el,def},tool){
  const pct=(a,b)=>a>0?Math.round((1-b/a)*100):0;
  function empty(){
   clearTimeout(debounce);debounce=0;optionsDirty=false;
-  el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small></div>`;
+  el.innerHTML=`<div class="dropzone" data-action="pick"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small></div>`;
  }
  function frame(){
   el.innerHTML=`<div class="work"><section class="viewer" aria-label="${esc(text('compare'))}"><div class="cmp" id="cmp"><img id="cmpBefore" alt="${esc(text('before'))}"><img id="cmpAfter" class="cmp-after" alt="${esc(text('after'))}"><div class="cmp-bar"></div><span class="cmp-tag l">${esc(text('before'))}</span><span class="cmp-tag r">${esc(text('after'))}</span><input id="cmpCut" type="range" min="0" max="100" value="50" aria-label="${esc(text('compare'))}"></div><div class="contents" id="viewerContents" hidden></div><div class="viewer-actions" id="viewerActions"></div><p class="viewer-note" id="viewerNote"></p></section>
@@ -132,7 +132,6 @@ export function createBatch({el,def},tool){
   // Tool-specific buttons (tool.viewerActions) act on the file being viewed and may ask for it to be redone.
   else tool.action?.(a,items[current],{reprocess:it=>{if(!items.includes(it)||it.status==='working')return;it.status='waiting';it.interim=false;render();run();}});
  });
- el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();}});
  function sync(runAgain=true){
   clearTimeout(debounce);debounce=0;const wasDirty=optionsDirty;optionsDirty=false;
   const form=el.querySelector('#taskOptions');if(!form)return false;
