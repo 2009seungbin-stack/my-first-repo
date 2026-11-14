@@ -45,7 +45,7 @@ try:
         file_info=page.locator('#fileInfo').inner_text();file_list=page.locator('#file').evaluate('(e)=>Array.from(e.files,x=>x.name)')
        if '/sfx-generator/' in path:unsaved='Keep this unsaved text';page.locator('#foreign').fill(unsaved)
       page.evaluate('window.__fragmentDocumentMarker=true');before=page.url;skip.focus();page.keyboard.press('Enter')
-      page.wait_for_function('document.activeElement===document.querySelector("main")' if javascript else 'document.activeElement.id==="main"')
+      expect(page.locator('main').first if javascript else page.locator('#main')).to_be_focused()
       assert page.evaluate('window.__fragmentDocumentMarker===true'),'skip reloaded the document'
       assert urlsplit(page.url).path==urlsplit(before).path,(path,before,page.url)
       if javascript:
@@ -59,7 +59,7 @@ try:
       section=('file-tools' if path==home else 'concept' if path.endswith('/atlas-padding/') else None) if args.width>=1000 else None
       if section:
        link=page.locator(f'a[data-local-fragment="{section}"]').first;expect(link).to_be_attached();search=urlsplit(page.url).query
-       link.click();page.wait_for_function('(id)=>location.hash==="#"+id',arg=section)
+       link.click();page.wait_for_url('**#'+section)
        assert page.evaluate('window.__fragmentDocumentMarker===true'),'section link reloaded the document'
        assert urlsplit(page.url).path==urlsplit(before).path and urlsplit(page.url).query==search
        target=page.locator('#'+section);expect(target.locator('summary') if section=='file-tools' else target).to_be_in_viewport()
