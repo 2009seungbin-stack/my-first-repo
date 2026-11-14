@@ -24,7 +24,7 @@ export function brandCopy(value) {
 }
 /** What the site is called besides "Nerulio" (WebSite.alternateName), and the square logo Organization data
  * points at (tools/brand-assets.py draws it from src/logo.js). Used by the portal home and the tool pages. */
-export const SITE_ALTERNATE_NAMES = Object.freeze(['Nerulio Community', 'nerulio.com']);
+export const SITE_ALTERNATE_NAMES = Object.freeze(['nerulio.com']);
 export const LOGO_PATH = 'assets/brand/nerulio-logo-512.png';
 /** WebSite (the site name search engines show: "Nerulio", with the site search) and Organization (name,
  * url, logo) for the page at the site root. `root` ends with "/". */
