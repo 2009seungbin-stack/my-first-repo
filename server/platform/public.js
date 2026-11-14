@@ -21,6 +21,7 @@ import {marketSnapshot} from './hardware-market.js';
 import {matchPlatformRoute,canonicalQuery,renderSitemap,siteOrigin,PAGE_HEADERS} from './pages.js';
 import {editorDescription} from '../../platform/seo.js';
 import {publishedNews} from '../../platform/news.js';
+import {renderIncidentHistory} from '../../platform/render/incident-history.js';
 
 const CLOSED_HEADERS={'cache-control':'no-store','x-robots-tag':'noindex, nofollow','x-content-type-options':'nosniff'};
 /** Closed at the production entry before authentication, body reads or database writes.
@@ -70,10 +71,11 @@ export function renderPublishing(m,l){
 async function reference(db,e,l,origin,now,status=false){
  const facts=(await factsFor(db,[e.id])).get(e.id)||[],name=nameOf(e,l);
  const ctx={db,entity:e,facts,l,now,region:l==='ko'?'KR':'US'},rows=factRows(ctx);
- const events=status?await eventsFor(db,[e.id],{kinds:['incident','other'],from:now-14*864e5,desc:true,limit:20}):[];
+ const events=status?await eventsFor(db,[e.id],{kinds:['incident','other'],from:now-14*864e5,to:now,officialOnly:true,desc:true,limit:20}):[];
  const canonical=origin+channelUrl(l,e)+(status?'status':'');
- return page({l,publicOnly:true,title:`${name} — ${l==='ko'?'정보·출처':'Reference & sources'} | Nerulio`,description:e.descriptions[l]||'',canonical,noindex:e.index_state==='noindex'||!(e.index_state==='index'||editorDescription(e,l)),channels:[],
-  body:html`<div class="narrow"><section class="box pad"><h1>${name}</h1>${e.descriptions[l]?html`<p>${e.descriptions[l]}</p>`:''}<p><a href="/${l}/${e.vertical}/">${l==='ko'?'정보 목록':'Reference directory'} ›</a> · <a href="${channelUrl(l,e)}history">${l==='ko'?'변경 기록':'History'}</a></p>${e.type==='service'?html`<p><a href="${channelUrl(l,e)}status">${l==='ko'?'공식 장애 이력':'Official incident history'}</a></p>`:''}</section>${rows.length?html`<section class="box pad"><h2>${l==='ko'?'확인된 정보':'Reference facts'}</h2><table class="wk"><tbody>${rows}</tbody></table></section>`:''}<section class="box pad"><h2>${l==='ko'?'공식 출처':'Official sources'}</h2>${officialLinks(e.official_urls)}</section>${status?html`<section class="box pad"><h2>${l==='ko'?'최근 수집한 공식 이력':'Recently collected official history'}</h2><p class="fine">${l==='ko'?'수집된 과거 이력이며 현재 정상 작동 여부를 보장하지 않습니다.':'Collected history does not guarantee current availability.'}</p>${events.length?html`<ul>${events.map(ev=>html`<li>${ev.title[l]||ev.title.en}${ev.url?html` <a href="${safeHref(ev.url)}" rel="noopener" target="_blank">${l==='ko'?'출처':'Source'} ↗</a>`:''}</li>`)}</ul>`:html`<p>${l==='ko'?'최근 수집된 공식 이력이 없습니다. 공식 출처에서 현재 상태를 확인하세요.':'No recent official history is available. Check the official source for current status.'}</p>`}</section>`:''}</div>`});
+ const purpose=l==='ko'?'공식 장애 이력':'Official incident history',heading=status?`${name} — ${purpose}`:name;
+ return page({l,publicOnly:true,title:`${name} — ${status?purpose:l==='ko'?'정보·출처':'Reference & sources'} | Nerulio`,description:e.descriptions[l]||'',canonical,noindex:e.index_state==='noindex'||!(e.index_state==='index'||editorDescription(e,l)),channels:[],
+  body:html`<div class="narrow"><section class="box pad"><h1>${heading}</h1>${e.descriptions[l]?html`<p>${e.descriptions[l]}</p>`:''}<p><a href="/${l}/${e.vertical}/">${l==='ko'?'정보 목록':'Reference directory'} ›</a> · <a href="${channelUrl(l,e)}history">${l==='ko'?'변경 기록':'History'}</a></p>${e.type==='service'?html`<p><a href="${channelUrl(l,e)}${status?'':'status'}">${status?(l==='ko'?'서비스 정보·출처':'Service reference & sources'):purpose}</a></p>`:''}</section>${status?renderIncidentHistory(events,l):''}${rows.length?html`<section class="box pad"><h2>${l==='ko'?'확인된 정보':'Reference facts'}</h2><table class="wk"><tbody>${rows}</tbody></table></section>`:''}<section class="box pad"><h2>${l==='ko'?'공식 출처':'Official sources'}</h2>${officialLinks(e.official_urls)}</section></div>`});
 }
 /** Production-only read-only routing. No fallback to the old boards for a recognized platform URL.
  * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,verify?:any}} site */
