@@ -4,6 +4,20 @@ Owner request: repeated rejection for “가치가 별로 없는 콘텐츠”; c
 
 Heartbeat: `nerulio-11-15-10`, current chat, every 30 minutes until that deadline. Preserve the deadline and avoid duplicate automations. Keep the active goal intact.
 
+## Public share-card cleanup — local candidate
+
+Production's shared assets still advertise the retired community/popular-post feature; the WebSite alternate name also remains `Nerulio Community`. This branch points default public-page previews at new `ko-tools-news.png` / `en-tools-news.png` files and removes that retired alternate name. The primary Nerulio name and existing status-card assets remain intact. New image URLs distinguish the current preview from the old cached image URL; this does not purge external social-network caches.
+
+The cards are rendered from the existing HTML/CSS/SUIT/SVG source, with current tools, source-linked news and original measured guides. The generator now supports `--social-only`, installed Playwright Chromium, explicit UTF-8 and both current relative and root font paths. An initial attempt revealed that the old font-path rebasing did not handle `../../assets/`; the final run loads the requested local fonts without error and requires no browser security override. Owned temporary render folders are resolved and checked before cleanup.
+
+Both 1200×630 RGB outputs match the font-ready, visually checked final draft pixels exactly. Both titles fit one line; text bounds and separation from the URL were checked. Nine existing logo/icon/old-card files remain byte-identical. Existing brand/render tests pass **36 cases**, strict TypeScript passes and the **711-page** static date ledger remains current. The local public fixture additionally passes **24 metadata observations / eight exact-image observations / eight native PNG decodes** in both browsers, with no database changes. Static status images are controls, not a claim that the retired crowd-report cards are active public UI. Reports: `retired-community-share-card-baseline.json`, `portal-card-draft-final/layout.json`, `public-share-card-generated-final-qc.json`, `public-share-card-local-current/results.json`, `public-share-card-node.log`, `public-share-card-types.log`, `public-share-card-lastmod.log` under `test-results`. Full CI, frozen preview and production card/metadata checks remain pending.
+
+## Verified sprite grid preservation — 2026-11-14 19:21 UTC
+
+**#123 is deployed and verified** on source **a259e267ff1ded7019008d1d57f6f61609f6f621**, with tested tree **3297460dd25d052b23fa47e78800341ab6988ebb**. Full CI **43628311810**, job **132549075652**, passes in **32m20s**. Both projects are successful and canonical: primary **4eeb429f-337d-4708-bf9f-dbd4731a3554**, legacy **7a6c0312-c64f-4ca2-9071-994ae6fac605**.
+
+The frozen preview and actual production both pass the eight new registered cases in Chromium and Firefox, **16 engine observations** each, with no page errors. The exact committed test function is used; four served critical modules and the build are checked against Git before and after each engine. Remote checks use the focused grid cases without replacing authorization. The complete 90-check part 2 remains an owned local/CI test, including its separate permission-ordering fixture. Production homes retain six news/six analyses, and four sampled retired routes remain 410/no-store/no session cookie. Reports: `grid-focus-preview/results.json`, `grid-focus-production/results.json`, `grid-focus-123-canonical.json`, `grid-focus-123-release-overview.json`.
+
 ## Verified translation navigation — 2026-11-14 18:42 UTC
 
 **#122 is deployed and verified** on source **d72e5584c3a70919ebe67fb0b02fdf3da456d6a7**, identical to tested tree **09a5068f2e587d6ca8c55211b6057bf39f28e395**. Full CI **43624564423**, job **132537424458**, passes in **32m44s**. Both projects are successful and canonical: primary **d45a1ef6-e4b5-4027-8879-feed6c492f40**, legacy **61d2ac90-ba72-4276-98a7-e4c842ae3adf**. The prior #121 main-push CI **43624140187** also passes.
