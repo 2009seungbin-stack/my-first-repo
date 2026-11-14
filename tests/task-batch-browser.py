@@ -34,7 +34,13 @@ try:
             browser=getattr(p,engine).launch();ctx=browser.new_context(accept_downloads=True,viewport={'width':1440,'height':1000});page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
             if args.expected_sha:assert ctx.request.get(BASE+'/build.txt').text().strip()==args.expected_sha
             def load(path='/en/image/resize/'):
-                assert page.goto(BASE+path,wait_until='networkidle').status==200
+                page.evaluate('()=>window.__batchPreviousDocument=true')
+                response=page.goto(BASE+path,wait_until='networkidle')
+                # Firefox exposes the CDN's conditional 304 while loading the cached HTML into
+                # a fresh document. Require that fresh document and its actual tool input too.
+                assert response.status in (200,304),(response.status,page.url)
+                assert not page.evaluate('()=>window.__batchPreviousDocument===true')
+                expect(page.locator('#fileInput')).to_be_attached()
                 page.locator('#fileInput').set_input_files(fixtures[0]);ready(page)
             def download(label,size,fmt=None,selector='#taskDownload'):
                 with page.expect_download() as event:page.locator(selector).click()
