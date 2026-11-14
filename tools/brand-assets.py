@@ -1,23 +1,23 @@
 """Brand files from the Nerulio mark (src/logo.js): favicons, the apple-touch icon, the 512 px logo that
 Organization data points at (src/seo.js LOGO_PATH), and the portal share cards
-(assets/social/<ko|en>-portal.png, 1200x630: the site card of every portal page without its own).
+(assets/social/<ko|en>-tools-news.png, 1200x630: the site card of every public page without its own).
 
     python3 tools/brand-assets.py            (needs Playwright's Chromium and Pillow)
+    python3 tools/brand-assets.py --social-only
 
-The cards are drawn in SUIT (assets/fonts/suit) with the portal's thread line."""
-import asyncio, io, pathlib, subprocess, tempfile
+The cards are drawn in SUIT (assets/fonts/suit) with the portal's branch line."""
+import argparse, asyncio, io, pathlib, subprocess, tempfile
 from PIL import Image
 from playwright.async_api import async_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BRAND = ROOT / 'assets/brand'
-MARK = subprocess.run(['node', '-e', "import('./src/logo.js').then(m=>process.stdout.write(m.faviconSVG()))"], cwd=ROOT, capture_output=True, text=True, check=True).stdout
-FONTS = (ROOT / 'src/platform/fonts.css').read_text().replace('url(/assets/', f'url({ROOT.as_uri()}/assets/')
-CHROMIUM = '/opt/pw-browsers/chromium'
+MARK = subprocess.run(['node', '-e', "import('./src/logo.js').then(m=>process.stdout.write(m.faviconSVG()))"], cwd=ROOT, capture_output=True, text=True, encoding='utf-8', check=True).stdout
+FONTS = (ROOT / 'src/platform/fonts.css').read_text(encoding='utf-8').replace('url(/assets/', f'url({ROOT.as_uri()}/assets/').replace('url(../../assets/', f'url({ROOT.as_uri()}/assets/')
 
 CARD = {
- 'ko': ('AI·게임·PC·창작 도구·애니 커뮤니티', ['AI 서비스 상태와 새 소식', '채널별 인기 글과 념글', '서버에 올리지 않는 파일·게임 도구']),
- 'en': ('Community for AI, games, PC, creator tools and anime', ['AI service status and news', 'Popular posts in every channel', 'File and game tools that never upload']),
+ 'ko': ('게임 에셋·파일 도구와 실측·해설', ['입력·결과·검증 자료를 공개하는 실측·해설', '공식 출처로 연결되는 출시·업데이트 뉴스', '브라우저의 이미지·PDF·게임 에셋 도구']),
+ 'en': ('Game assets, file tools & original tests', ['Original tests with inputs, outputs and verification', 'Release news linked to official sources', 'Image, PDF and game asset tools in your browser']),
 }
 
 def card_html(l):
@@ -37,9 +37,9 @@ li:last-child .e{{border-color:#a9cf45}}
 .bar{{position:absolute;left:0;right:0;bottom:0;height:16px;background:#c6f24e}}
 </style><div class="c"><div class="b">{MARK}<span>nerulio</span></div><h1>{title}</h1><ul>{rows}</ul><span class="u">nerulio.com</span><span class="bar"></span></div>'''
 
-async def main():
+async def main(social_only=False):
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path=CHROMIUM)
+        b = await p.chromium.launch()
         pg = await b.new_page(viewport={'width': 1200, 'height': 630})
         async def mark(size, pad=0, bg='transparent'):
             await pg.set_viewport_size({'width': size, 'height': size})
@@ -47,20 +47,30 @@ async def main():
             svg = MARK.replace('<svg ', f'<svg style="width:{inner}px;height:{inner}px;display:block" ', 1)
             await pg.set_content(f'<html><body style="margin:0;background:{bg}"><div style="width:{size}px;height:{size}px;display:flex;align-items:center;justify-content:center">{svg}</div></body></html>')
             return Image.open(io.BytesIO(await pg.screenshot(omit_background=bg == 'transparent')))
-        for s in (48, 96, 192): (await mark(s)).save(BRAND / f'favicon-{s}.png', optimize=True)
-        (await mark(512)).save(BRAND / 'nerulio-logo-512.png', optimize=True)
-        # iOS rounds the corners itself: a full-bleed lime square with the mark inside.
-        (await mark(180, 14, '#c6f24e')).convert('RGB').save(BRAND / 'apple-touch-icon.png', optimize=True)
-        (await mark(256)).save(BRAND / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
+        if not social_only:
+            for s in (48, 96, 192): (await mark(s)).save(BRAND / f'favicon-{s}.png', optimize=True)
+            (await mark(512)).save(BRAND / 'nerulio-logo-512.png', optimize=True)
+            # iOS rounds the corners itself: a full-bleed lime square with the mark inside.
+            (await mark(180, 14, '#c6f24e')).convert('RGB').save(BRAND / 'apple-touch-icon.png', optimize=True)
+            (await mark(256)).save(BRAND / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
         await pg.set_viewport_size({'width': 1200, 'height': 630})
         for l in CARD:
             # a file page, so the file:// font URLs load (a blank page may not read local files)
-            tmp = pathlib.Path(tempfile.mkdtemp()) / 'card.html'; tmp.write_text(card_html(l))
-            await pg.goto(tmp.as_uri()); await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(300)
-            assert await pg.evaluate("[...document.fonts].some(f=>f.family==='SUIT'&&f.status==='loaded')"), 'SUIT did not load'
-            Image.open(io.BytesIO(await pg.screenshot())).convert('RGB').save(ROOT / f'assets/social/{l}-portal.png', optimize=True)
+            with tempfile.TemporaryDirectory(prefix='nerulio-brand-') as folder:
+                owned = pathlib.Path(folder).resolve()
+                assert owned.parent == pathlib.Path(tempfile.gettempdir()).resolve() and owned.name.startswith('nerulio-brand-')
+                tmp = owned / 'card.html'; tmp.write_text(card_html(l), encoding='utf-8')
+                await pg.goto(tmp.as_uri()); await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(300)
+                assert await pg.evaluate("[...document.fonts].some(f=>f.family==='SUIT'&&f.status==='loaded')"), 'SUIT did not load'
+                assert await pg.evaluate("![...document.fonts].some(f=>f.status==='error')"), 'A requested brand font failed'
+                Image.open(io.BytesIO(await pg.screenshot())).convert('RGB').save(ROOT / f'assets/social/{l}-tools-news.png', optimize=True)
+                await pg.goto('about:blank')
         await b.close()
-    (ROOT / 'favicon.svg').write_text(MARK)
+    if not social_only: (ROOT / 'favicon.svg').write_text(MARK, encoding='utf-8')
     print('ok')
 
-asyncio.run(main())
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--social-only', action='store_true', help='Render share cards without rewriting logos or icons')
+    args = parser.parse_args()
+    asyncio.run(main(social_only=args.social_only))

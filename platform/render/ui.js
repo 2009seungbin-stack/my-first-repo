@@ -162,7 +162,7 @@ export function channelSheet(l){
 export function ogImageUrl(o){
  const origin=new URL(o.canonical).origin;
  if(o.ogImage?.url){const u=new URL(o.ogImage.url,origin);if(u.origin===origin)return u.href;}
- return `${origin}/assets/social/${o.l==='ko'?'ko':'en'}-portal.png`;
+  return `${origin}/assets/social/${o.l==='ko'?'ko':'en'}-tools-news.png`;
 }
 
 /**

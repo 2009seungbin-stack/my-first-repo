@@ -498,7 +498,7 @@ test('share cards: one per service × state × language, 1200×630, and the stat
  assert.equal(statusCardPath('service:claude-code','warn','ko'),null,'other services keep the site card');
  assert.equal(statusCardPath('service:claude','maybe','ko'),null);
  assert.equal(cardLabel('warn','ko'),'리포트 급증');assert.equal(cardLabel('unk','ko'),'지금 안 돼요?','no claim without data');
- assert.equal(ogImageUrl({l:'ko',canonical:'https://nerulio.com/ko/x',ogImage:{url:'https://evil.example/a.png'}}),'https://nerulio.com/assets/social/ko-portal.png','only our own origin');
+ assert.equal(ogImageUrl({l:'ko',canonical:'https://nerulio.com/ko/x',ogImage:{url:'https://evil.example/a.png'}}),'https://nerulio.com/assets/social/ko-tools-news.png','only our own origin');
  const get=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  // Five different networks (signed out) clicked in the last hour: a spike, and the spike card.
  for(let i=0;i<5;i++)await d.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue','service:claude',?,'broken','anon',?,?)").bind(`spike-${i}`,JSON.stringify({who:`net${i}`}),NOW-(i+1)*6e4,NOW-(i+1)*6e4).run();
@@ -506,8 +506,8 @@ test('share cards: one per service × state × language, 1200×630, and the stat
  assert(claude.includes('사용자 리포트 급증'));
  assert(claude.includes('<meta property="og:image" content="https://nerulio.com/assets/social/ko-status-claude-warn.png">')&&claude.includes('<meta property="og:image:alt" content="Claude · 리포트 급증">'),'a spike of reports: the spike card');
  assert((await get('/en/ai/gemini-app/status')).includes('/assets/social/en-status-gemini-app-unk.png'),'no status collector for Gemini: the question card');
- assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-portal.png'));
- assert((await get('/ko/ai/claude/')).includes('/assets/social/ko-portal.png'),'other pages keep the site card');
+ assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-tools-news.png'));
+ assert((await get('/ko/ai/claude/')).includes('/assets/social/ko-tools-news.png'),'other pages keep the site card');
  // The portal home names the site for search engines (not the game asset studio): WebSite + Organization with the logo.
  const home=await get('/'),ld=JSON.parse((home.match(/<script type="application\/ld\+json">(.*?)<\/script>/)||[])[1]||'{}');
  const site=ld['@graph']?.find(x=>x['@type']==='WebSite'),org=ld['@graph']?.find(x=>x['@type']==='Organization');
