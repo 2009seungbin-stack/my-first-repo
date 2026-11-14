@@ -1,0 +1,90 @@
+{
+  "alpha-chart.png": {
+    "bytes": 1121,
+    "sha256": "5662d22270360b64488f6a1d2a331ca5653a4124aeab39f49206c05c599f2574"
+  },
+  "chromium-alpha-chart-100.webp": {
+    "bytes": 3028,
+    "sha256": "1ed245468d71cdafcf6064ea4fe5c34ca54214633fb088260c1a15618e4a1475"
+  },
+  "chromium-alpha-chart-92.jpg": {
+    "bytes": 6466,
+    "sha256": "851fd7397866a42b450bf4c860bcfad9ac4d1e79ed475a0d1f58250c6405429d"
+  },
+  "chromium-alpha-chart-92.png": {
+    "bytes": 4557,
+    "sha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0"
+  },
+  "chromium-alpha-chart-92.webp": {
+    "bytes": 6720,
+    "sha256": "d87245ee5c467b89f31308a990b1c3ddfd6fc3d369eda70b57c139ed44e19bee"
+  },
+  "chromium-opaque-chart-100.webp": {
+    "bytes": 1464,
+    "sha256": "02430b345a6ddd6504f07b8ae13d0d55d4aafd38017fb22b912c0d0caeb1fe22"
+  },
+  "chromium-opaque-chart-92.jpg": {
+    "bytes": 10310,
+    "sha256": "94b547b80ff6e5d0eea703e26b8555931d5d0cdaba98957dfb843aee008a4caa"
+  },
+  "chromium-opaque-chart-92.png": {
+    "bytes": 1237,
+    "sha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228"
+  },
+  "chromium-opaque-chart-92.webp": {
+    "bytes": 8898,
+    "sha256": "026ed6e5b44bf18c5c344ee96d4a55140aed7bbcac3fbb390ff051ffc12b12fe"
+  },
+  "compare_outputs.py": {
+    "bytes": 1619,
+    "sha256": "53a2e9487494dcc1b341cc2942e5e3e75352627b55473d35e8c64a6e182b6896"
+  },
+  "firefox-alpha-chart-100.webp": {
+    "bytes": 3408,
+    "sha256": "738046a424557f64438f9f4bc046178fa5103d2cb7a4110fb0008002a47c7587"
+  },
+  "firefox-alpha-chart-92.jpg": {
+    "bytes": 12419,
+    "sha256": "67567b67a7e05812e183d1dc17aa756118f22eb53c823185aa86a53ec179d2e8"
+  },
+  "firefox-alpha-chart-92.png": {
+    "bytes": 3514,
+    "sha256": "8b117cb404c4b0222de209d415ae7657b166a3f33ce80d3d6c72108d2bb097a2"
+  },
+  "firefox-alpha-chart-92.webp": {
+    "bytes": 6196,
+    "sha256": "1e17da2d7e63905cd4f1c45804a8551aa1d82e5a8f26c25175511424473fb1de"
+  },
+  "firefox-opaque-chart-100.webp": {
+    "bytes": 68,
+    "sha256": "ee4f4b4fa940bff6034ed64d52d9c1952bde63dad2582d52a2879093360ea490"
+  },
+  "firefox-opaque-chart-92.jpg": {
+    "bytes": 21118,
+    "sha256": "411070ec3346a72ebb4325608f932c04d83a0a7b070bdde4b38b157d707548e6"
+  },
+  "firefox-opaque-chart-92.png": {
+    "bytes": 734,
+    "sha256": "649814529d4ef1b0cda675ecb1ccd7f42204be2f27c4875467c039da3c609236"
+  },
+  "firefox-opaque-chart-92.webp": {
+    "bytes": 8422,
+    "sha256": "a8115379320b8f0208d026b6d427242eea5deff71db9732b915ce317bbcc5262"
+  },
+  "generate_fixtures.py": {
+    "bytes": 646,
+    "sha256": "13e1c6d8c866f8300d708bbff2e6fa0d1086ca31492ed789f24772d46a542338"
+  },
+  "measurements.json": {
+    "bytes": 11718,
+    "sha256": "3661894b6f560c9dc007e8a89754e2f965ce655707a960620a6dd424021ea0e0"
+  },
+  "opaque-chart.png": {
+    "bytes": 1115,
+    "sha256": "a9ef292730957d354eec28ecf0da8fa96b9d666639275580f60b82ef7af0d8e5"
+  },
+  "README.md": {
+    "bytes": 3685,
+    "sha256": "9d9ef5745a06211f7be98797e5afb896949b21679423c2190b69fc644e2e2e45"
+  }
+}

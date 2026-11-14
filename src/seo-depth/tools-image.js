@@ -14,29 +14,38 @@ export default {
   type:'tool',
   intent:{primary:'convert an image file to another format (PNG, JPG, WebP)',secondary:['which format for photos, screenshots, logos, pixel art','keep transparency','why the converted file is bigger'],
    goal:'a file in the format the destination accepts, with no avoidable quality or transparency loss',input:'PNG, JPG, WebP, AVIF, BMP or single-photo HEIC (still images)',output:'PNG, JPG or WebP (AVIF only where the browser can encode it), same dimensions',target:'any app or upload form',support:'full',
-   evidence:['src/task/convert.js','src/image.js (decode, background, blobOf)','src/compression.js supportedFormats()','measured 2026-09-28, Chromium 153, tests/fixtures/astronaut.png + tests/fixtures/kenney'],
+   evidence:['src/task/convert.js','src/image.js (decode, background, blobOf)','src/compression.js supportedFormats()','16 native downloads measured 2026-11-14, Chromium 153.0.8010.12 and Firefox 155.0; assets/editorial/2026-11-14-convert-encoding/measurements.json'],
    external:['MDN image file type and format guide']},
   en:{
    answer:'Converting an image means decoding it to pixels and encoding those pixels again in another format — renaming `.png` to `.jpg` does not do that. Nerulio opens PNG, JPG, WebP, AVIF, BMP and single-photo HEIC in your browser and writes PNG, JPG or WebP (AVIF only where the browser can encode it; Chromium 153 cannot). Width and height stay the same; transparency survives in PNG and WebP and is filled with a background colour in JPG. Pick the target by what the picture is: photos → JPG or WebP, screenshots, logos and pixel art → PNG or lossless WebP.',
    concept:{title:'What a format change really changes',body:[
     'Every format stores the same grid of pixels in its own way. PNG is lossless: decoding it gives back exactly the pixels that went in. JPG is lossy — it drops the detail the eye misses most easily — and it has no alpha channel at all. WebP can be either lossy (VP8, colour kept at half resolution) or lossless, and keeps alpha in both. AVIF is lossy or lossless with alpha, but only some browsers can write it.',
     'Quality therefore only ever goes one way. Turning a JPG into a PNG makes the file several times larger and keeps every JPG artefact exactly; going from one lossy format to another (JPG ↔ WebP) re-encodes and loses a little more each time.',
-    'In Nerulio the browser does the encoding. The quality slider (20–100, default 92) drives JPG, WebP and AVIF; PNG ignores it. In Chromium a WebP at quality 100 is written lossless — measured pixel-exact on the files below.'],
+    'In Nerulio the browser does the encoding. The quality slider (20–100, default 92) drives JPG, WebP and AVIF; PNG ignores it. On the two test images below, Chromium 153 and Firefox 155 wrote lossless VP8L at WebP quality 100. That setting is not a universal pixel-preservation promise: compare your downloaded file, especially after a browser update.'],
     terms:[['Lossless','Decoding returns the exact pixels that were encoded (PNG, lossless WebP).'],['Lossy','The encoder discards detail to save bytes; the loss cannot be undone later (JPG, lossy WebP, most AVIF).'],['Alpha channel','Per-pixel opacity. PNG, WebP and AVIF have it; JPG does not.'],['Re-encoding','Decode to pixels, encode again. Every lossy re-encode adds a small new error.']]},
-   example:{title:'One photo, four outputs (measured)',lead:'NASA\'s public-domain astronaut portrait from the repository\'s test fixtures (512 × 512, opaque), converted with Nerulio\'s own code in Chromium 153 on 2026-09-28. SSIM compares the result with the decoded source (1.0 = identical).',lines:[
-    'Source: astronaut.png   791,555 bytes   512 × 512',
-    '',
-    'Output               Bytes      of source   SSIM',
-    'JPG  quality 92      73,755      9.3 %      0.9874',
-    'WebP quality 92      59,824      7.6 %      0.9883',
-    'WebP quality 100    379,076     47.9 %      1.0000 (lossless)',
-    'PNG  re-encoded     575,694     72.7 %      1.0000 (lossless)'],
-    after:'The re-encoded PNG is smaller only because the fixture was saved with weak compression; its pixels are identical. Pixel art turns the ranking around — see [[image/png-to-webp|PNG to WebP]], where the lossless WebP of a sprite sheet is a third of the size of the lossy one.'},
+   example:{
+    "title": "Why quality 100 can be smaller: actual downloads",
+    "lead": "On 2026-11-14 an AI agent used the actual conversion page in Playwright Chromium 153.0.8010.12 and Firefox 155.0. Two original 128 × 96 patterns produced 16 native downloads. This table uses the opaque chart: 12,288 pixels. Pillow independently decoded the files. Changed RGB pixels are compared with each browser’s PNG output, which also matches the opaque input exactly.",
+    "lines": [
+        "Input: opaque-chart.png | 128 × 96 | 12,288 pixels",
+        "",
+        "Browser    Output       Bytes   Changed RGB pixels",
+        "Chromium   PNG           1,237          0",
+        "Chromium   WebP 92       8,898     12,288",
+        "Chromium   WebP 100      1,464          0",
+        "Chromium   JPG 92       10,310     12,288",
+        "Firefox    PNG             734          0",
+        "Firefox    WebP 92       8,422     12,288",
+        "Firefox    WebP 100         68          0",
+        "Firefox    JPG 92       21,118     12,238"
+    ],
+    "after": "The WebP 92 files contain lossy VP8 image data; the 100 files contain lossless VP8L. This regular pattern compresses very well in lossless mode, so higher quality did not mean a larger file. The 68-byte file independently decodes to all 10,240 distinct input colours. This is not a photo-size prediction or proof that one browser always compresses better. The second pattern has four alpha bands: all four WebP outputs kept their PNG baseline alpha, while quality 92 still changed visible RGB. [Download both inputs, all 16 outputs and offline comparison scripts](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/convert-encoding-evidence.zip), [read the method and limits](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/README.md), or [inspect the measurements](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/measurements.json)."
+},
    mapping:{title:'Which target for which picture',head:['Picture','Convert to','Why'],rows:[
     ['Photo from a camera or phone','JPG (widest support) or WebP','Lossy loss is hard to see on continuous tone; see [[image/png-to-jpg|PNG to JPG]]'],
-    ['Screenshot, chart, text','PNG, or WebP at quality 100','Lossy encoders blur letters and add coloured fringes'],
+    ['Screenshot, chart, text','PNG; verify the output if using WebP 100','Lossy encoders blur letters and add coloured fringes'],
     ['Logo or cut-out with transparency','PNG or WebP','JPG has no alpha: transparent areas become the background colour'],
-    ['Pixel art, sprites','PNG, or WebP at quality 100','Lossy WebP changed 8,481 of 16,576 pixels of a Kenney sprite sheet'],
+    ['Pixel art, sprites','PNG; verify the output if using WebP 100','The measured WebP 92 changed every pixel of the opaque test chart'],
     ['AVIF or WebP an app refuses','JPG (photo) or PNG (graphic)','See [[image/avif-to-jpg|AVIF to JPG]] and [[image/webp-to-png|WebP to PNG]]'],
     ['BMP','PNG (lossless) or JPG','[[image/bmp-to-png|BMP to PNG]] kept every pixel and saved 27 %']]},
    verify:{steps:[
@@ -54,29 +63,38 @@ export default {
     ['The app that made the file (camera, phone share sheet, the editor\'s own export)','You need the capture date, GPS or a wide-gamut colour profile kept: Nerulio writes no EXIF, and its JPG/WebP carry an sRGB profile.'],
     ['[[image/compress|Compress to a size]]','The real goal is a smaller file, not a particular extension: it compares PNG, JPG and WebP candidates and keeps the best-looking one under your limit.']]},
    limits:['EXIF (camera, date, GPS) is not written to any output; JPG and WebP from Chromium carry an sRGB colour profile, PNG output carries none.','Animated GIF, APNG and WebP and multi-image HEIC are rejected; SVG input is not supported.','Output formats depend on the browser\'s encoders: PNG, JPG and WebP in Chromium, no AVIF output there.'],
-   versions:{body:['Measured on 2026-09-28 with Nerulio\'s `src/image.js` encoder path in Playwright Chromium 153, on `tests/fixtures/astronaut.png` (public domain) and Kenney\'s CC0 sprite sheet in `tests/fixtures/kenney/`. What each format can store follows the MDN format guide.'],sources:[MDN.en]}
+   versions:{"body":["Measured 2026-11-14 with actual native downloads. The package records browser versions, settings, served code hashes and all downloaded hashes. The inputs and scripts are original CC0 test material; no external photo or user upload is included. An AI agent operated the browsers and compared the files. Human visual review, wide-gamut preservation and all-browser behavior are not claimed. This fixture study does not measure EXIF/GPS, HEIC, animation or repeated saves."],"sources":["[MDN: Image file type and format guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)","[MDN: canvas toBlob quality](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob)","[Google: WebP container specification](https://developers.google.com/speed/webp/docs/riff_container)"]}
   },
   ko:{
    answer:'이미지 변환은 파일을 픽셀로 풀었다가 다른 형식으로 다시 인코딩하는 작업입니다. 확장자만 `.png`에서 `.jpg`로 바꾸는 것과는 다릅니다. Nerulio는 PNG·JPG·WebP·AVIF·BMP·사진 한 장짜리 HEIC를 브라우저에서 열어 PNG·JPG·WebP로 저장합니다(AVIF 저장은 브라우저가 지원할 때만 가능하며 Chromium 153은 지원하지 않습니다). 가로·세로 크기는 그대로이고, 투명 영역은 PNG·WebP에서는 유지되고 JPG에서는 배경색으로 채워집니다. 사진은 JPG나 WebP, 스크린샷·로고·도트 그림은 PNG나 무손실 WebP로 고르세요.',
    concept:{title:'형식을 바꾸면 실제로 무엇이 바뀌나',body:[
     '같은 픽셀 격자라도 형식마다 저장하는 방식이 다릅니다. PNG는 무손실이라 풀면 넣은 픽셀이 그대로 나옵니다. JPG는 눈에 잘 띄지 않는 정보를 버리는 손실 압축이고 알파 채널이 아예 없습니다. WebP는 손실(VP8 기반, 색 정보를 절반 해상도로 저장)과 무손실 두 방식이 있고 둘 다 알파를 유지합니다. AVIF도 손실·무손실과 알파를 지원하지만 저장할 수 있는 브라우저가 제한적입니다.',
     '그래서 화질은 한 방향으로만 움직입니다. JPG를 PNG로 바꾸면 파일은 몇 배 커지지만 JPG에서 생긴 뭉개짐은 그대로 보존됩니다. JPG와 WebP처럼 손실 형식끼리 바꾸면 다시 인코딩하면서 매번 조금씩 더 잃습니다.',
-    'Nerulio에서는 브라우저가 인코딩을 맡습니다. 화질 슬라이더(20~100, 기본 92)는 JPG·WebP·AVIF에만 적용되고 PNG는 무시합니다. Chromium에서는 화질 100의 WebP가 무손실로 저장되며, 아래 파일에서 픽셀 단위로 일치하는 것을 측정했습니다.'],
+    'Nerulio에서는 브라우저가 인코딩을 맡습니다. 화질 슬라이더(20~100, 기본 92)는 JPG·WebP·AVIF에만 적용되고 PNG는 무시합니다. 아래 두 시험 이미지에서는 Chromium 153과 Firefox 155 모두 WebP 화질 100을 무손실 VP8L로 저장했습니다. 이 설정이 모든 입력의 픽셀 보존을 보장하지는 않으므로, 특히 브라우저 업데이트 후에는 내려받은 파일을 비교하세요.'],
     terms:[['무손실','인코딩한 픽셀이 디코딩 후 정확히 그대로 나오는 방식(PNG, 무손실 WebP).'],['손실','용량을 줄이려고 세부 정보를 버리는 방식. 나중에 되돌릴 수 없습니다(JPG, 손실 WebP, 대부분의 AVIF).'],['알파 채널','픽셀별 불투명도. PNG·WebP·AVIF에는 있고 JPG에는 없습니다.'],['재인코딩','픽셀로 풀었다가 다시 저장하는 것. 손실 형식은 할 때마다 오차가 조금씩 더해집니다.']]},
-   example:{title:'사진 한 장을 네 가지로 저장한 결과(실측)',lead:'저장소 테스트 자료에 있는 NASA 공개 도메인 우주비행사 사진(512 × 512, 불투명)을 Nerulio 코드로 2026-09-28 Chromium 153에서 변환했습니다. SSIM은 원본을 디코딩한 픽셀과의 유사도입니다(1.0 = 동일).',lines:[
-    '원본: astronaut.png     791,555 바이트   512 × 512',
-    '',
-    '출력                 바이트     원본 대비   SSIM',
-    'JPG  화질 92          73,755      9.3 %     0.9874',
-    'WebP 화질 92          59,824      7.6 %     0.9883',
-    'WebP 화질 100        379,076     47.9 %     1.0000 (무손실)',
-    'PNG  다시 저장       575,694     72.7 %     1.0000 (무손실)'],
-    after:'다시 저장한 PNG가 작아진 것은 원본 파일의 압축이 약했기 때문이고 픽셀은 똑같습니다. 도트 그림에서는 순위가 뒤집힙니다. [[image/png-to-webp|PNG → WebP]] 페이지에서 스프라이트 시트의 무손실 WebP가 손실 WebP의 3분의 1 크기인 것을 볼 수 있습니다.'},
+   example:{
+    "title": "화질 100이 더 작을 수도 있습니다: 실제 다운로드 비교",
+    "lead": "2026-11-14 AI 에이전트가 Playwright Chromium 153.0.8010.12와 Firefox 155.0에서 실제 변환 페이지를 조작했습니다. 직접 만든 128 × 96 패턴 두 장으로 파일 16개를 내려받았습니다. 아래 표는 불투명 패턴의 12,288픽셀을 비교합니다. Pillow로 독립 디코딩했으며 RGB 변경 수는 각 브라우저의 PNG 출력을 기준으로 셌습니다. 그 PNG는 불투명 원본 픽셀과도 일치합니다.",
+    "lines": [
+        "입력: opaque-chart.png | 128 × 96 | 12,288픽셀",
+        "",
+        "브라우저   출력         바이트   RGB 변경 픽셀",
+        "Chromium   PNG           1,237          0",
+        "Chromium   WebP 92       8,898     12,288",
+        "Chromium   WebP 100      1,464          0",
+        "Chromium   JPG 92       10,310     12,288",
+        "Firefox    PNG             734          0",
+        "Firefox    WebP 92       8,422     12,288",
+        "Firefox    WebP 100         68          0",
+        "Firefox    JPG 92       21,118     12,238"
+    ],
+    "after": "WebP 화질 92에는 손실 VP8, 100에는 무손실 VP8L 이미지 데이터가 들어 있습니다. 규칙적인 패턴은 무손실 압축과 잘 맞아 화질을 올려도 파일이 작아졌습니다. 68바이트 파일도 독립 디코딩 시 원본의 서로 다른 색 10,240개를 모두 복원했습니다. 사진 용량 예측이나 특정 브라우저가 항상 더 잘 압축한다는 뜻은 아닙니다. 알파 값이 네 단계인 두 번째 패턴에서는 WebP 출력 네 개 모두 기준 PNG의 알파 값을 보존했지만 화질 92는 보이는 RGB를 바꿨습니다. [입력 두 장·출력 16개·오프라인 비교 스크립트 받기](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/convert-encoding-evidence.zip), [측정 방법과 한계](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/README.md), [측정 JSON](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/measurements.json)을 공개합니다."
+},
    mapping:{title:'어떤 그림을 어떤 형식으로',head:['그림','바꿀 형식','이유'],rows:[
     ['카메라·휴대폰 사진','JPG(호환성 최고) 또는 WebP','연속된 색조에서는 손실이 잘 보이지 않습니다. [[image/png-to-jpg|PNG → JPG]] 참고'],
-    ['스크린샷·차트·글자','PNG 또는 화질 100 WebP','손실 인코더는 글자를 흐리게 하고 색 번짐을 만듭니다'],
+    ['스크린샷·차트·글자','PNG, WebP 100은 출력 확인 후 사용','손실 인코더는 글자를 흐리게 하고 색 번짐을 만듭니다'],
     ['투명 배경 로고·누끼','PNG 또는 WebP','JPG에는 알파가 없어 투명 부분이 배경색이 됩니다'],
-    ['도트 그림·스프라이트','PNG 또는 화질 100 WebP','손실 WebP는 Kenney 스프라이트 시트 16,576픽셀 중 8,481개를 바꿨습니다'],
+    ['도트 그림·스프라이트','PNG, WebP 100은 출력 확인 후 사용','실측 WebP 92는 불투명 시험 패턴의 모든 픽셀을 바꿨습니다'],
     ['앱이 거부하는 AVIF·WebP','JPG(사진) 또는 PNG(그래픽)','[[image/avif-to-jpg|AVIF → JPG]], [[image/webp-to-png|WebP → PNG]] 참고'],
     ['BMP','PNG(무손실) 또는 JPG','[[image/bmp-to-png|BMP → PNG]]는 모든 픽셀을 유지하고 27% 줄었습니다']]},
    verify:{steps:[
@@ -94,29 +112,38 @@ export default {
     ['파일을 만든 앱(카메라, 휴대폰 공유 메뉴, 편집 프로그램의 내보내기)','촬영 날짜·GPS·넓은 색역 프로필을 유지해야 하는 경우. Nerulio는 EXIF를 쓰지 않고 JPG·WebP에는 sRGB 프로필이 들어갑니다.'],
     ['[[image/compress|용량 맞춰 압축]]','특정 확장자가 아니라 작은 파일이 목적인 경우. PNG·JPG·WebP 후보를 비교해 제한 안에서 가장 원본에 가까운 것을 고릅니다.']]},
    limits:['EXIF(카메라·날짜·GPS)는 어떤 출력에도 기록되지 않습니다. Chromium의 JPG·WebP에는 sRGB 색상 프로필이 들어가고 PNG에는 프로필이 없습니다.','움직이는 GIF·APNG·WebP와 여러 장이 든 HEIC는 거부하며 SVG 입력은 지원하지 않습니다.','저장 형식은 브라우저 인코더에 따라 달라집니다. Chromium에서는 PNG·JPG·WebP이며 AVIF 출력은 없습니다.'],
-   versions:{body:['2026-09-28 Playwright Chromium 153에서 Nerulio의 `src/image.js` 인코딩 경로로 `tests/fixtures/astronaut.png`(공개 도메인)와 `tests/fixtures/kenney/`의 Kenney CC0 스프라이트 시트를 측정했습니다. 형식별로 저장할 수 있는 정보는 MDN 형식 가이드를 따랐습니다.'],sources:[MDN.ko]}
+   versions:{"body":["2026-11-14 실제 변환 파일을 내려받아 측정했습니다. 자료에는 브라우저 버전, 설정, 제공된 코드와 다운로드 파일의 해시가 있습니다. 입력 패턴과 스크립트는 직접 만든 CC0 시험 자료이며 외부 사진·사용자 업로드를 포함하지 않습니다. AI 에이전트가 브라우저 조작과 파일 비교를 수행했습니다. 사람의 육안 검토, 넓은 색역 보존이나 모든 브라우저의 동작을 주장하지 않습니다. 이번 패턴 시험은 EXIF·GPS, HEIC, 애니메이션이나 반복 저장을 측정하지 않습니다."],"sources":["[MDN: 이미지 파일 형식 가이드](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)","[MDN: canvas toBlob quality](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob)","[Google: WebP container specification](https://developers.google.com/speed/webp/docs/riff_container)"]}
   },
   ja:{
    answer:'画像の変換とは、ファイルをいったんピクセルに展開し、別の形式でエンコードし直すことです。拡張子を `.png` から `.jpg` に書き換えるだけでは変換になりません。NerulioはPNG・JPG・WebP・AVIF・BMP・写真1枚のHEICをブラウザ内で開き、PNG・JPG・WebPで保存します（AVIFの書き出しはブラウザが対応する場合のみで、Chromium 153は非対応）。幅と高さはそのままで、透明部分はPNGとWebPでは残り、JPGでは背景色で塗られます。写真ならJPGかWebP、スクリーンショット・ロゴ・ドット絵ならPNGか可逆WebPを選びます。',
    concept:{title:'形式を変えると実際に何が変わるか',body:[
     '同じピクセルの並びでも、形式ごとに保存の仕方が違います。PNGは可逆圧縮で、展開すると入れたピクセルがそのまま戻ります。JPGは目に付きにくい情報を捨てる非可逆圧縮で、アルファチャンネルを持ちません。WebPには非可逆（VP8ベース、色情報を半分の解像度で保持）と可逆の2方式があり、どちらもアルファを保てます。AVIFも非可逆・可逆とアルファに対応しますが、書き出せるブラウザは限られます。',
     'そのため画質は一方向にしか動きません。JPGをPNGにするとファイルは数倍になりますが、JPGで生じたブロックノイズはそのまま残ります。JPGとWebPのような非可逆形式どうしの変換では、エンコードし直すたびに少しずつ劣化します。',
-    'Nerulioではエンコードをブラウザが行います。画質スライダー（20〜100、初期値92）はJPG・WebP・AVIFにだけ効き、PNGには関係しません。Chromiumでは画質100のWebPが可逆で書き出され、下のファイルでピクセル単位の一致を計測しました。'],
+    'Nerulioではエンコードをブラウザが行います。画質スライダー（20〜100、初期値92）はJPG・WebP・AVIFにだけ効き、PNGには関係しません。下の試験画像2枚ではChromium 153とFirefox 155の両方がWebP画質100を可逆のVP8Lで保存しました。ただし全入力のピクセル保持を保証する設定ではないため、特にブラウザ更新後はダウンロードした結果を比較してください。'],
     terms:[['可逆','エンコードしたピクセルが展開後にそのまま戻る方式（PNG、可逆WebP）。'],['非可逆','容量を減らすために細部を捨てる方式。後から元には戻せません（JPG、非可逆WebP、多くのAVIF）。'],['アルファチャンネル','ピクセルごとの不透明度。PNG・WebP・AVIFにはあり、JPGにはありません。'],['再エンコード','展開してから保存し直すこと。非可逆形式では毎回わずかな誤差が加わります。']]},
-   example:{title:'1枚の写真を4通りに保存した結果（実測）',lead:'リポジトリのテスト素材にあるNASAのパブリックドメインの宇宙飛行士写真（512 × 512、不透明）を、Nerulioのコードで2026-09-28にChromium 153で変換しました。SSIMは元画像を展開したピクセルとの類似度です（1.0で同一）。',lines:[
-    '元画像: astronaut.png    791,555 バイト   512 × 512',
-    '',
-    '出力                 バイト     元比       SSIM',
-    'JPG  画質92           73,755      9.3 %     0.9874',
-    'WebP 画質92           59,824      7.6 %     0.9883',
-    'WebP 画質100         379,076     47.9 %     1.0000（可逆）',
-    'PNG  保存し直し      575,694     72.7 %     1.0000（可逆）'],
-    after:'保存し直したPNGが小さくなったのは元ファイルの圧縮が弱かったためで、ピクセルは同一です。ドット絵では順位が逆転します。[[image/png-to-webp|PNG → WebP]]では、スプライトシートの可逆WebPが非可逆WebPの3分の1の大きさになっています。'},
+   example:{
+    "title": "画質100のほうが小さい場合: 実際のダウンロード比較",
+    "lead": "2026-11-14、AIエージェントがPlaywright Chromium 153.0.8010.12とFirefox 155.0で実際の変換ページを操作しました。自作の128 × 96パターン2枚から16ファイルを保存。下表は不透明パターンの12,288ピクセルです。Pillowで独立してデコードし、RGBの変化を各ブラウザのPNG出力と比較しました。そのPNGは不透明な元画像とも完全一致します。",
+    "lines": [
+        "入力: opaque-chart.png | 128 × 96 | 12,288ピクセル",
+        "",
+        "ブラウザ   出力         バイト   RGB変更ピクセル",
+        "Chromium   PNG           1,237          0",
+        "Chromium   WebP 92       8,898     12,288",
+        "Chromium   WebP 100      1,464          0",
+        "Chromium   JPG 92       10,310     12,288",
+        "Firefox    PNG             734          0",
+        "Firefox    WebP 92       8,422     12,288",
+        "Firefox    WebP 100         68          0",
+        "Firefox    JPG 92       21,118     12,238"
+    ],
+    "after": "WebP画質92には非可逆のVP8、100には可逆のVP8L画像データが入っています。この規則的なパターンは可逆圧縮と相性がよく、高画質のほうが小さくなりました。68バイトのファイルも独立したデコードで元の10,240色をすべて復元しています。写真の容量予測でも、特定のブラウザが常に有利という意味でもありません。アルファが4段階の2枚目では、WebP出力4個とも基準PNGのアルファを保持しましたが、画質92は見えるRGBを変更しました。[入力2枚・出力16個・オフライン比較スクリプト](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/convert-encoding-evidence.zip)、[測定方法と限界](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/README.md)、[測定JSON](https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/measurements.json)を公開しています。"
+},
    mapping:{title:'どの画像をどの形式に',head:['画像','変換先','理由'],rows:[
     ['カメラ・スマホの写真','JPG（互換性が最も高い）またはWebP','連続した階調では劣化が目立ちにくい。[[image/png-to-jpg|PNG → JPG]]参照'],
-    ['スクリーンショット・グラフ・文字','PNG、または画質100のWebP','非可逆エンコーダーは文字をぼかし、色のにじみを作ります'],
+    ['スクリーンショット・グラフ・文字','PNG。WebP 100は出力を確認して使用','非可逆エンコーダーは文字をぼかし、色のにじみを作ります'],
     ['透過背景のロゴ・切り抜き','PNGまたはWebP','JPGにはアルファがなく、透明部分が背景色になります'],
-    ['ドット絵・スプライト','PNG、または画質100のWebP','非可逆WebPはKenneyのスプライトシート16,576ピクセル中8,481個を変えました'],
+    ['ドット絵・スプライト','PNG。WebP 100は出力を確認して使用','実測WebP 92は不透明な試験パターンの全ピクセルを変更しました'],
     ['アプリが受け付けないAVIF・WebP','JPG（写真）またはPNG（グラフィック）','[[image/avif-to-jpg|AVIF → JPG]]、[[image/webp-to-png|WebP → PNG]]参照'],
     ['BMP','PNG（可逆）またはJPG','[[image/bmp-to-png|BMP → PNG]]は全ピクセルを保ったまま27%小さくなりました']]},
    verify:{steps:[
@@ -134,7 +161,7 @@ export default {
     ['ファイルを作ったアプリ（カメラ、スマホの共有メニュー、編集ソフトの書き出し）','撮影日時・GPS・広色域プロファイルを残したい場合。NerulioはEXIFを書かず、JPG・WebPにはsRGBプロファイルが入ります。'],
     ['[[image/compress|容量を指定して圧縮]]','特定の拡張子より小さいファイルが目的の場合。PNG・JPG・WebPの候補を比べ、制限内で最も元に近いものを選びます。']]},
    limits:['EXIF（カメラ・日時・GPS）はどの出力にも書き込まれません。ChromiumのJPG・WebPにはsRGBプロファイルが入り、PNGにはプロファイルがありません。','アニメーションGIF・APNG・WebPと複数枚のHEICは拒否し、SVG入力には対応していません。','保存形式はブラウザのエンコーダー次第です。ChromiumではPNG・JPG・WebPで、AVIF出力はありません。'],
-   versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの `src/image.js` のエンコード経路を使い `tests/fixtures/astronaut.png`（パブリックドメイン）と `tests/fixtures/kenney/` のKenney CC0スプライトシートを計測しました。各形式が保存できる情報はMDNの形式ガイドに従っています。'],sources:[MDN.ja]}
+   versions:{"body":["2026-11-14、実際の変換ファイルを保存して測定しました。資料にはブラウザの版、設定、配信コードと全出力のハッシュがあります。入力とスクリプトは自作のCC0試験素材で、外部写真やユーザーのアップロードは含みません。AIエージェントが操作とファイル比較を実施しました。人による目視確認、広色域の保持、全ブラウザの動作は主張しません。このパターン試験ではEXIF・GPS、HEIC、アニメーション、反復保存は測定していません。"],"sources":["[MDN: 画像ファイルの種類と形式ガイド](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)","[MDN: canvas toBlob quality](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob)","[Google: WebP container specification](https://developers.google.com/speed/webp/docs/riff_container)"]}
   }
  },
  'image/png-to-jpg':{
