@@ -228,6 +228,12 @@ export async function ingest(db,doc,opts){
    }else if(!fromSeed&&cur.id!=null&&newDay(cur.observed_at,now)){W(`UPDATE facts SET observed_at=MAX(observed_at,?),snapshot_id=COALESCE(?,snapshot_id) WHERE id=?`,now,snap,cur.id);cur.observed_at=now;}
    continue;
   }
+  // A delayed mirror may confirm an equal version but must not replace a newer or
+  // incomparable current value. This input-only option grants no extra trust.
+  if(cur&&f.only_if_newer===true&&VERSION_PROPERTIES.has(f.p)){
+   const order=compareVersionStrings(f.v,parseJSON(cur.value,null));
+   if(order===null||order<=0){stats.facts.kept++;continue;}
+  }
   if(cur&&fromSeed&&cur.id!=null&&cur.created_by!==SEED_ACTOR){
    // Someone else wrote the current value after the seed. An unchanged seed line must not revert it,
    // and a seed never moves a "newest version" property backwards.
