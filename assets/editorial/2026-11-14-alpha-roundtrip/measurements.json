@@ -1,0 +1,963 @@
+{
+  "schema": "nerulio.alpha-roundtrip/1",
+  "checkedAtUTC": "2026-11-14T11:40:05.851672+00:00",
+  "base": "https://nerulio.com",
+  "sourceCommit": "522f177ee86ada4c3d548f915ef36a5124c6f8b3",
+  "protocolCommit": "83ca3ce879e7e5f9520c8f74bd6cca1afb610a0b",
+  "protocolPath": "tools/editorial/measure-alpha-roundtrip.py",
+  "protocolSha256Utf8LF": "043b0f677cc28caf72695170aa60bea674f151805e71f4e5b1e20a5056fc4f91",
+  "nativeStudySourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+  "nativeStudyJsonSha256": "3661894b6f560c9dc007e8a89754e2f965ce655707a960620a6dd424021ea0e0",
+  "inputs": [
+    {
+      "file": "opaque-chart.png",
+      "bytes": 1115,
+      "sha256": "a9ef292730957d354eec28ecf0da8fa96b9d666639275580f60b82ef7af0d8e5",
+      "rgbaSha256": "6d7a116ae6959980206c6b4c3630c7297034059c28d9b9b43ce45f5eafa23ce4",
+      "width": 128,
+      "height": 96,
+      "origin": "Authored procedural CC0 fixture from the earlier conversion study"
+    },
+    {
+      "file": "alpha-chart.png",
+      "bytes": 1121,
+      "sha256": "5662d22270360b64488f6a1d2a331ca5653a4124aeab39f49206c05c599f2574",
+      "rgbaSha256": "957dc09f59833dba26b68b74da72a35f9ffdcb0fe34bc3b9b729a72704886e7a",
+      "width": 128,
+      "height": 96,
+      "origin": "Authored procedural CC0 fixture from the earlier conversion study"
+    }
+  ],
+  "code": [
+    {
+      "engine": "chromium",
+      "path": "src/image.js",
+      "sha256Utf8LF": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/task/convert.js",
+      "sha256Utf8LF": "0bfa8c1f9d5ba2ce22bb15bc5bc683a3dba205ccbf5e4c0ce45b2a86074e3bc3"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/image-container.js",
+      "sha256Utf8LF": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "engine": "chromium",
+      "path": "src/core.js",
+      "sha256Utf8LF": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/image.js",
+      "sha256Utf8LF": "be1ea450b134f26438d4354d8bac8e5e2c193863f113767357a37f84a1740590"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/task/convert.js",
+      "sha256Utf8LF": "0bfa8c1f9d5ba2ce22bb15bc5bc683a3dba205ccbf5e4c0ce45b2a86074e3bc3"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/image-container.js",
+      "sha256Utf8LF": "1f13f756ce80d296735861ab273cb4f95033f23640f56d171db3c446f4d00645"
+    },
+    {
+      "engine": "firefox",
+      "path": "src/core.js",
+      "sha256Utf8LF": "6222a97c034583dc4d3ce6b2059bd9536d279a0da4bb006e84876047e20a7021"
+    }
+  ],
+  "observations": [
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "opaque-chart.png",
+      "mode": "decoded-read",
+      "file": "chromium-opaque-chart-decoded-read.rgba",
+      "bytes": 49152,
+      "sha256": "6d7a116ae6959980206c6b4c3630c7297034059c28d9b9b43ce45f5eafa23ce4",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      }
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "opaque-chart.png",
+      "mode": "png-control",
+      "file": "chromium-opaque-chart-png-control.png",
+      "bytes": 1237,
+      "sha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/chromium-opaque-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "opaque-chart.png",
+      "mode": "png-observed",
+      "file": "chromium-opaque-chart-png-observed.png",
+      "bytes": 1237,
+      "sha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "observerRead": {
+        "file": "chromium-opaque-chart-observed-read.rgba",
+        "bytes": 49152,
+        "sha256": "6d7a116ae6959980206c6b4c3630c7297034059c28d9b9b43ce45f5eafa23ce4",
+        "rgbaEqual": true
+      },
+      "readObserverEncodedBytesEqual": true,
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/chromium-opaque-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "846f9c7f62ef6f1251b8879e252cfb1cc0098e9c88914906898e95e77f9b0228",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "opaque-chart.png",
+      "mode": "webp-control",
+      "file": "chromium-opaque-chart-webp-control.webp",
+      "bytes": 1464,
+      "sha256": "02430b345a6ddd6504f07b8ae13d0d55d4aafd38017fb22b912c0d0caeb1fe22",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/chromium-opaque-chart-100.webp",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "02430b345a6ddd6504f07b8ae13d0d55d4aafd38017fb22b912c0d0caeb1fe22",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "alpha-chart.png",
+      "mode": "decoded-read",
+      "file": "chromium-alpha-chart-decoded-read.rgba",
+      "bytes": 49152,
+      "sha256": "bdf002d1c94d80e33c1703b189b0770050f2d0779743a46f0dfdde3312011d7f",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2679,
+            "alphaChanged": 0,
+            "maxRgbDelta": 2
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2295,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      }
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "alpha-chart.png",
+      "mode": "png-control",
+      "file": "chromium-alpha-chart-png-control.png",
+      "bytes": 4557,
+      "sha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2679,
+            "alphaChanged": 0,
+            "maxRgbDelta": 2
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2295,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/chromium-alpha-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "alpha-chart.png",
+      "mode": "png-observed",
+      "file": "chromium-alpha-chart-png-observed.png",
+      "bytes": 4557,
+      "sha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2679,
+            "alphaChanged": 0,
+            "maxRgbDelta": 2
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2295,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "observerRead": {
+        "file": "chromium-alpha-chart-observed-read.rgba",
+        "bytes": 49152,
+        "sha256": "bdf002d1c94d80e33c1703b189b0770050f2d0779743a46f0dfdde3312011d7f",
+        "rgbaEqual": true
+      },
+      "readObserverEncodedBytesEqual": true,
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/chromium-alpha-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "59766b60c93d9115152ad242a540a24c7ad108f4c879339fd7d76a6017cbacc0",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "153.0.8010.12",
+      "input": "alpha-chart.png",
+      "mode": "webp-control",
+      "file": "chromium-alpha-chart-webp-control.webp",
+      "bytes": 3028,
+      "sha256": "1ed245468d71cdafcf6064ea4fe5c34ca54214633fb088260c1a15618e4a1475",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2679,
+            "alphaChanged": 0,
+            "maxRgbDelta": 2
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2295,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/chromium-alpha-chart-100.webp",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "1ed245468d71cdafcf6064ea4fe5c34ca54214633fb088260c1a15618e4a1475",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "opaque-chart.png",
+      "mode": "decoded-read",
+      "file": "firefox-opaque-chart-decoded-read.rgba",
+      "bytes": 49152,
+      "sha256": "6d7a116ae6959980206c6b4c3630c7297034059c28d9b9b43ce45f5eafa23ce4",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "opaque-chart.png",
+      "mode": "png-control",
+      "file": "firefox-opaque-chart-png-control.png",
+      "bytes": 734,
+      "sha256": "a25e441217559052e6e0cc7faefda85bef58b416544dbec2aa60a1a2ce03ecac",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/firefox-opaque-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "649814529d4ef1b0cda675ecb1ccd7f42204be2f27c4875467c039da3c609236",
+        "encodedBytesEqual": false,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "opaque-chart.png",
+      "mode": "png-observed",
+      "file": "firefox-opaque-chart-png-observed.png",
+      "bytes": 734,
+      "sha256": "a25e441217559052e6e0cc7faefda85bef58b416544dbec2aa60a1a2ce03ecac",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "observerRead": {
+        "file": "firefox-opaque-chart-observed-read.rgba",
+        "bytes": 49152,
+        "sha256": "6d7a116ae6959980206c6b4c3630c7297034059c28d9b9b43ce45f5eafa23ce4",
+        "rgbaEqual": true
+      },
+      "readObserverEncodedBytesEqual": true,
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/firefox-opaque-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "649814529d4ef1b0cda675ecb1ccd7f42204be2f27c4875467c039da3c609236",
+        "encodedBytesEqual": false,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "opaque-chart.png",
+      "mode": "webp-control",
+      "file": "firefox-opaque-chart-webp-control.webp",
+      "bytes": 68,
+      "sha256": "ee4f4b4fa940bff6034ed64d52d9c1952bde63dad2582d52a2879093360ea490",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 255,
+            "pixels": 12288,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": true
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/firefox-opaque-chart-100.webp",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "ee4f4b4fa940bff6034ed64d52d9c1952bde63dad2582d52a2879093360ea490",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "alpha-chart.png",
+      "mode": "decoded-read",
+      "file": "firefox-alpha-chart-decoded-read.rgba",
+      "bytes": 49152,
+      "sha256": "721e59d67a59fc019c57bdee45250ba93498c6817017bc53ae80beb0ae3d9eb3",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2304,
+            "alphaChanged": 0,
+            "maxRgbDelta": 3
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 1535,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "alpha-chart.png",
+      "mode": "png-control",
+      "file": "firefox-alpha-chart-png-control.png",
+      "bytes": 3514,
+      "sha256": "fa88d175cc5b519f03598ad6a23e75b52f35467a11b0371f6ff053ae1788ac05",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2882,
+            "alphaChanged": 0,
+            "maxRgbDelta": 4
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2691,
+            "alphaChanged": 0,
+            "maxRgbDelta": 2
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2297,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2299,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/firefox-alpha-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "8b117cb404c4b0222de209d415ae7657b166a3f33ce80d3d6c72108d2bb097a2",
+        "encodedBytesEqual": false,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "alpha-chart.png",
+      "mode": "png-observed",
+      "file": "firefox-alpha-chart-png-observed.png",
+      "bytes": 3514,
+      "sha256": "fa88d175cc5b519f03598ad6a23e75b52f35467a11b0371f6ff053ae1788ac05",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2882,
+            "alphaChanged": 0,
+            "maxRgbDelta": 4
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2691,
+            "alphaChanged": 0,
+            "maxRgbDelta": 2
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2297,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2299,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "observerRead": {
+        "file": "firefox-alpha-chart-observed-read.rgba",
+        "bytes": 49152,
+        "sha256": "721e59d67a59fc019c57bdee45250ba93498c6817017bc53ae80beb0ae3d9eb3",
+        "rgbaEqual": true
+      },
+      "readObserverEncodedBytesEqual": true,
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/firefox-alpha-chart-92.png",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "8b117cb404c4b0222de209d415ae7657b166a3f33ce80d3d6c72108d2bb097a2",
+        "encodedBytesEqual": false,
+        "rgbaEqual": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "155.0",
+      "input": "alpha-chart.png",
+      "mode": "webp-control",
+      "file": "firefox-alpha-chart-webp-control.webp",
+      "bytes": 3408,
+      "sha256": "738046a424557f64438f9f4bc046178fa5103d2cb7a4110fb0008002a47c7587",
+      "inputComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 3071,
+            "alphaChanged": 0,
+            "maxRgbDelta": 255
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2882,
+            "alphaChanged": 0,
+            "maxRgbDelta": 4
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2691,
+            "alphaChanged": 0,
+            "maxRgbDelta": 2
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "decodedReadComparison": {
+        "groups": [
+          {
+            "referenceAlpha": 0,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          },
+          {
+            "referenceAlpha": 64,
+            "pixels": 3072,
+            "rgbChanged": 2297,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 128,
+            "pixels": 3072,
+            "rgbChanged": 2299,
+            "alphaChanged": 0,
+            "maxRgbDelta": 1
+          },
+          {
+            "referenceAlpha": 255,
+            "pixels": 3072,
+            "rgbChanged": 0,
+            "alphaChanged": 0,
+            "maxRgbDelta": 0
+          }
+        ],
+        "allRgbaEqual": false
+      },
+      "earlierNativeDownload": {
+        "url": "https://nerulio.com/assets/editorial/2026-11-14-convert-encoding/firefox-alpha-chart-100.webp",
+        "sourceCommit": "8896489d1157171654ae33c98dab4fdc62b6b770",
+        "sha256": "738046a424557f64438f9f4bc046178fa5103d2cb7a4110fb0008002a47c7587",
+        "encodedBytesEqual": true,
+        "rgbaEqual": true
+      }
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Two authored RGBA8 PNGs, direct exported decode/blobOf calls, fresh canvas per case. getImageData is readback, not inspection of internal backing-store samples. The earlier native UI downloads are a distinct study. No human perception, repeated-save, game import, photo, wide-gamut, HDR or 16-bit result is claimed."
+}
