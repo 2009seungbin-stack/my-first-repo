@@ -18,6 +18,32 @@ export function createPanels(W){
  const select=(value,options,{id,label,change})=>{const s=h('select.st-input',{'data-sp':id,'aria-label':label});for(const [v,l]of options)s.append(h('option',{value:v,selected:v===value||null},l));s.addEventListener('change',()=>change(s.value));return s;};
  // ------------------------------------------------------------------ Import
  const imp=h('div.sp-panel.sp-import',{});
+ let importAssetId=null;
+ function replaceImport(kids,assetId){
+  const active=document.activeElement,keep=importAssetId===assetId&&imp.contains(active)&&active.matches('input[data-sp^="grid-"]')?active:null;
+  const freshRoot=keep?h('div',{},...kids):null,fresh=freshRoot?.querySelector(`[data-sp="${CSS.escape(keep.dataset.sp)}"]`);
+  let current=keep,replacement=fresh;
+  while(current&&replacement&&current!==imp&&replacement!==freshRoot&&current.nodeName===replacement.nodeName){current=current.parentNode;replacement=replacement.parentNode;}
+  if(keep&&fresh&&current===imp&&replacement===freshRoot){
+   // Keep the active input and every ancestor connected: removing it can commit
+   // partial text on blur, reset the number-input caret, or lose the next edit.
+   const refresh=(node,next)=>{
+    if(node===keep){
+     for(const attr of [...node.attributes])if(attr.name!=='value'&&!next.hasAttribute(attr.name))node.removeAttribute(attr.name);
+     for(const attr of next.attributes)if(attr.name!=='value'&&node.getAttribute(attr.name)!==attr.value)node.setAttribute(attr.name,attr.value);
+     return;
+    }
+    const branch=[...node.childNodes].find(n=>n.contains(keep)),freshBranch=[...next.childNodes].find(n=>n.contains(fresh));
+    refresh(branch,freshBranch);
+    const children=[...next.childNodes];
+    for(const child of [...node.childNodes])if(child!==branch)child.remove();
+    let after=false;
+    for(const child of children){if(child===freshBranch){after=true;continue;}if(after)node.append(child);else node.insertBefore(child,branch);}
+   };
+   refresh(imp,freshRoot);
+  }else imp.replaceChildren(...kids);
+  importAssetId=assetId;
+ }
  function altLabel(dec,alt){
   if(dec.id==='slice'){if(alt.startsWith('grid:')){const g=W.importState()?.analysis?.grids?.[Number(alt.slice(5))];return g?`${t('sp.imp.grid')} ${gridLabel(g)}`:alt;}return t('sp.alt.'+alt);}
   if(dec.id==='key')return alt==='none'?t('sp.alt.noKey'):t('sp.alt.useKey',{c:alt});
@@ -67,7 +93,12 @@ export function createPanels(W){
  function customEditor(dec,state){
   const g=state.plan.grid,a=W.asset(),fit=dec.fit||{cols:0,rows:0,cells:0,restX:0,restY:0};
   const max={w:a.width,h:a.height,ox:a.width-1,oy:a.height-1,sx:a.width,sy:a.height};
-  const f=k=>numIn(g[k],{min:k==='w'||k==='h'?1:0,max:max[k],id:'grid-'+k,label:t('sp.imp.'+k),change:v=>W.setCustomGrid({[k]:v})});
+  const f=k=>{
+   const input=numIn(g[k],{min:k==='w'||k==='h'?1:0,max:max[k],id:'grid-'+k,label:t('sp.imp.'+k),change:v=>{
+    const value=Math.max(Number(input.min),Math.min(Number(input.max),Math.round(v)));
+    input.value=String(value);return W.setCustomGrid({[k]:value},a.id);
+   }});return input;
+  };
   const row=(label,a1,a2)=>h('div.sp-grid-row',{},h('span.sp-grid-row-label',{},label),field(t('sp.imp.axisX'),a1),field(t('sp.imp.axisY'),a2));
   const bad=!fit.cells;
   return h('div.sp-custom-grid',{'data-sp':'custom-grid'},
@@ -78,7 +109,7 @@ export function createPanels(W){
  }
  function renderImport(){
   const a=W.asset();
-  if(!a){imp.replaceChildren(h('p.st-muted.st-pad',{},t('sp.noAsset')));return;}
+  if(!a){replaceImport([h('p.st-muted.st-pad',{},t('sp.noAsset'))],null);return;}
   const info=a.import,state=W.importState();
   const kids=[];
   if(info?.kind==='sheet'&&!info.applied){
@@ -111,7 +142,7 @@ export function createPanels(W){
     kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.applied',{frames:a.frames.length,tags:a.tags.length})));
    }
   }else if(info)kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.summary',{frames:a.frames.length,tags:a.tags.length,layers:a.layers.length})));
-  imp.replaceChildren(...kids);
+  replaceImport(kids,a.id);
  }
  // ------------------------------------------------------------------ Frame
  const fr=h('div.sp-panel.sp-frame',{});

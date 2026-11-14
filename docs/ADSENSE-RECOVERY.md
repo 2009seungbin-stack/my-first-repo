@@ -4,6 +4,24 @@ Owner request: repeated rejection for “가치가 별로 없는 콘텐츠”; c
 
 Heartbeat: `nerulio-11-15-10`, current chat, every 30 minutes until that deadline. Preserve the deadline and avoid duplicate automations. Keep the active goal intact.
 
+## Verified translation navigation — 2026-11-14 18:42 UTC
+
+**#122 is deployed and verified** on source **d72e5584c3a70919ebe67fb0b02fdf3da456d6a7**, identical to tested tree **09a5068f2e587d6ca8c55211b6057bf39f28e395**. Full CI **43624564423**, job **132537424458**, passes in **32m44s**. Both projects are successful and canonical: primary **d45a1ef6-e4b5-4027-8879-feed6c492f40**, legacy **61d2ac90-ba72-4276-98a7-e4c842ae3adf**. The prior #121 main-push CI **43624140187** also passes.
+
+Actual production passes the 26 keyboard/menu scenarios, including 12 native translation transitions with JavaScript enabled/disabled and 320/390px header checks. A separate audit opens all 12 published translations and performs **24 native keyboard language transitions** without JavaScript across both engines, matching source metadata/citations, exact home/index sets and the AI sitemap. A further 16 article reading views and 48 font-ready heading views pass, with four served-stylesheet/Git comparisons and no page errors or overflow. The actual Korean mobile opening was visually checked. Both homes retain six news items/six original analyses; four sampled retired routes remain 410/no-store/no session cookie. The 52 PDF-study assets are unchanged by this navigation release; its archive proof is recorded under #121, rather than counted as new downloads here.
+
+Reports under `test-results`: `public-language-122-canonical.json`, `public-language-production-navigation.log`, `public-language-published-production/results.json`, `public-language-article-production/results.json`, `public-language-122-release-overview.json`. Earlier local-candidate sections are historical and do not override these release results. Google indexing and AdSense approval remain separate external outcomes.
+
+## Sprite grid pending-input preservation — local candidate
+
+A deterministic replay on frozen source aef674a holds one real cell-analysis message until another grid field contains an uncommitted `0`, then releases the original message unchanged. In both Chromium and Firefox, the old panel replaces that field with `1`, loses focus and ultimately applies spacing `0,1`. This supplies a reproducible failure consistent with the older Firefox CI timeout; the old run itself did not capture the state needed to prove an identical event sequence. Source hashes for four served modules and the build are checked before and after each engine. Baseline: `custom-grid-gated-preview-aef674a/results.json` under `test-results`.
+
+This branch keeps the active custom-grid input and every ancestor connected while refreshing surrounding panel content for the same asset. Typed text and the number-input caret survive the earlier asynchronous edit without a removal-triggered partial commit. Explicit numeric commits show the rounded/clamped value, and each control carries its owning asset ID so a late blur/change cannot edit a different selected image. Other asset/field structures use normal replacement.
+
+The original 50ms rapid-edit regression remains intact. Eight additional registered cases per engine cover node identity, pending text/focus without an early change event, inserting a digit in the middle of a number, 24 exact output source rectangles, one undo step with no partial number, complete redo, clamping/rounding and previous-asset late changes. The asset case uses the normal application selection API and explicitly replays a late change observed during Chromium removal; it is exercised in both engines. These controlled timing/event checks are separate from natural-latency, physical-device and native-picker claims.
+
+Local validation passes the final complete game-landing part 2 in both engines: **45 distinct checks / 90 engine observations**, including the new 16. The related 19 unit tests and strict TypeScript also pass, with no page errors. Reports: `grid-focus-full-part2-final-local/results.json`, `grid-focus-registered-local-late-commit/results.json`, `grid-focus-bound-unit.log`, `grid-focus-bound-types.log`. Full CI, frozen deployed-preview and actual production checks for this source change are pending.
+
 ## Verified study publication — 2026-11-14 18:02 UTC
 
 **#121 is deployed and verified** on source **d52edb438da0727473ef5f9428c685dfff6c9abe**, with the tested tree **c0fcab2aa6736f5ee318545b8f66758c789fe222**. Full CI **43621487711**, job **132527952212**, passes in **28m56s**. Both projects are successful and canonical on that source: primary **8c8b40f8-5424-440c-a730-5685650c673b**, legacy **cae04480-d720-42fa-8a3d-0c4774b2e80d**. Both homepages now expose six source-linked news items and six original analysis topics; the six topics have 12 published Korean/English translations.
