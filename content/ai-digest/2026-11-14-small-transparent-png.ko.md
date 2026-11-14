@@ -1,13 +1,14 @@
 ---
 title: "작은 투명 PNG는 왜 더 커질까? 로고와 픽셀 타일셋 12회 실측"
 date: 2026-11-14
+updated: 2026-11-15
 summary: "5KB대 로고와 타일셋을 Nerulio 압축기로 비교했습니다. WebP가 더 커지는 경우, 원본 유지가 필요한 이유, 1KB 목표가 실패하는 조건을 원본·결과·설정과 함께 공개합니다."
 status: published
 sources:
   - title: "이 글의 실제 측정 기록: 입력·출력 해시, 브라우저, 설정, 모든 후보"
     url: "https://nerulio.com/assets/editorial/2026-11-14-png/measurements.json"
-  - title: "재현 스크립트와 압축 엔진 소스"
-    url: "https://github.com/2009seungbin-stack/my-first-repo/blob/main/tools/editorial/measure-compression.py"
+  - title: "고정 재현 스크립트: 새 실행 결과를 별도 폴더에 저장하는 리비전"
+    url: "https://github.com/2009seungbin-stack/my-first-repo/blob/7df482dc9b3689512f1e4638769e03ac53207fef/tools/editorial/measure-compression.py"
   - title: "MDN: Canvas toBlob의 형식과 품질 매개변수"
     url: "https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob"
   - title: "Kenney Tiny Dungeon 원본 에셋"
@@ -65,6 +66,8 @@ MDN이 설명하는 Canvas 품질 매개변수는 JPEG나 WebP 같은 손실 압
 3. 픽셀 타일셋이나 스프라이트 시트는 처음에는 최대 너비와 축소 허용을 비워 두세요. 시트 크기를 바꾸면 프레임·타일 좌표도 다시 확인해야 합니다.
 4. 목표 용량을 정했다면 결과가 목표를 달성했는지와 출력 해상도를 별도로 확인하세요. 목표를 입력했다고 달성이 보장되지는 않습니다.
 
-로컬에서 다시 측정하려면 저장소 루트에서 `python tools/editorial/measure-compression.py`를 실행하세요. 브라우저 테스트와 같은 Python Playwright 설치가 필요합니다. [전체 JSON 기록](/assets/editorial/2026-11-14-png/measurements.json)에 원본과 결과의 SHA-256, 모든 설정과 후보가 들어 있습니다. 기록의 `elapsedMs`는 한 번 실행한 진단값이므로 속도 순위에 사용하지 마세요.
+로컬에서 다시 측정하려면 고정 재현 소스 `7df482d`를 체크아웃한 저장소 루트에서 `python tools/editorial/measure-compression.py`를 실행하세요. 이 리비전은 측정 후 공개 파일을 덮어쓰지 않도록 출력 경로를 수정한 버전이며, 새 결과를 `test-results/editorial-compression/`에 저장합니다. 브라우저 테스트와 같은 Python Playwright 설치가 필요합니다.
+
+[전체 JSON 기록](/assets/editorial/2026-11-14-png/measurements.json)에 원본과 결과의 SHA-256, 모든 설정과 후보가 들어 있습니다. `encoderCommit`은 `src/compression.js`의 마지막 커밋을 기록합니다. 이 JSON에는 당시 전체 작업 트리의 상태 기록은 없습니다. `elapsedMs`는 한 번 실행한 진단값이므로 속도 순위에 사용하지 마세요.
 
 이 두 입력에서의 판단은 간단합니다. 이미 작은 투명 PNG를 더 작게 만들겠다는 이유만으로 형식을 바꾸지 말고, 원본과 실제 출력의 용량·해상도·투명도를 함께 비교하세요. 실측이 더 작은 결과를 보여 주지 않으면 원본을 유지하는 편이 낫습니다.

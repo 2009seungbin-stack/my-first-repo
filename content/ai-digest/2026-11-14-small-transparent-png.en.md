@@ -1,13 +1,14 @@
 ---
 title: "Why a small transparent PNG can get larger: 12 logo and pixel-sheet tests"
 date: 2026-11-14
+updated: 2026-11-15
 summary: "Two PNG assets of about 5KB became larger as WebP. Reproduce the test with our inputs, outputs and settings, and see why retaining the original or refusing a 1KB target can be the useful result."
 status: published
 sources:
   - title: "Actual measurement record: hashes, browser, settings and encoder candidates"
     url: "https://nerulio.com/assets/editorial/2026-11-14-png/measurements.json"
-  - title: "Reproduction script and compression engine source"
-    url: "https://github.com/2009seungbin-stack/my-first-repo/blob/main/tools/editorial/measure-compression.py"
+  - title: "Pinned reproduction script: revision that saves new runs separately"
+    url: "https://github.com/2009seungbin-stack/my-first-repo/blob/7df482dc9b3689512f1e4638769e03ac53207fef/tools/editorial/measure-compression.py"
   - title: "MDN: Canvas toBlob format and quality parameters"
     url: "https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob"
   - title: "Kenney Tiny Dungeon original asset pack"
@@ -65,6 +66,8 @@ Open the [shrunken logo](/assets/editorial/2026-11-14-png/logo-target-1k-shrink.
 3. Leave maximum width and shrinking disabled initially for pixel tile sheets and sprite sheets. Changed dimensions require another check of tile and frame coordinates.
 4. Check target attainment and output dimensions separately. Entering a target does not guarantee the encoder can meet it.
 
-To reproduce the run, execute `python tools/editorial/measure-compression.py` from the repository root with the same Python Playwright setup used by the browser tests. The [full JSON record](/assets/editorial/2026-11-14-png/measurements.json) includes SHA-256 hashes, settings and every candidate. Its single-run `elapsedMs` values are diagnostic data, not a speed ranking.
+For a new run, check out the pinned reproduction source `7df482d` and execute `python tools/editorial/measure-compression.py` from its repository root. This revision changes the output path after the measurement so a new run saves under `test-results/editorial-compression/` without overwriting the published files. It requires the same Python Playwright setup used by the browser tests.
+
+The [full JSON record](/assets/editorial/2026-11-14-png/measurements.json) includes SHA-256 hashes, settings and every candidate. Its `encoderCommit` records the last commit affecting `src/compression.js`; the JSON does not record the full working-tree state at measurement time. Single-run `elapsedMs` values are diagnostic data, not a speed ranking.
 
 For these two inputs, changing format solely to make an already small transparent PNG smaller was unhelpful. Compare actual bytes, dimensions and transparency. Retain the original when the measured result offers no size benefit.
