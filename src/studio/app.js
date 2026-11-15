@@ -273,8 +273,14 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  /** A built-in sample (core/samples.js): encoded as a PNG here and imported exactly like a dropped
   * file. Sheets arrive already cut into their frames (one undo step), so the timeline, the packer
   * and the tile tools have something to work with at once. */
+ let sampleBusy=false;
  async function loadSample(id){
-  const def=sampleById(id);if(!def)return [];
+  const def=sampleById(id);if(!def||sampleBusy)return [];
+  // one at a time: a double click on a sample card must not import the picture twice
+  sampleBusy=true;try{return await importSample(def);}finally{sampleBusy=false;}
+ }
+ async function importSample(def){
+  const id=def.id;
   // A first sample picked from the Viewer opens where it shows best (walk cycle → Sprite timeline…);
   // with images already open, or in any other workspace, the Studio stays where the user is.
   const home=currentWs==='viewer'&&!doc().assets.length&&workspaces.get(def.workspace)?.status==='ready'?def.workspace:null;
@@ -558,7 +564,9 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   const seen=new Set(),top=[];for(const s of list){if(!s.assets||seen.has(s.projectId))continue;seen.add(s.projectId);top.push(s);if(top.length>=3)break;}
   recentBox.hidden=!top.length;
   recentBox.replaceChildren(...(top.length?[h('h2.st-empty-sub',{},t('recent.title')),...top.map(s=>{
-   const b=h('button.st-recent-row',{type:'button','aria-label':t('recent.open',{name:s.name}),title:t('recent.open',{name:s.name})},h('b',{},s.name),h('small',{},t('recent.meta',{assets:s.assets,frames:s.frames,time:snapshotTime(s.at)})));
+   // the accessible name keeps the counts and the time: several "Untitled" projects differ only there
+   const meta=t('recent.meta',{assets:s.assets,frames:s.frames,time:snapshotTime(s.at)});
+   const b=h('button.st-recent-row',{type:'button','aria-label':`${t('recent.open',{name:s.name})} — ${meta}`,title:t('recent.open',{name:s.name})},h('b',{},s.name),h('small',{},meta));
    b.addEventListener('click',()=>restoreSnapshot(s.key));return b;
   }),h('button.st-link.st-recent-all',{type:'button',onclick:()=>runCommand('file.versions')},t('cmd.file.versions'))]:[]));
  }
