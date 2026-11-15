@@ -604,3 +604,4 @@ html:has(body.game-home){background:#131518}
 .batch-progress{display:flex;align-items:center;gap:10px;margin-top:10px}.batch-progress .progress-bar{flex:1;margin:0}.batch-progress small{font-size:12px;font-weight:700;color:#51607a;font-variant-numeric:tabular-nums;white-space:nowrap}
 @media(prefers-reduced-motion:reduce){.batch-progress .progress-bar span{transition:none}}
 .dropzone-actions button{min-height:44px}
+.file-main:focus-visible,.file .icon:focus-visible,.side.is-batch .chip:focus-visible,.side.is-batch .dashed:focus-visible,.side.is-batch .link:focus-visible,.side.is-batch .primary:focus-visible,.dropzone button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.side.is-batch .primary:focus-visible,.dropzone .primary:focus-visible{outline-color:var(--ink)}

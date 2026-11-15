@@ -31,7 +31,10 @@ export function createBatch({el,def},tool){
  const pct=(a,b)=>a>0?Math.round((1-b/a)*100):0;
  function empty(){
   clearTimeout(debounce);debounce=0;optionsDirty=false;
+  // Rebuilding the workspace must not strand keyboard focus on <body>: it goes to the picker button.
+  const hadFocus=el.contains(document.activeElement);
   el.innerHTML=`<div class="dropzone" data-action="pick"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${def.kinds.includes('image')&&canPasteButton()?`<button type="button" class="ghost" data-action="paste-clipboard">${esc(text('clipboard.paste'))}</button>`:''}${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small>${keysHint(['open','paste'])}</div>`;
+  if(hadFocus)el.querySelector('.dropzone .primary')?.focus({preventScroll:true});
  }
  function frame(){
   el.innerHTML=`<div class="work"><section class="viewer" aria-label="${esc(text('compare'))}"><div class="cmp" id="cmp"><img id="cmpBefore" alt="${esc(text('before'))}"><img id="cmpAfter" class="cmp-after" alt="${esc(text('after'))}"><div class="cmp-bar"></div><span class="cmp-tag l">${esc(text('before'))}</span><span class="cmp-tag r">${esc(text('after'))}</span><input id="cmpCut" type="range" min="0" max="100" value="50" aria-label="${esc(text('compare'))}"></div><div class="contents" id="viewerContents" hidden></div><div class="viewer-actions" id="viewerActions"></div><p class="viewer-note" id="viewerNote"></p></section>
@@ -43,10 +46,14 @@ export function createBatch({el,def},tool){
  }
  function renderList(){
   const host=el.querySelector('#taskFiles');if(!host)return;
+  // The rows are rebuilt on every progress tick; the control that had keyboard focus gets it back
+  // (after a removal: the same button on the row that moved up, else the last row).
+  const active=host.contains(document.activeElement)?document.activeElement:null,focused=active&&{action:active.dataset.action,index:Number(active.dataset.index)};
   host.innerHTML=items.map((it,i)=>{
    const r=it.result,complete=it.status==='done'&&!optionsDirty,custom=complete&&tool.pill?.(it),state=optionsDirty?`<em class="pill">${esc(text('calculating'))}</em>`:complete?(custom?`<em class="pill good">${esc(custom)}</em>`:`<em class="pill ${r.blob.size<it.file.size?'good':''}">${r.blob.size<it.file.size?'−'+pct(it.file.size,r.blob.size)+'%':'='}</em>`):it.status==='error'?`<em class="pill bad">${esc(text('failed'))}</em>`:`<em class="pill">${esc(it.status==='working'?(it.progress||text('working')):text('waiting'))}</em>`;
    return `<div class="file ${i===current?'is-current':''}" data-index="${i}"><button type="button" class="file-main" data-action="task-select" data-index="${i}"><img ${it.thumb||it.thumbBroken?`src="${it.thumbBroken&&it.resultURL?it.resultURL:it.thumb}"`:''} data-thumb="${i}" alt=""><span><b>${esc(it.file.name)}</b><small>${complete?esc(tool.detail?.(it)??text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)})):it.status==='error'&&!optionsDirty?esc(it.error):esc(bytes(it.file.size))}</small></span>${state}</button>${usable(it)?`<button type="button" class="icon" data-action="task-save" data-index="${i}" title="${esc(text('saveOne'))}" aria-label="${esc(text('saveOne'))}">↓</button>`:''}<button type="button" class="icon" data-action="task-remove" data-index="${i}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`;
   }).join('');
+  if(focused)(host.querySelector(`[data-action="${focused.action}"][data-index="${focused.index}"]`)||host.querySelector(`.file[data-index="${Math.min(focused.index,items.length-1)}"] .file-main`))?.focus({preventScroll:true});
  }
  function renderSummary(){
   const box=el.querySelector('#taskSummary'),button=el.querySelector('#taskDownload');if(!box)return;
@@ -115,10 +122,14 @@ export function createBatch({el,def},tool){
   sync();
   // One Free-plan job per batch that is added; option changes re-run without charging again.
   if(!await authorize(page.id,options))return;
-  if(!items.length)frame();
+  const first=!items.length,hadFocus=first&&el.contains(document.activeElement);
+  if(first)frame();
   for(const file of files){const url=tool.thumb?'':URL.createObjectURL(file),it={id:++seq,file,status:'waiting',thumb:url,thumbFull:url};items.push(it);
    if(tool.thumb)tool.thumb(file).then(u=>{if(!items.includes(it)){URL.revokeObjectURL(u);return;}it.thumb=it.thumbFull=u;render();}).catch(()=>{});}
-  track('tool_run',{intent:page.id});render();run();
+  track('tool_run',{intent:page.id});render();
+  // The drop zone (and its focused button) is gone: continue from the first file row.
+  if(hadFocus)el.querySelector('.file-main')?.focus({preventScroll:true});
+  run();
  }
  function remove(index){
   const changed=sync(false);
