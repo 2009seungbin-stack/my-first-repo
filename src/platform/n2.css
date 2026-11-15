@@ -1219,3 +1219,13 @@ body.n2{background:var(--page)}
 .wfmt .fc{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
 @media (pointer:coarse){.wfmt button{min-width:44px;height:44px}.wform label.wtool{height:44px}}
 @media (max-width:640px){.imgpick:not([hidden])+.wfmt{margin-left:0;padding-left:0;border-left:0}}
+
+/* Post lists: compact rows when the reader chose them on a board (theme.js applies it before the first paint). */
+.sb .dens{height:30px;padding:0 10px;gap:6px;align-items:center;border:1px solid var(--btn-line);border-radius:var(--radius-md);background:var(--card);color:var(--mute);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.sb .dens:not([hidden]){display:inline-flex}
+.sb .dens[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
+[data-density="compact"] .plist .pr{min-height:28px;padding-top:1px;padding-bottom:1px;font-size:13px}
+[data-density="compact"] .plist .pr .rtags{display:none}
+@media (max-width:1000px){[data-density="compact"] .plist .pr{padding-top:4px;padding-bottom:4px;row-gap:1px}}
+@media (max-width:640px){.sb .dens span{display:none}}
+@media (pointer:coarse){.sb .dens{min-width:44px;height:44px;justify-content:center}[data-density="compact"] .plist .pr{min-height:44px}}
