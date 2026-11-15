@@ -248,3 +248,8 @@ a.gl-pager-step:hover{border-color:#4cc2ff80;background:#1d2127}
  .gl-pager-step.is-empty{display:none}
  .gl-pager:has(.is-empty) a:is(.is-prev,.is-next){grid-column:1/-1}
 }
+
+/* ---------------------------------------------------------------- dragging files over the page: say where a drop takes them */
+.gh-dropover{display:grid;place-items:center;padding:24px}
+.gh-dropover span{display:flex;align-items:center;gap:14px;max-width:min(560px,100%);padding:18px 24px;font-size:18px;font-weight:750;line-height:1.4;color:var(--gs-head);background:var(--gs-panel);border:1px solid var(--gs-accent);border-radius:16px;box-shadow:0 0 0 6px var(--gs-accent-soft),0 30px 80px -20px #000}
+.gh-dropover svg{flex:none}

@@ -84,9 +84,14 @@ function header(locale,prefix,{hub=false}={}){
   links:[{href:`${prefix}${GAME_HUB_PATH}/`,label:UI.allGame[locale],attrs:hub?{'aria-current':'page'}:{}},...(GUIDES.length?[{href:`${prefix}${GUIDE_INDEX_PATH}/`,label:DESIGN_UI.guides[locale]}]:[]),{href:prefix,label:UI.allTools[locale]}],
   studio:{href:`${prefix}${STUDIO_ROUTE}/`,label:UI.studio[locale],attrs:{'data-studio-link':true}}});
 }
-function shell({locale,base,title,description,headHTML,body,shotKey}){
+/** What the full-page overlay says while files are dragged over a page: where a drop takes them. */
+export const DROP_HINT={
+ studio:{en:'Drop to open the files in the Studio',ko:'놓으면 Studio에서 열립니다',ja:'ドロップするとStudioで開きます'},
+ lab:{en:'Drop to open the files in the tool',ko:'놓으면 도구에서 열립니다',ja:'ドロップするとツールで開きます'}
+};
+function shell({locale,base,title,description,headHTML,body,shotKey,target='studio'}){
  return `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0f1114"><meta name="description" content="${esc(description)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><base href="${base}"><title>${esc(title)}</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="src/game-site.css"><link rel="stylesheet" href="src/game-landing.css">${SHOTS[shotKey]?`<link rel="preload" as="image" href="assets/studio/${SHOTS[shotKey].file}-780.webp" media="(max-width: 820px)" fetchpriority="high">`:''}<script type="module" src="src/game-landing.js"></script>${headHTML}
-</head><body class="game-landing" data-gs>${body}<div class="gh-dropover" aria-hidden="true"></div><input id="glFiles" type="file" multiple hidden></body></html>`;
+</head><body class="game-landing" data-gs>${body}<div class="gh-dropover" aria-hidden="true"><span>${dropIcon}${esc((DROP_HINT[target]||DROP_HINT.studio)[locale])}</span></div><input id="glFiles" type="file" multiple hidden></body></html>`;
 }
 const footerHTML=(locale,prefix)=>`<div class="gs-footgrid gl-foot">${footerBrand({locale,prefix})}${footer(locale)}</div>`;
 function shot(key,locale,{priority=false}={}){
@@ -173,7 +178,7 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const ids=list=>list.map(([id,label])=>[id,label]);
  const items=[...ids(lead),['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...ids(afterHow),...(table?[['settings',c.table.title]]:[]),...ids(afterTable),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],...ids(scope),['limits',UI.limits[locale]],...ids(versions),['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
  const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${html(scope)}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}${pager(key,locale,prefix)}</div></div></main>${footerHTML(locale,prefix)}`;
- return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
+ return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot,target:targetOf(game).type});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
 export const gameFaq=(game,locale)=>game.kind==='hub'?COMMON_FAQ.map(x=>x[locale]):[...game.page.copy[locale].faq,...COMMON_FAQ.map(x=>x[locale])];

@@ -49,3 +49,17 @@ test('the pager is chrome: it does not change the dated content of a page',()=>{
  assert.notEqual(without,html);
  assert.equal(contentHash(html),contentHash(without));
 });
+test('the drag overlay says where a drop goes: the Studio, or the tool on a Lab page',async()=>{
+ const {DROP_HINT,targetOf,gameHubPage}=await import('../tools/game-landing-build.mjs');
+ const seen=new Set();
+ for(const key of all){
+  const game=gamePageFor(routeOf(key)),type=targetOf(game).type;seen.add(type);
+  for(const locale of ['en','ko','ja']){
+   const html=gameLandingPage({game,locale,prefix:locale+'/',base:'/',headHTML:''});
+   const text=html.match(/<div class="gh-dropover" aria-hidden="true"><span><svg[\s\S]*?<\/svg>([^<]+)<\/span><\/div>/)?.[1];
+   assert.equal(text,DROP_HINT[type][locale],`${locale} ${key}`);
+  }
+ }
+ assert.deepEqual([...seen].sort(),['lab','studio'],'both kinds of page exist');
+ for(const locale of ['en','ko','ja'])assert.ok(gameHubPage({locale,prefix:locale+'/',base:'/',headHTML:''}).includes(DROP_HINT.studio[locale]));
+});
