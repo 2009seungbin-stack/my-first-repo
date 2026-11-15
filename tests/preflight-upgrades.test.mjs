@@ -136,3 +136,23 @@ test('preflight report rows carry column labels for the stacked mobile layout',a
  const css=await (await import('node:fs/promises')).readFile(new URL('../src/preflight/preflight.css',import.meta.url),'utf8');
  assert.ok(css.includes('td[data-label]::before{content:attr(data-label)'));
 });
+
+test('exported report opens with a scorecard and action list, localized and escaped',async()=>{
+ const {exportCompatibilityReport,REPORT_CSS}=await import('../src/preflight/core/report.js');
+ const result=await sample({version:'34.0'});
+ result.components[0].component.name='<b>x</b>';
+ const css=await (await import('node:fs/promises')).readFile(new URL('../src/preflight/preflight.css',import.meta.url),'utf8');
+ for(const rule of REPORT_CSS.split('}').filter(Boolean)){const [selectors,body]=rule.split('{');
+  assert.ok(css.includes(selectors.split(',').map(x=>'.pf-print-full '+x).join(',')+'{'+body+'}'),'print css is in sync: '+rule);}
+ for(const [locale,i] of [['ko',0],['en',1],['ja',2]]){
+  const html=exportCompatibilityReport(result,locale);
+  assert.ok(html.includes('SAMPLE DATA'));assert.ok(!html.includes('<b>x</b>'));assert.ok(!html.includes('<script'));
+  assert.ok(html.indexOf('class="pfr-card"')<html.indexOf('<table>'),'scorecard precedes the table');
+  assert.ok(html.includes('<strong>'+result.overallVerdict+'</strong>'+MESSAGES['verdict.'+result.overallVerdict][i].replace(/&/g,'&amp;')));
+  const tiles=html.slice(html.indexOf('class="pfr-tiles"'),html.indexOf('</div></div>',html.indexOf('class="pfr-tiles"')));
+  for(const [s,n] of Object.entries(result.counts))assert.equal(tiles.includes('<strong>'+n+'</strong><span>'+MESSAGES['status.'+s][i]+'</span>'),n>0,s);
+  assert.equal(html.split('<tbody>')[1].split('</tbody>')[0].split('<tr>').length-1,result.components.length,'one table row per component');
+  assert.equal(html.split('class="pfr-actions"')[1].split('</ol>')[0].split('<li>').length-1,result.recommendations.length);
+  assert.ok(html.includes(result.generatedAt));
+ }
+});
