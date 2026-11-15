@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
-import {policyContent,policyAnchor,policies,POLICY_ROUTES,COMMUNITY_PRIVACY_NOTE,toolFamilyCounts,aboutFamilies} from '../src/policies.js';
+import {policyContent,policyAnchor,policies,POLICY_ROUTES,COMMUNITY_PRIVACY_NOTE,toolFamilyCounts,aboutFamilies,reportTemplate,REPORT_COPY,ISSUES_URL} from '../src/policies.js';
 import {INTENTS} from '../src/intents.js';
 import {LOCALES} from '../src/i18n.js';
 
@@ -72,5 +72,23 @@ test('About lists each tool family with the catalogue count and a route that is 
   }
   assert(policyContent('about',locale).includes(html),'rendered on About');
   for(const page of ['privacy','terms','contact'])assert(!policyContent(page,locale).includes('about-families'),page);
+ }
+});
+
+test('Contact keeps the single public channel and offers a report outline in every language',()=>{
+ for(const locale of LOCALES){
+  const html=policyContent('contact',locale),copy=REPORT_COPY[locale];
+  assert.equal(html.split(`href="${ISSUES_URL}"`).length-1,1,'one issue link, no other channel');
+  assert(!/mailto:|tel:/.test(html),'no invented address');
+  assert(html.includes(`<button type="button" class="policy-print" data-report-copy hidden>${copy.copy}</button>`));
+  const blank=reportTemplate(locale);
+  assert(html.includes(`<pre class="contact-template" data-report-text>${blank}</pre>`),'outline is readable without script');
+  assert.equal(blank.split('\n').length,9);
+  for(const label of [...copy.fields,copy.steps,copy.reminder])assert(blank.includes(label),`${locale}: ${label}`);
+  const filled=reportTemplate(locale,{url:'https://example.test/en/image/resize/',browser:'TestBrowser/1.0'}).split('\n');
+  assert.equal(filled[0],`${copy.fields[0]}: https://example.test/en/image/resize/`);
+  assert.equal(filled[1],`${copy.fields[1]}: TestBrowser/1.0`);
+  assert.equal(filled[2],`${copy.fields[2]}:`);
+  for(const page of ['about','privacy','terms'])assert(!policyContent(page,locale).includes('contact-template'),page);
  }
 });

@@ -33,3 +33,9 @@
 @media(max-width:900px){.about-families ul{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:420px){.about-families ul{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.policy-main .about-families li a{transition:none}}
 @media print{.about-families ul{display:block;padding-left:18px;list-style:disc}.policy-main .about-families li a{display:block;padding:0;border:0;min-height:0}.about-families li a span{margin-left:6px}}
+/* Contact: issue link, copyable report outline. */
+.contact-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0 10px}.contact-actions .policy-print{margin-top:0}
+.policy-main .contact-issue{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:10px;background:#2466bc;color:#fff;font-weight:700;text-decoration:none}.policy-main .contact-issue:hover{background:#1c549d}
+.contact-status{min-height:24px;margin:0 0 4px;font-size:13px;font-weight:650;color:#1f6b45}.policy-main .contact-template-title{font-size:16px;margin:14px 0 8px}
+.contact-template{margin:0;padding:14px 18px;border:1px solid #dfe5ed;border-radius:10px;background:#fff;color:#2c3a4f;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+@media print{.contact-actions .policy-print,.contact-status{display:none}}

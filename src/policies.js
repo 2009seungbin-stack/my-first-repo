@@ -153,6 +153,22 @@ export function aboutFamilies(locale){
  const cards=Object.keys(FAMILY_ROUTES).filter(family=>counts[family]).map(family=>`<li><a href="${locale}/${FAMILY_ROUTES[family]}"><strong>${esc(copy[family][0])}</strong><span class="about-family-count">${esc(copy.count(counts[family]))}</span><span>${esc(copy[family][1])}</span><span class="about-family-go">${esc(copy[family][2])} →</span></a></li>`).join('');
  return `<nav class="about-families" aria-label="${esc(copy.heading)}"><h2>${esc(copy.heading)}</h2><ul>${cards}</ul><p>${esc(copy.note)}</p></nav>`;
 }
+/** Contact page: a report outline that mirrors the "What to include" section. */
+export const REPORT_COPY={
+ en:{heading:'Report template',copy:'Copy report template',copied:'Copied. Paste it into a new issue.',failed:'Copy failed. Select the text below and copy it.',fields:['Tool URL','Browser and version','Expected result','Actual result'],steps:'Steps to reproduce',reminder:'Do not post personal files, passwords or confidential documents.'},
+ ko:{heading:'제보 양식',copy:'제보 양식 복사',copied:'복사했습니다. 새 이슈에 붙여 넣으세요.',failed:'복사하지 못했습니다. 아래 내용을 선택해 복사하세요.',fields:['도구 URL','브라우저와 버전','기대한 결과','실제 결과'],steps:'재현 순서',reminder:'개인 파일·비밀번호·기밀 문서는 올리지 마세요.'},
+ ja:{heading:'報告テンプレート',copy:'報告テンプレートをコピー',copied:'コピーしました。新しいIssueに貼り付けてください。',failed:'コピーできませんでした。下のテキストを選択してコピーしてください。',fields:['ツールのURL','ブラウザとバージョン','期待した結果','実際の結果'],steps:'再現手順',reminder:'個人ファイル・パスワード・機密文書は投稿しないでください。'}
+};
+/** Plain-text issue outline; the page fills url and browser on this device only when copying.
+ * @param {string} locale @param {{url?:string,browser?:string}} [known] */
+export function reportTemplate(locale,known={}){
+ const c=REPORT_COPY[locale],values=[known.url||'',known.browser||'','',''];
+ return c.fields.map((label,i)=>`${label}: ${values[i]}`.trimEnd()).join('\n')+`\n${c.steps}:\n1.\n2.\n\n${c.reminder}`;
+}
+function contactActions(locale){
+ const c=REPORT_COPY[locale];
+ return `<div class="contact-actions"><a class="contact-issue" href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a><button type="button" class="policy-print" data-report-copy hidden>${esc(c.copy)}</button></div><p class="contact-status" role="status"></p><h2 class="contact-template-title">${esc(c.heading)}</h2><pre class="contact-template" data-report-text>${esc(reportTemplate(locale))}</pre>`;
+}
 /** Reading aids on policy pages: contents heading, print control, back-to-top link. */
 const POLICY_UI={en:['On this page','Print or save as PDF','Back to top'],ko:['이 페이지의 내용','인쇄 또는 PDF로 저장','맨 위로'],ja:['このページの内容','印刷またはPDFで保存','ページの先頭へ']};
 /** In-page anchor of the nth rendered section (1-based) of a policy page. @param {number} n */
@@ -171,6 +187,6 @@ export function policyContent(page,locale,ads=false,service=/** @type {boolean|'
  const all=[...main,...community];
  const section=([h,p,cls],i)=>`<section${cls}><h2 id="${policyAnchor(i+1)}" tabindex="-1">${esc(h)}</h2><p>${esc(p)}</p></section>`;
  const toc=`<nav class="policy-toc" aria-label="${esc(ui[0])}"><h2>${esc(ui[0])}</h2><ol>${all.map(([h],i)=>`<li><a data-policy-anchor href="${self}#${policyAnchor(i+1)}">${esc(h)}</a></li>`).join('')}</ol><button type="button" class="policy-print" data-policy-print hidden>${esc(ui[1])}</button></nav>`;
- return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1 id="policy-top" tabindex="-1">${esc(l[page])}</h1>${closedNotice}${toc}${page==='about'?aboutFamilies(locale):''}${main.map(section).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${community.map((item,i)=>section(item,main.length+i)).join('')}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}<p class="policy-top"><a data-policy-anchor href="${self}#policy-top">↑ ${esc(ui[2])}</a></p>`;
+ return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1 id="policy-top" tabindex="-1">${esc(l[page])}</h1>${closedNotice}${toc}${page==='about'?aboutFamilies(locale):''}${main.map(section).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${community.map((item,i)=>section(item,main.length+i)).join('')}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?contactActions(locale):''}<p class="policy-top"><a data-policy-anchor href="${self}#policy-top">↑ ${esc(ui[2])}</a></p>`;
 }
 export {footer};
