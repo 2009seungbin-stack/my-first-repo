@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {rankTools,finderScore,finderWords,finderMove,finderMarks,readToolPrefs,pushRecent,TOOL_PREF_KEY,RECENT_MAX} from '../src/task/home-finder.js';
+import {rankTools,finderScore,finderWords,finderMove,finderMarks,readToolPrefs,pushRecent,knownTool,TOOL_PREF_KEY,RECENT_MAX} from '../src/task/home-finder.js';
 import {homePage} from '../tools/task-build.mjs';
 import {INTENTS} from '../src/intents.js';
 import {SEARCH_TERMS} from '../src/search-terms.js';
@@ -101,4 +101,12 @@ test('home page carries the Studio workspace links the finder lists first',()=>{
  const studio={studio:true,title:'Open the Tile workspace',search:'open the tile workspace tile studio',group:'Studio'},lab={title:'Tile Lab',search:'tile lab',group:'Tile'};
  assert.deepEqual(rankTools('',[studio,lab]),[studio,lab],'the Studio opens the overview');
  assert.deepEqual(rankTools('studio',[lab,studio]),[studio]);
+});
+test('stored ids that only look like tools are dropped: inherited keys, the home itself, non-strings',()=>{
+ const known=knownTool(INTENTS);
+ assert(known('pdf-merge'));
+ for(const id of ['constructor','toString','__proto__','hasOwnProperty','valueOf','home','',7,null,'<img src=x onerror=alert(1)>'])assert(!known(id),String(id));
+ const raw=JSON.stringify({favorites:['constructor','tile-lab','__proto__','home'],recent:['toString','pdf-merge','valueOf']});
+ assert.deepEqual(readToolPrefs(raw,known),{favorites:['tile-lab'],recent:['pdf-merge']});
+ assert(readFileSync(new URL('../src/task/home.js',import.meta.url),'utf8').includes('const isTool=knownTool(INTENTS);'),'the home uses it');
 });

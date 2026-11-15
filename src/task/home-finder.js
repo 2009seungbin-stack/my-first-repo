@@ -35,6 +35,8 @@ export function finderMove(active,count,key){
  * fileforge.tools.v1), which holds tool ids only. `known` filters out ids that no longer exist. */
 export const TOOL_PREF_KEY='fileforge.tools.v1';
 export const RECENT_MAX=3;
+/** `known` for a tool map: own keys only, so a stored "constructor" or "toString" is not a tool. */
+export const knownTool=map=>id=>typeof id==='string'&&id!=='home'&&Object.hasOwn(map,id);
 const list=(v,known)=>Array.isArray(v)?[...new Set(v.filter(id=>typeof id==='string'&&known(id)))]:[];
 export function readToolPrefs(raw,known=()=>true){
  let p={};try{p=JSON.parse(raw||'{}')||{};}catch{/* unreadable: start empty */}

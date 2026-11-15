@@ -5,7 +5,7 @@ import {SUGGEST,kindOf} from './registry.js';
 import {text,toast,continueWith,onLocale,toolURL,pagePrefix,locale} from './shell.js';
 import {stashFiles} from './handoff.js';
 import {preflightDirectory} from '../preflight/directory.js';
-import {rankTools,finderMove,finderWords,finderMarks,readToolPrefs,pushRecent,TOOL_PREF_KEY} from './home-finder.js';
+import {rankTools,finderMove,finderWords,finderMarks,readToolPrefs,pushRecent,knownTool,TOOL_PREF_KEY} from './home-finder.js';
 /** Home: the directory is server-rendered (tools/task-build.mjs) so it works without
  * JavaScript; this adds search, localisation on language switch and "drop a file, get the
  * right tools". Returns the intake function for dropped / picked / pasted files. */
@@ -44,7 +44,7 @@ function filter(){
 }
 /** Favourites and the three most recent tools, from the local preference the tool kit already keeps
  * (tool ids only, never file names or contents). Opening a tool from this page adds it to "recent". */
-const isTool=id=>!!INTENTS[id]&&id!=='home';
+const isTool=knownTool(INTENTS);
 function toolPrefs(){try{return readToolPrefs(localStorage.getItem(TOOL_PREF_KEY),isTool);}catch{return {favorites:[],recent:[]};}}
 function remember(id){if(!isTool(id))return;try{localStorage.setItem(TOOL_PREF_KEY,JSON.stringify(pushRecent(localStorage.getItem(TOOL_PREF_KEY),id)));}catch{/* storage blocked: nothing to remember */}}
 function renderRecent(){
