@@ -2,7 +2,7 @@ import {bytes,stem,zip} from '../core.js';
 import {BRAND} from '../brand.js';
 import {INTENTS} from '../intents.js';
 import {t} from '../i18n.js';
-import {text,toast,download,authorize,track,onLocale,continueWith,toolURL,page,keyLabel} from './shell.js';
+import {text,toast,download,authorize,track,onLocale,continueWith,toolURL,page,keyLabel,canPasteButton} from './shell.js';
 import {sizeDelta,copyable,batchProgress} from './keys.js';
 /** Workspace for "many files in → the same transform → many files out" tools (compress,
  * convert, resize…). Files process automatically as they arrive, one at a time to bound
@@ -31,7 +31,7 @@ export function createBatch({el,def},tool){
  const pct=(a,b)=>a>0?Math.round((1-b/a)*100):0;
  function empty(){
   clearTimeout(debounce);debounce=0;optionsDirty=false;
-  el.innerHTML=`<div class="dropzone" data-action="pick"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small>${keysHint(['open','paste'])}</div>`;
+  el.innerHTML=`<div class="dropzone" data-action="pick"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${def.kinds.includes('image')&&canPasteButton()?`<button type="button" class="ghost" data-action="paste-clipboard">${esc(text('clipboard.paste'))}</button>`:''}${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small>${keysHint(['open','paste'])}</div>`;
  }
  function frame(){
   el.innerHTML=`<div class="work"><section class="viewer" aria-label="${esc(text('compare'))}"><div class="cmp" id="cmp"><img id="cmpBefore" alt="${esc(text('before'))}"><img id="cmpAfter" class="cmp-after" alt="${esc(text('after'))}"><div class="cmp-bar"></div><span class="cmp-tag l">${esc(text('before'))}</span><span class="cmp-tag r">${esc(text('after'))}</span><input id="cmpCut" type="range" min="0" max="100" value="50" aria-label="${esc(text('compare'))}"></div><div class="contents" id="viewerContents" hidden></div><div class="viewer-actions" id="viewerActions"></div><p class="viewer-note" id="viewerNote"></p></section>

@@ -603,3 +603,4 @@ html:has(body.game-home){background:#131518}
 .side .copy-result{width:100%;min-height:44px;margin-top:-4px}.copy-result:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .batch-progress{display:flex;align-items:center;gap:10px;margin-top:10px}.batch-progress .progress-bar{flex:1;margin:0}.batch-progress small{font-size:12px;font-weight:700;color:#51607a;font-variant-numeric:tabular-nums;white-space:nowrap}
 @media(prefers-reduced-motion:reduce){.batch-progress .progress-bar span{transition:none}}
+.dropzone-actions button{min-height:44px}

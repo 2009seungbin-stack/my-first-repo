@@ -27,3 +27,13 @@ export function batchProgress(items){
  const total=items.length,finished=items.filter(i=>i.status==='done'||i.status==='error').length;
  return {total,finished,percent:total?Math.round(finished/total*100):0,active:total>1&&finished<total};
 }
+/** Pictures on the clipboard (navigator.clipboard.read() items) as named Files; other content is ignored. */
+export async function clipboardFiles(items,{now=Date.now()}={}){
+ const files=[];
+ for(const item of items||[]){
+  const type=(item.types||[]).find(t=>/^image\/(png|jpeg|webp|gif|avif|bmp)$/.test(t));if(!type)continue;
+  const blob=await item.getType(type),ext=type.split('/')[1].replace('jpeg','jpg');
+  files.push(new File([blob],`clipboard${files.length?'-'+(files.length+1):''}.${ext}`,{type,lastModified:now}));
+ }
+ return files;
+}
