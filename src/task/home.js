@@ -59,7 +59,10 @@ function renderRecent(){
  * what the page links to, in the current language. */
 let found=[],active=-1;
 function finderEntries(){
- return [...document.querySelectorAll('#directory .tool-card')].map(a=>{const g=a.closest('.gh-group');
+ // the Studio workspaces first (the workflow links on this page), then every card of the directory
+ const studio=[...document.querySelectorAll('a[data-studio-ws]')].map(a=>{const ws=a.dataset.studioWs,title=a.textContent.trim(),desc=text(`gh.ws.${ws}.1`),group=text('gh.studioLink');
+  return {id:'',studio:true,title,desc,href:a.href,search:[title,desc,text(`gh.ws.${ws}.0`),group,'studio',ws].join(' ').toLowerCase(),group};});
+ return [...studio,...document.querySelectorAll('#directory .tool-card')].map(a=>{if(a.studio)return a;const g=a.closest('.gh-group');
   return {id:a.dataset.tool||'',title:a.querySelector('b').textContent,desc:a.querySelector('small').textContent,href:a.href,search:a.dataset.search||'',group:g?.dataset.group==='more'?text('cat.game'):g?.querySelector('h3')?.textContent.trim()||''};});
 }
 function setActive(i,scroll=true){
@@ -74,7 +77,7 @@ function renderFinder(){
   found=[...mine,...found.filter(e=>!mine.some(m=>m.id===e.id))];
  }
  $('#finderList').innerHTML=found.map((e,i)=>`<li role="presentation"><a role="option" id="finderOpt${i}" aria-selected="false" tabindex="-1" data-finder-tool="${esc(e.id)}" href="${esc(e.href)}"><span><b>${finderMarks(e.title,words).map(([part,hit])=>hit?`<mark>${esc(part)}</mark>`:esc(part)).join('')}</b><small>${esc(e.desc)}</small></span><em>${esc(e.group)}</em></a></li>`).join('');
- $('#finderStatus').textContent=!query.trim()?text('gh.find.each',{n:all.length}):found.length?text('gh.find.count',{n:found.length}):text('noResult');
+ $('#finderStatus').textContent=!query.trim()?text('gh.find.each',{n:all.filter(e=>!e.studio).length}):found.length?text('gh.find.count',{n:found.length}):text('noResult');
  $('#finderList').scrollTop=0;setActive(found.length?0:-1,false);
 }
 function openFinder(){

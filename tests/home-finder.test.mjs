@@ -90,3 +90,15 @@ test('finder: the typed words are marked in a title, case-insensitively, without
  for(const locale of ['ko','en','ja'])for(const e of entries(locale))assert.equal(finderMarks(e.title,finderWords(e.title.slice(0,3))).map(p=>p[0]).join(''),e.title);
  assert.deepEqual(finderMarks('PDF 합치기',finderWords('합치기 pdf')),[['PDF',true],[' ',false],['합치기',true]]);
 });
+test('home page carries the Studio workspace links the finder lists first',()=>{
+ for(const locale of ['ko','en','ja']){
+  const html=homePage({locale,prefix:locale+'/',base:'/',headHTML:'',contentHTML:''});
+  for(const ws of ['sprite','pack','tile','pixel']){
+   assert(html.includes(`data-studio-ws="${ws}" href="${locale}/game/studio/?ws=${ws}"`),`${locale} ${ws}`);
+   assert(ui(locale,`gh.ws.${ws}.1`)!==`gh.ws.${ws}.1`,`${locale} ${ws} description`);
+  }
+ }
+ const studio={studio:true,title:'Open the Tile workspace',search:'open the tile workspace tile studio',group:'Studio'},lab={title:'Tile Lab',search:'tile lab',group:'Tile'};
+ assert.deepEqual(rankTools('',[studio,lab]),[studio,lab],'the Studio opens the overview');
+ assert.deepEqual(rankTools('studio',[lab,studio]),[studio]);
+});
