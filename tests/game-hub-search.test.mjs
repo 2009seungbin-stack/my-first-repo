@@ -26,9 +26,26 @@ test('chips: any term matches, unknown chips filter nothing',()=>{
  for(const c of HUB_CHIPS){
   assert.match(c.id,/^[a-z]+$/);
   for(const l of ['en','ko','ja'])assert.ok(c.label[l],`${c.id} label ${l}`);
-  for(const w of c.terms)assert.equal(w,fold(w),`${c.id}: term "${w}" must be folded text`);
+  for(const w of [...c.terms,...(c.not||[])])assert.equal(w,fold(w),`${c.id}: term "${w}" must be folded text`);
  }
  assert.equal(new Set(HUB_CHIPS.map(c=>c.id)).size,HUB_CHIPS.length);
+});
+test('chips: a term inside another word or name does not count',()=>{
+ // TexturePacker is an atlas format, not a texture page.
+ const packer=cardText('TexturePacker to Godot 4','Open a TexturePacker JSON atlas and its PNG','game/texturepacker-to-godot');
+ assert.ok(!matchesChip(packer,chipById('texture')));
+ assert.ok(matchesChip(packer,chipById('godot')));
+ assert.ok(matchesChip(cardText('Seamless texture checker','','game/seamless-tile-checker'),chipById('texture')));
+ assert.ok(matchesChip(cardText('Normal map for a TexturePacker atlas','','x'),chipById('texture')),'another term still matches');
+ // "tiled" as an adjective is not the Tiled editor.
+ assert.ok(!matchesChip(fold('check the wrap test, see it tiled 3×3'),chipById('tiled')));
+ assert.ok(matchesChip(fold('Exports for Godot and Tiled'),chipById('tiled')));
+ // 스타일 / スタイル (style) and a lone 타일 / タイル are not a tileset page.
+ assert.ok(!matchesChip(fold('픽셀 아트 스타일 변환'),chipById('tile')));
+ assert.ok(!matchesChip(fold('ドット絵スタイルに変換'),chipById('tile')));
+ assert.ok(!matchesChip(fold('任意サイズで引き伸ばし・タイルのプレビュー'),chipById('tile')));
+ assert.ok(matchesChip(fold('오토타일 47개 생성'),chipById('tile')));
+ assert.ok(matchesChip(fold('オートタイルを作る'),chipById('tile')));
 });
 test('filterCards: query and chip combine',()=>{
  const texts=[cardText('Godot tileset','','a'),cardText('Unity tileset','','b'),cardText('Godot sprite sheet','','c')];
