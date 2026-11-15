@@ -25,7 +25,7 @@ function graph(){const canvas=$('#wave'),g=canvas.getContext('2d'),w=canvas.widt
  const zoom=top>1e-4?Math.min(16,Math.max(1,.95/top)):1,y=v=>h/2-Math.max(-1.1,Math.min(1.1,v*zoom))*h*.43;g.strokeStyle='#77e6ce';g.lineWidth=1;g.beginPath();for(let x=0;x<w;x++){g.moveTo(x,y(his[x]));g.lineTo(x,y(los[x]));}g.stroke();
  const font=Math.round(12*Math.min(3.2,Math.max(1,w/(canvas.clientWidth||w))));g.font=font+'px system-ui,sans-serif';g.textBaseline='top';
  g.textAlign='right';let labelRight=w-8;if(zoom>1.05){const text='×'+zoom.toFixed(1);g.fillStyle='#b8d2df';g.fillText(text,labelRight,6);labelRight-=g.measureText(text).width+font;}
- const index=sound.layers[selectedLayer]?selectedLayer:0,x=sound.layers[index];if(!legacy&&x){const seconds=left.length/rendered.rate;g.strokeStyle='#d9bcff';g.lineWidth=2;g.setLineDash([6,5]);g.beginPath();for(let px=0;px<w;px++){let t=px/w*seconds-x.start;if(t>=0&&x.repeatHz)t%=1/x.repeatHz;const yy=h/2-envelopeAt(t,x)*.95*h*.43;px?g.lineTo(px,yy):g.moveTo(px,yy);}g.stroke();g.setLineDash([]);g.fillStyle='#d9bcff';g.fillText(`${c.layer} ${index+1} · ADSR`,labelRight,6);}
+ const index=sound.layers[selectedLayer]?selectedLayer:0,x=sound.layers[index];if(!legacy&&x){const seconds=left.length/rendered.rate,span=x.attack+x.decay+x.hold+x.release;g.strokeStyle='#d9bcff';g.lineWidth=2;g.setLineDash([6,5]);g.beginPath();for(let px=0;px<w;px++){let t=px/w*seconds-x.start;const live=t>=0&&t<=span;if(live&&x.repeatHz)t%=1/x.repeatHz;const yy=h/2-(live?envelopeAt(t,x):0)*.95*h*.43;px?g.lineTo(px,yy):g.moveTo(px,yy);}g.stroke();g.setLineDash([]);g.fillStyle='#d9bcff';g.fillText(`${c.layer} ${index+1} · ADSR`,labelRight,6);}
  waveImage=g.getImageData(0,0,w,h);}
 let waveImage=null,spectrum=null,playStart=0,playFrame=0;
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -43,7 +43,8 @@ function schedule(){revision++;rendered=null;status(c.processing);clearTimeout(t
 async function ensureRender(){clearTimeout(timer);for(let tries=0;tries<3&&!rendered;tries++)await redraw();if(!rendered)throw Error('Sound is not ready');}
 const AUTOPLAY_KEY='nerulio-sfx-autoplay-v1';
 function markPreset(){document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===activePreset)));}
-async function play(){try{await ensureRender();source?.stop();ctx||=new AudioContext();await ctx.resume();const b=ctx.createBuffer(2,rendered.left.length,rendered.rate);b.copyToChannel(rendered.left,0);b.copyToChannel(rendered.right,1);const node=ctx.createBufferSource();node.buffer=b;node.connect(ctx.destination);node.onended=()=>{if(source===node)source=null;};source=node;playStart=ctx.currentTime;node.start();playhead();}catch(e){status(e.message,true);}}
+let playSeq=0;
+async function play(){const mine=++playSeq;try{await ensureRender();if(mine!==playSeq)return;source?.stop();ctx||=new AudioContext();await ctx.resume();const b=ctx.createBuffer(2,rendered.left.length,rendered.rate);b.copyToChannel(rendered.left,0);b.copyToChannel(rendered.right,1);const node=ctx.createBufferSource();node.buffer=b;node.connect(ctx.destination);node.onended=()=>{if(source===node)source=null;};source=node;playStart=ctx.currentTime;node.start();playhead();}catch(e){if(mine===playSeq)status(e.message,true);}}
 function stop(){source?.stop();source=null;}
 function auto(){if($('#autoplay').checked)play();}
 function selectPreset(name){push();activePreset=name;sound=preset(name,Math.floor(Math.random()*4294967295));legacy='';syncControls();markPreset();schedule();auto();}
