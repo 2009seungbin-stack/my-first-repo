@@ -1222,3 +1222,5 @@ body.n2{background:var(--page)}
 .ih-b{display:flex;align-items:center;justify-content:center;width:100%;height:30px;border:1px dashed var(--line);border-radius:var(--radius-sm);font:700 12px/1 'JetBrains Mono',ui-monospace,monospace;color:var(--card)}
 .ih-d.on .ih-b{border:1px solid var(--ink2);background:var(--ink2)}
 .ih-n{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+/* Bracket (platform/render/bracket.js): finger-sized buttons on touch screens */
+@media (pointer:coarse){.bk-actions .btn,.bk-tools .btn{height:44px}}
