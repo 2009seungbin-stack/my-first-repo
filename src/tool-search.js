@@ -3,10 +3,14 @@ const fold=text=>String(text??'').normalize('NFKC').toLocaleLowerCase();
 const squash=text=>fold(text).replace(/[\s\-_·・./]+/g,'');
 /** Lower-cased query words. @param {string} query */
 export function queryTokens(query){return fold(query).split(/\s+/).filter(Boolean);}
-/** True when two words differ by at most one insertion, deletion or substitution. */
+/** True when two words differ by at most one insertion, deletion, substitution or swap of neighbours. */
 export function nearlyEqual(a,b){
  if(a===b)return true;
  if(Math.abs(a.length-b.length)>1)return false;
+ if(a.length===b.length){
+  let at=0;while(at<a.length&&a[at]===b[at])at++;
+  if(at<a.length-1&&a[at]===b[at+1]&&a[at+1]===b[at]&&a.slice(at+2)===b.slice(at+2))return true;
+ }
  let i=0,j=0,edits=0;
  while(i<a.length&&j<b.length){
   if(a[i]===b[j]){i++;j++;continue;}

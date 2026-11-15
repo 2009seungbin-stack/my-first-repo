@@ -33,7 +33,8 @@ test('spacing is ignored and one typo is forgiven',()=>{
  assert.deepEqual(searchTools(SAMPLE,'mrge'),['pdf-merge']);
  assert.deepEqual(searchTools(SAMPLE,'zzzz'),[]);
  assert.equal(nearlyEqual('merge','merge'),true);assert.equal(nearlyEqual('merge','marge'),true);
- assert.equal(nearlyEqual('merge','mer'),false);assert.equal(nearlyEqual('merge','emrge'),false);
+ assert.equal(nearlyEqual('merge','mer'),false);assert.equal(nearlyEqual('merge','emrge'),true,'swapped neighbours count as one typo');
+ assert.equal(nearlyEqual('merge','emreg'),false);assert.deepEqual(searchTools(SAMPLE,'megre'),['pdf-merge']);
 });
 test('highlight wraps matched words and escapes the rest',()=>{
  assert.equal(highlightMatch('Compress image','im co',esc),'<mark>Co</mark>mpress <mark>im</mark>age');
