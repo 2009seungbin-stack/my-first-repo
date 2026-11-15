@@ -58,7 +58,8 @@ export default {
    alternatives:{rows:[
     ['Aseprite (paid desktop app)','You need layer groups, tilemap layers, rotation of a selection, custom brushes or Lua scripts. The files move both ways; see [[game/aseprite-alternative|the comparison]].'],
     ['Cleaning up an existing upscaled or generated image instead of drawing','Your art already exists at the wrong scale: use [[game/pixel-art-downscaler|the downscaler]] or [[game/fix-ai-pixel-art|the generated-art cleanup]] first, then edit the result here.'],
-    ['Drawing the frames as an animation from the start','When the sprite will move, set up frames and tags right away: [[game/pixel-art-animation|pixel-art animation]].']]},
+    ['Drawing the frames as an animation from the start','When the sprite will move, set up frames and tags right away: [[game/pixel-art-animation|pixel-art animation]].'],
+    ['A profile picture assembled from ready-made parts','You want an avatar in a minute rather than a drawing session: the [[game/pixel-avatar-maker|Pixel Avatar Maker]] combines original CC0 face, hair, eye and outfit parts on a 16 × 16 grid and saves a whole-number-scaled PNG or a blink GIF.']]},
    limits:['No layer groups, tilemap layers, reference layers or linked cels; no rotation or scaling of a selection beyond flips and 90° turns.','No grayscale colour mode: sprites are RGB or indexed.','The symmetry axis is typed as a number, not dragged on the canvas.'],
    versions:{body:['Nerulio: the Pixel workspace\'s pure modules are covered by `tests/studio-pixel.test.mjs` (34 tests) and a 76-check browser suite on real CC0 sprites; .aseprite files written here reopened in Aseprite 1.3.18 with layers, blend mode and indexed palette intact. Painting a 512×512, 100-frame sprite stayed interactive (21–25 ms to commit a stroke) in headless Chromium. Colour-mode and default-palette statements about Aseprite follow its documentation.'],
     sources:[s('Aseprite docs: Color Mode',A.colorMode),s('Aseprite docs: Default Palette',A.defaultPalette),s('Aseprite docs: Canvas Size',A.canvas)]}
@@ -93,7 +94,8 @@ export default {
    alternatives:{rows:[
     ['에이스프라이트(유료 데스크톱 앱)','레이어 그룹, 타일맵 레이어, 선택 영역 회전, 사용자 브러시, Lua 스크립트가 필요할 때. 파일은 양쪽으로 오갑니다. [[game/aseprite-alternative|비교 페이지]] 참고.'],
     ['새로 그리지 않고 확대·생성된 그림을 정리','이미 그림이 잘못된 배율로 있을 때는 [[game/pixel-art-downscaler|도트 축소]]나 [[game/fix-ai-pixel-art|생성 그림 정리]]를 먼저 거친 뒤 여기서 다듬으세요.'],
-    ['처음부터 애니메이션으로 그리기','움직일 스프라이트라면 프레임과 태그를 바로 준비하세요. [[game/pixel-art-animation|도트 애니메이션]] 참고.']]},
+    ['처음부터 애니메이션으로 그리기','움직일 스프라이트라면 프레임과 태그를 바로 준비하세요. [[game/pixel-art-animation|도트 애니메이션]] 참고.'],
+    ['준비된 파츠로 조합하는 프로필 이미지','그리는 시간 없이 아바타가 바로 필요할 때: [[game/pixel-avatar-maker|픽셀 아바타 만들기]]는 오리지널 CC0 얼굴·머리·눈·의상 파츠를 16 × 16 격자에서 조합해 정수배 PNG나 눈 깜빡임 GIF로 저장합니다.']]},
    limits:['레이어 그룹, 타일맵 레이어, 참조 레이어, 링크된 셀이 없고, 선택 영역은 뒤집기와 90° 회전만 됩니다(자유 회전·크기 조절 없음).','그레이스케일 색 모드는 없으며 스프라이트는 RGB 또는 인덱스입니다.','대칭 축은 숫자로 입력하며 캔버스에서 끌어 옮길 수 없습니다.'],
    versions:{body:['Nerulio: 픽셀 작업 공간의 순수 모듈은 `tests/studio-pixel.test.mjs`(테스트 34개)와 실제 CC0 스프라이트로 76가지를 확인하는 브라우저 테스트가 다룹니다. 여기서 쓴 .aseprite 파일은 Aseprite 1.3.18에서 레이어·블렌드 모드·인덱스 팔레트가 그대로 열렸습니다. 512×512에 100프레임인 스프라이트도 헤드리스 Chromium에서 선 확정 21~25ms로 바로 반응했습니다. 에이스프라이트의 색 모드와 기본 팔레트에 관한 설명은 공식 문서를 따릅니다.'],
     sources:[s('Aseprite 문서: Color Mode',A.colorMode),s('Aseprite 문서: Default Palette',A.defaultPalette),s('Aseprite 문서: Canvas Size',A.canvas)]}
@@ -128,7 +130,8 @@ export default {
    alternatives:{rows:[
     ['Aseprite（有料のデスクトップアプリ）','レイヤーグループ、タイルマップレイヤー、選択範囲の回転、カスタムブラシ、Luaスクリプトが必要なとき。ファイルは双方向にやり取りできます。[[game/aseprite-alternative|比較ページ]]を参照。'],
     ['描き起こさず、拡大・生成された絵を整える','絵がすでに違う倍率で存在するなら、先に[[game/pixel-art-downscaler|ドット絵の縮小]]か[[game/fix-ai-pixel-art|生成画像の整理]]を通し、その結果をここで直します。'],
-    ['最初からアニメーションとして描く','動かすスプライトなら、すぐにフレームとタグを用意します。[[game/pixel-art-animation|ドット絵アニメーション]]を参照。']]},
+    ['最初からアニメーションとして描く','動かすスプライトなら、すぐにフレームとタグを用意します。[[game/pixel-art-animation|ドット絵アニメーション]]を参照。'],
+    ['用意されたパーツを組み合わせるプロフィール画像','描く時間をかけずにアバターがすぐ欲しいとき：[[game/pixel-avatar-maker|ピクセルアバター作成]]はオリジナルのCC0の顔・髪・目・衣装パーツを16 × 16のグリッドで組み合わせ、整数倍のPNGやまばたきGIFとして保存します。']]},
    limits:['レイヤーグループ、タイルマップレイヤー、参照レイヤー、リンクセルはありません。選択範囲は反転と90°回転のみで、自由な回転・拡大縮小はできません。','グレースケールのカラーモードはなく、スプライトはRGBかインデックスです。','対称軸は数値で入力し、キャンバス上でドラッグはできません。'],
    versions:{body:['Nerulio：ピクセル作業画面の純粋なモジュールは`tests/studio-pixel.test.mjs`（34テスト）と、実在のCC0スプライトで76項目を確かめるブラウザテストで検証しています。ここで書き出した.asepriteはAseprite 1.3.18でレイヤー・合成モード・インデックスのパレットを保ったまま開きました。512×512で100フレームのスプライトでも、ヘッドレスChromiumで線の確定は21〜25msでした。Asepriteのカラーモードと既定パレットの説明は公式ドキュメントに基づきます。'],
     sources:[s('Asepriteドキュメント：Color Mode',A.colorMode),s('Asepriteドキュメント：Default Palette',A.defaultPalette),s('Asepriteドキュメント：Canvas Size',A.canvas)]}
