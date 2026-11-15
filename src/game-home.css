@@ -265,3 +265,9 @@ html[lang="ko"] .gh-recent h3,html[lang="ja"] .gh-recent h3{letter-spacing:.02em
 .gh-chip i{font-style:normal;color:#e8a13a}
 @media (max-width:640px){.gh-recent{padding:12px 14px;margin-top:0}}
 @media (prefers-reduced-motion:reduce){.gh-chip{transition:none}}
+
+/* scroll reveal (src/task/home.js mountReveal: armed by the first scroll, never under reduced motion) */
+.gh-reveal{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.gh-reveal.is-in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.gh-reveal{opacity:1;transform:none;transition:none}}
+@media print{.gh-reveal{opacity:1;transform:none}}

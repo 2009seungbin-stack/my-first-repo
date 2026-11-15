@@ -117,9 +117,18 @@ function suggest(files){
  bar.innerHTML=`<strong>${esc(text('suggest',{n:held.length}))}</strong><div class="suggest-tools">${SUGGEST[kind].map(id=>`<button type="button" class="chip" data-suggest="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}</div><button type="button" class="link" data-suggest-clear>${esc(text('clear'))}</button>`;
  bar.hidden=false;bar.querySelector('.chip')?.focus();
 }
+/** Workflow rows, the engine box and the index heading ease in as they are scrolled to. Armed by the
+ * first scroll and only for blocks still below the viewport then, so nothing is ever hidden on a
+ * page that was not scrolled (no JavaScript, print, full-page captures), and never under reduced motion. */
+function mountReveal(){
+ if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const io=new IntersectionObserver(list=>{for(const e of list)if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}},{rootMargin:'0px 0px -6% 0px'});
+ addEventListener('scroll',()=>{for(const el of document.querySelectorAll('.gh-row,.gh-engines-box,.gh-index-head'))if(el.getBoundingClientRect().top>innerHeight){el.classList.add('gh-reveal');io.observe(el);}},{once:true,passive:true});
+ addEventListener('beforeprint',()=>{for(const el of document.querySelectorAll('.gh-reveal'))el.classList.add('is-in');});
+}
 export function mount(){
  relabel();onLocale(relabel);
- mountFinder();
+ mountFinder();mountReveal();
  // a tool opened from the directory, the Lab cards, the chips or the finder becomes a recent tool
  document.addEventListener('click',e=>{const a=e.target.closest?.('a[data-tool],a[data-tool-link],a[data-finder-tool]');if(a)remember(a.dataset.tool||a.dataset.toolLink||a.dataset.finderTool);},true);
  addEventListener('pageshow',e=>{if(e.persisted)renderRecent();});
