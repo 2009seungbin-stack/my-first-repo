@@ -118,8 +118,9 @@ unit-tested, and the browser suite re-imports each exported format.
 ## 3. Palette lock and why dithering can flicker
 
 **Input** all loaded frames + a fixed palette (extracted from all frames, imported, or a classic
-console/community palette reused from `src/task/pixel.js`: Game Boy, PICO-8, Sweetie 16, Endesga 32,
-NES, mono). **Output** per frame: the RGBA result and the palette **index** of every pixel (−1 where
+console/community palette from `src/pixel-palettes.js`: Game Boy, 2-bit grayscale, NES, PICO-8, CGA 16,
+EGA 64, Commodore 64, ZX Spectrum, Nokia 3310, mono, Sweetie 16, Endesga 32, DawnBringer 16/32,
+Arne 16, SLSO8, Nyx8, Oil 6, Ammo-8, Kirokaze Gameboy, Ice Cream GB, AYY4). **Output** per frame: the RGBA result and the palette **index** of every pixel (−1 where
 alpha is 0). The index is what proves two frames agree.
 
 **Dither modes** (`src/pixel-engine.js`): None, Floyd–Steinberg, **Atkinson** (new), **Bayer 2×2 /
