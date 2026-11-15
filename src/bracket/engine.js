@@ -210,6 +210,33 @@ export function cleanPlan(o){
 /** @param {Plan} p */
 export const planData=p=>({m:p.mode,p:p.pair,a:p.seats,...(p.cue?{c:1}:{}),...(p.exact?{e:1}:{})});
 
+/** A board read back from a link: the seats must hold each of the n names exactly once with at most one bye
+ * per match, and the results are replayed match by match through setWinner(), so a winner who is not in
+ * that match is dropped. null when the seats are not a valid first round.
+ * @param {any} o @param {number} n @param {number} size @returns {Board|null} */
+export function boardFromData(o,n,size){
+ if(!o||!Array.isArray(o.s)||o.s.length!==size||!SIZES.includes(size))return null;
+ const seen=new Set();
+ for(const x of o.s){if(!Number.isInteger(x)||x<-1||x>=n||seen.has(x))return null;if(x>=0)seen.add(x);}
+ if(seen.size!==n)return null;
+ for(let m=0;m<size/2;m++)if(o.s[2*m]<0&&o.s[2*m+1]<0)return null;
+ const b=newBoard(o.s);
+ if(Array.isArray(o.w))for(let r=0;r<b.win.length;r++){
+  const row=o.w[r];if(!Array.isArray(row))break;
+  for(let m=0;m<b.win[r].length;m++)if(Number.isInteger(row[m])&&row[m]>=0)setWinner(b,r,m,row[m]);
+ }
+ return b;
+}
+/** A link to this very bracket (#r=…): title, names, the drawn seats and the results so far. No seating plan.
+ * @param {{title:string,size:number,names:string[],board:Board}} d */
+export const encodeResult=d=>pack({v:1,t:d.title||'',s:d.size,n:d.names,b:{s:d.board.slots,w:d.board.win}});
+/** @param {string} s @returns {{title:string,size:number,names:string[],board:Board}|null} */
+export function decodeResult(s){
+ const d=decodeShare(s);if(!d)return null;
+ const board=boardFromData(unpack(s)?.b,d.names.length,d.size);
+ return board?{title:d.title,size:d.size,names:d.names,board}:null;
+}
+
 /** @param {{title:string,size:number,names:string[],plan?:Plan|null}} d */
 export const encodeShare=d=>pack({v:1,t:d.title||'',s:d.size,n:d.names,...(planActive(d.plan)?{r:planData(/** @type {Plan} */(d.plan))}:{})});
 /** @param {string} s @returns {{title:string,size:number,names:string[],plan:Plan}|null} */

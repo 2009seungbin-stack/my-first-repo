@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseNames,sizeProblem,fitSize,pairIndex,pairsFit,draw,mirror,fitSeats,seatNames,drawPlan,inOrder,newBoard,entrant,nextMatch,champion,setWinner,pickWinner,resultText,encodeShare,decodeShare,pack,unpack,cleanPlan,planActive} from '../src/bracket/engine.js';
+import {parseNames,sizeProblem,fitSize,pairIndex,pairsFit,draw,mirror,fitSeats,seatNames,drawPlan,inOrder,newBoard,entrant,nextMatch,champion,setWinner,pickWinner,resultText,boardFromData,encodeResult,decodeResult,encodeShare,decodeShare,pack,unpack,cleanPlan,planActive} from '../src/bracket/engine.js';
 import {matchPlatformRoute,renderPlatformPage,renderSitemap,canonicalQuery} from '../server/platform/pages.js';
 import {FUN_TOOLS} from '../platform/tools-nav.js';
 import {ICON_NAMES} from '../platform/render/icons.js';
@@ -147,4 +147,23 @@ test('results as text: rounds, byes, open matches and the champion',()=>{
  assert(done.startsWith('[Last 8]')&&done.endsWith('[Final]\n1. C vs E → C\n\nChampion: C'));
  // A full 4-bracket before any result: the final has nobody yet and is left out.
  assert.equal(resultText(newBoard(inOrder(4,4)),names,t),'Cup\n\n[Last 4]\n1. A vs B\n2. C vs D');
+});
+
+test('a link to a drawn bracket carries seats and results; inconsistent data is dropped or rejected',()=>{
+ const names=['A','B','C','D','E'],b=newBoard(inOrder(5,8));
+ assert(setWinner(b,0,0,1));assert(setWinner(b,1,1,4));
+ const s=encodeResult({title:'Cup',size:8,names,board:b});assert.match(s,/^[\w-]+$/);
+ assert.deepEqual(decodeResult(s),{title:'Cup',size:8,names,board:b});
+ assert.equal(decodeShare(s)?.plan.mode,'','a result link never carries a seating plan');
+ assert.equal(decodeResult(encodeShare({title:'Cup',size:8,names})),null,'a names-only link has no board');
+ for(const junk of ['','abc','!!!'])assert.equal(decodeResult(junk),null);
+ // Seats: every name once, in range, one bye per match at most, the right length.
+ const seats=b.slots,w=b.win;
+ for(const bad of [[0,1,2,-1,3,-1,4],[0,0,2,-1,3,-1,4,-1],[0,1,2,-1,3,-1,-1,-1],[0,1,2,-1,3,-1,5,-1],[0,1,2,-1,3,-1,4.5,-1],[0,1,-1,-1,2,3,4,-1]])assert.equal(boardFromData({s:bad,w},5,8),null,JSON.stringify(bad));
+ assert.equal(boardFromData({s:seats,w},5,6),null);assert.equal(boardFromData(null,5,8),null);
+ // Results are replayed: a winner who is not in the match, or a later result without its earlier one, does not stick.
+ const forged=boardFromData({s:seats,w:[[4,-1,-1,-1],[-1,-1],[0]]},5,8);
+ assert.deepEqual(forged,newBoard(seats));
+ assert.deepEqual(boardFromData({s:seats},5,8),newBoard(seats),'no results: a fresh board with its byes settled');
+ assert.deepEqual(boardFromData({s:seats,w},5,8),b);
 });

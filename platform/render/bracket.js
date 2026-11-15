@@ -14,14 +14,14 @@ export function renderBracket(o){
  const faq=ko?[
   ['몇 명까지 되나요?','4강·8강·16강·32강을 고를 수 있고, 칸보다 사람이 적으면 남는 자리는 부전승이 됩니다. 부전승은 한 경기에 하나만 들어가므로 칸의 절반보다 많은 인원이 필요합니다(16강이면 9~16명).'],
   ['승자는 어떻게 정하나요?','이름을 누르면 그 사람이 다음 라운드로 올라갑니다. 직접 정하기 어려우면 「다음 경기 랜덤」이나 「끝까지 자동」으로 뽑기 연출과 함께 정할 수 있고, 잘못 누르면 「되돌리기」로 돌아갑니다.'],
-  ['친구에게 보내려면?','「링크 복사」로 대회 이름과 참가자가 담긴 주소를 만들 수 있습니다. 받은 사람이 직접 추첨 버튼을 누르게 할 수 있습니다.'],
+  ['친구에게 보내려면?','「링크 복사」로 대회 이름과 참가자가 담긴 주소를 만들 수 있습니다. 받은 사람이 직접 추첨 버튼을 누르게 할 수 있습니다. 이미 추첨한 대진과 지금까지의 결과를 그대로 보여 주려면 「이 대진 링크」를 쓰세요. 링크를 연 사람의 화면은 그 시점의 사본이라, 이후에 누른 결과는 서로 전달되지 않습니다.'],
   ['결과를 단톡방에 올리려면?','「결과 복사」를 누르면 라운드별 경기와 승자, 우승자가 글자로 복사됩니다. 진행 중에도 쓸 수 있고, 아직 안 한 경기는 승자 없이 적힙니다.'],
   ['저장되나요?','입력한 내용과 진행 상황은 이 브라우저에만 저장됩니다. 서버로 보내지 않습니다.'],
   ['결과가 진짜 랜덤인가요? (장난용 기능 안내)','아닐 수 있습니다. 이 도구에는 몰래카메라·예능용 장난 기능이 있습니다. 진행자가 대진을 미리 정해 두거나 이름을 입력한 순서대로 짝이 지어지게 할 수 있고, 진행자가 화면에서 몰래 신호를 줄 때만 랜덤으로 나오게 하거나 반대로 신호를 줄 때만 정해 둔 대진이 나오게 할 수도 있습니다. 그래서 이 사이트의 추첨 화면은 공정한 추첨의 증거가 될 수 없습니다. 상품·돈·순서가 걸린 실제 추첨에는 쓰지 마세요.'],
  ]:[
   ['How many players?','Pick a 4, 8, 16 or 32 bracket. With fewer names than slots the free slots become byes — one per match at most, so a bracket needs more than half its slots filled (9–16 names for 16).'],
   ['How are winners decided?','Tap a name to send that player to the next round, or let “Random next match” and “Auto-play to the end” pick with a little animation. “Undo” steps back.'],
-  ['Can I send it to a friend?','“Copy link” makes an address with the title and players, and the other person can press the draw button themselves.'],
+  ['Can I send it to a friend?','“Copy link” makes an address with the title and players, and the other person can press the draw button themselves. To show the bracket you already drew with its results so far, use “Link to this bracket”. The link opens a copy of that moment; results entered afterwards are not synced between people.'],
   ['How do I post the results in a chat?','“Copy results” copies every round’s matches, winners and the champion as plain text. It also works mid-tournament; matches not played yet are listed without a winner.'],
   ['Is it saved?','Names and progress stay in this browser only. Nothing is sent to a server.'],
   ['Is it really random? (prank features)','Not necessarily. This tool has prank features for party games and hidden-camera videos: the host can set the matchups in advance or have the names paired in the order they were typed, and a hidden signal can switch the following draws between truly random and the preset bracket. A draw on this site is therefore no proof of a fair draw. Do not use it for real draws with prizes, money or turns at stake.'],
@@ -45,7 +45,7 @@ export function renderBracket(o){
 <noscript><p class="fine">${ko?'대진표 만들기에는 JavaScript가 필요합니다.':'The bracket maker needs JavaScript.'}</p></noscript>
 </section>
 <section class="box bk-board" data-bk-board aria-labelledby="bk-board-h" hidden><div class="bk-bar"><h2 id="bk-board-h" class="bk-h2" data-bk-name>${ko?'대진표':'Bracket'}</h2><span class="bk-status fine" data-bk-status role="status" aria-live="polite"></span></div>
-<div class="bk-tools"><button class="btn p" type="button" data-bk-next>${ko?'다음 경기 랜덤':'Random next match'}</button><button class="btn" type="button" data-bk-round>${ko?'이번 라운드 랜덤':'Random this round'}</button><button class="btn" type="button" data-bk-auto>${ko?'끝까지 자동':'Auto-play to the end'}</button><button class="btn" type="button" data-bk-undo>${ko?'되돌리기':'Undo'}</button><button class="btn" type="button" data-bk-redraw>${ko?'다시 추첨':'Draw again'}</button><span class="bk-sp"></span><button class="btn" type="button" data-bk-full>${ko?'전체 화면':'Full screen'}</button><button class="btn" type="button" data-bk-link>${ko?'링크 복사':'Copy link'}</button><button class="btn" type="button" data-bk-text>${ko?'결과 복사':'Copy results'}</button><button class="btn" type="button" data-bk-print>${ko?'인쇄':'Print'}</button></div>
+<div class="bk-tools"><button class="btn p" type="button" data-bk-next>${ko?'다음 경기 랜덤':'Random next match'}</button><button class="btn" type="button" data-bk-round>${ko?'이번 라운드 랜덤':'Random this round'}</button><button class="btn" type="button" data-bk-auto>${ko?'끝까지 자동':'Auto-play to the end'}</button><button class="btn" type="button" data-bk-undo>${ko?'되돌리기':'Undo'}</button><button class="btn" type="button" data-bk-redraw>${ko?'다시 추첨':'Draw again'}</button><span class="bk-sp"></span><button class="btn" type="button" data-bk-full>${ko?'전체 화면':'Full screen'}</button><button class="btn" type="button" data-bk-link>${ko?'링크 복사':'Copy link'}</button><button class="btn" type="button" data-bk-state>${ko?'이 대진 링크':'Link to this bracket'}</button><button class="btn" type="button" data-bk-text>${ko?'결과 복사':'Copy results'}</button><button class="btn" type="button" data-bk-print>${ko?'인쇄':'Print'}</button></div>
 <div class="bk-scroll" data-bk-scroll><div class="bk-tree" data-bk-tree></div></div>
 <p class="fine bk-tip">${ko?'이름을 누르면 그 사람이 다음 라운드로 올라갑니다. 이미 정한 경기도 다시 누르면 바뀝니다.':'Tap a name to send that player on. Tap the other name to change a result.'}</p>
 </section>
