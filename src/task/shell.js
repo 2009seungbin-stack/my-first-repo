@@ -85,7 +85,8 @@ function wireIntake(intake,{accept}={}){
  const alive=()=>{clearTimeout(idle);idle=setTimeout(()=>{depth=0;zone();},DRAG_IDLE_MS);};
  addEventListener('dragenter',e=>{if(e.dataTransfer?.types?.includes('Files')){depth++;zone();alive();}});
  addEventListener('dragleave',()=>{depth=Math.max(0,depth-1);zone();if(!depth)clearTimeout(idle);});
- addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();if(depth)alive();}});
+ // A dragover with files also proves a drag is in progress, whatever the enter/leave count says.
+ addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();if(!depth){depth=1;zone();}alive();}});
  addEventListener('drop',e=>{clearTimeout(idle);depth=0;zone();if(!e.dataTransfer?.files?.length)return;e.preventDefault();intake([...e.dataTransfer.files],'drop');});
  // A paste button for devices without Ctrl+V: reads pictures from the clipboard after the browser's own permission prompt.
  document.addEventListener('click',async e=>{

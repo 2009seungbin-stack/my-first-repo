@@ -45,7 +45,8 @@ test('task pages carry the drop-anywhere overlay in the page language', ()=>{
 });
 test('only a single raster image result is offered to the clipboard', ()=>{
  const blob=type=>({type,size:1});
- for(const type of ['image/png','image/jpeg','image/webp','image/avif','image/gif'])assert.equal(copyable({blob:blob(type)}),true,type);
+ for(const type of ['image/png','image/jpeg','image/webp','image/avif','image/bmp'])assert.equal(copyable({blob:blob(type)}),true,type);
+ assert.equal(copyable({blob:blob('image/gif')}),false,'an animated GIF would lose its frames');
  assert.equal(copyable({blob:blob('application/pdf')}),false);assert.equal(copyable({blob:blob('image/svg+xml')}),false);assert.equal(copyable({blob:blob('application/zip'),zipped:true}),false);
  assert.equal(copyable({blob:blob('image/png'),zipped:true}),false);assert.equal(copyable({blob:blob('image/png'),entries:[{},{}]}),false);assert.equal(copyable({blob:blob('image/png'),entries:[{}]}),true);
  assert.equal(copyable(null),false);assert.equal(copyable({}),false);

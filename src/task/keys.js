@@ -20,8 +20,9 @@ export function sizeDelta(before,after){
  if(!(before>0)||!(after>=0))return '';
  const p=Math.round((after/before-1)*100);return p===0?'=':(p<0?'−':'+')+Math.abs(p)+'%';
 }
-/** A result the clipboard can take as one picture: a single raster image, not a bundle or a document. */
-export const copyable=r=>!!r&&!r.zipped&&!(r.entries?.length>1)&&/^image\/(png|jpeg|webp|avif|gif|bmp)$/.test(r.blob?.type||'');
+/** A result the clipboard can take as one picture: a single still raster image, not a bundle or a document.
+ * GIF is left out: the PNG copy would silently keep only its first frame. */
+export const copyable=r=>!!r&&!r.zipped&&!(r.entries?.length>1)&&/^image\/(png|jpeg|webp|avif|bmp)$/.test(r.blob?.type||'');
 /** Batch progress for the summary: how many files are finished (done or failed) out of how many. */
 export function batchProgress(items){
  const total=items.length,finished=items.filter(i=>i.status==='done'||i.status==='error').length;
