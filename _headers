@@ -25,3 +25,10 @@
 /content.css
   ! Cache-Control
   Cache-Control: no-store
+# Third-party libraries live in folders named after their exact version
+# (assets/vendor/pdfjs-dist-6.3.289/…): an upgrade changes the URL, so a stored copy can never be
+# stale. A year of reuse spares returning visitors megabytes of WASM, fonts and character maps.
+# :library matches one folder, so NOTICES.txt and the other unversioned files beside the folders keep revalidating.
+/assets/vendor/:library/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
