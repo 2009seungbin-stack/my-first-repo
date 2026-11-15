@@ -17,10 +17,23 @@ const PRESETS={
  hit:[layer('white',{freq:680,hold:.015,release:.12,lp:7000}),layer('square',{freq:180,slide:-250,hold:.025,release:.11,gain:.26})],
  powerup:[layer('sine',{freq:390,slide:840,hold:.24,release:.22,arpSemitones:7,arpHz:9})],
  click:[layer('square',{freq:1000,hold:.005,release:.018,gain:.35})],
- ui:[layer('sine',{freq:640,hold:.025,release:.08,gain:.43})]
+ ui:[layer('sine',{freq:640,hold:.025,release:.08,gain:.43})],
+ blip:[layer('square',{freq:1200,hold:.02,release:.05,duty:.3,gain:.4})],
+ pickup:[layer('triangle',{freq:660,hold:.05,release:.14,jumpSemitones:7,jumpAt:.3,gain:.5})],
+ shoot:[layer('square',{freq:980,slide:-2600,hold:.08,release:.1,duty:.25,lp:8000}),layer('white',{freq:400,hold:.01,release:.05,gain:.15,hp:1500})],
+ powerdown:[layer('saw',{freq:620,slide:-520,hold:.3,release:.25,lp:5000,vibDepth:.04,vibHz:9})],
+ teleport:[layer('sine',{freq:300,slide:1900,delta:2400,hold:.3,release:.2,vibDepth:.25,vibHz:22,phaserMs:6,phaserSweep:20})],
+ alarm:[layer('square',{freq:880,hold:.5,release:.05,arpSemitones:-5,arpHz:6,repeatHz:3,duty:.4,gain:.35,lp:6000})],
+ footstep:[layer('brown',{freq:120,hold:.02,release:.07,lp:900,gain:.9}),layer('white',{freq:300,hold:.005,release:.03,gain:.12,hp:2000})],
+ magic:[layer('whistle',{freq:700,slide:500,hold:.3,release:.4,arpSemitones:4,arpHz:16,vibDepth:.05,vibHz:7,gain:.4}),layer('sine',{freq:1400,slide:900,start:.05,hold:.2,release:.4,gain:.2,pan:.4})]
 };
 export const PRESET_NAMES=Object.keys(PRESETS);
 export function preset(name,seed=1){const random=rng(seed),p=project(seed);p.layers=(PRESETS[name]||PRESETS.ui).map(x=>({...x,freq:Math.max(30,x.freq*(.96+random()*.08))}));return p;}
+/** A fully random but bounded one- or two-layer sound. The same seed always gives the same project. */
+export function randomSound(seed=1){const r=rng(seed),pick=a=>a[Math.floor(r()*a.length)],between=(a,b)=>a+r()*(b-a),p=project(seed);
+ const tonal=['square','saw','sine','triangle','pulse','breaker','tan','whistle','voice','fm'],noisy=['white','pink','brown','bitnoise','rasp'];
+ const one=noise=>{const freq=noise?between(80,900):110*2**between(0,4.2);return layer(pick(noise?noisy:tonal),{freq:+freq.toFixed(1),slide:r()<.65?Math.round(between(-1,1)*freq*3):0,attack:+between(0,.02).toFixed(3),decay:+between(.01,.12).toFixed(3),sustain:+between(.3,.9).toFixed(2),hold:+between(.01,.25).toFixed(3),release:+between(.04,.45).toFixed(3),duty:+between(.15,.6).toFixed(2),vibDepth:r()<.3?+between(.02,.3).toFixed(2):0,vibHz:+between(4,24).toFixed(1),arpSemitones:r()<.3?pick([-12,-7,-5,3,4,5,7,12]):0,arpHz:+between(6,20).toFixed(1),lp:r()<.5?Math.round(between(1200,12000)):20000,hp:r()<.2?Math.round(between(100,1500)):0,crushBits:r()<.15?Math.round(between(4,10)):16,gain:noise?.3:.5});};
+ p.layers=[one(r()<.25)];if(r()<.3)p.layers.push({...one(r()<.6),gain:.2});return validate(p);}
 export function validate(input){if(!input||typeof input!=='object')throw Error('Invalid SFX project');const p=project(input.seed);p.rate=RATE.includes(input.rate)?input.rate:44100;p.bpm=Math.round(clamp(input.bpm??120,40,240));p.master=clamp(input.master,0,2);p.limiter=input.limiter!==false;
  if(!Array.isArray(input.layers)||!input.layers.length||input.layers.length>4)throw Error('Use 1–4 layers');
  p.layers=input.layers.map(raw=>{const x=layer(),o={};if(raw.kind==='sample')o.kind='sample';o.wave=WAVES.includes(raw.wave)?raw.wave:x.wave;

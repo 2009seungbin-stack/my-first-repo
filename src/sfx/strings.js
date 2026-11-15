@@ -13,3 +13,9 @@ Object.assign(PARAM_NAMES.ja,{jumpSemitones:'ピッチジャンプ',jumpAt:'ジ�
 Object.assign(COPY.en,{codecNotice:'MP3 encoder licences, source and rebuild steps'});
 Object.assign(COPY.ko,{codecNotice:'MP3 인코더 라이선스·소스·재빌드 방법'});
 Object.assign(COPY.ja,{codecNotice:'MP3エンコーダーのライセンス・ソース・再ビルド手順'});
+Object.assign(PRESET_LABELS.en,{blip:'Blip',pickup:'Pickup',shoot:'Shoot',powerdown:'Power-down',teleport:'Teleport',alarm:'Alarm',footstep:'Footstep',magic:'Magic'});
+Object.assign(PRESET_LABELS.ko,{blip:'블립',pickup:'아이템 획득',shoot:'발사',powerdown:'파워다운',teleport:'순간이동',alarm:'경보',footstep:'발소리',magic:'마법'});
+Object.assign(PRESET_LABELS.ja,{blip:'ブリップ',pickup:'アイテム取得',shoot:'ショット',powerdown:'パワーダウン',teleport:'テレポート',alarm:'アラーム',footstep:'足音',magic:'魔法'});
+Object.assign(COPY.en,{randomize:'Randomize',randomName:'Random',autoplay:'Play new sounds automatically',shortcuts:'Shortcuts (when no field is focused): Space play/stop · 1–9, 0 first ten presets · G new variation · R random · M mutate',spectrum:'Frequency spectrum of the sound, 40 Hz to 20 kHz',dominant:'Strongest frequency'});
+Object.assign(COPY.ko,{randomize:'무작위',randomName:'무작위',autoplay:'새 소리를 자동으로 재생',shortcuts:'단축키 (입력란에 커서가 없을 때): Space 재생/정지 · 1–9, 0 앞쪽 프리셋 10개 · G 새로 만들기 · R 무작위 · M 조금 바꾸기',spectrum:'소리의 주파수 스펙트럼, 40 Hz~20 kHz',dominant:'가장 강한 주파수'});
+Object.assign(COPY.ja,{randomize:'ランダム',randomName:'ランダム',autoplay:'新しい音を自動再生',shortcuts:'ショートカット（入力欄にフォーカスがないとき）: Space 再生/停止 · 1–9, 0 先頭10個のプリセット · G 新しく作る · R ランダム · M 少し変える',spectrum:'音の周波数スペクトル、40 Hz〜20 kHz',dominant:'最も強い周波数'});

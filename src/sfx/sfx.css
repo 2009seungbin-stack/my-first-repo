@@ -3,3 +3,7 @@
 #timeline{overflow-x:auto;max-width:100%;margin:1rem 0}.sfx-grid{display:grid;grid-template-columns:2.2rem repeat(16,minmax(2rem,1fr));gap:3px;min-width:590px}.sfx-grid button{padding:.15rem;min-height:1.8rem;border-radius:4px;font-size:.8rem}.sfx-grid button.on{background:#0b8d7f;border-color:#91f1d4}.sfx-note input[data-rename]{max-width:11rem}
 
 .sfx-step-label,.sfx-row-label{font-size:.68rem;color:#b8d2df;text-align:center;align-self:center}
+
+.sfx-preset{position:relative}.sfx-preset[aria-pressed="true"]{background:#0b6f69;border-color:#8ff0dc;box-shadow:inset 0 0 0 1px #8ff0dc;font-weight:700}.sfx-key{position:absolute;top:3px;right:6px;font-size:.66rem;line-height:1;color:#b8d2df;font-variant-numeric:tabular-nums}.sfx-actions button,.sfx-preset{min-height:44px}.sfx-autoplay{margin:0 0 .75rem;min-height:44px}.sfx-autoplay input{width:1.15rem;height:1.15rem;margin-right:.5rem}.sfx-shortcuts{font-size:.8rem;color:#b8cbd9;line-height:1.55;margin:.4rem 0 0}
+@media(max-width:520px){.sfx-presets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(hover:none){.sfx-shortcuts{display:none}}

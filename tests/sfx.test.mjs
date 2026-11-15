@@ -52,3 +52,18 @@ test('vendored jsfxr JSON and Base58 round-trip; reference waveform matches upst
 test('Ogg Vorbis encoder produces a recognizable container; unsupported formats fail',async()=>{
  const rate=44100,pcm=Float32Array.from({length:rate/10},(_,i)=>.2*Math.sin(2*Math.PI*440*i/rate));const ogg=await encodeCompressed([pcm],rate,'ogg');assert.equal(String.fromCharCode(...ogg.subarray(0,4)),'OggS');assert(ogg.length>1000);await assert.rejects(()=>encodeCompressed([pcm],rate,'flac'),/Unsupported compressed format/);
 });
+test('every preset family is labelled in all languages and renders a short audible sound',async()=>{
+ const {PRESET_NAMES}=await import('../src/sfx/engine.js'),{PRESET_LABELS,COPY}=await import('../src/sfx/strings.js');
+ assert.equal(PRESET_NAMES.length,16);assert.equal(new Set(PRESET_NAMES).size,16);
+ for(const name of ['blip','pickup','shoot','powerdown','teleport','alarm','footstep','magic'])assert(PRESET_NAMES.includes(name),name);
+ for(const locale of ['en','ko','ja']){for(const name of PRESET_NAMES)assert(PRESET_LABELS[locale][name]?.length>0,`${locale}:${name}`);for(const key of ['randomize','randomName','autoplay','shortcuts','spectrum','dominant'])assert(COPY[locale][key]?.length>0,`${locale}:${key}`);}
+ const signatures=new Set();for(const name of PRESET_NAMES){const r=render(preset(name,99));assert(r.left.every(Number.isFinite),name);assert(r.metrics.rms>.005,name);assert(r.metrics.duration<1.5,name);assert(r.metrics.clippedSamples===0,name);signatures.add(Array.from(r.left.subarray(900,940)).join(','));}
+ assert.equal(signatures.size,16);
+});
+test('randomSound is deterministic per seed, bounded and audible',async()=>{
+ const {randomSound}=await import('../src/sfx/engine.js');
+ assert.deepEqual(randomSound(42),randomSound(42));assert.notDeepEqual(randomSound(42).layers,randomSound(43).layers);
+ const waves=new Set();for(let seed=1;seed<=120;seed++){const p=randomSound(seed);assert.deepEqual(validate(p),p);assert(p.layers.length>=1&&p.layers.length<=2);assert.equal(p.seed,seed);for(const x of p.layers){waves.add(x.wave);assert(x.freq>=20&&x.freq<=20000);assert.equal(x.kind,'synth');}
+  const r=render(p);assert(r.left.every(Number.isFinite),`seed ${seed}`);assert(r.metrics.rms>.001,`seed ${seed}`);assert(r.metrics.duration<1.2,`seed ${seed}`);}
+ assert(waves.size>=8);
+});
