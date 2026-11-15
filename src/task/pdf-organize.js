@@ -96,6 +96,7 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
   for(const card of host.children)if(!thumbs.get(card.querySelector('img').dataset.key))observer.observe(card);
  }
  function renderSide(){
+  if(!el.querySelector('#pdfSummary'))return;// "Clear all" during a run has already put the drop zone back
   const n=pages().length,used=ws.sources.filter(s=>pages().some(p=>p.source===s)),g=groups();
   el.querySelector('#pdfSummary').innerHTML=`<div class="summary-big">${esc(T('pagesN',{n}))}</div><div class="summary-line">${esc(text('files',{n:used.length}))} · ${esc(bytes(used.reduce((s,f)=>s+f.file.size,0)))}${split&&g?` · ${esc(T('outputs',{n:g.length}))}`:''}</div>`;
   el.querySelector('#pdfFiles').innerHTML=used.map((s,i)=>`<div class="file"><span class="pg-src s${i%6} inline">${LETTER(i)}</span><span class="file-main static"><span><b>${esc(s.name)}</b><small>${esc(T('pagesN',{n:pages().filter(p=>p.source===s).length}))} · ${esc(bytes(s.file.size))}</small></span></span><button type="button" class="icon" data-action="pdf-file-remove" data-source="${s.id}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`).join('');
@@ -167,6 +168,8 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
     const added=pages().splice(before);pages().splice(Math.min(at,pages().length),0,...added);if(added[0]){blanks.set(k,added[0]);place(added[0]);}
    }catch(error){toast(error?.message||String(error),{error:true});busy=false;renderSide();return;}
    busy=false;changed();
+   // The button disabled itself while the page was made, which drops focus to <body>: hand it back.
+   if(document.activeElement===document.body)el.querySelector('[data-action="pdf-blank"]')?.focus();
   }
   toast(LT('blankDone',{n:at+1}));el.querySelector('.pg.is-selected')?.scrollIntoView({block:'nearest'});
  }
@@ -247,13 +250,13 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
  // <body>, and shortcuts (undo, delete) pressed next would otherwise never reach the workspace.
  document.addEventListener('keydown',e=>{
   if(!el.isConnected||e.target.closest?.('dialog'))return;
-  if(e.target.matches('input,textarea,select'))return;
+  if(e.target.matches?.('input,textarea,select'))return;
   // While the large view is open the board's shortcuts (Delete, Ctrl+A…) are off.
   if(el.querySelector('#pdfZoom')?.open){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();zoom(zoomIndex+(e.key==='ArrowLeft'?-1:1));}return;}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();return;}
   if(!pages().length)return;const card=e.target.closest?.('.pg');
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();for(const p of pages())selected.add(p.id);render();}
-  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();if(ws.undo())changed();}
+  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();if(!busy&&ws.undo())changed();}// like the Undo button, off while a file is opened or written
   else if((e.key==='Delete'||e.key==='Backspace')&&selected.size){e.preventDefault();el.querySelector('[data-action="pdf-delete"]').click();}
   else if(card&&e.target.closest('button')&&(e.key===' '||e.key==='Enter'))return;// the card's own buttons (view, rotate, delete) act on their own
   else if(card&&(e.key===' '||e.key==='Enter')){e.preventDefault();card.click();}
@@ -267,7 +270,7 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
  el.addEventListener('input',e=>{if(e.target.id==='pdfPick'){pickText=e.target.value;if(pickError)showPickError('');return;}if(e.target.closest('#pdfOptions'))readOptions();});
  el.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='pdfPick'){e.preventDefault();pick();}});
  el.addEventListener('submit',e=>e.preventDefault());
- onLocale(()=>{if(!pages().length){empty();return;}frame();render();});
+ onLocale(()=>{pickError='';if(!pages().length){empty();return;}frame();render();});
  empty();
  return {add,get pages(){return pages();}};
 }
