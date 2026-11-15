@@ -1,5 +1,6 @@
 import {SHIFT_JIS,EUC_KR,CP949} from './character-encoding-tables.js';
 import {parseTweet,config as xConfig} from '../../assets/vendor/twitter-text-3.1.0.mjs';
+import {smsSegments,topKeywords} from './character-limits.js';
 
 export const X_RULE=`twitter-text 3.1.0 / config v${xConfig.version}`;
 const tables={shift_jis:SHIFT_JIS,euc_kr:EUC_KR,cp949:CP949};
@@ -27,13 +28,15 @@ function scripts(text){const out={han:0,hiragana:0,katakana:0,hangul:0,latin:0,o
  for(const ch of text){if(/\p{Script=Han}/u.test(ch))out.han++;else if(/\p{Script=Hiragana}/u.test(ch))out.hiragana++;else if(/\p{Script=Katakana}/u.test(ch))out.katakana++;else if(/\p{Script=Hangul}/u.test(ch))out.hangul++;else if(/\p{Script=Latin}/u.test(ch))out.latin++;else if(/\p{Letter}/u.test(ch))out.other++;}
  return out;
 }
-function repeatPhrases(text,locale){
- const found=new Map();let prev='';
+// One word pass yields both adjacent repeats and the frequency table for the keyword list.
+function wordStats(text,locale){
+ const found=new Map(),counts=new Map();let prev='',total=0;
  for(const part of new Intl.Segmenter(locale,{granularity:'word'}).segment(text)){if(!part.isWordLike)continue;
   const word=part.segment.toLocaleLowerCase(locale);if(word.length<2)continue;
+  total++;counts.set(word,(counts.get(word)||0)+1);
   if(word===prev)found.set(word,(found.get(word)||0)+1);prev=word;
  }
- return [...found].slice(0,20).map(([phrase,count])=>({phrase,count}));
+ return {repetitions:[...found].slice(0,20).map(([phrase,count])=>({phrase,count})),keywords:topKeywords(counts,total)};
 }
 function forbiddenPhrases(text,terms,locale){
  const source=text.toLocaleLowerCase(locale),out=[];
@@ -68,12 +71,12 @@ export function countText(text,{locale='en',readRate=250,forbidden=[]}={},quick=
  const xMs=performance.now()-start-linguisticMs;
  const legacy=Object.fromEntries(Object.keys(tables).map(name=>[name,legacyBytes(text,name)]));
  const legacyMs=performance.now()-start-linguisticMs-xMs;
- const extraStart=performance.now(),scriptCounts=scripts(text),repetitions=repeatPhrases(text,locale),flags=forbiddenPhrases(text,forbidden,locale);
+ const extraStart=performance.now(),scriptCounts=scripts(text),{repetitions,keywords}=wordStats(text,locale),flags=forbiddenPhrases(text,forbidden,locale);
  return {graphemes,noSpaces,noLineBreaks,content,codePoints:[...text].length,utf16:text.length,
   spaces:graphemes-noSpaces,lines:text?logical.split('\n').length:0,nonblankLines:countNonblankLines(text),paragraphs,words,sentences,
   utf8:new TextEncoder().encode(text).length,legacy,x:{weighted:x.weightedLength,remaining:xConfig.maxWeightedTweetLength-x.weightedLength,valid:x.valid,rule:X_RULE},
   paper:{ja:content?Math.ceil(content/400):0,ko:content?Math.ceil(content/200):0},
   readSeconds:words?Math.max(1,Math.ceil(words/Math.max(1,readRate)*60)):0,
-  scripts:scriptCounts,width:{half,full,other:graphemes-half-full},repetitions,forbidden:flags,
+  scripts:scriptCounts,width:{half,full,other:graphemes-half-full},repetitions,keywords,sms:smsSegments(text),forbidden:flags,
   profile:{linguisticMs,xMs,legacyMs,extraMs:performance.now()-extraStart}};
 }
