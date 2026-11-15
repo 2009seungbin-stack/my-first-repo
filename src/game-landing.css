@@ -160,7 +160,7 @@ html[lang="ko"] .gl-toc p,html[lang="ja"] .gl-toc p{letter-spacing:.03em}
 @media (max-width:820px){.gl-hero-copy .sd-answer{order:1;margin:18px 0 0}}
 
 /* ---------------------------------------------------------------- hub: search and quick filters (src/game-hub-search.js) */
-.gl-hub-search{display:grid;gap:12px;margin:48px 0 0;padding:16px;background:var(--gs-bg-2);border:1px solid var(--gs-line);border-radius:var(--gs-radius-l)}
+.gl-hub-search{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:48px 0 0;padding:16px;background:var(--gs-bg-2);border:1px solid var(--gs-line);border-radius:var(--gs-radius-l)}
 .gl-hub-search-label{font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--gs-text-3)}
 html[lang="ko"] .gl-hub-search-label,html[lang="ja"] .gl-hub-search-label{letter-spacing:.03em}
 .gl-hub-field{position:relative;display:flex;align-items:center;color:var(--gs-text-3)}
