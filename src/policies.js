@@ -2,6 +2,8 @@ import {ABOUT} from './about-copy.js?v=20261114-editorial-method';
 import {brandCopy} from './brand.js';
 import {labels,footer} from './content.js';
 import {esc} from './ui.js';
+import {INTENTS} from './intents.js';
+import {TOOLS} from './tool-registry.js';
 export const POLICY_ROUTES=['about','privacy','terms','contact'];
 export const ISSUES_URL='https://github.com/2009seungbin-stack/my-first-repo/issues';
 const PROJECT_URL='https://github.com/2009seungbin-stack/my-first-repo';
@@ -129,6 +131,48 @@ const RETIRED_COMMUNITY_HEADINGS={
  ko:{'로그인 없이 쓰는 커뮤니티 글':'종료 전 커뮤니티 글의 데이터','커뮤니티 이미지':'종료 전 업로드한 이미지'},
  ja:{'ログインなしのコミュニティ投稿':'終了前のコミュニティ投稿データ','コミュニティの画像':'終了前にアップロードした画像'}
 };
+/** Tools per family, counted from the same catalogue the Explore search lists (hub entries excluded). */
+export function toolFamilyCounts(){
+ /** @type {Record<string,number>} */const counts={};
+ for(const id of Object.keys(INTENTS)){
+  if(['home','image','pdf','media'].includes(id))continue;
+  const family=TOOLS[id]?.category||(INTENTS[id].editor==='pixel'?'game':INTENTS[id].editor);
+  counts[family]=(counts[family]||0)+1;
+ }
+ return counts;
+}
+const FAMILY_ROUTES={game:'game/',image:'image/editor/',pdf:'pdf/editor/',media:'media/'};
+const FAMILY_COPY={
+ en:{heading:'Tool families',count:n=>n===1?'1 tool':`${n} tools`,note:'Counts are read from this build’s tool catalogue.',game:['Game assets','Sprites, pixel art, tilesets and atlases','Game tools and workflows'],image:['Image','Image editing and conversion tools','Open the image editor'],pdf:['PDF','Merge, split, compress and protect PDFs','Open the PDF editor'],media:['Video and audio','Video and audio conversion and extraction','Open the media editor']},
+ ko:{heading:'도구 모음',count:n=>`도구 ${n}개`,note:'개수는 이 빌드의 도구 목록에서 계산합니다.',game:['게임 에셋','스프라이트·픽셀 아트·타일셋·아틀라스','게임 도구와 작업 흐름'],image:['이미지','이미지 편집·변환 도구','이미지 편집기 열기'],pdf:['PDF','PDF 합치기·나누기·압축·암호 설정','PDF 편집기 열기'],media:['영상·음성','영상·음성 변환과 추출','미디어 편집기 열기']},
+ ja:{heading:'ツールの種類',count:n=>`ツール ${n}件`,note:'件数はこのビルドのツール一覧から算出しています。',game:['ゲーム素材','スプライト・ピクセルアート・タイルセット・アトラス','ゲームツールと作業の流れ'],image:['画像','画像の編集・変換ツール','画像エディターを開く'],pdf:['PDF','PDFの結合・分割・圧縮・保護','PDFエディターを開く'],media:['動画・音声','動画・音声の変換と抽出','メディアエディターを開く']}
+};
+/** About page: one linked card per tool family with its live tool count. @param {string} locale */
+export function aboutFamilies(locale){
+ const copy=FAMILY_COPY[locale],counts=toolFamilyCounts();
+ const cards=Object.keys(FAMILY_ROUTES).filter(family=>counts[family]).map(family=>`<li><a href="${locale}/${FAMILY_ROUTES[family]}"><strong>${esc(copy[family][0])}</strong><span class="about-family-count">${esc(copy.count(counts[family]))}</span><span>${esc(copy[family][1])}</span><span class="about-family-go">${esc(copy[family][2])} →</span></a></li>`).join('');
+ return `<nav class="about-families" aria-label="${esc(copy.heading)}"><h2>${esc(copy.heading)}</h2><ul>${cards}</ul><p>${esc(copy.note)}</p></nav>`;
+}
+/** Contact page: a report outline that mirrors the "What to include" section. */
+export const REPORT_COPY={
+ en:{heading:'Report template',copy:'Copy report template',copied:'Copied. Paste it into a new issue.',failed:'Copy failed. Select the text below and copy it.',fields:['Tool URL','Browser and version','Expected result','Actual result'],steps:'Steps to reproduce',reminder:'Do not post personal files, passwords or confidential documents.'},
+ ko:{heading:'제보 양식',copy:'제보 양식 복사',copied:'복사했습니다. 새 이슈에 붙여 넣으세요.',failed:'복사하지 못했습니다. 아래 내용을 선택해 복사하세요.',fields:['도구 URL','브라우저와 버전','기대한 결과','실제 결과'],steps:'재현 순서',reminder:'개인 파일·비밀번호·기밀 문서는 올리지 마세요.'},
+ ja:{heading:'報告テンプレート',copy:'報告テンプレートをコピー',copied:'コピーしました。新しいIssueに貼り付けてください。',failed:'コピーできませんでした。下のテキストを選択してコピーしてください。',fields:['ツールのURL','ブラウザとバージョン','期待した結果','実際の結果'],steps:'再現手順',reminder:'個人ファイル・パスワード・機密文書は投稿しないでください。'}
+};
+/** Plain-text issue outline; the page fills url and browser on this device only when copying.
+ * @param {string} locale @param {{url?:string,browser?:string}} [known] */
+export function reportTemplate(locale,known={}){
+ const c=REPORT_COPY[locale],values=[known.url||'',known.browser||'','',''];
+ return c.fields.map((label,i)=>`${label}: ${values[i]}`.trimEnd()).join('\n')+`\n${c.steps}:\n1.\n2.\n\n${c.reminder}`;
+}
+function contactActions(locale){
+ const c=REPORT_COPY[locale];
+ return `<div class="contact-actions"><a class="contact-issue" href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a><button type="button" class="policy-print" data-report-copy hidden>${esc(c.copy)}</button></div><p class="contact-status" role="status"></p><h2 class="contact-template-title">${esc(c.heading)}</h2><pre class="contact-template" data-report-text>${esc(reportTemplate(locale))}</pre>`;
+}
+/** Reading aids on policy pages: contents heading, print control, back-to-top link. */
+const POLICY_UI={en:['On this page','Print or save as PDF','Back to top'],ko:['이 페이지의 내용','인쇄 또는 PDF로 저장','맨 위로'],ja:['このページの内容','印刷またはPDFで保存','ページの先頭へ']};
+/** In-page anchor of the nth rendered section (1-based) of a policy page. @param {number} n */
+export const policyAnchor=n=>'sec-'+n;
 function retiredCommunityText(locale,text){for(const [from,to] of RETIRED_COMMUNITY_TEXT[locale])text=text.replaceAll(from,to);return text;}
 /** @param {string} page @param {string} locale @param {boolean} [ads] @param {boolean|'accounts'} [service] @param {boolean} [analytics] @param {boolean} [traffic] @param {boolean} [platform] */
 export function policyContent(page,locale,ads=false,service=/** @type {boolean|'accounts'} */(false),analytics=false,traffic=false,platform=traffic){
@@ -136,6 +180,13 @@ export function policyContent(page,locale,ads=false,service=/** @type {boolean|'
  const closed=page==='privacy'&&platform;
  const closedNotice=closed?`<section class="community-closed"><h2>${esc({ko:'커뮤니티 운영 종료',en:'Community closed',ja:'コミュニティ終了'}[locale])}</h2><p>${esc({ko:'커뮤니티 게시판·댓글·추천·이미지 업로드는 종료했습니다. 편집 도구는 계속 기기에서 파일을 처리합니다. 종료 전 수집한 데이터와 기존 보관 규칙은 아래에 안내합니다.',en:'Community boards, comments, votes and image uploads are closed. Editing tools continue to process files on your device. Earlier community data and its existing retention rules are described below.',ja:'投稿・コメント・投票・画像アップロードは終了しました。編集ツールは引き続き端末内でファイルを処理します。終了前のコミュニティデータと既存の保存ルールは以下で説明します。'}[locale])}</p></section>`:'';
  const status=ads?{en:'Google AdSense is enabled in this build. Ad delivery depends on account approval, configured units and consent.',ko:'이 빌드에는 Google AdSense가 활성화되어 있습니다. 실제 노출은 계정 승인·광고 단위·동의 설정에 따라 달라집니다.',ja:'このビルドではGoogle AdSenseが有効です。配信はアカウント承認、広告枠、同意設定によります。'}:{en:'Google AdSense is disabled in this build. No Google advertising script or ad units are loaded.',ko:'이 빌드에서는 Google AdSense가 비활성화되어 광고 스크립트와 광고 단위를 불러오지 않습니다.',ja:'このビルドではGoogle AdSenseが無効で、Google広告スクリプトや広告枠は読み込みません。'};
- return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1>${esc(l[page])}</h1>${closedNotice}${sections(page,locale,service).map(([h,p])=>`<section><h2>${esc(h)}</h2><p>${esc(closed?retiredCommunityText(locale,p):p)}</p></section>`).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${closed?COMMUNITY_PRIVACY_NOTE[locale].map(([h,p])=>`<section class="community-privacy"><h2>${esc(RETIRED_COMMUNITY_HEADINGS[locale][h]||h)}</h2><p>${esc(retiredCommunityText(locale,p))}</p></section>`).join(''):''}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}`;
+ const ui=POLICY_UI[locale],self=`${locale}/${page}/`;
+ // Section text is unchanged; only anchors, a contents list and a print control are added around it.
+ const main=sections(page,locale,service).map(([h,p])=>[h,closed?retiredCommunityText(locale,p):p,'']);
+ const community=closed?COMMUNITY_PRIVACY_NOTE[locale].map(([h,p])=>[RETIRED_COMMUNITY_HEADINGS[locale][h]||h,retiredCommunityText(locale,p),' class="community-privacy"']):[];
+ const all=[...main,...community];
+ const section=([h,p,cls],i)=>`<section${cls}><h2 id="${policyAnchor(i+1)}" tabindex="-1">${esc(h)}</h2><p>${esc(p)}</p></section>`;
+ const toc=`<nav class="policy-toc" aria-label="${esc(ui[0])}"><h2>${esc(ui[0])}</h2><ol>${all.map(([h],i)=>`<li><a data-policy-anchor href="${self}#${policyAnchor(i+1)}">${esc(h)}</a></li>`).join('')}</ol><button type="button" class="policy-print" data-policy-print hidden>${esc(ui[1])}</button></nav>`;
+ return `<a class="policy-home" id="policy-top" href="${locale}/">← ${esc(l.home)}</a><h1>${esc(l[page])}</h1>${closedNotice}${toc}${page==='about'?aboutFamilies(locale):''}${main.map(section).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${community.map((item,i)=>section(item,main.length+i)).join('')}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?contactActions(locale):''}<p class="policy-top"><a data-policy-anchor href="${self}#policy-top">↑ ${esc(ui[2])}</a></p>`;
 }
 export {footer};

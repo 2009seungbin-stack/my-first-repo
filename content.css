@@ -13,3 +13,29 @@
 @media(max-width:700px){.sd-table thead{display:none}.sd-table,.sd-table tbody,.sd-table tr,.sd-table th,.sd-table td{display:block}.sd-table tr{border-bottom:1px solid #dfe5ed;padding:6px 0}.sd-table th,.sd-table td{border:0;padding:4px 12px}.sd-table td::before{content:attr(data-label);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#8590a2}.sd-terms{grid-template-columns:1fr}}
 /* Phones: the tool stays above the fold; the short answer follows it directly. */
 @media(max-width:700px){#task{display:flex;flex-direction:column}#task>.sd-answer{order:1;margin:18px 0 0}}
+/* Policy pages: reading layout, in-page contents and print. */
+.policy-main h1{font-size:clamp(28px,5vw,38px);line-height:1.25;letter-spacing:-.02em;color:var(--ink);margin:14px 0 22px;scroll-margin-top:16px}
+.policy-main h2{line-height:1.35;scroll-margin-top:16px}.policy-main section{border-top:1px solid #e6ebf2}.policy-main section p{max-width:74ch;margin:0 0 24px}
+.policy-main h1:focus,.policy-main h2:focus{outline:0}.policy-main h1:focus-visible,.policy-main h2:focus-visible,.policy-main a:focus-visible,.policy-header a:focus-visible,.policy-print:focus-visible{outline:3px solid #95bfff;outline-offset:4px;border-radius:4px}
+.policy-home,.policy-languages a,.policy-top a{display:inline-flex;align-items:center;min-height:44px}.policy-home{scroll-margin-top:24px}.policy-languages a{padding:0 4px;color:#2466bc}
+.policy-main .community-closed{margin:0 0 24px;padding:4px 22px 0;border:1px solid #ecd9a8;border-radius:14px;background:#fff9e8;color:#4a3d16}.policy-main .community-closed h2{margin-top:16px;font-size:18px}.policy-main .community-closed p{margin-bottom:16px}
+.policy-toc{margin:0 0 34px;padding:18px 22px;border:1px solid #d6e2f3;border-radius:14px;background:#f5f9ff}
+.policy-main .policy-toc h2{margin:0 0 6px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#52647c}
+.policy-toc ol{margin:0;padding-left:24px;columns:2;column-gap:40px}.policy-toc li{break-inside:avoid;color:#52647c}.policy-toc li a{display:block;box-sizing:border-box;min-height:44px;padding:10px 0;line-height:1.5;text-underline-offset:4px}
+.policy-print{margin-top:12px;min-height:44px;padding:0 18px;border:1px solid #c5d3e6;border-radius:10px;background:#fff;color:#22324a;font:inherit;font-weight:650;cursor:pointer}.policy-print:hover{background:#eaf2ff;border-color:#95bfff}
+.policy-top{margin:34px 0 0;padding-top:12px;border-top:1px solid #e6ebf2}
+@media(max-width:700px){.policy-main,.policy-header{padding:0 20px}.policy-main{margin:28px auto 40px}.policy-toc{padding:16px 18px}.policy-toc ol{columns:1}.policy-main h2{font-size:20px}}
+@media print{.policy-header nav,.policy-home,.policy-toc,.policy-top,#policyFooter,.ad-slot{display:none}body{background:#fff}.policy-main{max-width:none;margin:0;padding:0;color:#000;font-size:11pt;line-height:1.6}.policy-main h1,.policy-main h2{color:#000}.policy-main section{border-top:0}.policy-main section p{max-width:none}.policy-main h2{break-after:avoid}.policy-main .community-closed{background:none;border-color:#999;color:#000}.policy-main a{color:#000}.policy-main a[href^="http"]::after{content:" (" attr(href) ")";overflow-wrap:anywhere}}
+/* About: linked tool-family cards with counts from the catalogue. */
+.about-families{margin:0 0 34px}.policy-main .about-families h2{margin:0 0 12px}.about-families ul{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.policy-main .about-families li a{display:flex;flex-direction:column;gap:4px;height:100%;min-height:44px;padding:16px 18px;border:1px solid #dde5ee;border-radius:14px;background:#fff;color:#435167;text-decoration:none;line-height:1.5;font-size:13px;transition:border-color .15s,box-shadow .15s}
+.policy-main .about-families li a:hover{border-color:#95bfff;box-shadow:0 6px 18px #2466bc14}.about-families li a{word-break:keep-all}.about-families strong{font-size:16px;color:var(--ink)}.about-family-count{font-weight:700;color:#2466bc}.about-family-go{margin-top:auto;padding-top:8px;font-weight:700;color:#2466bc;text-decoration:underline;text-underline-offset:4px}.about-families p{margin:10px 0 0;font-size:12px;color:#5d6c82}
+@media(max-width:900px){.about-families ul{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:420px){.about-families ul{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.policy-main .about-families li a{transition:none}}
+@media print{.about-families ul{display:block;padding-left:18px;list-style:disc}.policy-main .about-families li a{display:block;padding:0;border:0;min-height:0}.about-families li a span{margin-left:6px}}
+/* Contact: issue link, copyable report outline. */
+.contact-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0 10px}.contact-actions .policy-print{margin-top:0}
+.policy-main .contact-issue{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:10px;background:#2466bc;color:#fff;font-weight:700;text-decoration:none}.policy-main .contact-issue:hover{background:#1c549d}
+.contact-status{min-height:24px;margin:0 0 4px;font-size:13px;font-weight:650;color:#1f6b45}.policy-main .contact-template-title{font-size:16px;margin:14px 0 8px}
+.contact-template{margin:0;padding:14px 18px;border:1px solid #dfe5ed;border-radius:10px;background:#fff;color:#2c3a4f;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+@media print{.contact-actions .policy-print,.contact-status{display:none}}

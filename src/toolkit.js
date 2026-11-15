@@ -10,6 +10,7 @@ import {t,getLocale} from './i18n.js';
 import {esc,icon,button} from './ui.js';
 import * as Im from './image.js';
 import {defaults,detect,runRecipe,shareCard} from './recipes.js';
+import {searchTools,highlightMatch,moveActive,SEARCH_UI} from './tool-search.js';
 const $=selector=>document.querySelector(selector), tr=key=>t('kit.'+key);
 const field=(key,html)=>`<label class="field"><span>${esc(tr(key))}</span>${html}</label>`;
 const btn=(action,key,extra='')=>`<button type="button" class="kit-button" data-action="${action}" ${extra}>${esc(tr(key))}</button>`;
@@ -19,8 +20,17 @@ function readPrefs(){try{const p=JSON.parse(window.localStorage.getItem(prefKey)
 export class Toolkit{
   constructor(ux){
     this.u=ux;this.o=defaults('');this.rects=[];this.selected=new Set();this.frame=0;this.advanced=false;this.prefs=readPrefs();this.category='all';this.dragIndex=null;
-    const d=document.createElement('dialog');d.id='toolsDialog';d.setAttribute('data-ad-exclude','');d.setAttribute('aria-labelledby','toolsTitle');d.innerHTML='<div class="dialog-heading"><h2 id="toolsTitle"></h2><button type="button" data-action="kit-close" class="icon-button">×</button></div><input id="toolSearch" type="search" autocomplete="off"><div id="toolCategories" class="kit-categories"></div><div id="toolResults"></div>';document.body.append(d);
-    $('#toolSearch').addEventListener('input',()=>this.searchResults());
+    const d=document.createElement('dialog');d.id='toolsDialog';d.setAttribute('data-ad-exclude','');d.setAttribute('aria-labelledby','toolsTitle');d.innerHTML='<div class="dialog-heading"><h2 id="toolsTitle"></h2><button type="button" data-action="kit-close" class="icon-button">×</button></div><input id="toolSearch" type="search" autocomplete="off" aria-describedby="toolStatus"><div id="toolCategories" class="kit-categories"></div><p id="toolStatus" class="kit-status" role="status"></p><div id="toolResults"></div>';document.body.append(d);
+    $('#toolSearch').addEventListener('input',()=>{this.activeRow=0;this.searchResults();});
+    // Arrow keys move the highlighted result while typing continues; Enter opens it.
+    $('#toolSearch').addEventListener('keydown',e=>{
+      const list=[...$('#toolResults').querySelectorAll('[data-action^="kit-open:"]')];
+      if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+        if(!list.length)return;e.preventDefault();const down=e.key==='ArrowDown';
+        this.activeRow=moveActive(this.activeRow<0?(down?-1:0):this.activeRow,down?1:-1,list.length);this.markActive(list);
+        list[this.activeRow].scrollIntoView({block:'nearest'});
+      }else if(e.key==='Enter'&&!e.isComposing&&list[this.activeRow]){e.preventDefault();list[this.activeRow].click();}
+    });
     d.addEventListener('close',()=>this.returnFocus?.focus({preventScroll:true}));
     document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if(!this.u.s.busy)this.openSearch();}});
     $('#panel').addEventListener('input',()=>{if(this.active)this.read();});
@@ -141,21 +151,30 @@ export class Toolkit{
     const u=this.u;this.read();u.invalidate();await u.a.task(tr('preparing'),async(_,signal)=>{try{this.rects=await detect(u.s.c,this.o,signal);}catch(error){if(error.name!=='AbortError')error.message=t(error.message);throw error;}this.frame=0;this.selected.clear();u.s.tool='recipe';if(!this.rects.length)u.a.message(tr('none'));});
   }
   moveInput(from,to){const s=this.u.s;if(from===to||from<0||to<0||from>=s.images.length||to>=s.images.length)return;this.read();const selected=s.images[s.index],[item]=s.images.splice(from,1);s.images.splice(to,0,item);s.index=s.images.indexOf(selected);this.u.invalidate();this.u.a.refresh();this.u.a.paint().catch(e=>this.u.a.message(e.message,true));}
-  openSearch(){this.returnFocus=document.activeElement;$('#toolsTitle').textContent=tr('search');$('#toolSearch').placeholder=tr('search');$('#toolSearch').setAttribute('aria-label',tr('search'));$('#toolsDialog [data-action="kit-close"]').setAttribute('aria-label',tr('close'));$('#toolSearch').value='';this.category='all';this.searchResults();if(!$('#toolsDialog').open)$('#toolsDialog').showModal();$('#toolSearch').focus();}
+  openSearch(){this.returnFocus=document.activeElement;$('#toolsTitle').textContent=tr('search');$('#toolSearch').placeholder=tr('search');$('#toolSearch').setAttribute('aria-label',tr('search'));$('#toolsDialog [data-action="kit-close"]').setAttribute('aria-label',tr('close'));$('#toolSearch').value='';this.category='all';this.activeRow=-1;this.searchResults();if(!$('#toolsDialog').open)$('#toolsDialog').showModal();$('#toolSearch').focus();}
+  markActive(list){list.forEach((el,i)=>el.classList.toggle('kit-active',i===this.activeRow));}
   searchResults(){
-    const query=$('#toolSearch').value.toLocaleLowerCase().trim();
+    const raw=$('#toolSearch').value.trim(),query=raw.toLocaleLowerCase(),ui=SEARCH_UI[getLocale()]||SEARCH_UI.en;
     $('#toolCategories').innerHTML=['all','image','game','pdf','media'].map(id=>`<button type="button" data-action="kit-category:${id}" aria-pressed="${this.category===id}">${esc(tr(id))}</button>`).join('');
     const keys=Object.keys(INTENTS).filter(id=>!['home','image','pdf','media'].includes(id));
     const category=id=>TOOLS[id]?.category||(INTENTS[id].editor==='pixel'?'game':INTENTS[id].editor);
-    const matches=id=>(this.category==='all'||this.category===category(id))&&(!query||[id,INTENTS[id].path,...(SEARCH_TERMS[id]||[]),...(TOOLS[id]?.title||[]),t(`intent.${id}.title`),t(`intent.${id}.description`)].join(' ').toLocaleLowerCase().includes(query));
-    const rows=ids=>ids.filter(matches).map(id=>`<div class="kit-tool-row"><button type="button" data-action="kit-open:${id}">${icon(INTENTS[id].icon,22)}<span><strong>${esc(t(`intent.${id}.title`))}</strong><small>${esc(t(`intent.${id}.description`))}</small></span></button><button type="button" class="kit-star" data-action="kit-star:${id}" aria-label="${esc(tr('favorite'))}" aria-pressed="${this.prefs.favorites.includes(id)}">${this.prefs.favorites.includes(id)?'★':'☆'}</button></div>`).join('');
+    const scoped=keys.filter(id=>this.category==='all'||this.category===category(id));
+    // Ranked search: every word must match; titles outrank aliases and descriptions, one typo is forgiven.
+    const found=query?searchTools(scoped.map(id=>({id,title:t(`intent.${id}.title`),description:t(`intent.${id}.description`),aliases:[INTENTS[id].path,...(SEARCH_TERMS[id]||[]),...(TOOLS[id]?.title||[])]})),raw):scoped;
+    const matches=id=>found.includes(id);
+    const rows=ids=>ids.filter(matches).map(id=>`<div class="kit-tool-row"><button type="button" data-action="kit-open:${id}">${icon(INTENTS[id].icon,22)}<span><strong>${highlightMatch(t(`intent.${id}.title`),raw,esc)}</strong><small>${esc(t(`intent.${id}.description`))}</small></span></button><button type="button" class="kit-star" data-action="kit-star:${id}" aria-label="${esc(tr('favorite'))}" aria-pressed="${this.prefs.favorites.includes(id)}">${this.prefs.favorites.includes(id)?'★':'☆'}</button></div>`).join('');
     const favorite=this.prefs.favorites.filter(matches),recent=this.prefs.recent.filter(id=>matches(id)&&!favorite.includes(id));
-    $('#toolResults').innerHTML=(!query&&favorite.length?`<h3>${esc(tr('favorites'))}</h3>${rows(favorite)}`:'')+(!query&&recent.length?`<h3>${esc(tr('recent'))}</h3>${rows(recent)}`:'')+rows(keys.filter(id=>query||!favorite.includes(id)&&!recent.includes(id)))||`<p>${esc(tr('noMatches'))}</p>`;
+    const empty=`<div class="kit-empty"><p>${esc(query?ui.none(raw):tr('noMatches'))}</p>${query?`<button type="button" class="kit-button" data-action="kit-clear">${esc(ui.clear)}</button>`:''}${this.category!=='all'?`<button type="button" class="kit-button" data-action="kit-category:all">${esc(ui.allCategories)}</button>`:''}</div>`;
+    $('#toolResults').innerHTML=(!query&&favorite.length?`<h3>${esc(tr('favorites'))}</h3>${rows(favorite)}`:'')+(!query&&recent.length?`<h3>${esc(tr('recent'))}</h3>${rows(recent)}`:'')+rows(query?found:keys.filter(id=>!favorite.includes(id)&&!recent.includes(id)))||empty;
+    const list=[...$('#toolResults').querySelectorAll('[data-action^="kit-open:"]')];
+    this.activeRow=query&&list.length?Math.min(Math.max(this.activeRow??0,0),list.length-1):-1;this.markActive(list);
+    $('#toolStatus').textContent=list.length?ui.count(list.length)+' · '+ui.keys:'';
   }
   async action(action){
     const u=this.u;
     if(action==='kit-explore'){this.openSearch();return true;}
     if(action==='kit-close'){$('#toolsDialog').close();return true;}
+    if(action==='kit-clear'){$('#toolSearch').value='';this.activeRow=-1;this.searchResults();$('#toolSearch').focus();return true;}
     if(action.startsWith('kit-category:')){this.category=action.split(':')[1];this.searchResults();return true;}
     if(action.startsWith('kit-star:')){const id=action.split(':')[1];this.prefs.favorites=this.prefs.favorites.includes(id)?this.prefs.favorites.filter(x=>x!==id):[...this.prefs.favorites,id];this.savePrefs();this.searchResults();return true;}
     if(action.startsWith('kit-open:')){$('#toolsDialog').close();const id=action.split(':')[1];this.remember(id);await u.enter(id,{consume:false});return true;}

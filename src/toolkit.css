@@ -24,3 +24,8 @@
 .recipe-active .stage.pixel-mode #preview{image-rendering:pixelated}
 
 @media(max-width:680px){.recipe-active #panel{inset:auto 0 0;max-height:65%;width:100%;border-left:0;border-top:1px solid #dce6f1;border-radius:16px 16px 0 0;box-shadow:0 -8px 25px #1a395210}}
+/* Explore search: result count, keyboard-highlighted row, matched text, empty state. */
+.kit-status{margin:0 0 4px;min-height:17px;font-size:11px;font-weight:600;color:#62748c}
+.kit-tool-row>button.kit-active{background:#eef5ff;border-radius:10px;box-shadow:inset 3px 0 0 #3182f6}
+.kit-tool-row mark{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 1px}
+.kit-empty{padding:24px 8px;text-align:center;color:#62748c}.kit-empty p{margin:0 0 14px;font-size:13px;overflow-wrap:anywhere}.kit-empty .kit-button{margin:0 4px 8px}
