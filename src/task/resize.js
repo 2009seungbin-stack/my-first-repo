@@ -3,6 +3,7 @@ import {stem} from '../core.js';
 import {landingFor,SOCIAL} from '../landings.js';
 import {createBatch} from './batch.js';
 import {text,page,locale} from './shell.js';
+import {say,presetLabel,attachStyles} from './image-extras.js';
 /** Image resize: a percentage or a pixel size first; fit mode, social-media presets,
  * background, output format and "never enlarge" under Advanced. High-quality tiled
  * resampling (Pica mks2013 / Lanczos) via Im.fitQuality / Im.resizeQuality. */
@@ -14,10 +15,13 @@ function options(query){
  const w=int(q.get('w')),h=int(q.get('h')),percent=int(q.get('percent'),1000);
  return {mode:w||h?'size':'percent',percent:percent||50,w,h,fit:['contain','cover','stretch'].includes(q.get('fit'))?q.get('fit'):'contain',bg:/^#[0-9a-f]{6}$/i.test(q.get('bg')||'')?q.get('bg'):'',format:['keep','png','jpeg','webp'].includes(q.get('format'))?q.get('format'):'keep',noEnlarge:q.get('enlarge')!=='1'};
 }
+const L=(key,vars)=>say(locale(),key,vars);
+// Platform sizes one tap away in "By size" mode (the same list as the Advanced menu and the landing pages).
+const presets=o=>`<div class="it-chips" role="group" id="resizePresets" aria-label="${esc(L('presetGroup'))}" ${o.mode==='size'?'':'hidden'}><span class="it-label" aria-hidden="true">${esc(L('presetGroup'))}</span>${Object.entries(SOCIAL).map(([slug,[name,w,h]])=>`<button type="button" class="chip" data-size="${w}x${h}" aria-pressed="${o.w===w&&o.h===h}" title="${esc(name[locale()]||name.en)}">${esc(presetLabel(slug,w,h,locale()))} <small>${w}×${h}</small></button>`).join('')}</div>`;
 const tab=(id,o,label)=>`<button type="button" data-action="task-option" data-mode="${id}" aria-pressed="${o.mode===id}">${esc(label)}</button>`;
 const simple=o=>`<div class="segmented" role="group" id="resizeMode">${tab('percent',o,text('resize.byPercent'))}${tab('size',o,text('resize.bySize'))}</div>
 <div id="resizePercentRow" class="chips-row" ${o.mode==='percent'?'':'hidden'}>${[75,50,25].map(p=>`<button type="button" class="chip" data-percent="${p}">${p}%</button>`).join('')}<label class="field compact"><input id="resizePercent" type="number" min="1" max="1000" value="${o.percent}" inputmode="numeric" aria-label="%"><span>%</span></label></div>
-<div id="resizeSizeRow" class="field-row" ${o.mode==='size'?'':'hidden'}><label class="field"><span>${esc(text('resize.width'))}</span><input id="resizeW" type="number" min="0" max="65535" value="${o.w||''}" placeholder="${esc(text('resize.auto'))}" inputmode="numeric"></label><label class="field"><span>${esc(text('resize.height'))}</span><input id="resizeH" type="number" min="0" max="65535" value="${o.h||''}" placeholder="${esc(text('resize.auto'))}" inputmode="numeric"></label></div>`;
+<div id="resizeSizeRow" class="field-row" ${o.mode==='size'?'':'hidden'}><label class="field"><span>${esc(text('resize.width'))}</span><input id="resizeW" type="number" min="0" max="65535" value="${o.w||''}" placeholder="${esc(text('resize.auto'))}" inputmode="numeric"></label><label class="field"><span>${esc(text('resize.height'))}</span><input id="resizeH" type="number" min="0" max="65535" value="${o.h||''}" placeholder="${esc(text('resize.auto'))}" inputmode="numeric"></label><button type="button" class="it-swap" id="resizeSwap" title="${esc(L('swap'))}" aria-label="${esc(L('swap'))}">⇄</button></div>${presets(o)}`;
 const advanced=o=>`<label class="field"><span>${esc(text('resize.preset'))}</span><select id="resizePreset"><option value="">—</option>${Object.entries(SOCIAL).map(([slug,[name,w,h]])=>`<option value="${w}x${h}">${esc(name[locale()]||name.en)} · ${w}×${h}</option>`).join('')}</select></label>
 <label class="field"><span>${esc(text('resize.fit'))}</span><select id="resizeFit">${['contain','cover','stretch'].map(f=>`<option value="${f}" ${o.fit===f?'selected':''}>${esc(text('resize.'+f))}</option>`).join('')}</select><small>${esc(text('resize.fitHint'))}</small></label>
 <label class="field"><span>${esc(text('compress.format'))}</span><select id="resizeFormat">${['keep','jpeg','png','webp'].map(f=>`<option value="${f}" ${o.format===f?'selected':''}>${f==='keep'?esc(text('resize.keep')):f==='jpeg'?'JPG':f.toUpperCase()}</option>`).join('')}</select></label>
@@ -28,16 +32,21 @@ function read(form,o){
  return {mode,percent:int(form.querySelector('#resizePercent').value,1000)||o.percent,w:int(form.querySelector('#resizeW').value),h:int(form.querySelector('#resizeH').value),fit:form.querySelector('#resizeFit').value,
   bg:form.querySelector('#resizeBgOn').checked?form.querySelector('#resizeBg').value:'',format:form.querySelector('#resizeFormat').value,noEnlarge:form.querySelector('#resizeNoEnlarge').checked};
 }
-function reflect(form,o){form.querySelector('#resizePercentRow').hidden=o.mode!=='percent';form.querySelector('#resizeSizeRow').hidden=o.mode!=='size';}
+function reflect(form,o){form.querySelector('#resizePercentRow').hidden=o.mode!=='percent';form.querySelector('#resizeSizeRow').hidden=o.mode!=='size';
+ form.querySelector('#resizePresets').hidden=o.mode!=='size';for(const c of form.querySelectorAll('#resizePresets [data-size]'))c.setAttribute('aria-pressed',String(c.dataset.size===`${o.w}x${o.h}`));}
 /** Extra wiring the generic form sync cannot express: chips and the preset menu fill inputs. */
 function wire(el){
  el.addEventListener('click',e=>{const c=e.target.closest('[data-percent]');if(!c)return;const input=el.querySelector('#resizePercent');input.value=c.dataset.percent;input.dispatchEvent(new Event('input',{bubbles:true}));});
- el.addEventListener('change',e=>{if(e.target.id!=='resizePreset'||!e.target.value)return;const [w,h]=e.target.value.split('x');
+ const preset=size=>{const [w,h]=size.split('x');
   el.querySelector('#resizeW').value=w;el.querySelector('#resizeH').value=h;el.querySelector('#resizeFit').value='cover';
   // A chosen fixed-size preset opts in to upscaling; the visible checkbox can cap it again.
   el.querySelector('#resizeNoEnlarge').checked=false;
   for(const b of el.querySelectorAll('#resizeMode [data-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mode==='size'));
-  el.querySelector('#resizeW').dispatchEvent(new Event('input',{bubbles:true}));});
+  el.querySelector('#resizeW').dispatchEvent(new Event('input',{bubbles:true}));};
+ el.addEventListener('change',e=>{if(e.target.id!=='resizePreset'||!e.target.value)return;preset(e.target.value);});
+ el.addEventListener('click',e=>{
+  const chip=e.target.closest('#resizePresets [data-size]');if(chip){for(const c of el.querySelectorAll('#resizePresets [data-size]'))c.setAttribute('aria-pressed',String(c===chip));preset(chip.dataset.size);return;}
+  if(!e.target.closest('#resizeSwap'))return;const w=el.querySelector('#resizeW'),h=el.querySelector('#resizeH');[w.value,h.value]=[h.value,w.value];w.dispatchEvent(new Event('input',{bubbles:true}));});
 }
 export function target(sw,sh,o){
  let w,h,fit='stretch';
@@ -64,4 +73,4 @@ async function process(file,o,{signal,progress}){
 }
 const summary=ok=>{const sizes=[...new Set(ok.map(i=>i.result.pixels))];return {big:sizes.length===1?sizes[0].replace('×',' × '):text('resize.mixed',{n:sizes.length})};};
 const pill=it=>it.result.pixels;
-export function mount(ctx){wire(ctx.el);return createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,advancedOpen:o=>o.fit!=='contain'||o.format!=='keep'||!!o.bg});}
+export function mount(ctx){attachStyles();wire(ctx.el);return createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,advancedOpen:o=>o.fit!=='contain'||o.format!=='keep'||!!o.bg});}

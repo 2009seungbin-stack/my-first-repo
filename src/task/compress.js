@@ -3,7 +3,8 @@ import {supportedFormats} from '../compression.js';
 import {bytes,stem} from '../core.js';
 import {landingFor} from '../landings.js';
 import {createBatch} from './batch.js';
-import {text,page} from './shell.js';
+import {text,page,locale} from './shell.js';
+import {say,TARGETS,targetLabel,targetVerdict,targetTally,chosenLabel,attachStyles} from './image-extras.js';
 /** Image compression task: three plain choices first; codec, target size, max width and
  * exact quality under "Advanced". Uses the existing candidate-search encoder, which decodes
  * every candidate again and scores it (SSIM) instead of trusting a quality number. */
@@ -21,7 +22,10 @@ function options(query){
  return {level,quality:LEVELS[level],format:['auto','png','jpeg','webp','avif'].includes(q.get('format'))?q.get('format'):'auto',kb:int('kb',102400),width:int('w',65535),shrink:q.get('shrink')==='1',bg:/^#[0-9a-f]{6}$/i.test(q.get('bg')||'')?q.get('bg'):'#ffffff'};
 }
 const level=(id,o)=>`<button type="button" data-action="task-option" data-level="${id}" aria-pressed="${o.level===id}">${esc(text('compress.'+id))}<small>${esc(text(`compress.${id}Hint`))}</small></button>`;
-const simple=o=>`<div class="segmented" role="group" id="compressLevel">${['small','balanced','high'].map(id=>level(id,o)).join('')}</div>`;
+const L=(key,vars)=>say(locale(),key,vars);
+// One-tap target sizes; they fill the "Target size (KB)" field under Advanced, which stays the source of truth.
+const targets=o=>`<div class="it-chips" role="group" id="compressTargets" aria-label="${esc(L('targetGroup'))}"><span class="it-label" aria-hidden="true">${esc(L('targetGroup'))}</span>${[0,...TARGETS].map(kb=>`<button type="button" class="chip" data-target-kb="${kb}" aria-pressed="${o.kb===kb}">${kb?'≤ '+targetLabel(kb):esc(L('targetOff'))}</button>`).join('')}</div>`;
+const simple=o=>`<div class="segmented" role="group" id="compressLevel">${['small','balanced','high'].map(id=>level(id,o)).join('')}</div>${targets(o)}`;
 const advanced=o=>`<label class="field"><span>${esc(text('compress.format'))}</span><select id="compressFormat"><option value="auto">${esc(text('compress.auto'))}</option>${formats.map(f=>`<option value="${f}">${f==='jpeg'?'JPG':f.toUpperCase()}</option>`).join('')}</select></label>
 <label class="field"><span>${esc(text('compress.quality'))} <output id="compressQualityOut">${Math.round(o.quality*100)}</output></span><input id="compressQuality" type="range" min="20" max="100" step="1" value="${Math.round(o.quality*100)}"></label>
 <div class="field-row"><label class="field"><span>${esc(text('compress.target'))}</span><input id="compressTarget" type="number" min="0" max="102400" step="10" inputmode="numeric" value="${o.kb}"><small>${esc(text('compress.targetHint'))}</small></label>
@@ -35,7 +39,14 @@ function read(form,o){
  const quality=pressed!==o.level?LEVELS[pressed]:slider,num=(id,max)=>Math.max(0,Math.min(max,Math.round(Number(form.querySelector(id).value)||0)));
  return {level:pressed,quality,format:form.querySelector('#compressFormat').value,kb:num('#compressTarget',102400),width:num('#compressWidth',65535),shrink:form.querySelector('#compressShrink').checked,bg:form.querySelector('#compressBg').value};
 }
-function reflect(form,o){form.querySelector('#compressQuality').value=Math.round(o.quality*100);form.querySelector('#compressQualityOut').textContent=Math.round(o.quality*100);}
+function reflect(form,o){form.querySelector('#compressQuality').value=Math.round(o.quality*100);form.querySelector('#compressQualityOut').textContent=Math.round(o.quality*100);
+ for(const c of form.querySelectorAll('[data-target-kb]'))c.setAttribute('aria-pressed',String(Number(c.dataset.targetKb)===o.kb));}
+/** Target chips write the number field and let the shared form sync pick it up. */
+function wire(el){
+ el.addEventListener('click',e=>{const c=e.target.closest('[data-target-kb]');if(!c)return;const input=el.querySelector('#compressTarget');if(!input)return;
+  input.value=c.dataset.targetKb;for(const s of el.querySelectorAll('[data-target-kb]'))s.setAttribute('aria-pressed',String(s===c));
+  input.dispatchEvent(new Event('input',{bubbles:true}));});
+}
 async function process(file,o,{signal,progress}){
  const source=await Im.decode(file);
  try{
@@ -43,10 +54,12 @@ async function process(file,o,{signal,progress}){
   // Never hand back something bigger than what came in (unless a smaller width was asked for).
   const keep=r.blob===file||(r.blob.size>=file.size&&!o.width&&(o.format==='auto'||file.type===`image/${o.format}`));
   const blob=keep?file:r.blob,ext=keep?(file.name.match(/\.[^.]+$/)?.[0]||''):'.'+(r.format==='jpeg'?'jpg':r.format);
-  const resized=!keep&&(r.w!==source.width||r.h!==source.height);
+  const resized=!keep&&(r.w!==source.width||r.h!==source.height),verdict=targetVerdict(blob.size,o.kb),t=targetLabel(o.kb);
   return {blob,name:keep?file.name:`${stem(file.name)}-min${ext}`,sourceWidth:source.width,sourceHeight:source.height,
-   note:keep?text('compress.kept'):`${bytes(file.size)} → ${bytes(blob.size)} · ${text(resized?'compress.newPixels':'compress.samePixels',{w:resized?r.w:source.width,h:resized?r.h:source.height})}`,
-   warn:o.kb&&blob.size>o.kb*1024?text('compress.missed'):''};
+   note:(keep?text('compress.kept'):`${bytes(file.size)} → ${bytes(blob.size)} · ${text(resized?'compress.newPixels':'compress.samePixels',{w:resized?r.w:source.width,h:resized?r.h:source.height})} · ${chosenLabel({format:r.format,quality:r.quality,ssim:r.metric?.ssim},text('compress.quality'))} ${L('ssimNote')}`)+(verdict?.met?` · ${L('targetMet',{t})}`:''),
+   // A missed target is stated with the real numbers, never rounded into a success.
+   warn:verdict&&!verdict.met?L('targetMissed',{t,b:bytes(blob.size),over:bytes(verdict.over)})+(o.shrink?'':' '+L('targetTryShrink')):'',
+   targetKb:o.kb,met:verdict?verdict.met:true};
  }finally{Im.release(source);}
 }
 async function sample(){
@@ -55,4 +68,7 @@ async function sample(){
  const d=x.getImageData(0,0,1600,1067);let s=7;for(let i=0;i<d.data.length;i+=4){s=(s*1103515245+12345)&0x7fffffff;const n=(s>>16)%24-12;d.data[i]+=n;d.data[i+1]+=n;d.data[i+2]+=n;}x.putImageData(d,0,0);
  try{return new File([await Im.blobOf(c,'image/png')],'nerulio-sample.png',{type:'image/png'});}finally{Im.release(c);}
 }
-export const mount=ctx=>createBatch(ctx,{options,simple,advanced,read,reflect,process,sample,advancedOpen:o=>!!(o.kb||o.width||o.format!=='auto')});
+const detail=it=>{const r=it.result,base=text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)});return r.targetKb?`${base} · ${L(r.met?'targetShort':'targetShortMissed',{t:targetLabel(r.targetKb)})}`:base;};
+// With a target set, the batch summary says how many files actually made it.
+const summary=ok=>{const tally=targetTally(ok.map(i=>i.result));return tally?{line:L('targetTally',{n:tally.met,m:tally.total,t:targetLabel(tally.kb)})}:undefined;};
+export function mount(ctx){attachStyles();wire(ctx.el);return createBatch(ctx,{options,simple,advanced,read,reflect,process,sample,detail,summary,advancedOpen:o=>!!(o.kb||o.width||o.format!=='auto')});}

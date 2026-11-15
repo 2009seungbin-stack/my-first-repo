@@ -5,7 +5,8 @@ let formatsPromise;
 export function supportedFormats(){return formatsPromise??=(async()=>{
  const c=Im.canvas(2,2),formats=[];try{for(const format of ['png','jpeg','webp','avif'])try{await Im.blobOf(c,`image/${format}`);formats.push(format);}catch{/* Actual encoder unavailable. */}return formats;}finally{Im.release(c);}
 })();}
-async function hasAlpha(c,signal){
+/** True when any pixel is not fully opaque (scanned in strips so the page stays responsive). */
+export async function hasAlpha(c,signal){
  const ctx=c.getContext('2d');for(let y=0;y<c.height;y+=64){abort(signal);const d=ctx.getImageData(0,y,c.width,Math.min(64,c.height-y)).data;for(let i=3;i<d.length;i+=4)if(d[i]!==255)return true;await yieldUI();}return false;
 }
 function sample(c,w,h,bg){const out=Im.canvas(w,h),ctx=out.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);ctx.drawImage(c,0,0,w,h);const data=ctx.getImageData(0,0,w,h).data;Im.release(out);return data;}
