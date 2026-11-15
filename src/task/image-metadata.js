@@ -37,7 +37,8 @@ export function mount({el,def}){
  const num=n=>new Intl.NumberFormat(locale()).format(n);
  const size=n=>n<1024?`${num(n)} B`:n<1048576?`${num(Math.round(n/102.4)/10)} KB`:`${num(Math.round(n/10485.76)/100)} MB`;
  const date=s=>s.replace(/^(\d{4}):(\d{2}):(\d{2})/,'$1-$2-$3');
- const removes=kind=>kind!=='icc'||!options.keepICC;
+ // An EXIF block that holds nothing but the rotation flag is written back unchanged, so it is listed as kept.
+ const removes=(kind,r)=>kind==='icc'?!options.keepICC:!(kind==='exif'&&options.keepOrientation&&r?.exif?.tags===1&&r.exif.orientation>1);
  function facts(e){
   if(!e)return [];
   const exposure=[e.exposure?(e.exposure<1?`1/${Math.round(1/e.exposure)} s`:`${+e.exposure.toFixed(1)} s`):'',e.fNumber?`f/${+e.fNumber.toFixed(1)}`:'',e.iso?`ISO ${e.iso}`:'',e.focal?`${+e.focal.toFixed(1)} mm`:''].filter(Boolean).join(' · ');
@@ -50,7 +51,7 @@ export function mount({el,def}){
   const verdict=gps?`<p class="im-verdict im-warn"><strong>${esc(tr('location'))}</strong><span class="im-coords">${esc(c.decimal)}</span><span>${esc(c.dms)}${gps.altitude===null?'':' · '+esc(tr('altitude',{n:num(Math.round(gps.altitude))}))}</span><button type="button" class="ghost" data-copy="${esc(c.decimal)}">${esc(tr('copy'))}</button></p>`:r.location?`<p class="im-verdict im-warn"><strong>${esc(tr('location'))}</strong><span>${esc(tr('xmpLocation'))}</span></p>`:`<p class="im-verdict im-ok">${esc(tr('noLocation'))}</p>`;
   const list=facts(r.exif),dl=list.length?`<dl class="im-facts">${list.map(([k,v])=>`<div><dt>${esc(tr(k))}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`:'';
   const detail=b=>b.kind==='exif'&&r.exif?[tr('tags',{n:num(r.exif.tags)}),r.exif.gpsTags?tr('gpsTags'):'',r.exif.thumbnail?tr('thumb'):''].filter(Boolean).join(' · '):[b.label,b.text].filter(Boolean).join(': ');
-  const rows=r.blocks.map(b=>`<li><span class="im-kind">${esc(tr('kind.'+b.kind))}</span><span class="im-detail">${esc(detail(b))}</span><span class="im-size">${size(b.bytes)}</span><span class="im-state ${removes(b.kind)?'im-out':'im-in'}">${esc(tr(removes(b.kind)?'removed':'kept'))}</span></li>`).join('');
+  const rows=r.blocks.map(b=>`<li><span class="im-kind">${esc(tr('kind.'+b.kind))}</span><span class="im-detail">${esc(detail(b))}</span><span class="im-size">${size(b.bytes)}</span><span class="im-state ${removes(b.kind,r)?'im-out':'im-in'}">${esc(tr(removes(b.kind,r)?'removed':'kept'))}</span></li>`).join('');
   const canClean=removable(it);
   return `<article class="im-card" data-id="${it.id}">${head}${verdict}${r.damaged?`<p class="im-verdict im-bad">${esc(tr('damaged'))}</p>`:''}${dl}<h3>${esc(tr('blocks'))}</h3>${rows?`<ul class="im-blocks">${rows}</ul>`:`<p class="im-note">${esc(tr('none'))}</p>`}<div class="im-actions"><button type="button" class="primary auto" data-clean="${it.id}"${canClean?'':' disabled'}>${esc(tr(canClean?'clean':'clean0'))}</button><p class="im-result" role="status">${esc(it.result?tr('done',{name:it.result.name,size:size(it.result.saved)})+(it.result.orient?' '+tr('orientNote'):''):canClean?'':tr('nothing'))}</p></div></article>`;
  }
@@ -63,7 +64,7 @@ export function mount({el,def}){
   const read=items.filter(it=>it.report?.format);
   el.innerHTML=`<section class="im"><div class="im-bar"><fieldset><legend>${esc(tr('options'))}</legend><label><input type="checkbox" id="imIcc"${options.keepICC?' checked':''}><span>${esc(tr('keepIcc'))}</span></label><label><input type="checkbox" id="imOrient"${options.keepOrientation?' checked':''}><span>${esc(tr('keepOrient'))}</span></label></fieldset><div class="im-bar-actions"><button type="button" class="ghost" data-action="pick">${esc(tr('more'))}</button><button type="button" class="ghost" id="imClear">${esc(text('removeAll'))}</button></div></div><p class="im-summary" role="status">${esc(tr('summary',{n:num(read.length),loc:num(read.filter(it=>it.report.location).length)}))}</p>${items.map(card).join('')}${batch()}</section>`;
  }
- const removable=it=>!!it.report?.format&&it.report.blocks.some(b=>removes(b.kind));
+ const removable=it=>!!it.report?.format&&it.report.blocks.some(b=>removes(b.kind,it.report));
  /** The cleaned copy of one file, re-opened and re-inspected first; throws when it cannot be verified. */
  async function cleaned(it){
   const out=strip(it.bytes,options),blob=new Blob([out.bytes],{type:MIME[it.report.format]});
