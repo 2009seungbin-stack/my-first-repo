@@ -97,7 +97,7 @@ def run():
         page.on('request', lambda req: external.append(req.url) if not req.url.startswith((BASE, 'data:', 'blob:')) else None)
         page.goto(BASE + '/en/game/sfx-generator/', wait_until='domcontentloaded')
         page.locator('#metrics').filter(has_text='Duration').wait_for()
-        assert page.locator('.sfx-preset').count() == 8; checks += 1
+        assert page.locator('.sfx-preset').count() == 16; checks += 1
         page.locator('[data-preset="laser"]').click(); page.locator('#metrics').filter(has_text='Duration').wait_for(); checks += 1
         page.locator('#advanced').evaluate('(x) => x.open = true')
         for field, value in [('jumpSemitones','12'),('jumpAt','0.25'),('harmonics','3'),('harmonicFalloff','0.4'),('compression','0.6')]:
