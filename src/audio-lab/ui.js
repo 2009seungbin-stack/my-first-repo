@@ -1,4 +1,5 @@
 import {COPY} from './strings.js';
+import {audibleRange,clampSelection} from './selection.js';
 const locale=document.documentElement.lang in COPY?document.documentElement.lang:'en',c=COPY[locale],$=s=>document.querySelector(s),worker=new Worker(new URL('./worker.js',import.meta.url),{type:'module'});
 let seq=0,waiting=new Map(),duration=0,peaks=null,fileName='audio',previewUrl='',drag=null;
 const editIds=['start','end','fadeIn','fadeOut','speed','pitch','target','silence','snap'];let history=[],historyIndex=-1;
@@ -11,14 +12,17 @@ function errorText(error){const m=String(error.message||error);if(m.includes('un
 worker.onmessage=({data:m})=>{if(m.type==='progress'){status(`${c.busy} ${m.seconds.toFixed(1)} ${c.secs}`);return;}const request=waiting.get(m.id);if(!request)return;waiting.delete(m.id);m.type==='error'?request.reject(Error(m.message)):request.resolve(m);};
 worker.onerror=e=>{for(const request of waiting.values())request.reject(Error(e.message));waiting.clear();status(c.error+' '+e.message,true);};
 function job(type,extra={}){const id=++seq;return new Promise((resolve,reject)=>{waiting.set(id,{resolve,reject});worker.postMessage({id,type,...extra});});}
-function busy(active){for(const id of ['file','analyze','preview','save'])$('#'+id).disabled=active||(id!=='file'&&!duration);}
+function busy(active){for(const id of ['file','analyze','preview','save','selectAll','trimEdges'])$('#'+id).disabled=active||(id!=='file'&&!duration);}
 function fmt(value,digits=1){return Number.isFinite(value)?new Intl.NumberFormat(locale,{maximumFractionDigits:digits,minimumFractionDigits:digits}).format(value):'—';}
 function showMeter(m){for(const [id,value] of [['lufs',m.integrated],['momentary',m.momentary],['shortTerm',m.shortTerm]])$('#'+id).textContent=value===null?c.unknown:`${fmt(value)} LUFS`;$('#peak').textContent=m.samplePeak===null?'—':`${fmt(m.samplePeak)} dBFS`;}
 function settings(){const start=Number($('#start').value),end=Number($('#end').value),fadeIn=Number($('#fadeIn').value),fadeOut=Number($('#fadeOut').value),speed=Number($('#speed').value),semitones=Number($('#pitch').value),rawTarget=$('#target').value;
  if(!Number.isFinite(start)||!Number.isFinite(end)||start<0||end>duration+.001||end-start<.01||!Number.isFinite(fadeIn)||!Number.isFinite(fadeOut)||fadeIn<0||fadeOut<0||!Number.isFinite(speed)||speed<.5||speed>2||!Number.isFinite(semitones)||Math.abs(semitones)>12)throw Error(c.uncertain+' — '+c.selection);
  return {start,end,fadeIn,fadeOut,speed,semitones,removeSilence:$('#silence').checked,snapToZero:$('#snap').checked,targetLufs:rawTarget===''?null:Number(rawTarget)};}
 function viewport(){const zoom=Number($('#zoom').value)||1,length=duration/zoom,start=zoom===1?0:Math.min(Math.max(0,Number($('#start').value)||0),Math.max(0,duration-length));return {start,end:start+length};}
-function redraw(){const canvas=$('#wave'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.fillStyle='#0a1425';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#314a62';ctx.beginPath();ctx.moveTo(0,h/2+.5);ctx.lineTo(w,h/2+.5);ctx.stroke();if(!peaks||!duration)return;
+function selectionInfo(){const a=Number($('#start').value),b=Number($('#end').value);$('#selInfo').textContent=duration&&Number.isFinite(a)&&Number.isFinite(b)&&b>a?`${c.selLength}: ${fmt(b-a,2)} / ${fmt(duration,2)} ${c.secs}`:'';}
+function setSelection(start,end){const s=clampSelection(start,end,duration);$('#start').value=String(+s.start.toFixed(3));$('#end').value=String(s.end>=duration?duration:+s.end.toFixed(3));recordEdit();redraw();}
+function trimEdges(){if(!duration||!peaks)return;const r=audibleRange(peaks,duration);if(!r){status(c.allSilent);return;}setSelection(r.start,r.end);status(`${c.trimmedEdges} ${fmt(r.trimmedStart,2)} / ${fmt(r.trimmedEnd,2)} ${c.secs}`);}
+function redraw(){selectionInfo();const canvas=$('#wave'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.fillStyle='#0a1425';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#314a62';ctx.beginPath();ctx.moveTo(0,h/2+.5);ctx.lineTo(w,h/2+.5);ctx.stroke();if(!peaks||!duration)return;
  const view=viewport(),a=Number($('#start').value),b=Number($('#end').value),x=t=>(t-view.start)/(view.end-view.start)*w;
  ctx.fillStyle='#1e4858';ctx.fillRect(Math.max(0,x(a)),0,Math.max(0,Math.min(w,x(b))-Math.max(0,x(a))),h);
  ctx.strokeStyle='#7ee2cd';ctx.lineWidth=2;ctx.beginPath();for(let px=0;px<w;px++){const t=view.start+(px+.5)/w*(view.end-view.start),index=Math.min(peaks.length/2-1,Math.floor(t/duration*(peaks.length/2))),lo=peaks[index*2],hi=peaks[index*2+1];ctx.moveTo(px+.5,h/2-hi*h*.43);ctx.lineTo(px+.5,h/2-lo*h*.43);}ctx.stroke();
@@ -36,6 +40,8 @@ $('#file').addEventListener('change',e=>{load(e.target.files?.[0]);e.target.valu
 const dropzone=$('#dropzone');dropzone.addEventListener('dragover',e=>{if(e.dataTransfer.types.includes('Files')){e.preventDefault();dropzone.querySelector('.al-file').dataset.hover='1';}});dropzone.addEventListener('dragleave',()=>delete dropzone.querySelector('.al-file').dataset.hover);dropzone.addEventListener('drop',e=>{e.preventDefault();delete dropzone.querySelector('.al-file').dataset.hover;load(e.dataTransfer.files?.[0]);});
 addEventListener('paste',e=>{const file=e.clipboardData?.files?.[0];if(file){e.preventDefault();load(file);}});
 $('#analyze').onclick=analyzeFile;$('#preview').onclick=()=>render('wav',true);$('#save').onclick=()=>render($('#format').value,false);$('#stop').onclick=()=>{$('#player').pause();$('#player').currentTime=0;};
+$('#selectAll').onclick=()=>{if(duration)setSelection(0,duration);};$('#trimEdges').onclick=trimEdges;
+addEventListener('keydown',e=>{if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.repeat||(e.key!==' '&&e.code!=='Space')||!duration)return;const tag=e.target?.tagName||'';if(/^(INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY|A|AUDIO)$/.test(tag)||e.target?.isContentEditable)return;e.preventDefault();const player=$('#player');if(!player.paused&&!player.ended)$('#stop').click();else if(!$('#preview').disabled)$('#preview').click();});
 $('#undo').onclick=()=>restoreEdit(historyIndex-1);$('#redo').onclick=()=>restoreEdit(historyIndex+1);
 for(const id of editIds)$('#'+id).addEventListener('change',recordEdit);
 addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey||e.key.toLowerCase()!=='z'||['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;e.preventDefault();restoreEdit(historyIndex+(e.shiftKey?1:-1));});
