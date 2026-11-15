@@ -8,9 +8,11 @@ import {page,nameOf,channelUrl,box,badge} from './ui.js';
 import {int} from './format.js';
 import {openModels,benchmarksOn,factsFor,pickFact,contentCounts} from '../db/channel.js';
 import {entityIndexable} from '../seo.js';
-import {estimateLlmMemory,METHOD} from '../estimates/llm-memory.js';
+import {estimateLlmMemory,bestQuantFor,METHOD} from '../estimates/llm-memory.js';
 
 const QUANTS=/** @type {const} */(['Q4_K_M','Q8_0']);
+/** The presets of the picker and of the "best that fits" search, highest precision first. */
+export const PICK_QUANTS=Object.freeze(['F16','Q8_0','Q6_K','Q5_K_M','Q4_K_M','Q3_K_M','Q2_K']);
 /** @param {any} db @param {import('../db/channel.js').Entity} gpu @param {{l:string,now:number,channels?:{name:string,href:string}[],publicOnly?:boolean}} o */
 export async function loadLocalLlm(db,gpu,o){
  const vram=Number(pickFact((await factsFor(db,[gpu.id])).get(gpu.id),'vram_gb')?.value||0);
@@ -18,7 +20,10 @@ export async function loadLocalLlm(db,gpu,o){
  const models=(await openModels(db)).sort((a,b)=>a.paramsB-b.paramsB).map(m=>{
   const est=Object.fromEntries(QUANTS.map(q=>[q,vram?estimateLlmMemory({paramsB:m.paramsB,quant:q,vramGiB:vram}):null]));
   const tps=bench.filter(b=>b.entity_id===m.entity.id&&typeof b.metrics.tokens_per_s==='number').map(b=>Number(b.metrics.tokens_per_s)).sort((a,b)=>a-b);
-  return {...m,est,measured:tps.length?{median:tps.length%2?tps[tps.length>>1]:(tps[tps.length/2-1]+tps[tps.length/2])/2,n:tps.length}:null};
+  // Every picker preset and the highest-precision one that fits (then: is tight), from the same estimator.
+  const all=vram?Object.fromEntries(PICK_QUANTS.map(q=>[q,estimateLlmMemory({paramsB:m.paramsB,quant:q,vramGiB:vram})])):null;
+  const best=vram?bestQuantFor({paramsB:m.paramsB,vramGiB:vram},PICK_QUANTS):null;
+  return {...m,est,all,best,measured:tps.length?{median:tps.length%2?tps[tps.length>>1]:(tps[tps.length/2-1]+tps[tps.length/2])/2,n:tps.length}:null};
  });
  // Derived page: indexed only with a known VRAM and when the card's own page is indexable (platform/seo.js).
  const counts=await contentCounts(db,gpu.id);
@@ -33,15 +38,23 @@ export function renderLocalLlm(m,site){
  // The same words as the method text below (맞음 / 빠듯함 / 안 맞음).
  const V=/** @type {Record<string,[string,string]>} */({fits:[ko?'맞음':'Fits','fy'],tight:[ko?'빠듯함':'Tight','fm'],does_not_fit:[ko?'안 맞음':'No','fn']});
  const cell=(/** @type {any} */ r)=>r?html`<td class="${V[r.verdict][1]}"><b>${V[r.verdict][0]}</b> <span class="fine">≈ ${r.gib.total.low.toFixed(1)}–${r.gib.total.high.toFixed(1)} GiB</span></td>`:html`<td>–</td>`;
+ const range=(/** @type {any} */ r)=>`${r.gib.total.low.toFixed(1)}–${r.gib.total.high.toFixed(1)}`;
+ const none=ko?'맞는 프리셋 없음':'No preset fits';
+ // The picker column: server-rendered as "best that fits"; src/hardware/islands.js swaps in the chosen preset from data-q.
+ const pickCell=(/** @type {any} */ x)=>x.all?html`<td data-llm-cell data-best="${x.best?.quant||''}" data-q="${JSON.stringify(Object.fromEntries(PICK_QUANTS.map(q=>[q,[x.all[q].verdict,range(x.all[q])]])))}"${x.best?html` class="${V[x.best.verdict][1]}"`:html` class="fn"`}>${x.best?html`<b>${x.best.quant} · ${V[x.best.verdict][0]}</b> <span class="fine">≈ ${range(x.best)} GiB</span>`:html`<b>${none}</b>`}</td>`:html`<td>–</td>`;
+ const tally=(/** @type {(x:any)=>string|undefined} */ of)=>{const c={fits:0,tight:0,does_not_fit:0};for(const x of m.models){const v=of(x);c[/** @type {'fits'} */(v||'does_not_fit')]++;}return c;};
+ const sumText=(/** @type {{fits:number,tight:number,does_not_fit:number}} */ c)=>ko?`맞음 ${c.fits}개 · 빠듯함 ${c.tight}개 · 안 맞음 ${c.does_not_fit}개`:`${c.fits} fit · ${c.tight} tight · ${c.does_not_fit} do not fit`;
+ const words={fits:V.fits[0],tight:V.tight[0],does_not_fit:V.does_not_fit[0],none,best:ko?'맞는 최고 정밀도':'Best that fits',sum:ko?'맞음 {f}개 · 빠듯함 {t}개 · 안 맞음 {n}개':'{f} fit · {t} tight · {n} do not fit'};
+ const picker=m.vram?html`<div class="llm-pick"><label>${ko?'양자화 프리셋':'Quantization preset'}<select data-llm-quant data-hw-enable disabled data-words="${JSON.stringify(words)}"><option value="">${words.best}</option>${PICK_QUANTS.map(q=>html`<option value="${q}">${q}</option>`)}</select></label><span class="fine" data-llm-sum role="status">${sumText(tally(x=>x.best?.verdict))}</span></div>`:'';
  const fitsQ4=m.models.filter(x=>x.est.Q4_K_M?.verdict==='fits');
  const biggest=fitsQ4[fitsQ4.length-1];
  const summary=html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${ko?`${name}에서 돌아가는 로컬 LLM`:`Local LLMs on the ${name}`}</h1>${badge('ESTIMATE',l,ko?'≈ 메모리 추정':'≈ memory estimate')}</div>
 <p class="desc">${ko?`VRAM ${m.vram} GB 기준으로 공개 가중치 모델 ${m.models.length}개가 들어가는지 추정했습니다. Q4_K_M에서 “맞음”인 가장 큰 모델은 ${biggest?nameOf(biggest.entity,l)+` (${biggest.paramsB}B)`:'없음'}입니다. 속도(tok/s)는 추정하지 않고 커뮤니티 실측만 보여줍니다.`:`${m.models.length} open-weight models estimated against ${m.vram} GB of VRAM. Largest comfortable fit at Q4_K_M: ${biggest?nameOf(biggest.entity,l)+` (${biggest.paramsB}B)`:'none'}. Speed is never estimated; only community measurements are shown.`}</p></div></section>`;
  const noFit=(/** @type {any} */ x)=>x.est.Q4_K_M?.verdict==='does_not_fit'&&!x.measured;
- const row=(/** @type {any} */ x)=>html`<tr><td><a href="${channelUrl(l,x.entity)}">${nameOf(x.entity,l)}</a></td><td>${x.paramsB}B</td>${cell(x.est.Q4_K_M)}${cell(x.est.Q8_0)}<td>${x.measured?html`<b>${int(Math.round(x.measured.median*10)/10,l)}</b> tok/s <span class="fine">· ${x.measured.n}${ko?'건':''}</span>`:html`<span class="fine">${ko?'리포트 없음':'none yet'}</span>`}</td></tr>`;
- const table=box({title:ko?'모델별 적합성':'Fit by model',note:ko?'KV 캐시 제외 · 여유분 10% · 방법은 아래':'KV cache excluded · 10% headroom · method below'},html`<div class="tw" tabindex="0"><table class="mt"><thead><tr><th>${ko?'모델':'Model'}</th><th>${ko?'파라미터':'Params'}</th><th>Q4_K_M</th><th>Q8_0</th><th>${ko?'실측 (중앙값)':'Measured (median)'}</th></tr></thead><tbody>
+ const row=(/** @type {any} */ x)=>html`<tr><td><a href="${channelUrl(l,x.entity)}">${nameOf(x.entity,l)}</a></td><td>${x.paramsB}B</td>${cell(x.est.Q4_K_M)}${cell(x.est.Q8_0)}${pickCell(x)}<td>${x.measured?html`<b>${int(Math.round(x.measured.median*10)/10,l)}</b> tok/s <span class="fine">· ${x.measured.n}${ko?'건':''}</span>`:html`<span class="fine">${ko?'리포트 없음':'none yet'}</span>`}</td></tr>`;
+ const table=box({title:ko?'모델별 적합성':'Fit by model',note:ko?'KV 캐시 제외 · 여유분 10% · 방법은 아래':'KV cache excluded · 10% headroom · method below'},html`${picker}<div class="tw" tabindex="0"><table class="mt llm-fit"><thead><tr><th>${ko?'모델':'Model'}</th><th>${ko?'파라미터':'Params'}</th><th>Q4_K_M</th><th>Q8_0</th><th data-llm-head>${ko?'맞는 최고 정밀도':'Best that fits'}</th><th>${ko?'실측 (중앙값)':'Measured (median)'}</th></tr></thead><tbody>
 ${m.models.filter(x=>!noFit(x)).map(row)}
-</tbody></table></div>${m.models.some(noFit)?html`<details class="more"><summary>${ko?`Q4_K_M에서도 안 맞는 모델 ${m.models.filter(noFit).length}개 보기`:`${m.models.filter(noFit).length} models that do not fit even at Q4_K_M`}</summary><div class="tw" tabindex="0"><table class="mt"><tbody>${m.models.filter(noFit).map(row)}</tbody></table></div></details>`:''}<details class="method" open><summary>${ko?'추정 방법':'How this is estimated'}</summary><p>${METHOD.method[/** @type {'ko'|'en'} */(l)]||METHOD.method.en}</p></details>`);
+</tbody></table></div>${m.models.some(noFit)?html`<details class="more"><summary>${ko?`Q4_K_M에서도 안 맞는 모델 ${m.models.filter(noFit).length}개 보기`:`${m.models.filter(noFit).length} models that do not fit even at Q4_K_M`}</summary><div class="tw" tabindex="0"><table class="mt llm-fit"><tbody>${m.models.filter(noFit).map(row)}</tbody></table></div></details>`:''}<details class="method" open><summary>${ko?'추정 방법':'How this is estimated'}</summary><p>${METHOD.method[/** @type {'ko'|'en'} */(l)]||METHOD.method.en}</p></details>`);
  const form=box({id:'bench',title:ko?'내 측정값 올리기':'Post your measurement',extra:badge('COMMUNITY',l)},html`<form class="wform" data-island="bench-form" data-gpu="${gpu.id}">
 <div class="row"><label>${ko?'모델':'Model'}<select name="model" required>${m.models.filter(x=>x.est.Q4_K_M?.verdict!=='does_not_fit').map(x=>html`<option value="${x.entity.id}">${nameOf(x.entity,l)}</option>`)}</select></label>
 <label>${ko?'실행기':'Runtime'}<select name="runtime"><option>llama.cpp</option><option>Ollama</option><option>LM Studio</option><option>vLLM</option><option>ExLlamaV2</option></select></label>

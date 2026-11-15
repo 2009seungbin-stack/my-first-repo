@@ -1207,3 +1207,10 @@ body.n2{background:var(--page)}
 .dg-pn-n{text-align:right}
 @media (max-width:640px){.dg-toc{margin-left:0;margin-right:0}}
 @media (max-width:560px){.dg-pn{grid-template-columns:1fr}.dg-pn>span{display:none}.dg-pn-n{text-align:left}}
+/* Local-LLM fit table (platform/render/localllm.js): the quantization preset picker */
+.llm-pick{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 12px;border-bottom:1px solid var(--line2)}
+.llm-pick label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink2)}
+.llm-pick select{min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--card);color:var(--ink);font:inherit;font-weight:500}
+.llm-pick select:disabled{opacity:.6}
+.llm-fit td{white-space:nowrap}
+.mt td.fm{display:table-cell;font-size:inherit;color:var(--warn)}
