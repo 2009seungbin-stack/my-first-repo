@@ -5,6 +5,7 @@ import {SUGGEST,kindOf} from './registry.js';
 import {text,toast,continueWith,onLocale,toolURL,pagePrefix,locale} from './shell.js';
 import {stashFiles} from './handoff.js';
 import {preflightDirectory} from '../preflight/directory.js';
+import {rankTools,finderMove} from './home-finder.js';
 /** Home: the directory is server-rendered (tools/task-build.mjs) so it works without
  * JavaScript; this adds search, localisation on language switch and "drop a file, get the
  * right tools". Returns the intake function for dropped / picked / pasted files. */
@@ -29,6 +30,7 @@ function relabel(){
  for(const img of document.querySelectorAll('img[data-shot]')){const n=img.dataset.shot;img.srcset=`assets/home/shot-${n}-${l}-1040.webp 1040w, assets/home/shot-${n}-${l}-1600.webp 1600w`;img.src=`assets/home/shot-${n}-${l}-1040.webp`;const cap=img.closest('figure')?.querySelector('figcaption');if(cap)img.alt=cap.textContent;}
  const demo=$('.gh-demo-stage');if(demo)demo.setAttribute('aria-label',text('gh.flow.demo'));
  const q=$('#toolQuery');if(q){q.placeholder=text('search');q.setAttribute('aria-label',text('searchLabel'));}
+ const dlg=$('#toolFinder');if(dlg){dlg.setAttribute('aria-label',text('gh.find.open'));const fq=$('#finderQuery');fq.placeholder=text('gh.find.hint');fq.setAttribute('aria-label',text('gh.find.open'));$('#finderList').setAttribute('aria-label',text('gh.find.list'));if(dlg.open)renderFinder();}
  filter();if(held.length)suggest(held);
 }
 function filter(){
@@ -38,6 +40,48 @@ function filter(){
  // folded groups (all game tools, other file tools) open by themselves when a search hits inside them
  for(const d of document.querySelectorAll('#directory details')){const hit=!!d.querySelector('.tool-card:not([hidden])');if(d.id==='file-tools')d.hidden=!hit;if(words.length&&hit)d.open=true;}
  const none=$('#noResult');if(none){none.hidden=shown>0;none.textContent=text('noResult');}
+}
+/** The tool finder: a dialog with a combobox over every card in the directory (game, file, PC and
+ * Preflight), ranked by src/task/home-finder.js. The cards are the data, so it always lists exactly
+ * what the page links to, in the current language. */
+let found=[],active=-1;
+function finderEntries(){
+ return [...document.querySelectorAll('#directory .tool-card')].map(a=>{const g=a.closest('.gh-group');
+  return {title:a.querySelector('b').textContent,desc:a.querySelector('small').textContent,href:a.href,search:a.dataset.search||'',group:g?.dataset.group==='more'?text('cat.game'):g?.querySelector('h3')?.textContent.trim()||''};});
+}
+function setActive(i,scroll=true){
+ active=i;const q=$('#finderQuery');
+ for(const [n,o] of [...document.querySelectorAll('#finderList [role=option]')].entries()){o.setAttribute('aria-selected',String(n===i));if(n===i&&scroll)o.scrollIntoView({block:'nearest'});}
+ if(i>=0)q.setAttribute('aria-activedescendant','finderOpt'+i);else q.removeAttribute('aria-activedescendant');
+}
+function renderFinder(){
+ const query=$('#finderQuery').value,all=finderEntries();found=rankTools(query,all);
+ $('#finderList').innerHTML=found.map((e,i)=>`<li role="presentation"><a role="option" id="finderOpt${i}" aria-selected="false" tabindex="-1" href="${esc(e.href)}"><span><b>${esc(e.title)}</b><small>${esc(e.desc)}</small></span><em>${esc(e.group)}</em></a></li>`).join('');
+ $('#finderStatus').textContent=!query.trim()?text('gh.find.each',{n:all.length}):found.length?text('gh.find.count',{n:found.length}):text('noResult');
+ $('#finderList').scrollTop=0;setActive(found.length?0:-1,false);
+}
+function openFinder(){
+ const dlg=$('#toolFinder');if(!dlg||dlg.open||!dlg.showModal)return false;
+ $('#finderQuery').value='';dlg.showModal();renderFinder();$('#finderQuery').focus();return true;
+}
+function mountFinder(){
+ const dlg=$('#toolFinder'),q=$('#finderQuery');if(!dlg||!dlg.showModal)return;
+ for(const a of document.querySelectorAll('[data-finder-open]')){a.setAttribute('role','button');a.setAttribute('aria-haspopup','dialog');
+  a.addEventListener('click',e=>{if(openFinder())e.preventDefault();});
+  a.addEventListener('keydown',e=>{if(e.key===' '&&openFinder())e.preventDefault();});}
+ q.addEventListener('input',renderFinder);
+ q.addEventListener('keydown',e=>{
+  if(e.isComposing||e.keyCode===229)return; // an IME is still composing Korean / Japanese text
+  if(['ArrowDown','ArrowUp'].includes(e.key)||(['Home','End'].includes(e.key)&&e.ctrlKey)){e.preventDefault();setActive(finderMove(active,found.length,e.key));}
+  else if(e.key==='Enter'&&found[active]){e.preventDefault();location.assign(found[active].href);}
+ });
+ dlg.addEventListener('pointermove',e=>{const o=e.target.closest?.('[role=option]');if(o){const i=+o.id.slice(9);if(i!==active)setActive(i,false);}});
+ dlg.addEventListener('click',e=>{if(e.target===dlg||e.target.closest('[data-finder-close]'))dlg.close();});
+ document.addEventListener('keydown',e=>{
+  if(e.defaultPrevented||e.isComposing||dlg.open)return;
+  const typing=e.target.closest?.('input,textarea,select,[contenteditable=""],[contenteditable="true"]');
+  if((e.key==='/'&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey)||(e.key.toLowerCase()==='k'&&(e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey)){if(openFinder())e.preventDefault();}
+ });
 }
 /** Sprite sheets, frames, GIFs, .aseprite files and atlas data open in the Studio (the product);
  * PDFs and video still get the file-tool suggestions. */
@@ -58,6 +102,7 @@ function suggest(files){
 }
 export function mount(){
  relabel();onLocale(relabel);
+ mountFinder();
  $('#toolQuery')?.addEventListener('input',filter);
  $('#toolQuery')?.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=document.querySelector('.tool-card:not([hidden])');if(first)location.assign(first.href);}});
  $('#suggest')?.addEventListener('click',e=>{

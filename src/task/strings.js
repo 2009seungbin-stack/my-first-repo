@@ -1022,6 +1022,10 @@ S.ja.uiLab.fontHangulReplaceNote='適用するとその音節の現在の画素�
 S.ko.uiLab.fontImportGlyphLimit='편집 UI는 현재 최대 1,024자를 가져옵니다. 문자 집합을 줄여 주세요.';
 S.en.uiLab.fontImportGlyphLimit='The editor currently imports up to 1,024 glyphs. Choose a smaller character set.';
 S.ja.uiLab.fontImportGlyphLimit='編集画面は現在最大1,024文字を読み込めます。文字数を減らしてください。';
+// Home tool finder (src/task/home.js, src/task/home-finder.js).
+S.ko.gh.find={open:'도구 찾기',hint:'스프라이트 시트, PDF 합치기, GIF…',keys:'↑↓ 이동 · Enter 열기 · Esc 닫기',close:'닫기',count:'{n}개 찾음',each:'분류마다 첫 도구입니다. 입력하면 전체 {n}개에서 찾습니다.',list:'찾은 도구'};
+S.en.gh.find={open:'Find a tool',hint:'sprite sheet, merge PDF, GIF…',keys:'↑↓ to move · Enter to open · Esc to close',close:'Close',count:'{n} found',each:'The first tool of each group. Type to search all {n}.',list:'Matching tools'};
+S.ja.gh.find={open:'ツールを探す',hint:'スプライトシート、PDF結合、GIF…',keys:'↑↓ 移動 · Enter 開く · Esc 閉じる',close:'閉じる',count:'{n}件見つかりました',each:'各グループの最初のツールです。入力すると全{n}件から探します。',list:'見つかったツール'};
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
