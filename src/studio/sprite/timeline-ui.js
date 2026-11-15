@@ -9,6 +9,7 @@
 import {h} from '../ui/dom.js';
 import * as D from './sprite-doc.js';
 import {SVG} from './icons.js';
+import {SPEEDS,normalizeSpeed} from './playback.js';
 const CW_MIN=14,CW_MAX=64;
 export function createTimeline(W){
  const {t}=W;
@@ -44,10 +45,17 @@ export function createTimeline(W){
    btn('tag',t('sp.tl.newTag')+' (Alt+T)',()=>W.run('sprite.newTag'),{id:'new-tag'}),
    h('span.sp-sep',{}),
    durationField(),
+   speedField(),
    h('span.st-grow',{}),
    btn('zoomOut',t('sp.tl.narrower'),()=>setCw(cw-4)),btn('zoomIn',t('sp.tl.wider'),()=>setCw(cw+4)));
  }
  function num(label,value,min,max,set,id){const i=h('input.st-input.sp-num',{type:'number',min:String(min),max:String(max),step:'1',value:String(value),'aria-label':label,title:label,'data-sp':id});i.addEventListener('change',()=>set(Math.max(min,Math.min(max,Math.round(Number(i.value)||0)))));return i;}
+ function speedField(){
+  const cur=normalizeSpeed(W.prefs.speed);
+  const s=h('select.st-input.sp-speed',{'aria-label':t('sp.tl.speed'),title:t('sp.tl.speed'),'data-sp':'speed'},SPEEDS.map(v=>h('option',{value:String(v),selected:v===cur},t('sp.tl.speedX',{x:v}))));
+  s.addEventListener('change',()=>W.setSpeed(Number(s.value)));
+  return s;
+ }
  function durationField(){
   const a=W.asset(),ids=W.selected(),f=W.frame();
   const vals=a?a.frames.filter(x=>ids.includes(x.id)).map(x=>x.duration??100):[];

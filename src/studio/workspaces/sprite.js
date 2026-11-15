@@ -16,7 +16,7 @@ import {createTimeline} from '../sprite/timeline-ui.js';
 import {createPanels} from '../sprite/panels-ui.js';
 import {createPreview} from '../sprite/preview-ui.js';
 import {createImporter,isSpriteFile} from '../sprite/importers.js';
-import {steps,stepAt,tagAt,stepIndex,onionFrames,rangeTag} from '../sprite/playback.js';
+import {steps,stepAt,tagAt,stepIndex,onionFrames,rangeTag,normalizeSpeed,playClock,clockStart} from '../sprite/playback.js';
 import {drawFrame,momentBitmap,blobRGBA,rgbaGetter,storeRGBA} from '../sprite/frame-render.js';
 import {composeFrame,composeCanvas,flipRGBA,drawRGBA,celAt,frameDraws,opaqueBounds} from '../sprite/frame-image.js';
 import {asepriteFromAsset} from '../sprite/aseprite-bridge.js';
@@ -54,6 +54,8 @@ export default {
    hint:key=>ctx.toast(t(key)),boxType:()=>prefs.boxType,show:k=>prefs.show[k]!==false,
    playing:()=>S.playing,playTag,scopeIds,step,
    setPref(k,v){prefs[k]=v;storage.set(PREFS,prefs);afterPref(k);},
+   /** Preview speed (0.25×–4×). Changing it while playing keeps the frame that is showing. */
+   setSpeed(v){const speed=normalizeSpeed(v);if(S.playing&&S.play){const now=performance.now();S.play.t0=clockStart(now,playClock(now,S.play.t0,S.play.speed),speed);S.play.speed=speed;}prefs.speed=speed;storage.set(PREFS,prefs);},
    setSelection(sel){S.selection=sel;overlay.invalidate();panels.renderFrame();},
    setCurrent,clickFrame,selectTag,setDurations,moveFrames,newTag,addBox,removeBox,
    choose:(id,alt)=>{const a=asset();if(a)importer.choose(a.id,id,alt);},
@@ -271,10 +273,11 @@ export default {
    const tg=prefs.loopTag?playTag():null,tag=tg||rangeTag(a);
    const list=steps(a,tag,{whole:!!tg&&tg.repeat>0});if(!list.length)return;
    const k=Math.max(0,list.findIndex(s=>s.index===S.cur));
-   S.playing=true;S.play={list,loop:!tg||tg.repeat===0,t0:performance.now()-list[k].from};
+   const speed=normalizeSpeed(prefs.speed);
+   S.playing=true;S.play={list,loop:!tg||tg.repeat===0,speed,t0:clockStart(performance.now(),list[k].from,speed)};
    timeline.mark();renderHud();
    const tick=()=>{if(!S.playing)return;S.raf=requestAnimationFrame(tick);
-    const s=stepAt(S.play.list,performance.now()-S.play.t0,{loop:S.play.loop});
+    const s=stepAt(S.play.list,playClock(performance.now(),S.play.t0,S.play.speed),{loop:S.play.loop});
     if(s.done){S.cur=s.index;stop();onFrameChanged();return;}
     if(s.index!==S.cur){S.cur=s.index;present();timeline.mark();status();}};
    S.raf=requestAnimationFrame(tick);
