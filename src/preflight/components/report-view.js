@@ -1,6 +1,7 @@
 // @ts-check
 import {escapeHTML as e,safeLink,recommendationText} from '../core/report.js';
 import {text,reasonText} from '../messages.js';
+import {TILE_FILTER} from '../core/filters.js';
 /** @param {string} status */
 export function statusIcon(status){return document.querySelector('#pf-icon-'+status)?.innerHTML||'';}
 /** @param {string} status @param {string} locale @param {boolean} [big] */
@@ -16,7 +17,7 @@ export function verdictHTML(result,locale){
   statusBadge(result.overallVerdict,locale,true)+'<h3>'+t('verdict.'+result.overallVerdict)+'</h3>'+
   '<div class="pf-confidence" title="'+t('confidenceHelp')+'">'+t('confidence')+' <b>'+t('confidence.'+result.confidence)+'</b> · '+e(result.target.platform)+' / '+e(result.target.architecture)+'</div>'+
   '<ul>'+result.reasons.map(r=>'<li>'+e(reasonText(locale,r))+'</li>').join('')+'</ul></div>'+
-  '<p class="pf-count-title">'+t('checked',{count:result.components.length})+'</p><div class="pf-summary">'+summary.map(([s,n])=>'<div><strong>'+n+'</strong>'+statusBadge(String(s),locale)+'</div>').join('')+'</div>'+
+  '<p class="pf-count-title">'+t('checked',{count:result.components.length})+'</p><div class="pf-summary">'+summary.map(([s,n])=>'<button type="button" data-tile="'+e(TILE_FILTER[String(s)])+'"'+(n?'':' disabled')+' aria-label="'+t('tileFilter',{status:text(locale,'status.'+s),count:n})+'"><strong>'+n+'</strong>'+statusBadge(String(s),locale)+'</button>').join('')+'</div>'+
   (counts.NOT_APPLICABLE?'<p class="pf-muted">'+counts.NOT_APPLICABLE+' '+t('status.NOT_APPLICABLE')+'</p>':'')+
   '<p class="pf-muted">'+t('risk',{score:result.risk.score})+'</p>';
 }
@@ -62,4 +63,20 @@ export function detailHTML(c,catalog,locale){
    (ev.sourceUpdatedAt?' · Updated '+e(ev.sourceUpdatedAt):'')+'</small></div>').join(''):'<p>'+t('noEvidence')+'</p>')+
   (catalog?.vendorUrl?'<p><a href="'+e(safeLink(catalog.vendorUrl))+'" target="_blank" rel="noopener noreferrer">'+t('vendorCheck')+' ↗</a></p>':'')+
   '<p><a href="https://www.google.com/search?q='+encodeURIComponent(c.component.name+' '+c.component.version+' compatibility')+'" target="_blank" rel="noopener noreferrer">'+t('communityCheck')+' ↗</a></p></div></div></div>';
+}
+/** @param {import('../storage/history.js').RunSnapshot[]} runs newest first @param {string} locale @param {(older:import('../storage/history.js').RunSnapshot,newer:import('../storage/history.js').RunSnapshot)=>ReturnType<typeof import('../storage/history.js').diffRuns>} diff @param {number} componentLimit */
+export function historyHTML(runs,locale,diff,componentLimit){
+ const t=(/** @type {string} */ k,/** @type {Record<string,string|number>} */ p={})=>e(text(locale,k,p));
+ if(!runs.length)return '<p class="pf-muted">'+t('historyEmpty')+'</p>';
+ const when=(/** @type {string} */ at)=>{const d=new Date(at);return Number.isNaN(d.getTime())?at:d.toLocaleString(locale,{dateStyle:'medium',timeStyle:'short'});};
+ const label=(/** @type {string|null} */ s,/** @type {string} */ none)=>s?statusBadge(s,locale):'<span class="pf-row-meta">'+t(none)+'</span>';
+ return '<ol class="pf-history-list">'+runs.map((run,i)=>{
+  const older=runs[i+1],d=older?diff(older,run):null;
+  return '<li><div class="pf-history-head"><time datetime="'+e(run.at)+'">'+e(when(run.at))+'</time>'+(run.sample?'<span class="pf-sample-label">SAMPLE DATA</span>':'')+'</div>'+
+   '<p class="pf-history-route">'+e(run.from||'?')+' → '+e(run.to||'?')+' <span class="pf-row-meta">'+e(run.platform)+' / '+e(run.architecture)+' · '+e(run.name)+'</span></p>'+
+   '<p>'+statusBadge(run.verdict,locale,true)+' <span class="pf-row-meta">'+t('checked',{count:run.total})+' — '+Object.entries(run.counts).map(([s,n])=>e(text(locale,'status.'+s))+' '+e(n)).join(' · ')+'</span></p>'+
+   (d?(d.changes.length?'<details'+(i===0?' open':'')+'><summary>'+t('historyChanges',{count:d.changes.length})+'</summary><ul>'+d.changes.slice(0,20).map(c=>'<li><b>'+e(c.name)+'</b> '+label(c.before,'historyAdded')+' → '+label(c.after,'historyRemoved')+'</li>').join('')+
+     (d.changes.length>20?'<li class="pf-muted">'+t('historyMore',{count:d.changes.length-20})+'</li>':'')+'</ul></details>':'<p class="pf-muted">'+t('historyNoChanges')+'</p>')+
+    (d.targetChanged?'<p class="pf-muted">'+t('historyTarget')+'</p>':'')+(d.partial?'<p class="pf-muted">'+t('historyPartial',{components:componentLimit})+'</p>':''):'<p class="pf-muted">'+t('historyFirst')+'</p>')+'</li>';
+ }).join('')+'</ol>';
 }

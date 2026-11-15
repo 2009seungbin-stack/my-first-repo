@@ -4,6 +4,8 @@ import {html,raw} from '../platform/render/html.js';
 import {icon} from '../platform/render/icons.js';
 import {ADAPTERS} from '../src/preflight/adapters/index.js';
 import {text} from '../src/preflight/messages.js';
+import {FILTER_ORDER} from '../src/preflight/core/filters.js';
+import {HISTORY_LIMIT,HISTORY_COMPONENT_LIMIT} from '../src/preflight/storage/history.js';
 import {LANGUAGE_NAMES,LOCALES} from '../src/i18n.js';
 import DEPTH from '../src/seo-depth/preflight.js';
 import {answerHTML,depthSection,DEPTH_ORDER} from '../src/seo-depth/render.js';
@@ -58,7 +60,7 @@ export function preflightPage({locale='en',path='preflight',siteURL='',preview=f
  out=out.replaceAll('href="/ja/tools/"','href="/ja/"');
  if(!platform)out=out.replaceAll('href="/ko/tools/"','href="/ko/"').replaceAll('href="/en/tools/"','href="/en/"');
  // The platform shell is reused at build time; Preflight itself has no account or traffic requests.
- return out.replace('<head>','<head>\n<base href="'+base+'">').replace('</head>','<link rel="stylesheet" href="/src/preflight/preflight.css?v=1">\n'+(adapter?'<script type="module" src="/src/preflight/app.js"></script>\n':'')+'</head>')
+ return out.replace('<head>','<head>\n<base href="'+base+'">').replace('</head>','<link rel="stylesheet" href="/src/preflight/preflight.css?v=2">\n'+(adapter?'<script type="module" src="/src/preflight/app.js"></script>\n':'')+'</head>')
   .replace('<main class="pg"','<main class="pg pf-main"').replace('class="n2"','class="n2 pf-page"')
   .replace(/(href|src|action)="\/(?!\/)/g,'$1="');
 }
@@ -100,12 +102,14 @@ function workspace(a,l){
  <section class="pf-overview" aria-labelledby="pf-result-title"><h2 id="pf-result-title"><span class="pf-step">03</span>${t('step3')}</h2><div id="pf-verdict"><p class="pf-muted">${t('running')}</p></div>
  <p class="pf-provenance" id="pf-provenance">${t('realWarning')}</p><div id="pf-actions"></div>
  <details class="pf-comparison"><summary>${icon('convert',17)}${t('compare')}</summary><form id="pf-compare"><label>${t('compareVersion')}<input name="compareVersion" value="${a.id==='obs'?'34.0':''}" maxlength="80" required></label><button type="submit">${t('compare')}</button></form><div id="pf-diff"></div></details>
- <div class="pf-toolbar pf-export"><button id="pf-copy" type="button">${icon('share',16)}${t('summary')}</button><button id="pf-export" type="button">${icon('down',16)}${t('export')}</button><button id="pf-export-report" type="button">${t('exportReport')}</button><button id="pf-print" type="button">${t('print')}</button></div>
+ <details class="pf-history" id="pf-history"><summary>${icon('history',17)}${t('history')} <span id="pf-history-count" class="pf-count">0</span></summary><p class="pf-muted">${text(l,'historyHelp',{limit:HISTORY_LIMIT,components:HISTORY_COMPONENT_LIMIT})}</p><div id="pf-history-list"></div><button type="button" id="pf-history-clear" hidden>${t('historyClear')}</button></details>
+ <div class="pf-toolbar pf-export"><button id="pf-copy" type="button">${icon('share',16)}${t('summary')}</button><button id="pf-copy-md" type="button">${t('markdown')}</button><button id="pf-export" type="button">${icon('down',16)}${t('export')}</button><button id="pf-export-report" type="button">${t('exportReport')}</button><button id="pf-print" type="button">${t('print')}</button></div>
  <label id="pf-copy-fallback" hidden>${t('copyFailed')}<textarea readonly rows="8"></textarea></label></section>
  </div>
  <p id="pf-notice" class="pf-notice" role="status" aria-live="polite" hidden></p>
  <section class="pf-report" id="pf-report" hidden><header><h2>${t('report')}</h2><label class="pf-search">${icon('search',17)}<input id="pf-report-search" type="search" aria-label="${t('search')}" placeholder="${t('search')}"></label></header>
- <div class="pf-toolbar pf-filters" role="group" aria-label="${t('status')}">${['all','problems','updates','unknown','ready'].map((f,i)=>html`<button type="button" data-filter="${f}" aria-pressed="${i===0}">${f==='unknown'?t('status.UNKNOWN'):f==='ready'?t('status.READY'):t(f)}</button>`)}</div>
+ <div class="pf-toolbar pf-filters" role="group" aria-label="${t('status')}">${FILTER_ORDER.map((f,i)=>html`<button type="button" data-filter="${f}" aria-pressed="${i===0}">${f==='unknown'?t('status.UNKNOWN'):f==='ready'?t('status.READY'):f==='caution'?t('status.CAUTION'):f==='blocked'?t('status.BLOCKED'):t(f)} <span class="pf-count" data-filter-count="${f}">0</span></button>`)}</div>
+ <div class="pf-report-tools"><p class="pf-muted pf-keys">${t('keysHint')}</p><div class="pf-toolbar"><button type="button" id="pf-expand-all">${t('expandAll')}</button><button type="button" id="pf-collapse-all">${t('collapseAll')}</button></div></div>
  <div class="pf-table-wrap" tabindex="0" aria-label="${t('report')}"><table><thead><tr>${['name','installed','recommended','status','confidence','reason'].map(k=>html`<th scope="col">${t(k)}</th>`)}</tr></thead><tbody id="pf-results"></tbody></table></div><div class="pf-pagination"><span id="pf-display-count"></span><button id="pf-more" type="button" hidden>${t('showMore')}</button></div></section>
  ${Object.entries(STATUS_ICONS).map(([status,name])=>html`<template id="pf-icon-${status}">${icon(name,18)}</template>`)}
  <noscript><p>${t('empty')} JavaScript is required for local analysis.</p></noscript>

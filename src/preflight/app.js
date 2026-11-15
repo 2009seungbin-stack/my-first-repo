@@ -5,11 +5,13 @@ import {acceptsHost,hostName} from './core/adapter.js';
 import {createCompatibilityIndex} from './core/resolver.js';
 import {createCatalogIndex,parsePasteList,importEnvironment,hashName,validateEnvironment} from './core/parser.js';
 import {POLICY} from './core/policy.js';
-import {copySummary,exportJSON,exportCompatibilityReport,escapeHTML as e} from './core/report.js';
+import {copySummary,markdownReport,exportJSON,exportCompatibilityReport,escapeHTML as e} from './core/report.js';
+import {matchesFilter,filterCounts,FILTERS} from './core/filters.js';
+import {listRuns,recordRun,clearRuns,diffRuns,HISTORY_COMPONENT_LIMIT} from './storage/history.js';
 import {text,reasonText} from './messages.js';
 import {listSetups,saveSetup,loadSetup,renameSetup,deleteSetup} from './storage/setups.js';
 import {componentPicker} from './components/picker.js';
-import {verdictHTML,actionsHTML,tableHTML,detailHTML,statusBadge} from './components/report-view.js';
+import {verdictHTML,actionsHTML,tableHTML,detailHTML,statusBadge,historyHTML} from './components/report-view.js';
 /** @template {HTMLElement} T @param {string} selector @returns {T} */
 function node(selector){const el=document.querySelector(selector);if(!el)throw Error('Missing UI element '+selector);return /** @type {T} */(el);}
 /** @param {HTMLFormElement} form @param {string} name */
@@ -66,8 +68,9 @@ async function initialize(root){
   if(!result)return;
   const words=search.toLowerCase().split(/\s+/).filter(Boolean);
   const exactId=search.startsWith('id:')?search.slice(3):null;
-  const rows=reportIndex.filter(({component:c,text})=>(exactId?c.component.id===exactId:words.every(w=>text.includes(w)))&&
-   (filter==='all'||filter==='problems'&&!['READY','NOT_APPLICABLE'].includes(c.status)||filter==='updates'&&c.status==='UPDATE_REQUIRED'||filter==='unknown'&&c.status==='UNKNOWN'||filter==='ready'&&c.status==='READY')).map(r=>r.component);
+  const rows=reportIndex.filter(({component:c,text})=>(exactId?c.component.id===exactId:words.every(w=>text.includes(w)))&&matchesFilter(c.status,filter)).map(r=>r.component);
+  const totals=filterCounts(result.components);
+  for(const el of root.querySelectorAll('[data-filter-count]'))el.textContent=String(totals[/** @type {HTMLElement} */(el).dataset.filterCount||'']??0);
   node('#pf-results').innerHTML=rows.length?tableHTML(rows.slice(0,reportLimit),locale):'<tr><td colspan="6">'+e(t('noResults'))+'</td></tr>';
   for(const c of rows.slice(0,reportLimit))if(expanded.has(c.component.id)){
    const row=document.getElementById('pf-detail-'+c.component.id);if(!row)continue;
@@ -76,6 +79,21 @@ async function initialize(root){
   }
   node('#pf-display-count').textContent=t('displayed',{shown:Math.min(reportLimit,rows.length),count:rows.length});
   node('#pf-more').hidden=rows.length<=reportLimit;
+ };
+ const renderHistory=()=>{
+  const runs=listRuns(storage(),vertical);
+  node('#pf-history-count').textContent=String(runs.length);node('#pf-history-list').innerHTML=historyHTML(runs,locale,diffRuns,HISTORY_COMPONENT_LIMIT);
+  node('#pf-history-clear').hidden=!runs.length;
+ };
+ const setFilter=(/** @type {string} */ next)=>{
+  filter=next in FILTERS?next:'all';reportLimit=100;
+  for(const b of root.querySelectorAll('[data-filter]'))b.setAttribute('aria-pressed',String(/** @type {HTMLElement} */(b).dataset.filter===filter));renderTable();
+ };
+ const openDetail=(/** @type {string} */ id,/** @type {boolean} */ open)=>{
+  const c=result?.components.find(c=>c.component.id===id),row=document.getElementById('pf-detail-'+id);if(!c||!row)return;
+  row.hidden=!open;if(open)expanded.add(id);else expanded.delete(id);
+  for(const b of node('#pf-results').querySelectorAll('[data-detail]'))if(/** @type {HTMLElement} */(b).dataset.detail===id)b.setAttribute('aria-expanded',String(open));
+  if(open)/** @type {HTMLElement} */(row.firstElementChild).innerHTML=detailHTML(c,catalog.get(c.component.id),locale);
  };
  const renderInventory=()=>{
   node('#pf-inventory-count').textContent=String(environment.components.length);
@@ -103,11 +121,11 @@ async function initialize(root){
    const provenance=node('#pf-provenance');provenance.textContent=t(result.sample?'sampleWarning':'realWarning');provenance.classList.toggle('sample',result.sample);
    node('#pf-actions').innerHTML=environment.components.length?actionsHTML(result,locale):'<p class="pf-muted">'+e(t('empty'))+'</p>';
    node('#pf-report').hidden=!environment.components.length;
-   for(const id of ['pf-copy','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=!environment.components.length;
+   for(const id of ['pf-copy','pf-copy-md','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=!environment.components.length;
    node('#pf-diff').innerHTML='';renderTable();
   }catch(err){
    result=null;node('#pf-verdict').textContent=errorMessage(err);node('#pf-report').hidden=true;node('#pf-actions').innerHTML='';node('#pf-diff').innerHTML='';
-   for(const id of ['pf-copy','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=true;
+   for(const id of ['pf-copy','pf-copy-md','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=true;
   }
  };
  const schedule=()=>{clearTimeout(analysisTimer);analysisTimer=window.setTimeout(calculate,150);};
@@ -131,7 +149,7 @@ async function initialize(root){
   control(addForm,'critical').checked=entry.critical!==false;
  });
  root.setAttribute('aria-busy','false');/** @type {HTMLButtonElement} */(node('#pf-run')).disabled=false;
- syncForm();renderSaved();calculate();
+ syncForm();renderSaved();guard(renderHistory);calculate();
  envForm.addEventListener('submit',event=>{event.preventDefault();calculate();});
  envForm.addEventListener('input',schedule);envForm.addEventListener('change',event=>{
   if(event.target===control(envForm,'platform')){
@@ -141,7 +159,12 @@ async function initialize(root){
   if(event.target===control(envForm,'architecture'))environment.architecture=/** @type {import('./core/types').Architecture} */(control(envForm,'architecture').value);
   calculate();
  });
- node('#pf-run').addEventListener('click',()=>{calculate();node('.pf-overview').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});});
+ node('#pf-run').addEventListener('click',()=>{calculate();
+  if(result&&environment.components.length)guard(()=>{
+   const runs=recordRun(storage(),vertical,/** @type {import('./core/types').PreflightResult} */(result)),d=runs[1]?diffRuns(runs[1],runs[0]):null;
+   renderHistory();notice(t('historyRecorded')+' '+(d?d.changes.length?t('historyChanges',{count:d.changes.length}):t('historyNoChanges'):t('historyFirst')));
+  });
+  node('.pf-overview').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});});
  node('#pf-setup-name').addEventListener('input',schedule);
  for(const btn of root.querySelectorAll('[data-mode]'))btn.addEventListener('click',()=>{
   const mode=/** @type {HTMLElement} */(btn).dataset.mode;node('#pf-add').hidden=mode!=='manual';node('#pf-paste').hidden=mode!=='paste';
@@ -205,9 +228,22 @@ async function initialize(root){
   }else if(input.dataset.delete){deleteSetup(storage(),id);if(savedId===id)savedId='';renderSaved();}
  }));
  if(location.hash.startsWith('#setup='))guard(()=>{const id=decodeURIComponent(location.hash.slice(7)),env=loadSetup(storage(),id);if(env.vertical!==vertical)throw Error('Wrong vertical for saved setup');savedId=id;adopt(env);history.replaceState(null,'',location.pathname);});
- for(const btn of root.querySelectorAll('[data-filter]'))btn.addEventListener('click',()=>{
-  filter=/** @type {HTMLElement} */(btn).dataset.filter||'all';reportLimit=100;
-  for(const b of root.querySelectorAll('[data-filter]'))b.setAttribute('aria-pressed',String(btn===b));renderTable();
+ for(const btn of root.querySelectorAll('[data-filter]'))btn.addEventListener('click',()=>setFilter(/** @type {HTMLElement} */(btn).dataset.filter||'all'));
+ node('#pf-verdict').addEventListener('click',event=>{
+  const tile=/** @type {HTMLElement|null} */(/** @type {HTMLElement} */(event.target).closest('[data-tile]'));if(!tile||!result)return;
+  search='';/** @type {HTMLInputElement} */(node('#pf-report-search')).value='';setFilter(tile.dataset.tile||'all');
+  node('#pf-report').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
+  /** @type {HTMLElement|null} */(root.querySelector('[data-filter="'+filter+'"]'))?.focus({preventScroll:true});
+ });
+ node('#pf-history-clear').addEventListener('click',()=>guard(()=>{clearRuns(storage(),vertical);renderHistory();notice(t('historyCleared'));}));
+ node('#pf-expand-all').addEventListener('click',()=>{for(const row of node('#pf-results').querySelectorAll('tr[data-component]'))openDetail(/** @type {HTMLElement} */(row).dataset.component||'',true);});
+ node('#pf-collapse-all').addEventListener('click',()=>{for(const id of [...expanded])openDetail(id,false);expanded.clear();});
+ node('#pf-results').addEventListener('keydown',event=>{
+  const ev=/** @type {KeyboardEvent} */(event),current=/** @type {HTMLElement} */(ev.target).closest('td:first-child>[data-detail]');
+  if(!current||!['ArrowDown','ArrowUp','Home','End'].includes(ev.key)||ev.altKey||ev.ctrlKey||ev.metaKey)return;
+  const items=/** @type {HTMLElement[]} */([...node('#pf-results').querySelectorAll('td:first-child>[data-detail]')]),at=items.indexOf(/** @type {HTMLElement} */(current));
+  const next=items[ev.key==='Home'?0:ev.key==='End'?items.length-1:Math.max(0,Math.min(items.length-1,at+(ev.key==='ArrowDown'?1:-1)))];
+  if(next){ev.preventDefault();next.focus();}
  });
  node('#pf-report-search').addEventListener('input',()=>{search=/** @type {HTMLInputElement} */(node('#pf-report-search')).value;reportLimit=100;renderTable();});
  node('#pf-more').addEventListener('click',()=>{reportLimit+=100;renderTable();});
@@ -217,18 +253,13 @@ async function initialize(root){
   if(dep&&result){
    const id=dep.dataset.dependency,position=result.components.findIndex(c=>c.component.id===id);
    if(position<0){notice('Required dependency is not in this inventory',true);return;}
-   filter='all';search='id:'+id;reportLimit=100;expanded.add(id);
+   search='id:'+id;expanded.add(id);
    /** @type {HTMLInputElement} */(node('#pf-report-search')).value=search;
-   for(const b of root.querySelectorAll('[data-filter]'))b.setAttribute('aria-pressed',String(/** @type {HTMLElement} */(b).dataset.filter==='all'));
-   renderTable();document.getElementById('pf-detail-'+id)?.scrollIntoView({block:'center'});return;
+   setFilter('all');document.getElementById('pf-detail-'+id)?.scrollIntoView({block:'center'});return;
   }
   const button=/** @type {HTMLElement|null} */(el.closest('[data-detail]'));if(!button||!result)return;
-  const id=button.dataset.detail,c=result.components.find(c=>c.component.id===id),row=document.getElementById('pf-detail-'+id);
-  if(!c||!row)return;
-  const open=row.hidden;row.hidden=!open;
-  if(open)expanded.add(id);else expanded.delete(id);
-  for(const b of node('#pf-results').querySelectorAll('[data-detail]'))if(/** @type {HTMLElement} */(b).dataset.detail===id)b.setAttribute('aria-expanded',String(open));
-  if(open)/** @type {HTMLElement} */(row.firstElementChild).innerHTML=detailHTML(c,catalog.get(c.component.id),locale);
+  const id=button.dataset.detail||'',row=document.getElementById('pf-detail-'+id);
+  if(row)openDetail(id,row.hidden);
  });
  node('#pf-compare').addEventListener('submit',event=>{
   event.preventDefault();guard(()=>{
@@ -246,11 +277,12 @@ async function initialize(root){
  };
  node('#pf-export').addEventListener('click',()=>{calculate();if(result)download(exportJSON(result),'application/json','nerulio-preflight-'+vertical+'.json');});
  node('#pf-export-report').addEventListener('click',()=>{calculate();if(result)download(exportCompatibilityReport(result,locale),'text/html','nerulio-preflight-'+vertical+'.html');});
- node('#pf-copy').addEventListener('click',async()=>{
-  calculate();if(!result)return;const summary=copySummary(result,locale);
-  try{await navigator.clipboard.writeText(summary);notice(t('copied'));}
+ const copyText=async(/** @type {string} */ summary,/** @type {string} */ done)=>{
+  try{await navigator.clipboard.writeText(summary);notice(t(done));}
   catch{const fallback=node('#pf-copy-fallback');fallback.hidden=false;const area=/** @type {HTMLTextAreaElement} */(fallback.querySelector('textarea'));area.value=summary;area.focus();area.select();notice(t('copyFailed'));}
- });
+ };
+ node('#pf-copy').addEventListener('click',()=>{calculate();if(result)copyText(copySummary(result,locale),'copied');});
+ node('#pf-copy-md').addEventListener('click',()=>{calculate();if(result)copyText(markdownReport(result,locale),'markdownCopied');});
  node('#pf-print').addEventListener('click',()=>{calculate();if(!result)return;
   document.querySelector('.pf-print-full')?.remove();
   const container=document.createElement('div');container.className='pf-print-full';
