@@ -129,6 +129,10 @@ const RETIRED_COMMUNITY_HEADINGS={
  ko:{'로그인 없이 쓰는 커뮤니티 글':'종료 전 커뮤니티 글의 데이터','커뮤니티 이미지':'종료 전 업로드한 이미지'},
  ja:{'ログインなしのコミュニティ投稿':'終了前のコミュニティ投稿データ','コミュニティの画像':'終了前にアップロードした画像'}
 };
+/** Reading aids on policy pages: contents heading, print control, back-to-top link. */
+const POLICY_UI={en:['On this page','Print or save as PDF','Back to top'],ko:['이 페이지의 내용','인쇄 또는 PDF로 저장','맨 위로'],ja:['このページの内容','印刷またはPDFで保存','ページの先頭へ']};
+/** In-page anchor of the nth rendered section (1-based) of a policy page. @param {number} n */
+export const policyAnchor=n=>'sec-'+n;
 function retiredCommunityText(locale,text){for(const [from,to] of RETIRED_COMMUNITY_TEXT[locale])text=text.replaceAll(from,to);return text;}
 /** @param {string} page @param {string} locale @param {boolean} [ads] @param {boolean|'accounts'} [service] @param {boolean} [analytics] @param {boolean} [traffic] @param {boolean} [platform] */
 export function policyContent(page,locale,ads=false,service=/** @type {boolean|'accounts'} */(false),analytics=false,traffic=false,platform=traffic){
@@ -136,6 +140,13 @@ export function policyContent(page,locale,ads=false,service=/** @type {boolean|'
  const closed=page==='privacy'&&platform;
  const closedNotice=closed?`<section class="community-closed"><h2>${esc({ko:'커뮤니티 운영 종료',en:'Community closed',ja:'コミュニティ終了'}[locale])}</h2><p>${esc({ko:'커뮤니티 게시판·댓글·추천·이미지 업로드는 종료했습니다. 편집 도구는 계속 기기에서 파일을 처리합니다. 종료 전 수집한 데이터와 기존 보관 규칙은 아래에 안내합니다.',en:'Community boards, comments, votes and image uploads are closed. Editing tools continue to process files on your device. Earlier community data and its existing retention rules are described below.',ja:'投稿・コメント・投票・画像アップロードは終了しました。編集ツールは引き続き端末内でファイルを処理します。終了前のコミュニティデータと既存の保存ルールは以下で説明します。'}[locale])}</p></section>`:'';
  const status=ads?{en:'Google AdSense is enabled in this build. Ad delivery depends on account approval, configured units and consent.',ko:'이 빌드에는 Google AdSense가 활성화되어 있습니다. 실제 노출은 계정 승인·광고 단위·동의 설정에 따라 달라집니다.',ja:'このビルドではGoogle AdSenseが有効です。配信はアカウント承認、広告枠、同意設定によります。'}:{en:'Google AdSense is disabled in this build. No Google advertising script or ad units are loaded.',ko:'이 빌드에서는 Google AdSense가 비활성화되어 광고 스크립트와 광고 단위를 불러오지 않습니다.',ja:'このビルドではGoogle AdSenseが無効で、Google広告スクリプトや広告枠は読み込みません。'};
- return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1>${esc(l[page])}</h1>${closedNotice}${sections(page,locale,service).map(([h,p])=>`<section><h2>${esc(h)}</h2><p>${esc(closed?retiredCommunityText(locale,p):p)}</p></section>`).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${closed?COMMUNITY_PRIVACY_NOTE[locale].map(([h,p])=>`<section class="community-privacy"><h2>${esc(RETIRED_COMMUNITY_HEADINGS[locale][h]||h)}</h2><p>${esc(retiredCommunityText(locale,p))}</p></section>`).join(''):''}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}`;
+ const ui=POLICY_UI[locale],self=`${locale}/${page}/`;
+ // Section text is unchanged; only anchors, a contents list and a print control are added around it.
+ const main=sections(page,locale,service).map(([h,p])=>[h,closed?retiredCommunityText(locale,p):p,'']);
+ const community=closed?COMMUNITY_PRIVACY_NOTE[locale].map(([h,p])=>[RETIRED_COMMUNITY_HEADINGS[locale][h]||h,retiredCommunityText(locale,p),' class="community-privacy"']):[];
+ const all=[...main,...community];
+ const section=([h,p,cls],i)=>`<section${cls}><h2 id="${policyAnchor(i+1)}" tabindex="-1">${esc(h)}</h2><p>${esc(p)}</p></section>`;
+ const toc=`<nav class="policy-toc" aria-label="${esc(ui[0])}"><h2>${esc(ui[0])}</h2><ol>${all.map(([h],i)=>`<li><a data-policy-anchor href="${self}#${policyAnchor(i+1)}">${esc(h)}</a></li>`).join('')}</ol><button type="button" class="policy-print" data-policy-print hidden>${esc(ui[1])}</button></nav>`;
+ return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1 id="policy-top" tabindex="-1">${esc(l[page])}</h1>${closedNotice}${toc}${main.map(section).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'&&traffic?`<p class="traffic-status">${esc(TRAFFIC_NOTE[locale])}</p>`:''}${community.map((item,i)=>section(item,main.length+i)).join('')}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='about'?aboutResources(locale,platform):''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}<p class="policy-top"><a data-policy-anchor href="${self}#policy-top">↑ ${esc(ui[2])}</a></p>`;
 }
 export {footer};

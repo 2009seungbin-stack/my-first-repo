@@ -13,3 +13,16 @@
 @media(max-width:700px){.sd-table thead{display:none}.sd-table,.sd-table tbody,.sd-table tr,.sd-table th,.sd-table td{display:block}.sd-table tr{border-bottom:1px solid #dfe5ed;padding:6px 0}.sd-table th,.sd-table td{border:0;padding:4px 12px}.sd-table td::before{content:attr(data-label);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#8590a2}.sd-terms{grid-template-columns:1fr}}
 /* Phones: the tool stays above the fold; the short answer follows it directly. */
 @media(max-width:700px){#task{display:flex;flex-direction:column}#task>.sd-answer{order:1;margin:18px 0 0}}
+/* Policy pages: reading layout, in-page contents and print. */
+.policy-main h1{font-size:clamp(28px,5vw,38px);line-height:1.25;letter-spacing:-.02em;color:var(--ink);margin:14px 0 22px;scroll-margin-top:16px}
+.policy-main h2{line-height:1.35;scroll-margin-top:16px}.policy-main section{border-top:1px solid #e6ebf2}.policy-main section p{max-width:74ch;margin:0 0 24px}
+.policy-main h1:focus,.policy-main h2:focus{outline:0}.policy-main h1:focus-visible,.policy-main h2:focus-visible,.policy-main a:focus-visible,.policy-header a:focus-visible,.policy-print:focus-visible{outline:3px solid #95bfff;outline-offset:4px;border-radius:4px}
+.policy-home,.policy-languages a,.policy-top a{display:inline-flex;align-items:center;min-height:44px}.policy-languages a{padding:0 4px;color:#2466bc}
+.policy-main .community-closed{margin:0 0 24px;padding:4px 22px 0;border:1px solid #ecd9a8;border-radius:14px;background:#fff9e8;color:#4a3d16}.policy-main .community-closed h2{margin-top:16px;font-size:18px}.policy-main .community-closed p{margin-bottom:16px}
+.policy-toc{margin:0 0 34px;padding:18px 22px;border:1px solid #d6e2f3;border-radius:14px;background:#f5f9ff}
+.policy-main .policy-toc h2{margin:0 0 6px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#52647c}
+.policy-toc ol{margin:0;padding-left:24px;columns:2;column-gap:40px}.policy-toc li{break-inside:avoid;color:#52647c}.policy-toc li a{display:block;box-sizing:border-box;min-height:44px;padding:10px 0;line-height:1.5;text-underline-offset:4px}
+.policy-print{margin-top:12px;min-height:44px;padding:0 18px;border:1px solid #c5d3e6;border-radius:10px;background:#fff;color:#22324a;font:inherit;font-weight:650;cursor:pointer}.policy-print:hover{background:#eaf2ff;border-color:#95bfff}
+.policy-top{margin:34px 0 0;padding-top:12px;border-top:1px solid #e6ebf2}
+@media(max-width:700px){.policy-main,.policy-header{padding:0 20px}.policy-main{margin:28px auto 40px}.policy-toc{padding:16px 18px}.policy-toc ol{columns:1}.policy-main h2{font-size:20px}}
+@media print{.policy-header nav,.policy-home,.policy-toc,.policy-top,#policyFooter,.ad-slot{display:none}body{background:#fff}.policy-main{max-width:none;margin:0;padding:0;color:#000;font-size:11pt;line-height:1.6}.policy-main h1,.policy-main h2{color:#000}.policy-main section{border-top:0}.policy-main section p{max-width:none}.policy-main h2{break-after:avoid}.policy-main .community-closed{background:none;border-color:#999;color:#000}.policy-main a{color:#000}.policy-main a[href^="http"]::after{content:" (" attr(href) ")";overflow-wrap:anywhere}}

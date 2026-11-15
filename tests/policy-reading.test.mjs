@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import test from 'node:test';
+import {policyContent,policyAnchor,policies,POLICY_ROUTES,COMMUNITY_PRIVACY_NOTE} from '../src/policies.js';
+import {LOCALES} from '../src/i18n.js';
+
+const anchors=html=>[...html.matchAll(/<h2 id="(sec-\d+)" tabindex="-1">([^<]*)<\/h2>/g)].map(m=>[m[1],m[2]]);
+const contents=html=>[...(html.match(/<nav class="policy-toc"[\s\S]*?<\/nav>/)?.[0]||'').matchAll(/<a data-policy-anchor href="([^"#]*)#(sec-\d+)">([^<]*)<\/a>/g)].map(m=>[m[1],m[2],m[3]]);
+
+test('every policy page lists each section once, in order, with a matching anchor',()=>{
+ for(const locale of LOCALES)for(const page of POLICY_ROUTES){
+  const html=policyContent(page,locale),heads=anchors(html),toc=contents(html);
+  assert.equal(heads.length,policies[locale][page].length,`${locale}/${page}`);
+  assert.deepEqual(heads.map(([id])=>id),heads.map((_,i)=>policyAnchor(i+1)));
+  assert.deepEqual(toc.map(([,id,text])=>[id,text]),heads,`${locale}/${page} contents match headings`);
+  // The page sets <base>, so a bare "#sec-1" would leave the page; links carry the route.
+  for(const [route] of toc)assert.equal(route,`${locale}/${page}/`);
+  assert.match(html,new RegExp(`<a data-policy-anchor href="${locale}/${page}/#policy-top">`));
+  assert.match(html,/<h1 id="policy-top" tabindex="-1">/);
+  assert.equal(new Set(heads.map(([id])=>id)).size,heads.length,'unique ids');
+ }
+});
+
+test('reading aids do not alter the policy wording',()=>{
+ for(const locale of LOCALES)for(const page of POLICY_ROUTES){
+  const html=policyContent(page,locale);
+  const paragraphs=[...html.matchAll(/<section><h2 id="sec-\d+" tabindex="-1">[^<]*<\/h2><p>([^<]*)<\/p><\/section>/g)].map(m=>m[1]);
+  const unescape=s=>s.replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&#39;',"'").replaceAll('&amp;','&');
+  assert.deepEqual(paragraphs.map(unescape),policies[locale][page].map(([,p])=>p),`${locale}/${page}`);
+ }
+});
+
+test('former community sections continue the numbering after the main sections',()=>{
+ for(const locale of LOCALES){
+  const html=policyContent('privacy',locale,false,'accounts',false,true,true),heads=anchors(html),toc=contents(html);
+  assert.equal(toc.length,heads.length);
+  assert.equal(heads.length,toc.length);
+  assert.equal((html.match(/<section class="community-privacy"><h2 id="sec-\d+"/g)||[]).length,COMMUNITY_PRIVACY_NOTE[locale].length);
+  assert.deepEqual(heads.map(([id])=>id),heads.map((_,i)=>policyAnchor(i+1)));
+  assert(html.indexOf('class="community-closed"')<html.indexOf('class="policy-toc"'),'closure notice stays first');
+ }
+});
+
+test('the print control is inert without script and labelled in every language',()=>{
+ const labels={en:'Print or save as PDF',ko:'인쇄 또는 PDF로 저장',ja:'印刷またはPDFで保存'};
+ for(const locale of LOCALES){
+  const html=policyContent('terms',locale);
+  assert(html.includes(`<button type="button" class="policy-print" data-policy-print hidden>${labels[locale]}</button>`),locale);
+ }
+});
+
+test('policy stylesheet keeps a print layout and the page script wires the controls',async()=>{
+ const css=await readFile(new URL('../content.css',import.meta.url),'utf8');
+ assert.match(css,/@media print\{[^@]*\.policy-toc[^@]*display:none/);
+ assert.match(css,/\.policy-toc li a\{[^}]*padding:10px 0/);
+ const js=await readFile(new URL('../src/policy-page.js',import.meta.url),'utf8');
+ assert.match(js,/data-policy-print/);assert.match(js,/window\.print\(\)/);assert.match(js,/prefers-reduced-motion/);
+});
