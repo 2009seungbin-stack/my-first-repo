@@ -121,3 +121,18 @@ test('preflight page: new controls are rendered and translated in ko/en/ja',()=>
   assert.ok(!page.includes('{limit}')&&!page.includes('{components}')&&!page.includes('{clear}'));
  }
 });
+
+test('preflight report rows carry column labels for the stacked mobile layout',async()=>{
+ const {tableHTML}=await import('../src/preflight/components/report-view.js');
+ const saved=globalThis.document;globalThis.document={querySelector:()=>null};
+ try{
+  const result=await sample();
+  for(const [locale,i] of [['ko',0],['en',1],['ja',2]]){
+   const html=tableHTML(result.components,locale);
+   for(const key of ['installed','recommended','status','confidence','reason'])
+    assert.equal(html.split('<td data-label="'+MESSAGES[key][i]+'">').length-1,result.components.length,locale+' '+key);
+  }
+ }finally{if(saved===undefined)delete globalThis.document;else globalThis.document=saved;}
+ const css=await (await import('node:fs/promises')).readFile(new URL('../src/preflight/preflight.css',import.meta.url),'utf8');
+ assert.ok(css.includes('td[data-label]::before{content:attr(data-label)'));
+});
