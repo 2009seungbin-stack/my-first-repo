@@ -9,6 +9,7 @@ import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO
 import {GUIDES,GUIDE_INDEX_PATH,guidesFor,guidePath} from './guides-registry.mjs';
 import {DEPTH} from '../src/seo-depth/index.js';
 import {answerHTML,depthSlot,inline} from '../src/seo-depth/render.js';
+import {HUB_CHIPS,cardText,filterCards} from '../src/game-hub-search.js';
 /** Static HTML of the game landing pages (src/game-seo.js) and of the /game/ hub.
  * Dark, editor-looking pages whose primary action hands the dropped files to the Studio
  * (src/game-landing.js → src/task/handoff.js → /game/studio/?ws=…). Everything a crawler
@@ -77,14 +78,20 @@ const DESIGN_UI={
  outputsTo:{en:'Outputs',ko:'출력',ja:'出力'},
  guides:{en:'Guides',ko:'가이드',ja:'ガイド'}
 };
-function header(locale,prefix){
- return siteHeader({locale,prefix,navLabel:UI.hub[locale],
-  links:[{href:`${prefix}${GAME_HUB_PATH}/`,label:UI.allGame[locale]},...(GUIDES.length?[{href:`${prefix}${GUIDE_INDEX_PATH}/`,label:DESIGN_UI.guides[locale]}]:[]),{href:prefix,label:UI.allTools[locale]}],
+/** `hub`: the page is the hub itself, so its own link in the navigation is the current page. */
+function header(locale,prefix,{hub=false}={}){
+ return siteHeader({locale,prefix,navLabel:UI.hub[locale],menu:true,
+  links:[{href:`${prefix}${GAME_HUB_PATH}/`,label:UI.allGame[locale],attrs:hub?{'aria-current':'page'}:{}},...(GUIDES.length?[{href:`${prefix}${GUIDE_INDEX_PATH}/`,label:DESIGN_UI.guides[locale]}]:[]),{href:prefix,label:UI.allTools[locale]}],
   studio:{href:`${prefix}${STUDIO_ROUTE}/`,label:UI.studio[locale],attrs:{'data-studio-link':true}}});
 }
-function shell({locale,base,title,description,headHTML,body,shotKey}){
+/** What the full-page overlay says while files are dragged over a page: where a drop takes them. */
+export const DROP_HINT={
+ studio:{en:'Drop to open the files in the Studio',ko:'놓으면 Studio에서 열립니다',ja:'ドロップするとStudioで開きます'},
+ lab:{en:'Drop to open the files in the tool',ko:'놓으면 도구에서 열립니다',ja:'ドロップするとツールで開きます'}
+};
+function shell({locale,base,title,description,headHTML,body,shotKey,target='studio'}){
  return `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0f1114"><meta name="description" content="${esc(description)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><base href="${base}"><title>${esc(title)}</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="src/game-site.css"><link rel="stylesheet" href="src/game-landing.css">${SHOTS[shotKey]?`<link rel="preload" as="image" href="assets/studio/${SHOTS[shotKey].file}-780.webp" media="(max-width: 820px)" fetchpriority="high">`:''}<script type="module" src="src/game-landing.js"></script>${headHTML}
-</head><body class="game-landing" data-gs>${body}<div class="gh-dropover" aria-hidden="true"></div><input id="glFiles" type="file" multiple hidden></body></html>`;
+</head><body class="game-landing" data-gs>${body}<div class="gh-dropover" aria-hidden="true"><span>${dropIcon}${esc((DROP_HINT[target]||DROP_HINT.studio)[locale])}</span></div><input id="glFiles" type="file" multiple hidden></body></html>`;
 }
 const footerHTML=(locale,prefix)=>`<div class="gs-footgrid gl-foot">${footerBrand({locale,prefix})}${footer(locale)}</div>`;
 function shot(key,locale,{priority=false}={}){
@@ -170,8 +177,8 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const rel=related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws});
  const ids=list=>list.map(([id,label])=>[id,label]);
  const items=[...ids(lead),['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...ids(afterHow),...(table?[['settings',c.table.title]]:[]),...ids(afterTable),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],...ids(scope),['limits',UI.limits[locale]],...ids(versions),['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
- const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${html(scope)}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
- return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
+ const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${html(scope)}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}${pager(key,locale,prefix)}</div></div></main>${footerHTML(locale,prefix)}`;
+ return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot,target:targetOf(game).type});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
 export const gameFaq=(game,locale)=>game.kind==='hub'?COMMON_FAQ.map(x=>x[locale]):[...game.page.copy[locale].faq,...COMMON_FAQ.map(x=>x[locale])];
@@ -190,6 +197,27 @@ export function gameGroups(){
  for(const [path,p] of kw)if(p.family!=='broad')groups[groupOf(p)].push(path);
  return groups;
 }
+/** Where a game page sits in the hub: its group, and the pages before and after it in hub order
+ * (the walk continues into the neighbouring group at either end). null for a page the hub does not list. */
+export function gameNeighbors(key){
+ const groups=gameGroups(),flat=GROUP_ORDER.flatMap(g=>groups[g].map(k=>[g,k])),i=flat.findIndex(([,k])=>k===key);
+ if(i<0)return null;
+ const group=flat[i][0];
+ return {group,size:groups[group].length,prev:flat[i-1]?.[1]||null,next:flat[i+1]?.[1]||null};
+}
+export const PAGER_UI={
+ label:{en:'More game tools',ko:'다른 게임 도구',ja:'ほかのゲームツール'},
+ prev:{en:'Previous',ko:'이전',ja:'前へ'},
+ next:{en:'Next',ko:'다음',ja:'次へ'},
+ group:{en:'All {n} in this group',ko:'이 분류 전체 {n}개',ja:'このカテゴリの全{n}件'}
+};
+/** Previous / group / next at the end of a landing: one step to the neighbouring tool, one to the
+ * page's group on the hub. Chrome (data-chrome): it changes when a page is added next door. */
+function pager(key,locale,prefix){
+ const n=gameNeighbors(key);if(!n)return '';
+ const u=k=>esc(PAGER_UI[k][locale]),step=(k,cls,label)=>k?`<a class="gl-pager-step ${cls}" href="${prefix}${routeOf(k)}/"><small>${label}</small><b>${esc(titleOf(k,locale))}</b></a>`:`<span class="gl-pager-step ${cls} is-empty"></span>`;
+ return `<nav class="gl-pager" data-chrome aria-label="${u('label')}">${step(n.prev,'is-prev','← '+u('prev'))}<a class="gl-pager-step is-group" href="${prefix}${GAME_HUB_PATH}/#hub-${n.group}"><small>${esc(PAGER_UI.group[locale].replace('{n}',n.size))}</small><b>${esc(HUB_GROUPS[n.group][locale])}</b></a>${step(n.next,'is-next',u('next')+' →')}</nav>`;
+}
 /** Sitemap order of the game pages: hub, then each workflow group (tool landings before keyword
  * pages), then any other game tool from the home directory. The caller drops what is not indexable. */
 export function gameSitemapPaths(){
@@ -197,16 +225,37 @@ export function gameSitemapPaths(){
  const others=(DIRECTORY.find(([c])=>c==='game')?.[1]||[]).map(id=>INTENTS[id]?.path).filter(Boolean);
  return [...new Set([GAME_HUB_PATH,...grouped,...others])];
 }
+/** The hub's search box and quick filters (chrome, not page copy). The page script
+ * (src/game-landing.js) shows the block; without JavaScript the hub is the plain grouped list. */
+export const HUB_SEARCH_UI={
+ label:{en:'Search game tools',ko:'게임 도구 검색',ja:'ゲームツールを検索'},
+ placeholder:{en:'Godot, tileset, bitmap font…',ko:'Godot, 타일셋, 비트맵 폰트…',ja:'Godot、タイルセット、ビットマップフォント…'},
+ chips:{en:'Quick filters',ko:'빠른 필터',ja:'クイックフィルター'},
+ all:{en:'{total} pages',ko:'페이지 {total}개',ja:'全{total}ページ'},
+ count:{en:'{n} of {total} pages',ko:'{total}개 중 {n}개',ja:'{total}ページ中 {n}ページ'},
+ none:{en:'Nothing matches. Try another word or clear the filter.',ko:'맞는 페이지가 없습니다. 다른 단어로 찾거나 필터를 지워 보세요.',ja:'一致するページがありません。別の言葉で探すか、フィルターを解除してください。'},
+ clear:{en:'Clear search',ko:'검색 지우기',ja:'検索をクリア'},
+ reset:{en:'Show all',ko:'전체 보기',ja:'すべて表示'}
+};
+const searchIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>';
+/** Chips that match at least one card in this language, with the number of cards each shows. */
+export const hubChipCounts=texts=>HUB_CHIPS.map(c=>({chip:c,count:filterCards(texts,{chip:c.id}).length})).filter(x=>x.count>0);
+function hubSearch(texts,locale){
+ const u=k=>esc(HUB_SEARCH_UI[k][locale]),chips=hubChipCounts(texts);
+ return `<div class="gl-hub-search" data-chrome data-gl-hub-search data-t-all="${u('all')}" data-t-count="${u('count')}" data-t-none="${u('none')}" hidden><label class="gl-hub-search-label" for="glHubQ">${u('label')}</label><span class="gl-hub-field">${searchIcon}<input id="glHubQ" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="80" placeholder="${u('placeholder')}" aria-describedby="glHubCount"><kbd aria-hidden="true">/</kbd><button type="button" class="gl-hub-clear" data-gl-hub-clear aria-label="${u('clear')}" hidden>×</button></span><span class="gl-hub-chips" role="group" aria-label="${u('chips')}">${chips.map(({chip,count})=>`<button type="button" class="gl-chip" data-gl-hub-chip="${chip.id}" aria-pressed="false">${esc(chip.label[locale])}<small>${count}</small></button>`).join('')}</span><p class="gl-hub-count" id="glHubCount" role="status" aria-live="polite"></p><p class="gl-hub-none" data-gl-hub-none hidden>${u('none')} <button type="button" class="gl-hub-reset" data-gl-hub-reset>${u('reset')}</button></p></div>`;
+}
 export const HUB_GAME={kind:'hub',key:GAME_HUB_PATH,canonical:GAME_HUB_PATH,page:{ws:'sprite',shot:'sprite-frame'}};
 export function gameHubPage({locale,prefix,base,headHTML}){
  const h=HUB[locale],title=`${h.title} · ${BRAND.name}`,groups=gameGroups();
- const section=ws=>groups[ws].length?`<section class="gl-section gl-hub-group" id="hub-${ws}"><h2>${esc(HUB_GROUPS[ws][locale])}</h2><ul class="gl-hub-list">${groups[ws].map(k=>`<li><a href="${prefix}${routeOf(k)}/"><b>${esc(titleOf(k,locale))}</b><small>${esc(descOf(k,locale))}</small></a></li>`).join('')}</ul></section>`:'';
+ const texts=[],card=(route,title,desc)=>{texts.push(cardText(title,desc,route));return `<li data-path="${esc(route)}"><a href="${prefix}${route}/"><b>${esc(title)}</b><small>${esc(desc)}</small></a></li>`;};
+ const section=ws=>groups[ws].length?`<section class="gl-section gl-hub-group" id="hub-${ws}"><h2 data-count="${groups[ws].length}">${esc(HUB_GROUPS[ws][locale])}</h2><ul class="gl-hub-list">${groups[ws].map(k=>card(routeOf(k),titleOf(k,locale),descOf(k,locale))).join('')}</ul></section>`:'';
+ const sections=GROUP_ORDER.map(section).join('');
  const crumb=`<nav class="gl-crumb" aria-label="Breadcrumb"><a href="${prefix}">${esc(BRAND.name)}</a><span aria-hidden="true">/</span><span aria-current="page">${esc(UI.hub[locale])}</span></nav>`;
  const hero=`<section class="gl-hero" data-ad-exclude><div class="gs-wrap"><div class="gl-hero-copy">${crumb}<h1>${esc(h.title)}</h1><p class="gl-lead">${esc(h.lead)}</p>${dropZone({game:HUB_GAME,locale,prefix})}</div>${shot('sprite-frame',locale,{priority:true})}</div></section>`;
  const nav=`<nav class="gl-toc gl-hub-nav" aria-label="${esc(UI.hub[locale])}"><p>${esc(DESIGN_UI.onPage[locale])}</p><ol>${GROUP_ORDER.filter(ws=>groups[ws].length).map(ws=>`<li><a href="${prefix}${GAME_HUB_PATH}/#hub-${ws}">${esc(HUB_GROUPS[ws][locale])}</a></li>`).join('')}${GUIDES.length?`<li><a href="${prefix}${GAME_HUB_PATH}/#hub-guides">${esc(LAB_UI.guides[locale])}</a></li>`:''}<li><a href="${prefix}${GAME_HUB_PATH}/#exports">${esc(UI.exports[locale])}</a></li><li><a href="${prefix}${GAME_HUB_PATH}/#faq">${esc(UI.faq[locale])}</a></li></ol></nav>`;
  // Every guide, once src/guides.js has any (branch nerulio/game-guides); nothing before that.
- const guides=GUIDES.length?`<section class="gl-section gl-hub-group" id="hub-guides"><h2>${esc(LAB_UI.guides[locale])}</h2><ul class="gl-hub-list">${GUIDES.map(g=>`<li><a href="${prefix}${guidePath(g.slug)}/"><b>${esc(g.title?.[locale]||g.title?.en||g.slug)}</b><small>${esc(g.description?.[locale]||g.description?.en||'')}</small></a></li>`).join('')}</ul><p><a class="gs-link" href="${prefix}${GUIDE_INDEX_PATH}/">${esc(LAB_UI.allGuides[locale])}</a></p></section>`:'';
- const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(HUB_GAME,prefix)} data-key="${GAME_HUB_PATH}" data-kind="hub" data-accept="${esc(WORKSPACES.sprite.accept)}">${hero}<div class="gs-wrap">${badges('sprite',locale)}</div><div class="gs-wrap gl-layout">${nav}<div class="gl-body" data-ad-host>${GROUP_ORDER.map(section).join('')}${guides}<!--ad:content-1--><section class="gl-section" id="exports"><h2>${esc(UI.exports[locale])}</h2><p class="gl-muted">${esc(UI.exportsLead[locale])}</p>${badges('tile',locale,[],{label:false})}</section>${faqHTML(COMMON_FAQ.map(x=>x[locale]),locale)}<!--ad:content-2--></div></div></main>${footerHTML(locale,prefix)}`;
+ const guides=GUIDES.length?`<section class="gl-section gl-hub-group" id="hub-guides"><h2 data-count="${GUIDES.length}">${esc(LAB_UI.guides[locale])}</h2><ul class="gl-hub-list">${GUIDES.map(g=>card(guidePath(g.slug),g.title?.[locale]||g.title?.en||g.slug,g.description?.[locale]||g.description?.en||'')).join('')}</ul><p><a class="gs-link" href="${prefix}${GUIDE_INDEX_PATH}/">${esc(LAB_UI.allGuides[locale])}</a></p></section>`:'';
+ const body=`${header(locale,prefix,{hub:true})}<main class="gl-main" id="main" data-game-landing${targetAttrs(HUB_GAME,prefix)} data-key="${GAME_HUB_PATH}" data-kind="hub" data-accept="${esc(WORKSPACES.sprite.accept)}">${hero}<div class="gs-wrap">${badges('sprite',locale)}</div><div class="gs-wrap gl-layout">${nav}<div class="gl-body" data-ad-host>${hubSearch(texts,locale)}${sections}${guides}<!--ad:content-1--><section class="gl-section" id="exports"><h2>${esc(UI.exports[locale])}</h2><p class="gl-muted">${esc(UI.exportsLead[locale])}</p>${badges('tile',locale,[],{label:false})}</section>${faqHTML(COMMON_FAQ.map(x=>x[locale]),locale)}<!--ad:content-2--></div></div></main>${footerHTML(locale,prefix)}`;
  return shell({locale,base,title,description:h.description,headHTML,body,shotKey:'sprite-frame'});
 
 }

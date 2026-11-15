@@ -158,3 +158,97 @@ html[lang="ko"] .gl-toc p,html[lang="ja"] .gl-toc p{letter-spacing:.03em}
 }
 /* Phones: the Studio action stays above the fold; the short answer follows it directly. */
 @media (max-width:820px){.gl-hero-copy .sd-answer{order:1;margin:18px 0 0}}
+
+/* ---------------------------------------------------------------- hub: search and quick filters (src/game-hub-search.js) */
+.gl-hub-search{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:48px 0 0;padding:16px;background:var(--gs-bg-2);border:1px solid var(--gs-line);border-radius:var(--gs-radius-l)}
+.gl-hub-search-label{font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--gs-text-3)}
+html[lang="ko"] .gl-hub-search-label,html[lang="ja"] .gl-hub-search-label{letter-spacing:.03em}
+.gl-hub-field{position:relative;display:flex;align-items:center;color:var(--gs-text-3)}
+.gl-hub-field svg{position:absolute;left:14px;pointer-events:none}
+.gl-hub-field input{flex:1;min-width:0;height:48px;padding:0 84px 0 42px;font:600 16px/1 var(--gs-font);color:var(--gs-head);background:var(--gs-well);border:1px solid var(--gs-line-2);border-radius:10px;appearance:none;-webkit-appearance:none}
+.gl-hub-field input::placeholder{color:var(--gs-text-3);font-weight:500}
+.gl-hub-field input::-webkit-search-cancel-button{display:none}
+.gl-hub-field input:hover{border-color:#566070}
+.gl-hub-field input:focus-visible{outline:2px solid var(--gs-accent);outline-offset:1px;border-color:var(--gs-accent);border-radius:10px}
+.gl-hub-field kbd{position:absolute;right:14px;display:grid;place-items:center;min-width:24px;height:24px;padding:0 6px;font:600 12px/1 var(--gs-mono);color:var(--gs-text-2);background:var(--gs-panel);border:1px solid var(--gs-line-2);border-radius:6px;pointer-events:none}
+.gl-hub-field input:focus~kbd,.gl-hub-clear:not([hidden])~kbd{display:none}
+.gl-hub-clear{position:absolute;right:2px;width:44px;height:44px;display:grid;place-items:center;font:500 22px/1 var(--gs-font);color:var(--gs-text-2);background:none;border:0;border-radius:8px;cursor:pointer}
+.gl-hub-clear:hover{color:#fff;background:#ffffff0d}
+.gl-hub-field:has(.gl-hub-clear:not([hidden])) kbd{display:none}
+.gl-hub-chips{display:flex;flex-wrap:wrap;gap:8px}
+.gl-chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;font:650 14px/1 var(--gs-font);color:var(--gs-text);background:var(--gs-panel);border:1px solid var(--gs-line-2);border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.gl-chip small{font:600 12px/1 var(--gs-mono);color:var(--gs-text-3)}
+.gl-chip:hover{border-color:#566070;background:#22262c}
+.gl-chip[aria-pressed="true"]{background:var(--gs-accent);border-color:var(--gs-accent);color:var(--gs-accent-ink)}
+.gl-chip[aria-pressed="true"] small{color:var(--gs-accent-ink)}
+.gl-hub-count,.gl-hub-none{margin:0;font-size:13.5px;font-weight:650;color:var(--gs-text-2)}
+.gl-hub-none{color:var(--gs-text)}
+.gl-hub-reset{min-height:44px;margin-left:6px;padding:0 14px;font:700 13.5px/1 var(--gs-font);color:var(--gs-accent-2);background:none;border:1px solid var(--gs-line-2);border-radius:var(--gs-radius-s);cursor:pointer}
+.gl-hub-reset:hover{color:#fff;border-color:#566070}
+.gl-hub-group h2[data-count]::after{content:attr(data-count);display:inline-block;margin-left:10px;padding:3px 8px;font:650 12.5px/1 var(--gs-mono);letter-spacing:0;color:var(--gs-text-2);background:var(--gs-panel);border:1px solid var(--gs-line);border-radius:999px;vertical-align:middle}
+.gl-hub-list a:focus-visible{border-color:var(--gs-accent);border-radius:var(--gs-radius)}
+@media (max-width:640px){
+ .gl-hub-search{margin-top:28px;padding:12px}
+ .gl-hub-field kbd{display:none}
+ .gl-hub-field input{padding-right:48px}
+ .gl-hub-chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -12px;padding:0 12px 2px;scrollbar-width:none}
+ .gl-hub-chips::-webkit-scrollbar{display:none}
+}
+
+/* ---------------------------------------------------------------- reading aids (src/game-landing.js wireReading) */
+.gl-toc{max-height:calc(100vh - var(--gs-header-h) - 32px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--gs-line-2) transparent}
+.gl-toc a[aria-current]{color:var(--gs-head)!important;border-left-color:var(--gs-accent)}
+.gl-progress{position:absolute;left:0;right:0;bottom:-2px;height:2px;pointer-events:none;overflow:hidden}
+.gl-progress i{display:block;height:100%;background:var(--gs-accent);transform:scaleX(0);transform-origin:0 50%}
+.gl-top{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:35;display:grid;place-items:center;width:48px;height:48px;padding:0;color:var(--gs-head);background:var(--gs-panel-2);border:1px solid var(--gs-line-2);border-radius:50%;box-shadow:0 10px 30px -8px #000c;cursor:pointer;transition:background .15s,border-color .15s}
+.gl-top:hover{background:#2c3037;border-color:var(--gs-accent)}
+[data-gs] .gl-top:focus-visible{border-radius:50%}
+.gl-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+/* A worked example is one block: no inline-code chip (border, fill) around each of its lines. */
+.sd-calc code{padding:0;background:none;border:0;border-radius:0}
+.gl-code{position:relative;margin:0 0 16px}
+.gl-code .sd-calc{margin:0;padding-right:112px;min-height:54px}
+.gl-copy{position:absolute;top:5px;right:5px;min-width:72px;min-height:44px;padding:0 14px;font:700 13px/1 var(--gs-font);color:var(--gs-text);background:var(--gs-panel);border:1px solid var(--gs-line-2);border-radius:var(--gs-radius-s);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.gl-copy:hover{color:#fff;border-color:#566070;background:var(--gs-panel-2)}
+.gl-copy.is-done{color:var(--gs-ok);border-color:#7bd88f80}
+@media (max-width:900px){
+ /* "On this page" on phones: a sticky strip of sections under the header instead of nothing. */
+ .gl-toc:not(.gl-hub-nav){display:block;position:sticky;top:var(--gs-header-h);z-index:30;max-height:none;overflow:visible;margin:24px calc(var(--gs-gutter)*-1) 0;padding:0;background:var(--gs-bg);border-top:1px solid var(--gs-line);border-bottom:1px solid var(--gs-line)}
+ .gl-toc:not(.gl-hub-nav) p{display:none}
+ .gl-toc:not(.gl-hub-nav) ol{display:flex;gap:2px;border:0;padding:0 calc(var(--gs-gutter) - 10px);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+ .gl-toc:not(.gl-hub-nav) ol::-webkit-scrollbar{display:none}
+ .gl-toc:not(.gl-hub-nav) li{flex:none}
+ .gl-toc:not(.gl-hub-nav) a{display:block;max-width:70vw;margin:0;padding:0 10px;border-left:0;border-bottom:2px solid transparent;font-size:13.5px;font-weight:650;line-height:44px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .gl-toc:not(.gl-hub-nav) a:hover{border-left-color:transparent}
+ .gl-toc:not(.gl-hub-nav) a[aria-current]{border-bottom-color:var(--gs-accent)}
+ [data-gs] .gl-toc:not(.gl-hub-nav) a:focus-visible{outline-offset:-3px}
+ .gl-toc:not(.gl-hub-nav)~.gl-body .gl-section{scroll-margin-top:48px}
+ /* a strip wider than the phone must scroll inside itself, never widen the page */
+ .gl-layout{grid-template-columns:minmax(0,1fr)}
+ .gl-toc{min-width:0}
+ .gl-hub-nav{max-height:none;overflow:visible}
+ .gl-hub-nav a[aria-current]{border-color:var(--gs-accent)}
+ .gl-code .sd-calc{padding-right:18px;padding-top:54px}
+}
+
+/* ---------------------------------------------------------------- previous / group / next (tools/game-landing-build.mjs pager) */
+.gl-pager{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:48px 0 0;padding:24px 0 0;border-top:1px solid var(--gs-line)}
+.gl-pager-step{display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:72px;padding:14px 16px;background:var(--gs-panel);border:1px solid var(--gs-line);border-radius:var(--gs-radius);color:var(--gs-text)!important;transition:border-color .15s,background .15s}
+a.gl-pager-step:hover{border-color:#4cc2ff80;background:#1d2127}
+.gl-pager-step small{font-size:12px;font-weight:750;letter-spacing:.04em;color:var(--gs-text-3)}
+.gl-pager-step b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px;line-height:1.4;color:var(--gs-head)}
+.gl-pager-step.is-group{text-align:center;align-items:center;background:var(--gs-bg-2)}
+.gl-pager-step.is-next{text-align:right;align-items:flex-end}
+.gl-pager-step.is-empty{visibility:hidden}
+[data-gs] a.gl-pager-step:focus-visible{border-radius:var(--gs-radius)}
+@media (max-width:640px){
+ .gl-pager{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:40px}
+ .gl-pager-step.is-group{grid-column:1/-1;grid-row:2}
+ .gl-pager-step.is-empty{display:none}
+ .gl-pager:has(.is-empty) a:is(.is-prev,.is-next){grid-column:1/-1}
+}
+
+/* ---------------------------------------------------------------- dragging files over the page: say where a drop takes them */
+.gh-dropover{display:grid;place-items:center;padding:24px}
+.gh-dropover span{display:flex;align-items:center;gap:14px;max-width:min(560px,100%);padding:18px 24px;font-size:18px;font-weight:750;line-height:1.4;color:var(--gs-head);background:var(--gs-panel);border:1px solid var(--gs-accent);border-radius:16px;box-shadow:0 0 0 6px var(--gs-accent-soft),0 30px 80px -20px #000}
+.gh-dropover svg{flex:none}
