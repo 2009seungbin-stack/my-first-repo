@@ -28,3 +28,12 @@ test('clampSelection orders and bounds a selection',()=>{
 test('selection tool strings exist in every language',()=>{
  for(const locale of ['en','ko','ja'])for(const key of ['selectAll','trimEdges','selLength','trimmedEdges','allSilent','space'])assert(COPY[locale][key]?.length>0,`${locale}:${key}`);
 });
+test('timeTicks picks a readable step for the visible range',async()=>{
+ const {timeTicks}=await import('../src/audio-lab/selection.js');
+ assert.deepEqual(timeTicks(0,3,8),{step:.5,digits:1,ticks:[0,.5,1,1.5,2,2.5,3]});
+ assert.deepEqual(timeTicks(0,180,8),{step:30,digits:0,ticks:[0,30,60,90,120,150,180]});
+ assert.deepEqual(timeTicks(12.3,12.9,4),{step:.2,digits:1,ticks:[12.4,12.6,12.8]});
+ const fine=timeTicks(1,1.05,8);assert.equal(fine.step,.01);assert.equal(fine.digits,2);assert.deepEqual(fine.ticks,[1,1.01,1.02,1.03,1.04,1.05]);
+ assert.deepEqual(timeTicks(5,5,8).ticks,[]);assert.deepEqual(timeTicks(0,NaN,8).ticks,[]);assert.deepEqual(timeTicks(0,10,0).ticks,[]);
+ for(const [a,b,m] of [[0,.37,5],[3.3,47,6],[0,600,8],[100,101,3]]){const t=timeTicks(a,b,m);assert(t.ticks.length<=m+2,`${a}-${b}`);assert(t.ticks.every(x=>x>=a-1e-6&&x<=b+1e-6));}
+});
