@@ -3,7 +3,7 @@ import {BRAND} from '../brand.js';
 import {INTENTS} from '../intents.js';
 import {t} from '../i18n.js';
 import {text,toast,download,authorize,track,onLocale,continueWith,toolURL,page,keyLabel} from './shell.js';
-import {sizeDelta} from './keys.js';
+import {sizeDelta,copyable,batchProgress} from './keys.js';
 /** Workspace for "many files in → the same transform → many files out" tools (compress,
  * convert, resize…). Files process automatically as they arrive, one at a time to bound
  * memory; changing an option re-runs the batch without asking for the files again.
@@ -15,6 +15,13 @@ import {sizeDelta} from './keys.js';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** The shell's shortcuts, printed where they apply (hidden on touch-only devices by task.css). */
 const keysHint=names=>`<small class="keys-hint" aria-label="${esc(text('keys.label'))}">${names.map(n=>`<span><kbd>${esc(keyLabel(n))}</kbd>${esc(text('keys.'+n))}</span>`).join('')}</small>`;
+/** Clipboards take PNG: another format is re-encoded to PNG for the copy only (the download keeps its own format). */
+async function pngOf(blob){
+ if(blob.type==='image/png')return blob;
+ const bitmap=await createImageBitmap(blob),canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;canvas.getContext('2d').drawImage(bitmap,0,0);bitmap.close?.();
+ return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('png')),'image/png'));
+}
+const canCopy=()=>typeof ClipboardItem!=='undefined'&&!!navigator.clipboard?.write;
 export function createBatch({el,def},tool){
  const items=[];let current=0,generation=0,controller=null,running=false,options=tool.options(new URLSearchParams(page.query)),seq=0,debounce=0,optionsDirty=false;
  const done=()=>items.filter(i=>i.status==='done');
@@ -30,7 +37,7 @@ export function createBatch({el,def},tool){
   el.innerHTML=`<div class="work"><section class="viewer" aria-label="${esc(text('compare'))}"><div class="cmp" id="cmp"><img id="cmpBefore" alt="${esc(text('before'))}"><img id="cmpAfter" class="cmp-after" alt="${esc(text('after'))}"><div class="cmp-bar"></div><span class="cmp-tag l">${esc(text('before'))}</span><span class="cmp-tag r">${esc(text('after'))}</span><input id="cmpCut" type="range" min="0" max="100" value="50" aria-label="${esc(text('compare'))}"></div><div class="contents" id="viewerContents" hidden></div><div class="viewer-actions" id="viewerActions"></div><p class="viewer-note" id="viewerNote"></p></section>
 <aside class="side is-batch"><div class="summary" id="taskSummary" role="status" aria-live="polite"></div><form id="taskOptions" class="options" autocomplete="off"><div class="options-simple" id="optionsSimple"></div><details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary><div id="optionsAdvancedBody"></div></details></form>
 <div class="file-list" id="taskFiles"></div><div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(text('add'))}</button><button type="button" class="link" data-action="task-clear">${esc(text('removeAll'))}</button></div>
-<button type="button" class="primary big" id="taskDownload" data-action="task-download" disabled></button><nav class="next" id="taskNext"></nav><small class="local-note">${esc(text('local'))}</small>${keysHint(['save','open','paste'])}</aside></div>`;
+<button type="button" class="primary big" id="taskDownload" data-action="task-download" disabled></button><button type="button" class="ghost copy-result" id="taskCopy" data-action="task-copy" hidden>${esc(text('clipboard.copy'))}</button><nav class="next" id="taskNext"></nav><small class="local-note">${esc(text('local'))}</small>${keysHint(['save','open','paste'])}</aside></div>`;
   el.querySelector('#optionsSimple').innerHTML=tool.simple(options);el.querySelector('#optionsAdvancedBody').innerHTML=tool.advanced(options);
   if(tool.advancedOpen?.(options))el.querySelector('#optionsAdvanced').open=true;
  }
@@ -47,6 +54,11 @@ export function createBatch({el,def},tool){
   const custom=ok.length&&tool.summary?.(ok);
   box.innerHTML=ok.length?`<div class="summary-big">${esc(custom?.big??'−'+pct(a,b)+'%')}</div><div class="summary-line">${custom?.line?esc(custom.line)+' · ':''}${custom?.only?'':esc(bytes(a))+' → '+esc(bytes(b))+' · '}${esc(text('files',{n:ok.length}))}${pending?' · '+esc(text('calculating')):''}</div>`:`<div class="summary-big muted">…</div><div class="summary-line">${esc(text('calculating'))}</div>`;
   button.disabled=!ok.length||pending;button.textContent=ok.length>1?text('downloadAll',{n:ok.length}):text('download');
+  // One finished picture can also go straight to the clipboard.
+  el.querySelector('#taskCopy').hidden=!(ok.length===1&&items.length===1&&!pending&&canCopy()&&copyable(ok[0].result));
+  // Several files: how far the batch is, as a bar and as words.
+  const p=batchProgress(items);
+  if(p.active&&!optionsDirty){box.insertAdjacentHTML('beforeend',`<div class="batch-progress"><div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${p.total}" aria-valuenow="${p.finished}" aria-label="${esc(text('doneOf',{a:p.finished,b:p.total}))}"><span></span></div><small>${esc(text('doneOf',{a:p.finished,b:p.total}))}</small></div>`);box.querySelector('.batch-progress span').style.width=p.percent+'%';}
   const next=el.querySelector('#taskNext');
   next.innerHTML=ok.length&&!pending?`<span>${esc(text('next'))}</span>${(def.next||[]).map(id=>`<button type="button" class="chip" data-action="task-next" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`:'';
  }
@@ -133,6 +145,9 @@ export function createBatch({el,def},tool){
   else if(a==='task-content'){if(usable(items[current])){const e=tool.contents?.(items[current])?.[Number(b.dataset.entry)];if(e)download(e.blob,e.name.split('/').pop());}}
   else if(a==='task-clear'){sync(false);generation++;controller?.abort();for(const it of items.splice(0)){URL.revokeObjectURL(it.thumb);if(it.resultURL)URL.revokeObjectURL(it.resultURL);}current=0;empty();}
   else if(a==='task-download')save();
+  else if(a==='task-copy'){const it=ready()[0];if(!it||!copyable(it.result)||!canCopy())return;
+   // The ClipboardItem is created inside the click, with the PNG as a promise (Safari requires this order).
+   try{await navigator.clipboard.write([new ClipboardItem({'image/png':pngOf(it.result.blob)})]);toast(text('clipboard.done'));}catch{toast(text('clipboard.failed'),{error:true});}}
   else if(a==='task-sample')add([await tool.sample()]);
   else if(a==='task-next'){const ok=ready();if(ok.length)continueWith(b.dataset.tool,ok.flatMap(it=>(it.result.entries||[it.result]).map(e=>new File([e.blob],e.name,{type:e.blob.type}))));}
   else if(a==='task-option'){for(const s of b.parentElement.querySelectorAll('[data-action="task-option"]'))s.setAttribute('aria-pressed',String(s===b));sync();}
