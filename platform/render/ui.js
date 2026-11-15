@@ -5,7 +5,7 @@
 import {html,raw,safeHref} from './html.js';
 import {t} from './strings.js';
 import {VERIFICATION_LABEL,label} from '../labels.js';
-import {boardTime,compact} from './format.js';
+import {boardTime,fullTime,TZ,compact} from './format.js';
 import {CHANNELS,channelById,channelPath,postPath,flairLabel,patchCollectionPath} from '../channels.js';
 import {FILE_TOOLS,GAME_TOOLS,PC_TOOLS,FUN_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
 import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
@@ -14,7 +14,7 @@ import {digestLink} from '../digest.js';
 import {pageJsonLd} from './page-seo.js';
 
 // Production assets can remain in a visitor's cache for four hours. Bump this version for CSS releases.
-export const CSS_HREF='/src/platform/n2.css?v=20261114-keyboard-menu';
+export const CSS_HREF='/src/platform/n2.css?v=20261115-list-keys';
 /** SUIT and JetBrains Mono, self-hosted and split by unicode-range (tools/fonts/subset-suit.py). */
 export const FONTS_HREF='/src/platform/fonts.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
@@ -98,7 +98,13 @@ export function postRow(p,o){
  const {l,now}=o,href=postHref(l,p);
  const title=html`${kindChip(p.kind,l,p.channel_id)}${/** @type {any} */(p).solved?html`<span class="solved">${l==='ko'?'해결':'solved'}</span>`:''}${p.best_at?html`<span class="star" title="${t(l).bestRule}">★ </span>`:''}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}${p.has_image?html`<span class="img" aria-label="image"> ▣</span>`:''}`;
  const tags=p.tags.length?html`<span class="rtags">${p.tags.map(e=>tagChip(e,l,!!o.tagOn?.has(e.id)))}</span>`:'';
- return html`<li class="pr${p.bot?' bot':''}${p.pinned?' pin':''}${o.current?' cur':''}"><span class="no">${p.bot?'⚙':p.channel_no}</span><span class="tc">${o.current?html`<span class="tt" aria-current="page">${title}</span>`:html`<a class="tt" href="${href}">${title}</a>`}${o.channel?html`<a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>`:''}${tags}</span>${author(p,l)}<span class="num w"><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time></span><span class="num v">${compact(p.views,l)}</span><span class="num u">${p.up||''}</span></li>`;
+ return html`<li class="pr${p.bot?' bot':''}${p.pinned?' pin':''}${o.current?' cur':''}"><span class="no">${p.bot?'⚙':p.channel_no}</span><span class="tc">${o.current?html`<span class="tt" aria-current="page">${title}</span>`:html`<a class="tt" href="${href}">${title}</a>`}${o.channel?html`<a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>`:''}${tags}</span>${author(p,l)}<span class="num w"><time datetime="${new Date(p.created_at).toISOString()}" title="${fullTime(p.created_at,l)} ${TZ[l]==='Asia/Seoul'?'KST':'UTC'}">${boardTime(p.created_at,now,l)}</time></span><span class="num v">${compact(p.views,l)}</span><span class="num u">${p.up||''}</span></li>`;
+}
+/** The keyboard hint under a list of posts. It stays hidden until the page script is listening for the
+ * keys (src/platform/islands.js listKeys), and on touch screens. @param {string} l */
+export function kbdHint(l){
+ const ko=l==='ko';
+ return html`<p class="kbdh fine" data-kbd-hint hidden><span><kbd>j</kbd><kbd>k</kbd> ${ko?'아래·위로 이동':'move down / up'}</span><span><kbd>Enter</kbd> ${ko?'열기':'open'}</span><span><kbd>/</kbd> ${ko?'검색':'search'}</span></p>`;
 }
 /** The header row of a board list. @param {string} l */
 export function boardHead(l){

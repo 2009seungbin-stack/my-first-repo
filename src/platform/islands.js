@@ -8,6 +8,7 @@
  * The Turnstile check runs in the /verify/ frame (its own CSP) only when a write asks for it. */
 import {buttonsHTML,validReturn} from '../signin-brands.js';
 import {mountHardwareTools} from '../hardware/islands.js';
+import {stepIndex,shortcutAllowed} from './keys.js';
 const L=document.documentElement.lang==='en'?'en':document.documentElement.lang==='ja'?'ja':'ko';
 const T={
  ko:{login:'로그인',signInTitle:'로그인하고 참여하기',signInNote:'글·댓글·구독·추천·신고는 로그인하면 할 수 있어요. 읽기는 로그인 없이 됩니다.',signInClose:'닫기',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
@@ -399,7 +400,31 @@ async function channels(signedIn){
  if(tagHead)recentTags.add({id:tagHead.dataset.entity,name:tagHead.dataset.tagName,url:location.pathname});
 }
 
+/** Keyboard reading (keys.js): / goes to the search box; j and k walk the post links of the lists on this
+ * page (Enter opens the focused link). The hint under a list shows only once this is listening. */
+function listKeys(){
+ const shown=(/** @type {Element|null} */ x)=>!!x&&x.getClientRects().length>0;
+ addEventListener('keydown',e=>{
+  const rows=()=>/** @type {HTMLElement[]} */([...document.querySelectorAll('.plist a.tt,[data-keys] a.tt')].filter(shown));
+  // From the search page's own box, ↓ goes to the first result (j and k are letters there).
+  if(e.key==='ArrowDown'&&!e.isComposing&&/** @type {Element} */(document.activeElement)?.matches?.('.sform input[type="search"]')){const first=rows()[0];if(first){e.preventDefault();first.focus();}return;}
+  if(!shortcutAllowed(document.activeElement,e)||document.querySelector('dialog[open]'))return;
+  if(e.key==='/'){
+   const q=/** @type {HTMLInputElement|undefined} */([...document.querySelectorAll('.sform input[type="search"],.hq input[type="search"]')].find(shown));
+   if(q){e.preventDefault();q.focus();q.select();}
+   return;
+  }
+  if(e.key!=='j'&&e.key!=='k')return;
+  const list=rows();
+  const n=stepIndex(list.indexOf(/** @type {any} */(document.activeElement)),list.length,e.key==='j'?1:-1);
+  if(n<0)return;
+  e.preventDefault();list[n].focus({preventScroll:true});
+  list[n].scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+ });
+ for(const h of document.querySelectorAll('[data-kbd-hint]'))/** @type {HTMLElement} */(h).hidden=false;
+}
 async function main(){
+ listKeys();
  mountHardwareTools();
  const bracket=$('[data-island="bracket"]');
  if(bracket)import('../bracket/app.js').then(m=>m.mountBracket(bracket));

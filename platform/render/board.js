@@ -5,7 +5,7 @@
  * channel adds platform and genre filters from the games' own facts. Works without JavaScript. */
 import {html} from './html.js';
 import {t} from './strings.js';
-import {page,box,nameOf,channelUrl,postHref,postRow,boardHead,kindChip,channelTile,signInUrl} from './ui.js';
+import {page,box,nameOf,channelUrl,postHref,postRow,boardHead,kindChip,channelTile,signInUrl,kbdHint} from './ui.js';
 import {compact,PLATFORM_NAMES} from './format.js';
 import {BOT_FOLD_MS,boardPosts,noticesOf,botNews,channelCounts,popularTags,entitiesByIds,frontPosts,tagChildren,typeCounts,factValues,SORTS} from '../db/channel.js';
 import {channelBestThreshold,BEST_RULE} from '../community.js';
@@ -87,7 +87,7 @@ export function renderBoard(m,site){
  const pager=m.page>1||m.board.more?html`<nav class="pager" aria-label="${s.page}">${m.page>1?html`<a class="btn" rel="nofollow" href="${q({page:m.page-1===1?null:m.page-1})}">‹ ${s.prev}</a>`:''}<span class="fine">${m.page}</span>${m.board.more?html`<a class="btn" rel="nofollow" href="${q({page:m.page+1})}">${s.next} ›</a>`:''}</nav>`:'';
  const empty=rows.length||notice||botRow?'':html`<p class="empty">${m.kind||m.tag||m.best||m.facet?(ko?'이 조건의 글이 아직 없어요. 첫 글을 써 보세요.':'No posts match yet. Write the first one.'):s.emptyBoard}</p>`;
  const boardBox=html`<section class="box board" id="board">${tabs}${chips}${banner}${facets}${sortBar}<div class="newbar" data-island="new-posts" data-channel="${ch.id}" data-after="${m.board.posts[0]?.channel_no||0}" hidden></div>
-<ol class="plist" aria-label="${s.channelList(name)}">${boardHead(l)}${notice}${botRow}${rows}</ol>${empty}${pager}</section>`;
+<ol class="plist" aria-label="${s.channelList(name)}">${boardHead(l)}${notice}${botRow}${rows}</ol>${empty}${pager}${rows.length>1?kbdHint(l):''}</section>`;
  const tagCard=m.tag?html`<section class="box tagcard"><div class="bh"><h2>#${nameOf(m.tag,l)}</h2><span class="x">${label(/** @type {any} */(typeDef(m.tag.vertical,m.tag.type))?.label||{ko:'태그',en:'Tag'},l)}</span></div>${m.tag.descriptions[l]||m.tag.descriptions.en?html`<p class="pad fine">${m.tag.descriptions[l]||m.tag.descriptions.en}</p>`:''}${m.children.length?html`<p class="pad fine">${ko?'하위 태그':'Parts'}: ${m.children.map((e,i)=>html`${i?' · ':''}<a href="${channelUrl(l,e)}">${nameOf(e,l)}</a>`)}</p>`:''}<p class="pad acts2"><a class="btn" href="${channelUrl(l,m.tag)}">${ko?'정보 페이지':'Info page'}</a><a class="btn p" href="${writePath(l,ch.id,{tag:m.tag.id})}">${ko?'이 태그로 글쓰기':'Write with this tag'}</a></p></section>`:'';
  const bestBox=box({title:ko?`★ ${name} 념글`:`★ Best in ${name}`,note:html`<a href="${base}best">${ko?'더보기':'More'} ›</a>`},m.bestList.length?html`<ol class="rows">${m.bestList.map(p=>html`<li><a class="tt" href="${postHref(l,p)}">${kindChip(p.kind,l,p.channel_id)}${p.title}</a><span class="up">▲ ${p.up}</span></li>`)}</ol>`:html`<p class="empty">${ko?'이번 주 념글이 아직 없어요.':'No best posts this week yet.'}</p>`);
  const guide=box({title:ko?'채널 안내':'About this channel'},html`<ul class="rules pad"><li>${ko?'글은 채널 하나에, 무엇에 대한 글인지는 태그 1~3개로 달아요. 태그를 단 글은 그 태그 페이지에도 보여요.':'Each post lives in one channel; 1–3 tags say what it is about and show it on those tag pages too.'}</li><li>${bestTitle}</li><li><a href="/${l}/community/policy">${ko?'게시판 운영정책':'Community rules'}</a></li></ul>`);
