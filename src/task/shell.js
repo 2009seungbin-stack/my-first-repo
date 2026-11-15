@@ -8,7 +8,7 @@ import {BRAND} from '../brand.js';
 import {TASK_TOOLS,kindOf} from './registry.js';
 import {ui} from './strings.js';
 import {takeFiles,stashFiles} from './handoff.js';
-import {isMac,shortcutOf,shortcutLabel,splitIntake,clipboardFiles} from './keys.js';
+import {isMac,shortcutOf,shortcutLabel,savesFile,splitIntake,clipboardFiles} from './keys.js';
 /** Shared runtime for the home directory and every single-task page: locale and URL, file
  * intake (picker, drop anywhere, paste, hand-off from another page), toast, download and
  * the Free-plan gate. A tool module only describes its own workspace. */
@@ -95,12 +95,13 @@ function wireIntake(intake,{accept}={}){
   catch{toast(text('clipboard.blocked'),{error:true});}
  });
  addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length&&!/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName||'')){e.preventDefault();intake(files,'paste');}});
- // Ctrl/⌘+O opens the picker; Ctrl/⌘+S presses the page's primary button (download) once it is enabled.
- // Until a result exists, and while a dialog is open, the browser keeps its own Ctrl+S.
+ // Ctrl/⌘+O opens the picker; Ctrl/⌘+S presses the page's primary button once it is enabled, but only when
+ // that button saves a file (never a run, cancel or next-step button). Otherwise, until a result exists, and
+ // while a dialog is open, the browser keeps its own Ctrl+S.
  addEventListener('keydown',e=>{
   const key=shortcutOf(e,{mac});if(!key||e.defaultPrevented||document.querySelector('dialog[open]'))return;
   if(key==='open'){if(!input)return;e.preventDefault();input.click();return;}
-  const button=$('#taskDownload');if(!button||button.disabled||!button.offsetParent)return;
+  const button=$('#taskDownload');if(!button||button.disabled||!button.offsetParent||!savesFile(button.dataset.action))return;
   e.preventDefault();button.click();
  });
  // A sample button inside the drop zone has its own action, not the zone's picker action.

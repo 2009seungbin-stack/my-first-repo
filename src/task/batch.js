@@ -14,7 +14,7 @@ import {sizeDelta,copyable,batchProgress} from './keys.js';
  */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** The shell's shortcuts, printed where they apply (hidden on touch-only devices by task.css). */
-const keysHint=names=>`<small class="keys-hint" aria-label="${esc(text('keys.label'))}">${names.map(n=>`<span><kbd>${esc(keyLabel(n))}</kbd>${esc(text('keys.'+n))}</span>`).join('')}</small>`;
+const keysHint=names=>`<small class="keys-hint" role="note" aria-label="${esc(text('keys.label'))}">${names.map(n=>`<span><kbd>${esc(keyLabel(n))}</kbd>${esc(text('keys.'+n))}</span>`).join('')}</small>`;
 /** Clipboards take PNG: another format is re-encoded to PNG for the copy only (the download keeps its own format). */
 async function pngOf(blob){
  if(blob.type==='image/png')return blob;
