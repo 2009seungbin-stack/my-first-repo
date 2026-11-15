@@ -115,3 +115,13 @@ test('countText reports overflow only when the selected limit is exceeded',()=>{
  assert.deepEqual(countText('한글 ab',{locale:'ko'}).overflow,{unit:'chars',include:true,limit:0,at:null});
  assert.equal(countText('😀'.repeat(9),{locale:'ko',limit:2,unit:'cp949'}).overflow.at,null);
 });
+
+test('SMS segmentation stays exact and fast on multi-megabyte input',()=>{
+ const ascii='lorem ipsum dolor '.repeat(450000),start=performance.now(),a=smsSegments(ascii);
+ assert.equal(a.encoding,'gsm7');assert.equal(a.units,ascii.length);assert.equal(a.segments,Math.ceil(ascii.length/153));
+ const hangul='가나다라 '.repeat(1600000),b=smsSegments(hangul);
+ assert.equal(b.encoding,'ucs2');assert.equal(b.units,hangul.length);assert.equal(b.segments,Math.ceil(hangul.length/67));
+ assert.ok(performance.now()-start<3000);
+ // A lone surrogate is one unit; only a real pair is kept together.
+ assert.equal(smsSegments('가'.repeat(66)+'\ud83d'+'가'.repeat(67)).segments,2);
+});
