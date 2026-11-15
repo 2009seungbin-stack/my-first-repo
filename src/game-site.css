@@ -54,6 +54,16 @@ html[lang="ja"] body[data-gs]{line-break:strict;overflow-wrap:anywhere}
 .gs-lang select option{background:var(--gs-panel);color:var(--gs-text)}
 .gs-account{font-size:13px;font-weight:700;color:var(--gs-text-2)!important;padding:8px 10px;border-radius:var(--gs-radius-s)}
 .gs-account:hover{background:#ffffff0d}
+.gs-nav a[aria-current]{color:var(--gs-head)}
+/* phones: the centre navigation as a disclosure menu (tools/game-chrome.mjs siteHeader({menu:true})) */
+.gs-menu{display:none}
+.gs-menu summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;color:var(--gs-text);border:1px solid var(--gs-line-2);border-radius:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gs-menu summary::-webkit-details-marker{display:none}
+.gs-menu summary:hover,.gs-menu[open] summary{border-color:#566070;background:#ffffff0d;color:var(--gs-head)}
+.gs-menu-panel{position:absolute;top:calc(100% + 6px);right:var(--gs-gutter);z-index:45;display:grid;gap:2px;min-width:min(260px,calc(100vw - var(--gs-gutter)*2));padding:6px;background:var(--gs-panel);border:1px solid var(--gs-line-2);border-radius:var(--gs-radius);box-shadow:0 24px 60px -12px #000}
+[data-gs] .gs-menu-panel a{display:flex;align-items:center;min-height:44px;padding:8px 14px;border-radius:var(--gs-radius-s);font-size:15px;font-weight:650;color:var(--gs-text)}
+[data-gs] .gs-menu-panel a:hover{background:#ffffff0d;color:var(--gs-head)}
+[data-gs] .gs-menu-panel a[aria-current]{color:var(--gs-accent-2)}
 
 /* ---------------------------------------------------------------- buttons */
 .gs-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:10px;border:1px solid transparent;font:750 15px/1 var(--gs-font);cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s,box-shadow .15s,transform .15s}
@@ -126,6 +136,7 @@ html[lang="ko"] [data-gs] .site-footer nav::before,html[lang="ja"] [data-gs] .si
 @media (min-width:1680px){:root{--gs-max:1320px}}
 @media (max-width:900px){
  .gs-nav{display:none}
+ .gs-menu{display:block}
  .gs-footgrid{grid-template-columns:[full-start] var(--gs-gutter) [main-start] minmax(0,1fr) [main-end] var(--gs-gutter) [full-end];grid-template-rows:auto [foot] auto [foot2] auto}
  .gs-footgrid>.gs-footer-brand{grid-column:main;grid-row:foot;padding:40px 0 0}
  .gs-footgrid>.site-footer{grid-column:main;grid-row:foot2;margin-top:0!important;padding:28px 0 40px!important}

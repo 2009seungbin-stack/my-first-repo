@@ -42,6 +42,12 @@ function wireLanguage(){
   location.assign(pageURL(v==='auto'?null:v));
  });
 }
+/** Phones: the header's disclosure menu (plain <details>) also closes on Escape and on a tap outside. */
+function wireMenu(){
+ const menu=$('.gs-menu');if(!menu)return;
+ document.addEventListener('click',e=>{if(menu.open&&!menu.contains(e.target))menu.open=false;});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.open){menu.open=false;menu.querySelector('summary')?.focus();}});
+}
 /** 3. Files → Studio. A pack page imports through the Sprite workspace, then asks for Pack & Export. */
 const status=text=>{const el=$('[data-gl-status]');if(!el)return;el.textContent=text;el.hidden=!text;};
 const t=key=>({
@@ -186,7 +192,7 @@ function wireReading(){
 async function boot(){
  if(!main)return;
  if(forwardLegacy()||negotiate())return;
- wireLanguage();wireIntake();wireHub();wireReading();
+ wireLanguage();wireMenu();wireIntake();wireHub();wireReading();
  // Files carried here from another Nerulio tool go straight on to the Studio.
  const carried=await takeHandoff();
  if(carried.files.length){openInStudio(carried.files);return;}
