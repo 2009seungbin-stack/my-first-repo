@@ -24,7 +24,7 @@ export const HISTORY_DAYS=14;
 /** Which of the last HISTORY_DAYS calendar days each collected entry touches (KST days for ko, UTC days for en —
  * the zones the entries' times are shown in). An entry counts on every day from its recorded start to its
  * recorded end; without a usable end it counts on its start day only. A date-only entry keeps its own calendar
- * date. Entries without a start, or recorded only to a month, quarter or year, cannot be placed and are
+ * date. Entries without a start, or recorded only to a month, quarter or year, or lying wholly outside these days, are not placed and are
  * returned as `unplaced`. A day with count 0 means "nothing collected", never "no incident".
  * @param {any[]} events @param {number} now @param {string} l
  * @returns {{days:{date:string,count:number}[],unplaced:number}} */
@@ -49,7 +49,7 @@ function dayStrip(events,now,l){
  const cell=(/** @type {{date:string,count:number}} */ d)=>html`<li class="ih-d${d.count?' on':''}"><span class="ih-b" aria-hidden="true">${d.count||''}</span><time class="ih-n" datetime="${d.date}" aria-hidden="true">${Number(d.date.slice(8))}</time><span class="sr-only">${md(d.date)}: ${d.count?(ko?`수집 기록 ${d.count}개`:`${d.count} collected ${d.count===1?'entry':'entries'}`):(ko?'수집된 기록 없음':'nothing collected')}</span></li>`;
  return html`<div class="ih-strip" data-incident-days><h3 id="ih-days-h">${ko?`날짜별 수집 기록 · ${md(days[0].date)} – ${md(days[days.length-1].date)} (${zone})`:`Collected entries by day · ${md(days[0].date)} – ${md(days[days.length-1].date)} (${zone})`}</h3>
 <ol class="ih-days" aria-labelledby="ih-days-h">${days.map(cell)}</ol>
-<p class="fine">${ko?'숫자가 있는 칸은 아래 목록의 기록 중 그날에 걸친 개수입니다(종료 시각이 없으면 시작일에만 표시). 빈 칸은 수집된 기록이 없다는 뜻이며, 그날 장애가 없었다는 뜻이 아닙니다.':'A numbered cell counts the entries listed below that touch that day (start day only when no end was recorded). An empty cell means nothing was collected, not that there was no incident that day.'}${unplaced?(ko?` 날짜를 특정할 수 없는 기록 ${unplaced}개는 넣지 않았습니다.`:` ${unplaced} ${unplaced===1?'entry':'entries'} without a usable date ${unplaced===1?'is':'are'} not placed.`):''}</p></div>`;
+<p class="fine">${ko?'숫자가 있는 칸은 아래 목록의 기록 중 그날에 걸친 개수입니다(종료 시각이 없으면 시작일에만 표시). 빈 칸은 수집된 기록이 없다는 뜻이며, 그날 장애가 없었다는 뜻이 아닙니다.':'A numbered cell counts the entries listed below that touch that day (start day only when no end was recorded). An empty cell means nothing was collected, not that there was no incident that day.'}${unplaced?(ko?` 날짜를 특정할 수 없거나 이 14일 밖에 있는 기록 ${unplaced}개는 넣지 않았습니다.`:` ${unplaced} ${unplaced===1?'entry':'entries'} with no usable date or outside these 14 days ${unplaced===1?'is':'are'} not placed.`):''}</p></div>`;
 }
 
 /** @param {any[]} events @param {string} l @param {number} [now] with a time, the day strip is drawn above the list */

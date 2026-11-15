@@ -120,7 +120,7 @@ test('the day strip counts listed entries per calendar day and never calls an em
   assert.equal((body.match(/class="ih-d( on)?"/g)||[]).length,HISTORY_DAYS);
   assert.equal((body.match(/class="ih-d on"/g)||[]).length,l==='ko'?5:6);
   assert(body.includes(l==='ko'?'빈 칸은 수집된 기록이 없다는 뜻이며, 그날 장애가 없었다는 뜻이 아닙니다':'An empty cell means nothing was collected, not that there was no incident that day'));
-  assert(body.includes(l==='ko'?'날짜를 특정할 수 없는 기록 2개는 넣지 않았습니다':'2 entries without a usable date are not placed'));
+  assert(body.includes(l==='ko'?'날짜를 특정할 수 없거나 이 14일 밖에 있는 기록 2개는 넣지 않았습니다':'2 entries with no usable date or outside these 14 days are not placed'));
   assert(body.includes(l==='ko'?'11월 2일 – 11월 15일 (KST)':'Nov 2 – Nov 15 (UTC)'));
   assert(!/정상|장애 없음|all systems|operational|incident-free/i.test(body),'no availability claim');
   const empty=String(renderIncidentHistory([],l,now));
