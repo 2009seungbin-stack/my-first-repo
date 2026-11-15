@@ -823,8 +823,11 @@ async function main(){
    fbar.addEventListener('click',e=>{const b=/** @type {Element} */(e.target).closest('[data-format]');if(b)format(/** @type {HTMLElement} */(b).dataset.format||'');});
    // Keep the selection in the body when a button is pressed with the mouse.
    fbar.addEventListener('mousedown',e=>{if(/** @type {Element} */(e.target).closest('[data-format]'))e.preventDefault();});
+   // ⌘ on Apple devices, Ctrl elsewhere: Ctrl+B / K there move the caret and cut the line, and stay that way.
+   const apple=/Mac|iP(hone|ad|od)/.test(navigator.platform||'');
+   if(apple)for(const b of fbar.querySelectorAll('[title*="Ctrl+"]'))/** @type {HTMLElement} */(b).title=/** @type {HTMLElement} */(b).title.replace('Ctrl+','⌘');
    ta.addEventListener('keydown',e=>{
-    if(!(e.ctrlKey||e.metaKey)||e.altKey||e.shiftKey||e.isComposing)return;
+    if(!(apple?e.metaKey&&!e.ctrlKey:e.ctrlKey&&!e.metaKey)||e.altKey||e.shiftKey||e.isComposing)return;
     const kind={b:'bold',i:'italic',k:'link'}[e.key.toLowerCase()];
     if(kind){e.preventDefault();format(kind);}
    });
