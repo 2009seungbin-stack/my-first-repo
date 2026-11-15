@@ -17,6 +17,8 @@ test('say fills placeholders, keeps unknown ones and falls back to English',()=>
  assert.equal(say('ko','targetTally',{n:3,m:4,t:'100 KB'}),'4개 중 3개가 100 KB 이하');
  assert.equal(say('en','targetShort',{}),'under {t} ✓');
  assert.equal(say('fr','swap'),say('en','swap'));
+ // tests/task-browser.py looks for this opening phrase when a retained original still misses the target.
+ assert.equal(say('en','targetMissed',{t:'1 KB',b:'10 KB',over:'9 KB'}),'Target size not reached. The smallest result with these settings is 10 KB, 9 KB over the 1 KB target.');
  assert.equal(say('en','nope'),'nope');
 });
 test('target labels and presets',()=>{
