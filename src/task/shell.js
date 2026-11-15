@@ -8,6 +8,7 @@ import {BRAND} from '../brand.js';
 import {TASK_TOOLS,kindOf} from './registry.js';
 import {ui} from './strings.js';
 import {takeFiles,stashFiles} from './handoff.js';
+import {isMac,shortcutOf,shortcutLabel,splitIntake,clipboardFiles} from './keys.js';
 /** Shared runtime for the home directory and every single-task page: locale and URL, file
  * intake (picker, drop anywhere, paste, hand-off from another page), toast, download and
  * the Free-plan gate. A tool module only describes its own workspace. */
@@ -26,6 +27,13 @@ const portal=()=>!!document.querySelector('meta[name="nerulio-portal"]');
 /** The tool home in the page's language. */
 export const toolsHomePrefix=()=>pagePrefix()+(portal()&&!page.auto&&PORTAL_LOCALES.includes(getLocale())?'tools/':'');
 export const toolURL=(id,query='')=>localizedURL(INTENTS[id].path,page.auto?null:getLocale(),root,query).href;
+const mac=isMac(navigator.userAgentData?.platform||navigator.platform||'');
+/** "Ctrl+O" / "⌘O" for the shortcut hints a workspace prints ('open' | 'save' | 'paste'). */
+export const keyLabel=name=>shortcutLabel(name,{mac});
+const kindNames=def=>def.kinds.map(k=>text('kinds.'+k)).join(' · ');
+const DRAG_IDLE_MS=1500;
+/** Whether this browser can hand the page a picture from the clipboard on a button press. */
+export const canPasteButton=()=>typeof navigator.clipboard?.read==='function';
 let toastTimer=0;
 export function toast(message,{error=false}={}){
  const el=$('#toast');if(!el)return;el.textContent=message;el.classList.toggle('error',error);el.hidden=false;
@@ -55,6 +63,7 @@ function renderChrome(){
  for(const a of document.querySelectorAll('[data-home-link]'))a.setAttribute('href',pagePrefix());
  for(const a of document.querySelectorAll('[data-tools-home]'))a.setAttribute('href',toolsHomePrefix());
  for(const a of document.querySelectorAll('[data-studio-link]'))a.setAttribute('href',pagePrefix()+'game/studio/'+(a.dataset.studioWs?'?ws='+a.dataset.studioWs:''));
+ const dropKinds=$('#dropKinds');if(dropKinds&&TASK_TOOLS[page.id])dropKinds.textContent=kindNames(TASK_TOOLS[page.id]);
  updateSiteContent(page.id,l,page.landing||page.path);
 }
 function changeLanguage(value){
@@ -70,12 +79,30 @@ function changeLanguage(value){
 /** Files reach a page four ways; all end in intake(files). */
 function wireIntake(intake,{accept}={}){
  const input=$('#fileInput');if(input){if(accept)input.accept=accept;input.addEventListener('change',()=>{const files=[...input.files];input.value='';if(files.length)intake(files,'picker');});}
- let depth=0;const zone=()=>document.body.classList.toggle('dragging',depth>0);
- addEventListener('dragenter',e=>{if(e.dataTransfer?.types?.includes('Files')){depth++;zone();}});
- addEventListener('dragleave',()=>{depth=Math.max(0,depth-1);zone();});
- addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files'))e.preventDefault();});
- addEventListener('drop',e=>{if(!e.dataTransfer?.files?.length)return;e.preventDefault();depth=0;zone();intake([...e.dataTransfer.files],'drop');});
+ let depth=0,idle=0;const zone=()=>document.body.classList.toggle('dragging',depth>0);
+ // dragover keeps firing while files hover over the page. If it stops without a dragleave or drop (the drag
+ // was cancelled outside the window), the drop overlay must not stay up.
+ const alive=()=>{clearTimeout(idle);idle=setTimeout(()=>{depth=0;zone();},DRAG_IDLE_MS);};
+ addEventListener('dragenter',e=>{if(e.dataTransfer?.types?.includes('Files')){depth++;zone();alive();}});
+ addEventListener('dragleave',()=>{depth=Math.max(0,depth-1);zone();if(!depth)clearTimeout(idle);});
+ // A dragover with files also proves a drag is in progress, whatever the enter/leave count says.
+ addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();if(!depth){depth=1;zone();}alive();}});
+ addEventListener('drop',e=>{clearTimeout(idle);depth=0;zone();if(!e.dataTransfer?.files?.length)return;e.preventDefault();intake([...e.dataTransfer.files],'drop');});
+ // A paste button for devices without Ctrl+V: reads pictures from the clipboard after the browser's own permission prompt.
+ document.addEventListener('click',async e=>{
+  if(e.target.closest('[data-action]')?.dataset.action!=='paste-clipboard')return;
+  try{const files=await clipboardFiles(await navigator.clipboard.read());if(files.length)intake(files,'paste');else toast(text('clipboard.empty'),{error:true});}
+  catch{toast(text('clipboard.blocked'),{error:true});}
+ });
  addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length&&!/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName||'')){e.preventDefault();intake(files,'paste');}});
+ // Ctrl/⌘+O opens the picker; Ctrl/⌘+S presses the page's primary button (download) once it is enabled.
+ // Until a result exists, and while a dialog is open, the browser keeps its own Ctrl+S.
+ addEventListener('keydown',e=>{
+  const key=shortcutOf(e,{mac});if(!key||e.defaultPrevented||document.querySelector('dialog[open]'))return;
+  if(key==='open'){if(!input)return;e.preventDefault();input.click();return;}
+  const button=$('#taskDownload');if(!button||button.disabled||!button.offsetParent)return;
+  e.preventDefault();button.click();
+ });
  // A sample button inside the drop zone has its own action, not the zone's picker action.
  document.addEventListener('click',e=>{if(e.target.closest('[data-action]')?.dataset.action==='pick')input?.click();});
 }
@@ -88,8 +115,10 @@ export async function boot(){
  const def=TASK_TOOLS[page.id];if(!def)return;
  const tool=await import(`./${def.module}.js`),workspace=tool.mount({def,el:$('#taskApp')});
  const intake=(files,source)=>{
-  const ok=files.filter(f=>def.kinds.includes(kindOf(f)));
-  if(!ok.length){toast(text('wrongKind',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}),{error:true});return;}
+  const {ok,skipped}=splitIntake(files,def.kinds,kindOf);
+  if(!ok.length){toast(text('wrongKind',{kind:kindNames(def)}),{error:true});return;}
+  // A mixed drop: say what was left out instead of dropping it silently.
+  if(skipped.length)toast(text('skipped',{n:skipped.length,kind:kindNames(def)}),{error:true});
   track('file_selected',{count:ok.length,file_kind:def.kinds[0]});workspace.add(ok,source);
  };
  wireIntake(intake,{accept:tool.accept});
