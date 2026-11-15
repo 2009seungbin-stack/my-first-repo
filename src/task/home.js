@@ -136,7 +136,7 @@ export function mount(){
  document.addEventListener('click',e=>{const a=e.target.closest?.('a[data-tool],a[data-tool-link],a[data-finder-tool]');if(a)remember(a.dataset.tool||a.dataset.toolLink||a.dataset.finderTool);},true);
  addEventListener('pageshow',e=>{if(e.persisted)renderRecent();});
  $('#toolQuery')?.addEventListener('input',filter);
- $('#toolQuery')?.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=document.querySelector('.tool-card:not([hidden])');if(first)location.assign(first.href);}});
+ $('#toolQuery')?.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=document.querySelector('.tool-card:not([hidden])');if(first){remember(first.dataset.tool);location.assign(first.href);}}});
  $('#suggest')?.addEventListener('click',e=>{
   const go=e.target.closest('[data-suggest]');if(go)return continueWith(go.dataset.suggest,held);
   if(e.target.closest('[data-suggest-clear]')){held=[];$('#suggest').hidden=true;}
