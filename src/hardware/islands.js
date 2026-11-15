@@ -23,6 +23,24 @@ export function mountHardwareTools(){
    input.setCustomValidity(matches.length?'':ko?'검색한 모델의 측정 결과가 없습니다.':'No measurements match this model.');
   });
  }
+ // Local-LLM fit table: show the chosen quantization preset in the picker column. Every value was estimated by
+ // the server (data-q on each cell); nothing is computed here.
+ const quant=document.querySelector('[data-llm-quant]');
+ if(quant){
+  const words=JSON.parse(quant.dataset.words),cls={fits:'fy',tight:'fm',does_not_fit:'fn'},sum=document.querySelector('[data-llm-sum]');
+  quant.addEventListener('change',()=>{
+   const count={fits:0,tight:0,does_not_fit:0};
+   for(const td of document.querySelectorAll('[data-llm-cell]')){
+    const q=quant.value||td.dataset.best,r=q?JSON.parse(td.dataset.q)[q]:null,b=document.createElement('b');
+    count[r?r[0]:'does_not_fit']++;td.className=cls[r?r[0]:'does_not_fit'];
+    if(!r){b.textContent=words.none;td.replaceChildren(b);continue;}
+    const range=document.createElement('span');range.className='fine';range.textContent=`≈ ${r[1]} GiB`;
+    b.textContent=quant.value?words[r[0]]:`${q} · ${words[r[0]]}`;td.replaceChildren(b,' ',range);
+   }
+   for(const th of document.querySelectorAll('[data-llm-head]'))th.textContent=quant.value||words.best;
+   if(sum)sum.textContent=words.sum.replace('{f}',count.fits).replace('{t}',count.tight).replace('{n}',count.does_not_fit);
+  });
+ }
  const type=document.querySelector('[data-hw-type]');
  if(type)type.addEventListener('change',()=>{for(const s of type.form.querySelectorAll('select[name="a"],select[name="b"]'))s.disabled=true;});
 }

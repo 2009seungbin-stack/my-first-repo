@@ -164,6 +164,27 @@ export function setWinner(b,r,m,w){
 /** A coin flip between the two entrants of a ready match. @param {Board} b @param {number} r @param {number} m @param {()=>number} [rand] */
 export const pickWinner=(b,r,m,rand=Math.random)=>rand()<.5?entrant(b,r,2*m):entrant(b,r,2*m+1);
 
+/** The bracket as plain text for a chat message: the title, then each round with its matches numbered
+ * ("A vs B → A" once decided, "A vs B" while open, "A (bye)" for a first-round bye, "?" for an entrant not
+ * known yet; a match with nobody known is left out), then the champion when there is one.
+ * @param {Board} b @param {string[]} names
+ * @param {{title:string,round:(entrants:number)=>string,bye:string,champ:string}} t @returns {string} */
+export function resultText(b,names,t){
+ const name=(/** @type {number} */ i)=>i>=0?names[i]:'?',lines=t.title?[t.title]:[];
+ for(let r=0;r<b.win.length;r++){
+  const rows=[];
+  for(let m=0;m<b.win[r].length;m++){
+   const a=entrant(b,r,2*m),c=entrant(b,r,2*m+1),w=b.win[r][m];
+   if(r===0&&(a<0)!==(c<0)){rows.push(`${m+1}. ${name(a<0?c:a)} (${t.bye})`);continue;}
+   if(a<0&&c<0)continue;
+   rows.push(`${m+1}. ${name(a)} vs ${name(c)}${w>=0?` → ${name(w)}`:''}`);
+  }
+  if(rows.length)lines.push('',`[${t.round(b.slots.length>>r)}]`,...rows);
+ }
+ if(champion(b)>=0)lines.push('',`${t.champ}: ${name(champion(b))}`);
+ return lines.join('\n').trim();
+}
+
 /* Packed data (share links #b=… and the stored seating): JSON scrambled with a fixed key, then base64url. */
 const KEY=[0x6e,0x31,0x72,0x75,0x6c,0x69,0x6f,0x5f,0x76,0x73];
 /** @param {Uint8Array} bytes */
@@ -188,6 +209,33 @@ export function cleanPlan(o){
 }
 /** @param {Plan} p */
 export const planData=p=>({m:p.mode,p:p.pair,a:p.seats,...(p.cue?{c:1}:{}),...(p.exact?{e:1}:{})});
+
+/** A board read back from a link: the seats must hold each of the n names exactly once with at most one bye
+ * per match, and the results are replayed match by match through setWinner(), so a winner who is not in
+ * that match is dropped. null when the seats are not a valid first round.
+ * @param {any} o @param {number} n @param {number} size @returns {Board|null} */
+export function boardFromData(o,n,size){
+ if(!o||!Array.isArray(o.s)||o.s.length!==size||!SIZES.includes(size))return null;
+ const seen=new Set();
+ for(const x of o.s){if(!Number.isInteger(x)||x<-1||x>=n||seen.has(x))return null;if(x>=0)seen.add(x);}
+ if(seen.size!==n)return null;
+ for(let m=0;m<size/2;m++)if(o.s[2*m]<0&&o.s[2*m+1]<0)return null;
+ const b=newBoard(o.s);
+ if(Array.isArray(o.w))for(let r=0;r<b.win.length;r++){
+  const row=o.w[r];if(!Array.isArray(row))break;
+  for(let m=0;m<b.win[r].length;m++)if(Number.isInteger(row[m])&&row[m]>=0)setWinner(b,r,m,row[m]);
+ }
+ return b;
+}
+/** A link to this very bracket (#r=…): title, names, the drawn seats and the results so far. No seating plan.
+ * @param {{title:string,size:number,names:string[],board:Board}} d */
+export const encodeResult=d=>pack({v:1,t:d.title||'',s:d.size,n:d.names,b:{s:d.board.slots,w:d.board.win}});
+/** @param {string} s @returns {{title:string,size:number,names:string[],board:Board}|null} */
+export function decodeResult(s){
+ const d=decodeShare(s);if(!d)return null;
+ const board=boardFromData(unpack(s)?.b,d.names.length,d.size);
+ return board?{title:d.title,size:d.size,names:d.names,board}:null;
+}
 
 /** @param {{title:string,size:number,names:string[],plan?:Plan|null}} d */
 export const encodeShare=d=>pack({v:1,t:d.title||'',s:d.size,n:d.names,...(planActive(d.plan)?{r:planData(/** @type {Plan} */(d.plan))}:{})});
