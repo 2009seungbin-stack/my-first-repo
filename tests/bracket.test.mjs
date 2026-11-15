@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseNames,sizeProblem,fitSize,pairIndex,pairsFit,draw,mirror,fitSeats,seatNames,drawPlan,inOrder,newBoard,entrant,nextMatch,champion,setWinner,pickWinner,encodeShare,decodeShare,pack,unpack,cleanPlan,planActive} from '../src/bracket/engine.js';
+import {parseNames,sizeProblem,fitSize,pairIndex,pairsFit,draw,mirror,fitSeats,seatNames,drawPlan,inOrder,newBoard,entrant,nextMatch,champion,setWinner,pickWinner,resultText,encodeShare,decodeShare,pack,unpack,cleanPlan,planActive} from '../src/bracket/engine.js';
 import {matchPlatformRoute,renderPlatformPage,renderSitemap,canonicalQuery} from '../server/platform/pages.js';
 import {FUN_TOOLS} from '../platform/tools-nav.js';
 import {ICON_NAMES} from '../platform/render/icons.js';
@@ -132,4 +132,19 @@ test('the page: route, nav entry, structured data, sitemap and no query paramete
  const r=await renderPlatformPage(new Request('https://nerulio.com/ko/bracket/?utm=1'),{DB:db},{origin:'https://nerulio.com/'});assert.equal(r.status,301);
  const xml=await renderSitemap(db,'ai','https://nerulio.com');assert(xml.includes('https://nerulio.com/ko/bracket/')&&xml.includes('https://nerulio.com/en/bracket/'));
  db.raw.close();
+});
+
+test('results as text: rounds, byes, open matches and the champion',()=>{
+ const names=['A','B','C','D','E'],t={title:'Cup',round:(/** @type {number} */ s)=>s===2?'Final':`Last ${s}`,bye:'bye',champ:'Champion'};
+ // 5 names in an 8-bracket in typed order: one full match, then three byes.
+ const b=newBoard(inOrder(5,8));
+ assert.deepEqual(b.slots,[0,1,2,-1,3,-1,4,-1]);
+ assert.equal(resultText(b,names,t),'Cup\n\n[Last 8]\n1. A vs B\n2. C (bye)\n3. D (bye)\n4. E (bye)\n\n[Last 4]\n1. ? vs C\n2. D vs E');
+ assert(setWinner(b,0,0,1));assert(setWinner(b,1,1,4));
+ assert.equal(resultText(b,names,t),'Cup\n\n[Last 8]\n1. A vs B → B\n2. C (bye)\n3. D (bye)\n4. E (bye)\n\n[Last 4]\n1. B vs C\n2. D vs E → E\n\n[Final]\n1. ? vs E');
+ assert(setWinner(b,1,0,2));assert(setWinner(b,2,0,2));
+ const done=resultText(b,names,{...t,title:''});
+ assert(done.startsWith('[Last 8]')&&done.endsWith('[Final]\n1. C vs E → C\n\nChampion: C'));
+ // A full 4-bracket before any result: the final has nobody yet and is left out.
+ assert.equal(resultText(newBoard(inOrder(4,4)),names,t),'Cup\n\n[Last 4]\n1. A vs B\n2. C vs D');
 });

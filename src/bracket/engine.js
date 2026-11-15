@@ -164,6 +164,27 @@ export function setWinner(b,r,m,w){
 /** A coin flip between the two entrants of a ready match. @param {Board} b @param {number} r @param {number} m @param {()=>number} [rand] */
 export const pickWinner=(b,r,m,rand=Math.random)=>rand()<.5?entrant(b,r,2*m):entrant(b,r,2*m+1);
 
+/** The bracket as plain text for a chat message: the title, then each round with its matches numbered
+ * ("A vs B → A" once decided, "A vs B" while open, "A (bye)" for a first-round bye, "?" for an entrant not
+ * known yet; a match with nobody known is left out), then the champion when there is one.
+ * @param {Board} b @param {string[]} names
+ * @param {{title:string,round:(entrants:number)=>string,bye:string,champ:string}} t @returns {string} */
+export function resultText(b,names,t){
+ const name=(/** @type {number} */ i)=>i>=0?names[i]:'?',lines=t.title?[t.title]:[];
+ for(let r=0;r<b.win.length;r++){
+  const rows=[];
+  for(let m=0;m<b.win[r].length;m++){
+   const a=entrant(b,r,2*m),c=entrant(b,r,2*m+1),w=b.win[r][m];
+   if(r===0&&(a<0)!==(c<0)){rows.push(`${m+1}. ${name(a<0?c:a)} (${t.bye})`);continue;}
+   if(a<0&&c<0)continue;
+   rows.push(`${m+1}. ${name(a)} vs ${name(c)}${w>=0?` → ${name(w)}`:''}`);
+  }
+  if(rows.length)lines.push('',`[${t.round(b.slots.length>>r)}]`,...rows);
+ }
+ if(champion(b)>=0)lines.push('',`${t.champ}: ${name(champion(b))}`);
+ return lines.join('\n').trim();
+}
+
 /* Packed data (share links #b=… and the stored seating): JSON scrambled with a fixed key, then base64url. */
 const KEY=[0x6e,0x31,0x72,0x75,0x6c,0x69,0x6f,0x5f,0x76,0x73];
 /** @param {Uint8Array} bytes */

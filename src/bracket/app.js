@@ -9,7 +9,7 @@
  * (1–2, 3–4, …), so nothing has to be set up per game. A fixed seating marked exact is drawn as saved, and
  * a signal that turns it on lasts one draw. The FAQ on the page states that these prank
  * features exist. */
-import {SIZES,MAX_TITLE,parseNames,sizeProblem,fitSize,planActive,emptyPlan,drawPlan,pairIndex,pairsFit,fitSeats,seatNames,inOrder,newBoard,entrant,ready,nextMatch,champion,setWinner,pickWinner,roundsOf,encodeShare,decodeShare,pack,unpack,cleanPlan,planData} from './engine.js';
+import {SIZES,MAX_TITLE,parseNames,sizeProblem,fitSize,planActive,emptyPlan,drawPlan,pairIndex,pairsFit,fitSeats,seatNames,inOrder,newBoard,entrant,ready,nextMatch,champion,setWinner,pickWinner,roundsOf,resultText,encodeShare,decodeShare,pack,unpack,cleanPlan,planData} from './engine.js';
 
 const STORE='nerulio.bracket.v1';
 const ko=document.documentElement.lang==='ko';
@@ -18,7 +18,7 @@ const T=ko?{
  few:'2명 이상 넣으세요.',many:(/** @type {number} */ s,/** @type {number} */ f)=>f?`${s}강에는 ${s}명까지 들어갑니다. ${f}강을 고르세요.`:'32명까지 넣을 수 있어요.',sparse:(/** @type {number} */ s,/** @type {number} */ f)=>`${s}강은 ${s/2+1}명 이상 필요해요. ${f}강을 고르세요.`,
  round:(/** @type {number} */ s)=>s===2?'결승':`${s}강`,champ:'우승',bye:'부전승',name:'대진표',
  progress:(/** @type {number} */ d,/** @type {number} */ t)=>`${d} / ${t} 경기`,won:(/** @type {string} */ n)=>`우승 · ${n}`,copied:'링크를 복사했어요.',copyFail:'복사하지 못했어요. 주소를 길게 눌러 복사하세요.',
- noUndo:'되돌릴 게 없어요.',done:'경기가 모두 끝났어요.',
+ noUndo:'되돌릴 게 없어요.',done:'경기가 모두 끝났어요.',textCopied:'결과를 글자로 복사했어요. 채팅에 붙여 넣으세요.',textFail:'결과를 복사하지 못했어요.',
  ed:'대진 배치',modes:[['','랜덤'],['pairs','첫 상대만'],['fixed','전체 배치'],['typed','입력 순서']],
  help:{'':'평소처럼 무작위로 추첨합니다.',pairs:'정한 두 사람은 첫 경기에서 만나고, 나머지는 무작위입니다.',fixed:'붙어 있는 두 경기의 승자끼리 다음 라운드에서 만나고, 같은 쪽 승자끼리 4강에서 만납니다. 추첨할 때마다 자리 모양은 바뀌어도 만나는 상대는 그대로입니다.',typed:'참가자 칸에 입력한 순서대로 1번과 2번, 3번과 4번…이 첫 경기에서 만나고, 1·2번 승자와 3·4번 승자가 다음 라운드에서 만납니다. 따로 정할 것 없이 원하는 순서로 이름만 입력하면 되고, 추첨 화면의 자리 모양은 매번 섞여 보입니다. 인원이 모자라면 마지막에 입력한 사람부터 부전승입니다.'},
  vsHead:'첫 경기 상대',none:'없음',left:'왼쪽',right:'오른쪽',match:(/** @type {number} */ k)=>`${k}경기`,
@@ -32,7 +32,7 @@ const T=ko?{
  few:'Add at least 2 names.',many:(/** @type {number} */ s,/** @type {number} */ f)=>f?`A ${s}-bracket holds ${s}. Pick ${f}.`:'Up to 32 players.',sparse:(/** @type {number} */ s,/** @type {number} */ f)=>`A ${s}-bracket needs ${s/2+1}+ players. Pick ${f}.`,
  round:(/** @type {number} */ s)=>s===2?'Final':s===4?'Semis':s===8?'Quarters':`Last ${s}`,champ:'Champion',bye:'Bye',name:'Bracket',
  progress:(/** @type {number} */ d,/** @type {number} */ t)=>`${d} / ${t} matches`,won:(/** @type {string} */ n)=>`Champion · ${n}`,copied:'Link copied.',copyFail:'Could not copy. Copy the address by hand.',
- noUndo:'Nothing to undo.',done:'All matches are played.',
+ noUndo:'Nothing to undo.',done:'All matches are played.',textCopied:'Results copied as text. Paste them into a chat.',textFail:'Could not copy the results.',
  ed:'Seating',modes:[['','Random'],['pairs','First opponents'],['fixed','Every seat'],['typed','Typed order']],
  help:{'':'Draws are random as usual.',pairs:'Paired players meet in their first match; everyone else is random.',fixed:'Winners of neighbouring matches meet next, and each side’s winners meet in the semis. Every draw looks different, but who meets whom stays.',typed:'Names meet in the order typed: 1st vs 2nd, 3rd vs 4th, …, and the winners of 1–2 and 3–4 meet next. Just type the names in the order you want; every draw still looks shuffled. With fewer names than slots, the last names typed get the byes.'},
  vsHead:'First opponent',none:'None',left:'Left',right:'Right',match:(/** @type {number} */ k)=>`Match ${k}`,
@@ -196,6 +196,7 @@ export function mountBracket(root){
  $('[data-bk-redraw]').addEventListener('click',()=>start(false));
  $('[data-bk-print]').addEventListener('click',()=>print());
  $('[data-bk-link]').addEventListener('click',()=>copy(link(false)));
+ $('[data-bk-text]').addEventListener('click',()=>{if(st.board)copy(resultText(st.board,st.names,{title:st.title||T.name,round:T.round,bye:T.bye,champ:T.champ}),T.textCopied,T.textFail);});
 
  let celebrated=-1;
  function celebrate(){
@@ -229,11 +230,11 @@ export function mountBracket(root){
  // Links and the toast.
  /** @param {boolean} withPlan */
  const link=withPlan=>`${location.origin}${location.pathname}#b=${encodeShare({title:st.title,size:st.size,names:names(),plan:withPlan?st.plan:null})}`;
- /** @param {string} s */
- async function copy(s){
-  try{await navigator.clipboard.writeText(s);toastMsg(T.copied);return;}catch{}
+ /** @param {string} s @param {string} [done] @param {string} [fail] */
+ async function copy(s,done=T.copied,fail=T.copyFail){
+  try{await navigator.clipboard.writeText(s);toastMsg(done);return;}catch{}
   const i=document.createElement('textarea');i.value=s;i.setAttribute('readonly','');i.style.position='fixed';i.style.opacity='0';document.body.append(i);i.select();
-  let ok=false;try{ok=document.execCommand('copy');}catch{}i.remove();toastMsg(ok?T.copied:T.copyFail);
+  let ok=false;try{ok=document.execCommand('copy');}catch{}i.remove();toastMsg(ok?done:fail);
  }
  let toastTimer=0;
  /** @param {string} s */
