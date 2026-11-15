@@ -560,7 +560,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   recentBox.replaceChildren(...(top.length?[h('h2.st-empty-sub',{},t('recent.title')),...top.map(s=>{
    const b=h('button.st-recent-row',{type:'button','aria-label':t('recent.open',{name:s.name}),title:t('recent.open',{name:s.name})},h('b',{},s.name),h('small',{},t('recent.meta',{assets:s.assets,frames:s.frames,time:snapshotTime(s.at)})));
    b.addEventListener('click',()=>restoreSnapshot(s.key));return b;
-  })]:[]));
+  }),h('button.st-link.st-recent-all',{type:'button',onclick:()=>runCommand('file.versions')},t('cmd.file.versions'))]:[]));
  }
  function renderEmpty(){
   const imp=h('button.st-btn.primary',{type:'button'},t('empty.import'));imp.addEventListener('click',()=>runCommand('file.import'));

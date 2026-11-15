@@ -115,6 +115,7 @@ html,body.studio-page{margin:0;height:100%;overflow:hidden;background:#15171a;ov
 .st-recent-row:hover{border-color:var(--accent)}
 .st-recent-row b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .st-recent-row small{color:var(--text-2)}
+.st-recent-all{justify-self:center;min-height:44px;padding:0 12px}
 .st-hud{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:1px;padding:2px;border-radius:6px;background:rgba(19,21,24,.86);border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.35)}
 .st-hud[hidden]{display:none}
 .st-hud-zoom{min-width:54px;height:24px;border:0;background:none;color:var(--text);font-variant-numeric:tabular-nums;cursor:pointer;border-radius:4px}
