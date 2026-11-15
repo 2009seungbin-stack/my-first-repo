@@ -2,10 +2,10 @@ import {PALETTES,paletteLabel,paletteOptions,paletteSwatches} from '../pixel-pal
 export {PALETTES};
 import * as Im from '../image.js';
 import {parsePalette,DITHER_MODES,ditherModeOf,ditherAmountOf,usedColors} from '../pixel-engine.js';
-import {toGPL,toHexText} from '../game/palette.js';
+import {toGPL,toHexText,parsePaletteFile} from '../game/palette.js';
 import {stem} from '../core.js';
 import {createBatch} from './batch.js';
-import {text,locale,download} from './shell.js';
+import {text,locale,download,toast} from './shell.js';
 /** Pixel-art converter: pick a sprite size and a colour count and watch the result; palettes
  * (classic consoles, popular community palettes or your own), dithering, outline, fit and
  * export scale under Advanced. Uses the perceptual (Oklab) quantiser in src/pixel-engine.js. */
@@ -26,6 +26,7 @@ const simple=o=>`<span class="opt-label">${esc(text('pixel.size'))}</span>${chip
 const advanced=o=>`<label class="field"><span>${esc(text('pixel.palette'))}</span><select id="pixelPalette"><option value="auto">${esc(text('pixel.auto'))}</option>${paletteOptions(o.palette,locale())}<option value="custom" ${o.palette==='custom'?'selected':''}>${esc(text('pixel.custom'))}</option></select></label>
 ${swatchStrip(o)}
 <label class="field" id="pixelCustomField" ${o.palette==='custom'?'':'hidden'}><span>${esc(text('pixel.customHint'))}</span><textarea id="pixelCustom" rows="4" spellcheck="false" placeholder="#1a1c2c&#10;#5d275d&#10;#b13e53">${esc(o.custom)}</textarea></label>
+<label class="field" id="pixelPaletteFileField" ${o.palette==='custom'?'':'hidden'}><span>${esc(text('plab.importFile'))}</span><input type="file" id="pixelPaletteFile" accept=".gpl,.hex,.txt,.json,application/json,text/plain" style="min-height:44px"></label>
 <div class="field-row"><label class="field"><span>${esc(text('pixel.exact'))}</span><input id="pixelN" type="number" min="8" max="512" value="${o.n}" inputmode="numeric"></label><label class="field"><span>${esc(text('pixel.scale'))}</span><select id="pixelScale">${[1,2,4,8,16].map(v=>`<option value="${v}" ${o.scale===v?'selected':''}>${v}×</option>`).join('')}</select></label></div>
 <div class="field-row"><label class="field"><span>${esc(text('pixel.dither'))}</span><select id="pixelDitherMode"><option value="none">${esc(text('pixel.ditherNone'))}</option>${DITHER_MODES.filter(m=>m!=='none').map(m=>`<option value="${m}" ${o.dither&&o.ditherMode===m?'selected':''}>${esc(text('plab.dithers.'+m))}</option>`).join('')}</select></label><label class="field"><span>${esc(text('pixel.outline'))}</span><select id="pixelOutline">${[0,1,2].map(v=>`<option value="${v}" ${o.outline===v?'selected':''}>${v}px</option>`).join('')}</select></label></div>
 <label class="field" id="pixelDitherField" ${o.dither?'':'hidden'}><span>${esc(text('plab.amount'))} · <output id="pixelDitherValue" for="pixelDitherAmount">${o.amount.toFixed(1)}</output></span><input id="pixelDitherAmount" type="range" min="0.1" max="1" step="0.1" value="${o.amount}" style="width:100%;min-height:44px"></label>
@@ -37,7 +38,7 @@ function read(form,o){
  const n=chipN&&chipN!==o.chipN?chipN:typed,mode=form.querySelector('#pixelDitherMode').value,amount=ditherAmountOf(form.querySelector('#pixelDitherAmount').value)||o.amount,palette=form.querySelector('#pixelPalette').value;
  return {n,chipN,colors:Number(pressed('pixelColors','colors'))||o.colors,palette,custom:form.querySelector('#pixelCustom').value,dither:mode==='none'?0:amount,amount,ditherMode:mode==='none'?o.ditherMode:mode,outline:Number(form.querySelector('#pixelOutline').value),fit:form.querySelector('#pixelFit').value,trim:form.querySelector('#pixelTrim').checked,scale:Number(form.querySelector('#pixelScale').value)};
 }
-function reflect(form,o){form.querySelector('#pixelN').value=o.n;form.querySelector('#pixelDitherField').hidden=!o.dither;form.querySelector('#pixelDitherValue').textContent=o.amount.toFixed(1);const strip=form.querySelector('#pixelSwatches');if(strip){strip.hidden=!Object.hasOwn(PALETTES,o.palette);strip.setAttribute('aria-label',swatchLabel(o));strip.firstElementChild.innerHTML=paletteSwatches(o.palette);}form.querySelector('#pixelCustomField').hidden=o.palette!=='custom';for(const b of form.querySelectorAll('#pixelSize [data-n]'))b.setAttribute('aria-pressed',String(Number(b.dataset.n)===o.n));}
+function reflect(form,o){form.querySelector('#pixelN').value=o.n;form.querySelector('#pixelDitherField').hidden=!o.dither;form.querySelector('#pixelDitherValue').textContent=o.amount.toFixed(1);const strip=form.querySelector('#pixelSwatches');if(strip){strip.hidden=!Object.hasOwn(PALETTES,o.palette);strip.setAttribute('aria-label',swatchLabel(o));strip.firstElementChild.innerHTML=paletteSwatches(o.palette);}form.querySelector('#pixelCustomField').hidden=form.querySelector('#pixelPaletteFileField').hidden=o.palette!=='custom';for(const b of form.querySelectorAll('#pixelSize [data-n]'))b.setAttribute('aria-pressed',String(Number(b.dataset.n)===o.n));}
 async function process(file,o,{signal,progress}){
  const palette=o.palette==='auto'?[]:parsePalette(o.palette==='custom'?o.custom:PALETTES[o.palette].join('\n'));
  if(o.palette==='custom'&&!palette.length)throw Error(text('pixel.needPalette'));
@@ -63,4 +64,16 @@ function action(name,it){
  const title=it.result.paletteName||'palette',body=format==='gpl'?toGPL(colors,{name:title,columns:Math.min(16,colors.length)}):toHexText(colors);
  download(new Blob([body],{type:'text/plain'}),`${title}-palette.${format}`);
 }
-export const mount=ctx=>createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,detail,viewerActions,action,pixelated:true,advancedOpen:o=>o.palette!=='auto'});
+export const mount=ctx=>{
+ // A palette file fills the custom box, so what was loaded stays visible and editable.
+ ctx.el.addEventListener('change',async e=>{
+  const input=e.target,file=input.id==='pixelPaletteFile'?input.files?.[0]:null;if(!file)return;
+  try{
+   const parsed=parsePaletteFile(await file.text(),file.name),box=ctx.el.querySelector('#pixelCustom');if(!box)return;
+   box.value=toHexText(parsed.colors).trim();box.dispatchEvent(new Event('input',{bubbles:true}));
+   toast(text('plab.imported',{n:parsed.colors.length,format:parsed.format.toUpperCase()}));
+  }catch{toast(text('pixel.needPalette'),{error:true});}
+  input.value='';
+ });
+ return createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,detail,viewerActions,action,pixelated:true,advancedOpen:o=>o.palette!=='auto'});
+};

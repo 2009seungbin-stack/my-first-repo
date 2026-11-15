@@ -36,3 +36,21 @@ test('the saved palette files load back to the same colours',()=>{
  assert.deepEqual(parsePalette(gpl),colors);
  assert.deepEqual(parsePaletteFile(gpl,'hero-palette.gpl').colors,colors);
 });
+
+test('a palette file loaded into the custom box reads as the same colours in the converter',()=>{
+ // The quick converter writes parsePaletteFile(...) into its textarea with toHexText and then
+ // parses that text with parsePalette, so the three must agree for every supported file type.
+ const expected=[[15,56,15],[48,98,48],[139,172,15],[155,188,15]];
+ const files={
+  'gb.hex':'0f380f\n306230\n8bac0f\n9bbc0f\n',
+  'gb.txt':'#0F380F\n#306230\n#8BAC0F\n#9BBC0F',
+  'gb.gpl':'GIMP Palette\nName: Game Boy\nColumns: 4\n#\n 15  56  15\tdarkest\n 48  98  48\tdark\n139 172  15\tlight\n155 188  15\tlightest\n',
+  'gb.json':JSON.stringify({name:'gb',colors:['#0f380f','#306230','#8bac0f','#9bbc0f']})
+ };
+ for(const [name,body] of Object.entries(files)){
+  const parsed=parsePaletteFile(body,name);
+  assert.deepEqual(parsed.colors,expected,name);
+  assert.deepEqual(parsePalette(toHexText(parsed.colors).trim()),expected,name);
+ }
+ assert.throws(()=>parsePaletteFile('not a palette at all','bad.txt'));
+});
