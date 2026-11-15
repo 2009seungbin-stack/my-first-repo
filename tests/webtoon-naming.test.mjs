@@ -62,3 +62,17 @@ test('partPreview mirrors the export worker width and rounding, and flags parts 
  assert.throws(()=>partPreview(0,10,[]),RangeError);
  assert.throws(()=>partPreview(10,10,[5,5]),RangeError);
 });
+
+test('partPreview without cuts follows the worker fallback to evenly spaced cuts at the target height',()=>{
+ // 1000x5200 source, WEBTOON CANVAS (max 800x1280), target 1280: scale .8 -> source step floor(1280/.8)=1600.
+ const rows=partPreview(1000,5200,[],{maxWidth:800,maxHeight:1280,targetHeight:1280});
+ assert.deepEqual(rows.map(r=>[r.y,r.height,r.outHeight]),[[0,1600,1280],[1600,1600,1280],[3200,1600,1280],[4800,400,320]]);
+ assert.ok(rows.every(r=>!r.tooTall));
+ // The target is capped by the profile height, exactly like the worker.
+ assert.equal(partPreview(800,5000,[],{maxWidth:800,maxHeight:1280,targetHeight:3000}).length,4);
+ // A source shorter than the target stays one part; explicit cuts are never replaced.
+ assert.equal(partPreview(800,900,[],{maxWidth:800,maxHeight:1280,targetHeight:1280}).length,1);
+ assert.equal(partPreview(800,5000,[2500],{maxWidth:800,maxHeight:1280,targetHeight:1280}).length,2);
+ // Without a target height the caller gets the single uncut part, as before.
+ assert.equal(partPreview(800,5000,[],{maxWidth:800,maxHeight:1280}).length,1);
+});
