@@ -73,3 +73,45 @@ test('countText exposes keywords and SMS data without changing adjacent-repeat o
  assert.equal(r.sms.encoding,'ucs2');
  assert.equal(countText('plain ascii',{locale:'en'}).sms.encoding,'gsm7');
 });
+
+import {overflowIndex,quickCountText,legacyBytes} from '../src/task/character-core.js';
+
+test('overflowIndex returns the UTF-16 index of the first character that does not fit',()=>{
+ const text='한글 ab 😀 테스트';
+ assert.equal(overflowIndex(text,{unit:'chars',limit:4}),4);
+ assert.equal(overflowIndex(text,{unit:'chars',include:false,limit:4}),6);
+ assert.equal(overflowIndex(text,{unit:'utf8',limit:7}),3);
+ assert.equal(overflowIndex('한글 ab',{unit:'cp949',limit:5}),3);
+ assert.equal(overflowIndex('abc',{unit:'chars',limit:3}),null);
+ assert.equal(overflowIndex('abc',{unit:'chars',limit:0}),null);
+ assert.equal(overflowIndex('abc',{unit:'nope',limit:1}),null);
+ // A character CP949 cannot encode makes the byte limit unmeasurable instead of guessed.
+ assert.equal(overflowIndex('😀한글',{unit:'cp949',limit:2}),null);
+});
+
+test('the kept prefix always fits the limit exactly as the counter measures it',()=>{
+ const text='자기소개서 초안입니다.\n두 번째 줄 with ASCII, 그리고 👨‍👩‍👧 가족 이모지와 é 결합 문자.';
+ for(const limit of [1,5,12,20,33]){
+  for(const include of [true,false]){
+   const at=overflowIndex(text,{unit:'chars',include,limit,locale:'ko'}),q=quickCountText(text.slice(0,at??text.length),'ko');
+   assert.ok((include?q.graphemes:q.content)<=limit);
+   // When something overflows, the kept prefix uses the limit fully.
+   if(at!==null)assert.equal(include?q.graphemes:q.content,limit);
+  }
+  const utf8At=overflowIndex(text,{unit:'utf8',limit});
+  assert.ok(new TextEncoder().encode(text.slice(0,utf8At??text.length)).length<=limit);
+ }
+ const plain='한글과 English 섞인 문장입니다';
+ for(const limit of [1,2,3,10,17]){const at=overflowIndex(plain,{unit:'cp949',limit});assert.ok(legacyBytes(plain.slice(0,at??plain.length),'cp949').bytes<=limit);}
+ // A grapheme cluster is never split: the family emoji stays whole or is dropped whole.
+ assert.equal(overflowIndex('a👨‍👩‍👧b',{unit:'chars',limit:1}),1);
+ assert.equal(overflowIndex('a👨‍👩‍👧b',{unit:'chars',limit:2}),'a👨‍👩‍👧'.length);
+});
+
+test('countText reports overflow only when the selected limit is exceeded',()=>{
+ assert.deepEqual(countText('한글 ab',{locale:'ko',limit:5,unit:'cp949'}).overflow,{unit:'cp949',include:true,limit:5,at:3});
+ assert.deepEqual(countText('한글 ab',{locale:'ko',limit:7,unit:'cp949'}).overflow,{unit:'cp949',include:true,limit:7,at:null});
+ assert.deepEqual(countText('a b c d',{locale:'en',limit:3,include:false}).overflow,{unit:'chars',include:false,limit:3,at:6});
+ assert.deepEqual(countText('한글 ab',{locale:'ko'}).overflow,{unit:'chars',include:true,limit:0,at:null});
+ assert.equal(countText('😀'.repeat(9),{locale:'ko',limit:2,unit:'cp949'}).overflow.at,null);
+});
