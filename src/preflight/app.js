@@ -7,7 +7,7 @@ import {createCatalogIndex,parsePasteList,importEnvironment,hashName,validateEnv
 import {POLICY} from './core/policy.js';
 import {copySummary,markdownReport,exportJSON,exportCompatibilityReport,escapeHTML as e} from './core/report.js';
 import {matchesFilter,filterCounts,FILTERS} from './core/filters.js';
-import {listRuns,recordRun,clearRuns,diffRuns,HISTORY_COMPONENT_LIMIT} from './storage/history.js';
+import {listRuns,recordRun,clearRuns,diffRuns,baselineRun,statusChanges,HISTORY_COMPONENT_LIMIT} from './storage/history.js';
 import {text,reasonText} from './messages.js';
 import {listSetups,saveSetup,loadSetup,renameSetup,deleteSetup} from './storage/setups.js';
 import {componentPicker} from './components/picker.js';
@@ -34,6 +34,8 @@ async function initialize(root){
  let result=null;
  let filter='all',reportLimit=100,inventoryLimit=50,search='',savedId='',timer=0,analysisTimer=0;
  const expanded=new Set();
+ /** Status in the previous recorded run for components that changed; empty without a comparable run. @type {Map<string,string|null>} */
+ let changes=new Map(),changedOnly=false;
  /** @type {{component:import('./core/types').CompatibilityResult,text:string}[]} */
  let reportIndex=[];
  const envForm=/** @type {HTMLFormElement} */(node('#pf-environment')),addForm=/** @type {HTMLFormElement} */(node('#pf-add'));
@@ -68,10 +70,11 @@ async function initialize(root){
   if(!result)return;
   const words=search.toLowerCase().split(/\s+/).filter(Boolean);
   const exactId=search.startsWith('id:')?search.slice(3):null;
-  const rows=reportIndex.filter(({component:c,text})=>(exactId?c.component.id===exactId:words.every(w=>text.includes(w)))&&matchesFilter(c.status,filter)).map(r=>r.component);
+  const rows=reportIndex.filter(({component:c,text})=>(exactId?c.component.id===exactId:words.every(w=>text.includes(w)))&&matchesFilter(c.status,filter)&&(!changedOnly||changes.has(c.component.id))).map(r=>r.component);
   const totals=filterCounts(result.components);
   for(const el of root.querySelectorAll('[data-filter-count]'))el.textContent=String(totals[/** @type {HTMLElement} */(el).dataset.filterCount||'']??0);
-  node('#pf-results').innerHTML=rows.length?tableHTML(rows.slice(0,reportLimit),locale):'<tr><td colspan="6">'+e(t('noResults'))+'</td></tr>';
+  const toggle=node('#pf-changed-only');toggle.hidden=!changes.size&&!changedOnly;toggle.setAttribute('aria-pressed',String(changedOnly));node('#pf-changed-count').textContent=String(changes.size);
+  node('#pf-results').innerHTML=rows.length?tableHTML(rows.slice(0,reportLimit),locale,changes):'<tr><td colspan="6">'+e(t('noResults'))+'</td></tr>';
   for(const c of rows.slice(0,reportLimit))if(expanded.has(c.component.id)){
    const row=document.getElementById('pf-detail-'+c.component.id);if(!row)continue;
    row.hidden=false;/** @type {HTMLElement} */(row.firstElementChild).innerHTML=detailHTML(c,catalog.get(c.component.id),locale);
@@ -79,6 +82,11 @@ async function initialize(root){
   }
   node('#pf-display-count').textContent=t('displayed',{shown:Math.min(reportLimit,rows.length),count:rows.length});
   node('#pf-more').hidden=rows.length<=reportLimit;
+ };
+ const refreshChanges=()=>{
+  changes=new Map();
+  try{const base=result&&environment.components.length?baselineRun(listRuns(storage(),vertical),result):null;if(base&&result)changes=statusChanges(base,result);}catch{/* history is optional */}
+  if(!changes.size)changedOnly=false;
  };
  const renderHistory=()=>{
   const runs=listRuns(storage(),vertical);
@@ -131,7 +139,7 @@ async function initialize(root){
    node('#pf-actions').innerHTML=environment.components.length?actionsHTML(result,locale):'<p class="pf-muted">'+e(t('empty'))+'</p>';
    node('#pf-report').hidden=!environment.components.length;
    for(const id of ['pf-copy','pf-copy-md','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=!environment.components.length;
-   node('#pf-diff').innerHTML='';renderTable();renderProgress();
+   node('#pf-diff').innerHTML='';refreshChanges();renderTable();renderProgress();
   }catch(err){
    result=null;node('#pf-verdict').textContent=errorMessage(err);node('#pf-report').hidden=true;node('#pf-actions').innerHTML='';node('#pf-diff').innerHTML='';
    for(const id of ['pf-copy','pf-copy-md','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=true;
@@ -172,7 +180,7 @@ async function initialize(root){
  node('#pf-run').addEventListener('click',()=>{calculate();
   if(result&&environment.components.length)guard(()=>{
    const runs=recordRun(storage(),vertical,/** @type {import('./core/types').PreflightResult} */(result)),d=runs[1]?diffRuns(runs[1],runs[0]):null;
-   renderHistory();notice(t('historyRecorded')+' '+(d?d.changes.length?t('historyChanges',{count:d.changes.length}):t('historyNoChanges'):t('historyFirst')));
+   renderHistory();refreshChanges();renderTable();notice(t('historyRecorded')+(locale==='ja'?'':' ')+(d?d.changes.length?t('historyChanges',{count:d.changes.length}):t('historyNoChanges'):t('historyFirst')));
   });
   node('.pf-overview').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});});
  node('#pf-setup-name').addEventListener('input',schedule);
@@ -254,7 +262,8 @@ async function initialize(root){
   node('#pf-report').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
   /** @type {HTMLElement|null} */(root.querySelector('[data-filter="'+filter+'"]'))?.focus({preventScroll:true});
  });
- node('#pf-history-clear').addEventListener('click',()=>guard(()=>{clearRuns(storage(),vertical);renderHistory();notice(t('historyCleared'));}));
+ node('#pf-history-clear').addEventListener('click',()=>guard(()=>{clearRuns(storage(),vertical);renderHistory();refreshChanges();renderTable();notice(t('historyCleared'));}));
+ node('#pf-changed-only').addEventListener('click',()=>{changedOnly=!changedOnly;reportLimit=100;renderTable();});
  node('#pf-expand-all').addEventListener('click',()=>{for(const row of node('#pf-results').querySelectorAll('tr[data-component]'))openDetail(/** @type {HTMLElement} */(row).dataset.component||'',true);});
  node('#pf-collapse-all').addEventListener('click',()=>{for(const id of [...expanded])openDetail(id,false);expanded.clear();});
  node('#pf-results').addEventListener('keydown',event=>{

@@ -49,3 +49,19 @@ export function diffRuns(older,newer){
  return {changes,verdictChanged:older.verdict!==newer.verdict,targetChanged:older.from!==newer.from||older.to!==newer.to||older.platform!==newer.platform||older.architecture!==newer.architecture,
   partial:older.total>older.components.length||newer.total>newer.components.length};
 }
+/** The recorded run a live result is compared with: the newest one that is not identical to it.
+ * @param {RunSnapshot[]} runs newest first @param {import('../core/types').PreflightResult} result @returns {RunSnapshot|null} */
+export function baselineRun(runs,result){const current=fingerprint(snapshotRun(result));return runs.find(run=>fingerprint(run)!==current)||null;}
+/** Component id → its status in the baseline run, for components whose status differs now (null = not in that run).
+ * Components beyond the stored limit are not compared, and "new" is not claimed against a truncated baseline.
+ * @param {RunSnapshot} baseline @param {import('../core/types').PreflightResult} result @returns {Map<string,string|null>} */
+export function statusChanges(baseline,result){
+ const before=new Map(baseline.components.map(([id,,status])=>[id,status])),partial=baseline.total>baseline.components.length;
+ /** @type {Map<string,string|null>} */
+ const changes=new Map();
+ for(const c of result.components.slice(0,HISTORY_COMPONENT_LIMIT)){
+  const old=before.get(c.component.id);
+  if(old===undefined){if(!partial)changes.set(c.component.id,null);}else if(old!==c.status)changes.set(c.component.id,old);
+ }
+ return changes;
+}

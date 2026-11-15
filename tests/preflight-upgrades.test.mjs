@@ -156,3 +156,33 @@ test('exported report opens with a scorecard and action list, localized and esca
   assert.ok(html.includes(result.generatedAt));
  }
 });
+
+test('preflight history: live report is compared with the newest recorded run that differs',async()=>{
+ const {baselineRun,statusChanges}=await import('../src/preflight/storage/history.js');
+ const {tableHTML}=await import('../src/preflight/components/report-view.js');
+ const store=memory(),a=await sample({version:'33.0'}),b=await sample({version:'34.0'});
+ assert.equal(baselineRun([],a),null);
+ recordRun(store,'obs',a);
+ assert.equal(baselineRun(listRuns(store,'obs'),a),null,'nothing to compare with the only, identical run');
+ const base=baselineRun(listRuns(store,'obs'),b);assert.equal(base.to,'33.0');
+ const changes=statusChanges(base,b),expected=a.components.filter((c,i)=>c.status!==b.components[i].status);
+ assert.equal(changes.size,expected.length);
+ for(const c of expected)assert.equal(changes.get(c.component.id),c.status);
+ recordRun(store,'obs',b);
+ assert.equal(baselineRun(listRuns(store,'obs'),b).to,'33.0','after recording, the previous run stays the baseline');
+ const extra={...b,components:[...b.components,{...b.components[0],component:{...b.components[0].component,id:'brand-new'}}]};
+ assert.equal(statusChanges(base,extra).get('brand-new'),null);
+ assert.equal(statusChanges({...base,total:base.total+1000},extra).has('brand-new'),false,'no "new" claim against a truncated baseline');
+ const saved=globalThis.document;globalThis.document={querySelector:()=>null};
+ try{
+  for(const [locale,i] of [['ko',0],['en',1],['ja',2]]){
+   const html=tableHTML(extra.components,locale,statusChanges(base,extra));
+   assert.equal(html.split('pf-changed').length-1,expected.length+1);
+   assert.ok(html.includes(MESSAGES.previousNew[i]));
+   assert.ok(html.includes(MESSAGES.previousStatus[i].replace('{status}',MESSAGES['status.'+expected[0].status][i])));
+   assert.ok(!tableHTML(extra.components,locale).includes('pf-changed'));
+  }
+ }finally{if(saved===undefined)delete globalThis.document;else globalThis.document=saved;}
+ for(const k of ['previousStatus','previousNew','changedOnly'])assert.equal(new Set(MESSAGES[k]).size,3,k);
+ assert.ok(preflightPage({locale:'ja',path:'preflight/godot'}).includes('id="pf-changed-only"'));
+});

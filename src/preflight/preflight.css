@@ -129,6 +129,7 @@
 .pf-history-list details summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700}
 .pf-report-tools{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:0 0 12px}
 .pf-report-tools p{margin:0}
+.pf-report .pf-row-meta.pf-changed{color:var(--warn);font-weight:700}
 @media(hover:none){.pf-keys{display:none}}
 .pf-notice{position:sticky;bottom:16px;padding:12px;background:var(--card);border:1px solid var(--brand);z-index:4;box-shadow:0 2px 12px var(--scrim);font-size:13px}
 .pf-notice.error{border-color:var(--bad);color:var(--bad)}

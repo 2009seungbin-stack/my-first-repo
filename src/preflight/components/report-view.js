@@ -29,8 +29,8 @@ export function actionsHTML(result,locale){
  return '<div class="pf-actions"><h2>'+e(text(locale,'before'))+'</h2>'+list(before.slice(0,6))+
   (before.length>6?'<details><summary>'+e(text(locale,'order'))+' ('+result.recommendations.length+')</summary>'+list([...before.slice(6),...rest],7)+'</details>':'<details><summary>'+e(text(locale,'order'))+'</summary>'+list(rest,before.length+1)+'</details>')+'</div>';
 }
-/** @param {import('../core/types').CompatibilityResult[]} components @param {string} locale */
-export function tableHTML(components,locale){
+/** @param {import('../core/types').CompatibilityResult[]} components @param {string} locale @param {Map<string,string|null>} [changes] status in the previous recorded run, for changed components */
+export function tableHTML(components,locale,changes=new Map()){
  // data-label feeds the stacked card layout used on narrow screens, where the header row is hidden.
  const cell=(/** @type {string} */ key)=>'</td><td data-label="'+e(text(locale,key))+'">';
  return components.map(c=>{
@@ -41,7 +41,8 @@ export function tableHTML(components,locale){
    (c.sample?'<span class="pf-row-meta">SAMPLE DATA</span>':'')+(c.component.ignored?'<span class="pf-row-meta">'+e(text(locale,'excludedLabel'))+'</span>':'')+
    cell('installed')+e(c.component.version||'—')+cell('recommended')+e(c.recommendedVersion||'—')+cell('status')+statusBadge(c.status,locale)+
    (c.status!=='LEGACY'&&c.reasons.some(r=>r.code==='obsLegacy')?'<span class="pf-row-meta">'+statusBadge('LEGACY',locale)+'</span>':'')+
-   (c.stale?'<span class="pf-row-meta">'+e(text(locale,'warning'))+'</span>':'')+cell('confidence')+e(text(locale,'confidence.'+c.confidence))+
+   (c.stale?'<span class="pf-row-meta">'+e(text(locale,'warning'))+'</span>':'')+
+   (changes.has(id)?'<span class="pf-row-meta pf-changed">'+e(changes.get(id)?text(locale,'previousStatus',{status:text(locale,'status.'+changes.get(id))}):text(locale,'previousNew'))+'</span>':'')+cell('confidence')+e(text(locale,'confidence.'+c.confidence))+
    cell('reason')+e(reasonText(locale,mainReason))+'<br><button class="pf-component-button pf-row-meta" type="button" data-detail="'+e(id)+'" aria-expanded="false" aria-controls="pf-detail-'+e(id)+'">'+e(text(locale,'detail'))+'</button></td></tr>'+
    '<tr class="pf-row-detail" id="pf-detail-'+e(id)+'" hidden><td colspan="6"></td></tr>';
  }).join('');
