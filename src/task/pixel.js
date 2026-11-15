@@ -64,16 +64,25 @@ function action(name,it){
  const title=it.result.paletteName||'palette',body=format==='gpl'?toGPL(colors,{name:title,columns:Math.min(16,colors.length)}):toHexText(colors);
  download(new Blob([body],{type:'text/plain'}),`${title}-palette.${format}`);
 }
+/** Same ceiling as Pixel Lab: a palette is a few hundred lines of text, never megabytes. */
+const MAX_PALETTE_FILE=1_000_000;
 export const mount=ctx=>{
+ ctx.el.addEventListener('input',e=>{
+  // Choosing a palette file changes no option by itself, so the result must not blank while it is read.
+  if(e.target.id==='pixelPaletteFile'){e.stopImmediatePropagation();return;}
+  // The strength readout follows the slider at once; the conversion itself stays debounced.
+  if(e.target.id==='pixelDitherAmount'){const out=ctx.el.querySelector('#pixelDitherValue');if(out)out.textContent=ditherAmountOf(e.target.value).toFixed(1);}
+ });
  // A palette file fills the custom box, so what was loaded stays visible and editable.
  ctx.el.addEventListener('change',async e=>{
   const input=e.target,file=input.id==='pixelPaletteFile'?input.files?.[0]:null;if(!file)return;
+  input.value='';
+  if(file.size>MAX_PALETTE_FILE){toast(text('plab.paletteTooBig'),{error:true});return;}
   try{
    const parsed=parsePaletteFile(await file.text(),file.name),box=ctx.el.querySelector('#pixelCustom');if(!box)return;
    box.value=toHexText(parsed.colors).trim();box.dispatchEvent(new Event('input',{bubbles:true}));
    toast(text('plab.imported',{n:parsed.colors.length,format:parsed.format.toUpperCase()}));
   }catch{toast(text('pixel.needPalette'),{error:true});}
-  input.value='';
  });
  return createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,detail,viewerActions,action,pixelated:true,advancedOpen:o=>o.palette!=='auto'});
 };
