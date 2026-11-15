@@ -251,3 +251,16 @@ html[lang="ko"] .gh-content .related-tools h2,html[lang="ja"] .gh-content .relat
 }
 @media (hover:none){.gh-finder-keys,.gh-find kbd{display:none}}
 @media (prefers-reduced-motion:reduce){.gh-find{transition:none}}
+
+/* favourites and recent tools (the local tool-id preference; src/task/home.js renderRecent) */
+.gh-recent{display:flex;flex-wrap:wrap;gap:10px 28px;margin:-8px 0 20px;padding:14px 20px;border:1px solid var(--gs-line);border-radius:var(--gs-radius);background:radial-gradient(60% 160% at 0% 0%,#4cc2ff12,transparent 70%),var(--gs-bg-2)}
+.gh-recent[hidden]{display:none}
+.gh-recent>div{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-width:0}
+.gh-recent h3{margin:0;font:750 12.5px/1.2 var(--gs-font);letter-spacing:.07em;text-transform:uppercase;color:var(--gs-text-2)}
+html[lang="ko"] .gh-recent h3,html[lang="ja"] .gh-recent h3{letter-spacing:.02em}
+.gh-recent ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+.gh-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;max-width:100%;padding:0 16px;border:1px solid var(--gs-line-2);border-radius:999px;background:var(--gs-panel);color:var(--gs-head)!important;font-size:14px;font-weight:650;text-decoration:none;transition:border-color .15s,background .15s}
+.gh-chip:hover{border-color:#4cc2ff99;background:var(--gs-panel-2)}
+.gh-chip i{font-style:normal;color:#e8a13a}
+@media (max-width:640px){.gh-recent{padding:12px 14px;margin-top:0}}
+@media (prefers-reduced-motion:reduce){.gh-chip{transition:none}}

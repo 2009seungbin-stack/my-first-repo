@@ -31,3 +31,19 @@ export function finderMove(active,count,key){
  if(key==='ArrowUp')return (active-1+count)%count;
  return active;
 }
+/** Favourites and recent tools: the existing local preference (src/toolkit.js, key
+ * fileforge.tools.v1), which holds tool ids only. `known` filters out ids that no longer exist. */
+export const TOOL_PREF_KEY='fileforge.tools.v1';
+export const RECENT_MAX=3;
+const list=(v,known)=>Array.isArray(v)?[...new Set(v.filter(id=>typeof id==='string'&&known(id)))]:[];
+export function readToolPrefs(raw,known=()=>true){
+ let p={};try{p=JSON.parse(raw||'{}')||{};}catch{/* unreadable: start empty */}
+ return {favorites:list(p.favorites,known),recent:list(p.recent,known).slice(0,RECENT_MAX)};
+}
+/** The stored value with `id` moved to the front of the recent list (favourites and any other
+ * field are kept as they are). */
+export function pushRecent(raw,id){
+ let p={};try{const v=JSON.parse(raw||'{}');if(v&&typeof v==='object'&&!Array.isArray(v))p=v;}catch{/* unreadable: start empty */}
+ const old=Array.isArray(p.recent)?p.recent.filter(x=>typeof x==='string'):[];
+ return {...p,favorites:Array.isArray(p.favorites)?p.favorites:[],recent:[id,...old.filter(x=>x!==id)].slice(0,RECENT_MAX)};
+}

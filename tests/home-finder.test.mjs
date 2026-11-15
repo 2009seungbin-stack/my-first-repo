@@ -61,3 +61,23 @@ test('home page ships the finder in every language, with a link that works witho
  }
  assert.notEqual(ui('ko','gh.find.open'),ui('en','gh.find.open'));assert.notEqual(ui('ja','gh.find.open'),ui('en','gh.find.open'));
 });
+import {readToolPrefs,pushRecent,TOOL_PREF_KEY,RECENT_MAX} from '../src/task/home-finder.js';
+import {readFileSync} from 'node:fs';
+test('recent tools: the home reads and writes the tool kit preference without losing favourites',()=>{
+ assert(readFileSync(new URL('../src/toolkit.js',import.meta.url),'utf8').includes(`const prefKey='${TOOL_PREF_KEY}'`),'same key as src/toolkit.js');
+ assert.equal(RECENT_MAX,3);
+ const known=id=>!!INTENTS[id];
+ assert.deepEqual(readToolPrefs(null,known),{favorites:[],recent:[]});
+ assert.deepEqual(readToolPrefs('not json',known),{favorites:[],recent:[]});
+ assert.deepEqual(readToolPrefs('[1,2]',known),{favorites:[],recent:[]});
+ assert.deepEqual(readToolPrefs(JSON.stringify({favorites:['pdf-merge','gone','pdf-merge',7],recent:['sprite-slicer','pdf-merge','tile-lab','pixel-lab']}),known),{favorites:['pdf-merge'],recent:['sprite-slicer','pdf-merge','tile-lab']});
+ let raw=null;
+ for(const id of ['a','b','c','b','d'])raw=JSON.stringify(pushRecent(raw,id));
+ assert.deepEqual(JSON.parse(raw),{favorites:[],recent:['d','b','c']});
+ assert.deepEqual(pushRecent(JSON.stringify({favorites:['x'],recent:['a'],other:1}),'a'),{favorites:['x'],recent:['a'],other:1});
+ assert.deepEqual(pushRecent('{broken','a'),{favorites:[],recent:['a']});
+ assert.deepEqual(pushRecent('"text"','a'),{favorites:[],recent:['a']});
+});
+test('home page has the (initially hidden) favourites and recent tools region',()=>{
+ for(const locale of ['ko','en','ja'])assert(homePage({locale,prefix:locale+'/',base:'/',headHTML:'',contentHTML:''}).includes(`<nav class="gh-recent" id="homeRecent" aria-label="${t('kit.recent',{},locale)}" hidden></nav>`),locale);
+});

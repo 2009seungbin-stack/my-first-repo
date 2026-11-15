@@ -5,7 +5,7 @@ import {SUGGEST,kindOf} from './registry.js';
 import {text,toast,continueWith,onLocale,toolURL,pagePrefix,locale} from './shell.js';
 import {stashFiles} from './handoff.js';
 import {preflightDirectory} from '../preflight/directory.js';
-import {rankTools,finderMove} from './home-finder.js';
+import {rankTools,finderMove,readToolPrefs,pushRecent,TOOL_PREF_KEY} from './home-finder.js';
 /** Home: the directory is server-rendered (tools/task-build.mjs) so it works without
  * JavaScript; this adds search, localisation on language switch and "drop a file, get the
  * right tools". Returns the intake function for dropped / picked / pasted files. */
@@ -31,6 +31,7 @@ function relabel(){
  const demo=$('.gh-demo-stage');if(demo)demo.setAttribute('aria-label',text('gh.flow.demo'));
  const q=$('#toolQuery');if(q){q.placeholder=text('search');q.setAttribute('aria-label',text('searchLabel'));}
  const dlg=$('#toolFinder');if(dlg){dlg.setAttribute('aria-label',text('gh.find.open'));const fq=$('#finderQuery');fq.placeholder=text('gh.find.hint');fq.setAttribute('aria-label',text('gh.find.open'));$('#finderList').setAttribute('aria-label',text('gh.find.list'));if(dlg.open)renderFinder();}
+ renderRecent();
  filter();if(held.length)suggest(held);
 }
 function filter(){
@@ -41,13 +42,25 @@ function filter(){
  for(const d of document.querySelectorAll('#directory details')){const hit=!!d.querySelector('.tool-card:not([hidden])');if(d.id==='file-tools')d.hidden=!hit;if(words.length&&hit)d.open=true;}
  const none=$('#noResult');if(none){none.hidden=shown>0;none.textContent=text('noResult');}
 }
+/** Favourites and the three most recent tools, from the local preference the tool kit already keeps
+ * (tool ids only, never file names or contents). Opening a tool from this page adds it to "recent". */
+const isTool=id=>!!INTENTS[id]&&id!=='home';
+function toolPrefs(){try{return readToolPrefs(localStorage.getItem(TOOL_PREF_KEY),isTool);}catch{return {favorites:[],recent:[]};}}
+function remember(id){if(!isTool(id))return;try{localStorage.setItem(TOOL_PREF_KEY,JSON.stringify(pushRecent(localStorage.getItem(TOOL_PREF_KEY),id)));}catch{/* storage blocked: nothing to remember */}}
+function renderRecent(){
+ const el=$('#homeRecent');if(!el)return;
+ const {favorites,recent}=toolPrefs(),fav=favorites.slice(0,4),rec=recent.filter(id=>!fav.includes(id));
+ const chips=(label,ids,star)=>ids.length?`<div><h3>${esc(label)}</h3><ul>${ids.map(id=>`<li><a class="gh-chip" data-tool-link="${id}" href="${esc(toolURL(id))}">${star?'<i aria-hidden="true">★</i>':''}${esc(t(`intent.${id}.title`))}</a></li>`).join('')}</ul></div>`:'';
+ el.innerHTML=chips(t('kit.favorites'),fav,true)+chips(t('kit.recent'),rec,false);
+ el.hidden=!fav.length&&!rec.length;el.setAttribute('aria-label',[fav.length&&t('kit.favorites'),rec.length&&t('kit.recent')].filter(Boolean).join(' · ')||t('kit.recent'));
+}
 /** The tool finder: a dialog with a combobox over every card in the directory (game, file, PC and
  * Preflight), ranked by src/task/home-finder.js. The cards are the data, so it always lists exactly
  * what the page links to, in the current language. */
 let found=[],active=-1;
 function finderEntries(){
  return [...document.querySelectorAll('#directory .tool-card')].map(a=>{const g=a.closest('.gh-group');
-  return {title:a.querySelector('b').textContent,desc:a.querySelector('small').textContent,href:a.href,search:a.dataset.search||'',group:g?.dataset.group==='more'?text('cat.game'):g?.querySelector('h3')?.textContent.trim()||''};});
+  return {id:a.dataset.tool||'',title:a.querySelector('b').textContent,desc:a.querySelector('small').textContent,href:a.href,search:a.dataset.search||'',group:g?.dataset.group==='more'?text('cat.game'):g?.querySelector('h3')?.textContent.trim()||''};});
 }
 function setActive(i,scroll=true){
  active=i;const q=$('#finderQuery');
@@ -56,7 +69,11 @@ function setActive(i,scroll=true){
 }
 function renderFinder(){
  const query=$('#finderQuery').value,all=finderEntries();found=rankTools(query,all);
- $('#finderList').innerHTML=found.map((e,i)=>`<li role="presentation"><a role="option" id="finderOpt${i}" aria-selected="false" tabindex="-1" href="${esc(e.href)}"><span><b>${esc(e.title)}</b><small>${esc(e.desc)}</small></span><em>${esc(e.group)}</em></a></li>`).join('');
+ if(!query.trim()){ // nothing typed yet: favourites and recent tools first, then the overview
+  const {favorites,recent}=toolPrefs(),mine=[...new Set([...recent,...favorites])].map(id=>all.find(e=>e.id===id)).filter(Boolean).slice(0,5).map(e=>({...e,group:t(favorites.includes(e.id)?'kit.favorites':'kit.recent')}));
+  found=[...mine,...found.filter(e=>!mine.some(m=>m.id===e.id))];
+ }
+ $('#finderList').innerHTML=found.map((e,i)=>`<li role="presentation"><a role="option" id="finderOpt${i}" aria-selected="false" tabindex="-1" data-finder-tool="${esc(e.id)}" href="${esc(e.href)}"><span><b>${esc(e.title)}</b><small>${esc(e.desc)}</small></span><em>${esc(e.group)}</em></a></li>`).join('');
  $('#finderStatus').textContent=!query.trim()?text('gh.find.each',{n:all.length}):found.length?text('gh.find.count',{n:found.length}):text('noResult');
  $('#finderList').scrollTop=0;setActive(found.length?0:-1,false);
 }
@@ -73,7 +90,7 @@ function mountFinder(){
  q.addEventListener('keydown',e=>{
   if(e.isComposing||e.keyCode===229)return; // an IME is still composing Korean / Japanese text
   if(['ArrowDown','ArrowUp'].includes(e.key)||(['Home','End'].includes(e.key)&&e.ctrlKey)){e.preventDefault();setActive(finderMove(active,found.length,e.key));}
-  else if(e.key==='Enter'&&found[active]){e.preventDefault();location.assign(found[active].href);}
+  else if(e.key==='Enter'&&found[active]){e.preventDefault();remember(found[active].id);location.assign(found[active].href);}
  });
  dlg.addEventListener('pointermove',e=>{const o=e.target.closest?.('[role=option]');if(o){const i=+o.id.slice(9);if(i!==active)setActive(i,false);}});
  dlg.addEventListener('click',e=>{if(e.target===dlg||e.target.closest('[data-finder-close]'))dlg.close();});
@@ -103,6 +120,9 @@ function suggest(files){
 export function mount(){
  relabel();onLocale(relabel);
  mountFinder();
+ // a tool opened from the directory, the Lab cards, the chips or the finder becomes a recent tool
+ document.addEventListener('click',e=>{const a=e.target.closest?.('a[data-tool],a[data-tool-link],a[data-finder-tool]');if(a)remember(a.dataset.tool||a.dataset.toolLink||a.dataset.finderTool);},true);
+ addEventListener('pageshow',e=>{if(e.persisted)renderRecent();});
  $('#toolQuery')?.addEventListener('input',filter);
  $('#toolQuery')?.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=document.querySelector('.tool-card:not([hidden])');if(first)location.assign(first.href);}});
  $('#suggest')?.addEventListener('click',e=>{
