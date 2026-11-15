@@ -41,11 +41,11 @@ const nodes=raw=>{const d=JSON.parse(raw);return Array.isArray(d)?d:d['@graph']|
 
 test('every sitemap page is indexable with a title, one description, a self canonical and one h1',()=>{
  assert(PAGES.size>=480,`only ${PAGES.size} pages rendered`);
- for(const [url,{f}] of PAGES){
+ for(const [url,{l,f}] of PAGES){
   assert(!/noindex/.test(f.robots),`${url}: listed in the sitemap but noindex`);
   assert(f.title.trim().length>=8&&f.title.includes(BRAND.name),`${url}: title "${f.title}"`);
   assert.equal(f.description.length,1,`${url}: ${f.description.length} meta descriptions`);
-  assert(f.description[0].trim().length>=12,`${url}: description too short "${f.description[0]}"`);
+  assert(f.description[0].trim().length>=(l==='en'?40:15),`${url}: description too short to describe the page "${f.description[0]}"`);
   assert.deepEqual(f.canonical,[url],`${url}: canonical`);
   assert.equal(f.h1,1,`${url}: ${f.h1} <h1>`);
  }
