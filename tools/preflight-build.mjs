@@ -4,6 +4,8 @@ import {html,raw} from '../platform/render/html.js';
 import {icon} from '../platform/render/icons.js';
 import {ADAPTERS} from '../src/preflight/adapters/index.js';
 import {text} from '../src/preflight/messages.js';
+import {FILTER_ORDER} from '../src/preflight/core/filters.js';
+import {HISTORY_LIMIT,HISTORY_COMPONENT_LIMIT} from '../src/preflight/storage/history.js';
 import {LANGUAGE_NAMES,LOCALES} from '../src/i18n.js';
 import DEPTH from '../src/seo-depth/preflight.js';
 import {answerHTML,depthSection,DEPTH_ORDER} from '../src/seo-depth/render.js';
@@ -58,7 +60,7 @@ export function preflightPage({locale='en',path='preflight',siteURL='',preview=f
  out=out.replaceAll('href="/ja/tools/"','href="/ja/"');
  if(!platform)out=out.replaceAll('href="/ko/tools/"','href="/ko/"').replaceAll('href="/en/tools/"','href="/en/"');
  // The platform shell is reused at build time; Preflight itself has no account or traffic requests.
- return out.replace('<head>','<head>\n<base href="'+base+'">').replace('</head>','<link rel="stylesheet" href="/src/preflight/preflight.css?v=1">\n'+(adapter?'<script type="module" src="/src/preflight/app.js"></script>\n':'')+'</head>')
+ return out.replace('<head>','<head>\n<base href="'+base+'">').replace('</head>','<link rel="stylesheet" href="/src/preflight/preflight.css?v=2">\n'+(adapter?'<script type="module" src="/src/preflight/app.js"></script>\n':'')+'</head>')
   .replace('<main class="pg"','<main class="pg pf-main"').replace('class="n2"','class="n2 pf-page"')
   .replace(/(href|src|action)="\/(?!\/)/g,'$1="');
 }
@@ -68,7 +70,7 @@ function workspace(a,l){
  return html`<div id="preflight" data-vertical="${a.id}" data-locale="${l}" aria-busy="true">
  <div class="pf-workspace">
  <section class="pf-input">
- <form id="pf-environment"><h2><span class="pf-step">01</span>${t('step1')}</h2>
+ <form id="pf-environment"><h2><span class="pf-step" data-step="1">01</span>${t('step1')}</h2>
  <div class="pf-version-pair">${field('current','current',a.defaultCurrent)}<span aria-hidden="true">→</span>${field('target','target',a.defaultTarget)}</div>
  <div class="pf-fields"><label>${t('platform')}<select name="platform">${options(['windows','macos','linux'],a.defaultPlatform)}</select></label><label>${t('architecture')}<select name="architecture">${options(['x86_64','arm64','x86'],a.defaultArchitecture)}</select></label></div>
  <details class="pf-advanced"><summary>${t('advanced')}</summary>
@@ -77,7 +79,7 @@ function workspace(a,l){
  ${a.id==='studio'?field('daw','daw'):''}</div>
  ${a.id==='studio'?html`<fieldset class="pf-formats"><legend>${t('formats')}</legend>${['VST2','VST3','AU','AAX'].map(f=>html`<label><input type="checkbox" name="format" value="${f}">${f}</label>`)}</fieldset>`:''}
  <label>${t('runtimes')}<textarea name="runtimes" rows="2" placeholder="${a.id==='blender'?'Python=3.13':a.id==='godot'?'.NET=8.0':'CEF=1.0'}"></textarea></label></details></form>
- <div class="pf-section-title"><h2><span class="pf-step">02</span>${t('step2')}</h2></div>
+ <div class="pf-section-title"><h2><span class="pf-step" data-step="2">02</span>${t('step2')}</h2></div>
  <div class="pf-toolbar"><button type="button" data-mode="manual" aria-pressed="true">${icon('plus',16)}${t('manual')}</button><button type="button" data-mode="paste" aria-pressed="false">${icon('sheet',16)}${t('paste')}</button></div>
  <form id="pf-add"><label>${t('name')}<input name="name" id="pf-picker" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pf-picker-options" autocomplete="off" required maxlength="160" placeholder="StreamFX, Kontakt…"></label>
  <div class="pf-picker-options" id="pf-picker-options" role="listbox" aria-label="${t('recent')}" hidden></div>
@@ -97,15 +99,18 @@ function workspace(a,l){
  <button type="button" id="pf-run" class="pf-primary pf-run" disabled>${icon('check',18)}${t('run')}</button><p class="pf-muted">${t('updateNow')}</p>
  <details class="pf-setups"><summary>${icon('folder',16)}${t('setups')}</summary><div class="pf-fields"><label>${t('setupName')}<input id="pf-setup-name" maxlength="100" value="My setup"></label><button type="button" id="pf-save">${t('save')}</button></div><div id="pf-saved"></div></details>
  </section>
- <section class="pf-overview" aria-labelledby="pf-result-title"><h2 id="pf-result-title"><span class="pf-step">03</span>${t('step3')}</h2><div id="pf-verdict"><p class="pf-muted">${t('running')}</p></div>
+ <section class="pf-overview" aria-labelledby="pf-result-title"><h2 id="pf-result-title"><span class="pf-step" data-step="3">03</span>${t('step3')}</h2><div class="pf-start" id="pf-start" hidden><h3>${t('startTitle')}</h3><ol><li>${t('startStep1')}</li><li>${t('startStep2')}</li><li>${t('startStep3')}</li></ol><div class="pf-toolbar"><button type="button" id="pf-start-sample" class="pf-primary">${t('startSample')}</button><button type="button" id="pf-start-paste">${icon('sheet',16)}${t('startPaste')}</button></div><p class="pf-muted">${text(l,'startNote',{clear:t('clear')})}</p><p class="pf-muted">${t('startWhy')}</p></div>
+ <div id="pf-verdict"><p class="pf-muted">${t('running')}</p></div>
  <p class="pf-provenance" id="pf-provenance">${t('realWarning')}</p><div id="pf-actions"></div>
  <details class="pf-comparison"><summary>${icon('convert',17)}${t('compare')}</summary><form id="pf-compare"><label>${t('compareVersion')}<input name="compareVersion" value="${a.id==='obs'?'34.0':''}" maxlength="80" required></label><button type="submit">${t('compare')}</button></form><div id="pf-diff"></div></details>
- <div class="pf-toolbar pf-export"><button id="pf-copy" type="button">${icon('share',16)}${t('summary')}</button><button id="pf-export" type="button">${icon('down',16)}${t('export')}</button><button id="pf-export-report" type="button">${t('exportReport')}</button><button id="pf-print" type="button">${t('print')}</button></div>
+ <details class="pf-history" id="pf-history"><summary>${icon('history',17)}${t('history')} <span id="pf-history-count" class="pf-count">0</span></summary><p class="pf-muted">${text(l,'historyHelp',{limit:HISTORY_LIMIT,components:HISTORY_COMPONENT_LIMIT})}</p><div id="pf-history-list"></div><button type="button" id="pf-history-clear" hidden>${t('historyClear')}</button></details>
+ <div class="pf-toolbar pf-export"><button id="pf-copy" type="button">${icon('share',16)}${t('summary')}</button><button id="pf-copy-md" type="button">${t('markdown')}</button><button id="pf-export" type="button">${icon('down',16)}${t('export')}</button><button id="pf-export-report" type="button">${t('exportReport')}</button><button id="pf-print" type="button">${t('print')}</button></div>
  <label id="pf-copy-fallback" hidden>${t('copyFailed')}<textarea readonly rows="8"></textarea></label></section>
  </div>
  <p id="pf-notice" class="pf-notice" role="status" aria-live="polite" hidden></p>
  <section class="pf-report" id="pf-report" hidden><header><h2>${t('report')}</h2><label class="pf-search">${icon('search',17)}<input id="pf-report-search" type="search" aria-label="${t('search')}" placeholder="${t('search')}"></label></header>
- <div class="pf-toolbar pf-filters" role="group" aria-label="${t('status')}">${['all','problems','updates','unknown','ready'].map((f,i)=>html`<button type="button" data-filter="${f}" aria-pressed="${i===0}">${f==='unknown'?t('status.UNKNOWN'):f==='ready'?t('status.READY'):t(f)}</button>`)}</div>
+ <div class="pf-toolbar pf-filters" role="group" aria-label="${t('status')}">${FILTER_ORDER.map((f,i)=>html`<button type="button" data-filter="${f}" aria-pressed="${i===0}">${f==='unknown'?t('status.UNKNOWN'):f==='ready'?t('status.READY'):f==='caution'?t('status.CAUTION'):f==='blocked'?t('status.BLOCKED'):t(f)} <span class="pf-count" data-filter-count="${f}">0</span></button>`)}</div>
+ <div class="pf-report-tools"><p class="pf-muted pf-keys">${t('keysHint')}</p><div class="pf-toolbar"><button type="button" id="pf-changed-only" aria-pressed="false" hidden>${t('changedOnly')} <span class="pf-count" id="pf-changed-count">0</span></button><button type="button" id="pf-expand-all">${t('expandAll')}</button><button type="button" id="pf-collapse-all">${t('collapseAll')}</button></div></div>
  <div class="pf-table-wrap" tabindex="0" aria-label="${t('report')}"><table><thead><tr>${['name','installed','recommended','status','confidence','reason'].map(k=>html`<th scope="col">${t(k)}</th>`)}</tr></thead><tbody id="pf-results"></tbody></table></div><div class="pf-pagination"><span id="pf-display-count"></span><button id="pf-more" type="button" hidden>${t('showMore')}</button></div></section>
  ${Object.entries(STATUS_ICONS).map(([status,name])=>html`<template id="pf-icon-${status}">${icon(name,18)}</template>`)}
  <noscript><p>${t('empty')} JavaScript is required for local analysis.</p></noscript>
