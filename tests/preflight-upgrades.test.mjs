@@ -108,14 +108,16 @@ test('preflight history: diffRuns reports status changes, added and removed comp
 });
 
 test('preflight page: new controls are rendered and translated in ko/en/ja',()=>{
- const keys=['markdown','markdownCopied','markdownMore','tileFilter','keysHint','expandAll','collapseAll','history','historyHelp','historyEmpty','historyClear','historyCleared','historyRecorded','historyChanges','historyNoChanges','historyFirst','historyTarget','historyPartial','historyAdded','historyRemoved','historyMore'];
+ const keys=['startTitle','startStep1','startStep2','startStep3','startWhy','startSample','startPaste','startNote','startLoaded','stepDone','markdown','markdownCopied','markdownMore','tileFilter','keysHint','expandAll','collapseAll','history','historyHelp','historyEmpty','historyClear','historyCleared','historyRecorded','historyChanges','historyNoChanges','historyFirst','historyTarget','historyPartial','historyAdded','historyRemoved','historyMore'];
  for(const k of keys){assert.equal(MESSAGES[k]?.length,3,k);assert.equal(new Set(MESSAGES[k]).size,3,k+' must be translated');}
  for(const [locale,i] of [['ko',0],['en',1],['ja',2]]){
   const page=preflightPage({locale,path:'preflight/obs'});
-  for(const id of ['pf-copy-md','pf-history','pf-history-list','pf-history-clear','pf-expand-all','pf-collapse-all'])assert.ok(page.includes('id="'+id+'"'),id);
+  for(const id of ['pf-start','pf-start-sample','pf-start-paste','pf-copy-md','pf-history','pf-history-list','pf-history-clear','pf-expand-all','pf-collapse-all'])assert.ok(page.includes('id="'+id+'"'),id);
   for(const f of FILTER_ORDER){assert.ok(page.includes('data-filter="'+f+'"'),f);assert.ok(page.includes('data-filter-count="'+f+'"'),f);}
   assert.ok(page.includes(MESSAGES.markdown[i]));assert.ok(page.includes(MESSAGES.keysHint[i]));
   assert.ok(page.includes(MESSAGES.historyHelp[i].replace('{limit}',String(HISTORY_LIMIT)).replace('{components}',String(HISTORY_COMPONENT_LIMIT))));
-  assert.ok(!page.includes('{limit}')&&!page.includes('{components}'));
+  assert.ok(page.includes(MESSAGES.startNote[i].replace('{clear}',MESSAGES.clear[i])));
+  assert.equal((page.match(/data-step="[123]"/g)||[]).length,3);
+  assert.ok(!page.includes('{limit}')&&!page.includes('{components}')&&!page.includes('{clear}'));
  }
 });

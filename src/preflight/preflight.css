@@ -107,6 +107,14 @@
 .pf-diff ul{padding-left:18px}
 .pf-diff .pf-big-status{font-size:16px;margin:0 4px;letter-spacing:0}.pf-diff .pf-big-status svg{width:17px;height:17px}
 .pf-export{border-top:1px solid var(--line);padding-top:14px}
+.pf-step.pf-step-done{color:var(--on-accent);background:var(--accent);padding:2px 5px;border-radius:var(--radius-sm)}
+.pf-step.pf-step-done::after{content:' ✓'}
+.pf-start{border:1px solid var(--brand);background:var(--brand-soft);padding:16px 18px;margin:0 0 20px;border-radius:var(--radius-sm)}
+.pf-start h3{font-size:16px;font-weight:800;margin:0 0 8px}
+.pf-start ol{margin:0 0 12px;padding-left:20px;font-size:13px;line-height:1.7;color:var(--ink)}
+.pf-main .pf-start button{min-height:44px}
+.pf-start .pf-muted{margin:10px 0 0;color:var(--ink2)}
+#pf-verdict:focus{outline:none}
 .pf-count{font:600 11px/1 'JetBrains Mono',monospace;color:var(--mute);margin-left:2px}
 .pf-history{margin:0 0 14px;border-top:1px solid var(--line);padding-top:6px}
 .pf-history-list{list-style:none;margin:10px 0;padding:0}

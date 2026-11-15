@@ -70,7 +70,7 @@ function workspace(a,l){
  return html`<div id="preflight" data-vertical="${a.id}" data-locale="${l}" aria-busy="true">
  <div class="pf-workspace">
  <section class="pf-input">
- <form id="pf-environment"><h2><span class="pf-step">01</span>${t('step1')}</h2>
+ <form id="pf-environment"><h2><span class="pf-step" data-step="1">01</span>${t('step1')}</h2>
  <div class="pf-version-pair">${field('current','current',a.defaultCurrent)}<span aria-hidden="true">→</span>${field('target','target',a.defaultTarget)}</div>
  <div class="pf-fields"><label>${t('platform')}<select name="platform">${options(['windows','macos','linux'],a.defaultPlatform)}</select></label><label>${t('architecture')}<select name="architecture">${options(['x86_64','arm64','x86'],a.defaultArchitecture)}</select></label></div>
  <details class="pf-advanced"><summary>${t('advanced')}</summary>
@@ -79,7 +79,7 @@ function workspace(a,l){
  ${a.id==='studio'?field('daw','daw'):''}</div>
  ${a.id==='studio'?html`<fieldset class="pf-formats"><legend>${t('formats')}</legend>${['VST2','VST3','AU','AAX'].map(f=>html`<label><input type="checkbox" name="format" value="${f}">${f}</label>`)}</fieldset>`:''}
  <label>${t('runtimes')}<textarea name="runtimes" rows="2" placeholder="${a.id==='blender'?'Python=3.13':a.id==='godot'?'.NET=8.0':'CEF=1.0'}"></textarea></label></details></form>
- <div class="pf-section-title"><h2><span class="pf-step">02</span>${t('step2')}</h2></div>
+ <div class="pf-section-title"><h2><span class="pf-step" data-step="2">02</span>${t('step2')}</h2></div>
  <div class="pf-toolbar"><button type="button" data-mode="manual" aria-pressed="true">${icon('plus',16)}${t('manual')}</button><button type="button" data-mode="paste" aria-pressed="false">${icon('sheet',16)}${t('paste')}</button></div>
  <form id="pf-add"><label>${t('name')}<input name="name" id="pf-picker" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pf-picker-options" autocomplete="off" required maxlength="160" placeholder="StreamFX, Kontakt…"></label>
  <div class="pf-picker-options" id="pf-picker-options" role="listbox" aria-label="${t('recent')}" hidden></div>
@@ -99,7 +99,8 @@ function workspace(a,l){
  <button type="button" id="pf-run" class="pf-primary pf-run" disabled>${icon('check',18)}${t('run')}</button><p class="pf-muted">${t('updateNow')}</p>
  <details class="pf-setups"><summary>${icon('folder',16)}${t('setups')}</summary><div class="pf-fields"><label>${t('setupName')}<input id="pf-setup-name" maxlength="100" value="My setup"></label><button type="button" id="pf-save">${t('save')}</button></div><div id="pf-saved"></div></details>
  </section>
- <section class="pf-overview" aria-labelledby="pf-result-title"><h2 id="pf-result-title"><span class="pf-step">03</span>${t('step3')}</h2><div id="pf-verdict"><p class="pf-muted">${t('running')}</p></div>
+ <section class="pf-overview" aria-labelledby="pf-result-title"><h2 id="pf-result-title"><span class="pf-step" data-step="3">03</span>${t('step3')}</h2><div class="pf-start" id="pf-start" hidden><h3>${t('startTitle')}</h3><ol><li>${t('startStep1')}</li><li>${t('startStep2')}</li><li>${t('startStep3')}</li></ol><div class="pf-toolbar"><button type="button" id="pf-start-sample" class="pf-primary">${t('startSample')}</button><button type="button" id="pf-start-paste">${icon('sheet',16)}${t('startPaste')}</button></div><p class="pf-muted">${text(l,'startNote',{clear:t('clear')})}</p><p class="pf-muted">${t('startWhy')}</p></div>
+ <div id="pf-verdict"><p class="pf-muted">${t('running')}</p></div>
  <p class="pf-provenance" id="pf-provenance">${t('realWarning')}</p><div id="pf-actions"></div>
  <details class="pf-comparison"><summary>${icon('convert',17)}${t('compare')}</summary><form id="pf-compare"><label>${t('compareVersion')}<input name="compareVersion" value="${a.id==='obs'?'34.0':''}" maxlength="80" required></label><button type="submit">${t('compare')}</button></form><div id="pf-diff"></div></details>
  <details class="pf-history" id="pf-history"><summary>${icon('history',17)}${t('history')} <span id="pf-history-count" class="pf-count">0</span></summary><p class="pf-muted">${text(l,'historyHelp',{limit:HISTORY_LIMIT,components:HISTORY_COMPONENT_LIMIT})}</p><div id="pf-history-list"></div><button type="button" id="pf-history-clear" hidden>${t('historyClear')}</button></details>

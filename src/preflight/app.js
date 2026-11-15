@@ -110,6 +110,15 @@ async function initialize(root){
    node('#pf-saved').innerHTML=list.length?list.map(s=>'<div class="pf-saved-row"><input aria-label="'+e(t('setupName'))+'" data-saved-name="'+e(s.id)+'" value="'+e(s.name)+'" maxlength="100"><button type="button" data-load="'+e(s.id)+'">'+e(t('load'))+'</button><button type="button" data-rename="'+e(s.id)+'">'+e(t('rename'))+'</button><button type="button" data-delete="'+e(s.id)+'">'+e(t('remove'))+'</button><small>'+e(s.vertical)+' · '+e(s.updatedAt.slice(0,10))+(s.sample?' · SAMPLE DATA':'')+'</small></div>').join(''):'<p class="pf-muted">'+e(t('storageEmpty'))+'</p>';
   }catch(err){node('#pf-saved').textContent=errorMessage(err);}
  };
+ /** Step badges: 1 = versions parse, 2 = inventory has components, 3 = a verdict exists for that inventory. */
+ const renderProgress=()=>{
+  const has=environment.components.length>0,done=[result!==null&&!!environment.host.version&&!!target.version,has,result!==null&&has];
+  for(const el of root.querySelectorAll('[data-step]')){
+   const ok=done[Number(/** @type {HTMLElement} */(el).dataset.step)-1];el.classList.toggle('pf-step-done',ok);
+   if(ok)el.setAttribute('title',t('stepDone'));else el.removeAttribute('title');
+  }
+  node('#pf-start').hidden=has;
+ };
  const calculate=()=>{
   clearTimeout(analysisTimer);
   try{
@@ -122,10 +131,11 @@ async function initialize(root){
    node('#pf-actions').innerHTML=environment.components.length?actionsHTML(result,locale):'<p class="pf-muted">'+e(t('empty'))+'</p>';
    node('#pf-report').hidden=!environment.components.length;
    for(const id of ['pf-copy','pf-copy-md','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=!environment.components.length;
-   node('#pf-diff').innerHTML='';renderTable();
+   node('#pf-diff').innerHTML='';renderTable();renderProgress();
   }catch(err){
    result=null;node('#pf-verdict').textContent=errorMessage(err);node('#pf-report').hidden=true;node('#pf-actions').innerHTML='';node('#pf-diff').innerHTML='';
    for(const id of ['pf-copy','pf-copy-md','pf-export','pf-export-report','pf-print'])/** @type {HTMLButtonElement} */(node('#'+id)).disabled=true;
+   renderProgress();
   }
  };
  const schedule=()=>{clearTimeout(analysisTimer);analysisTimer=window.setTimeout(calculate,150);};
@@ -188,6 +198,15 @@ async function initialize(root){
   event.preventDefault();guard(()=>{const form=/** @type {HTMLFormElement} */(node('#pf-paste'));addComponents(parsePasteList(control(form,'list').value,index));control(form,'list').value='';});
  });
  node('#pf-sample').addEventListener('click',()=>guard(()=>{savedId='';adopt(structuredClone(database.sampleEnvironment));}));
+ node('#pf-start-sample').addEventListener('click',()=>guard(()=>{
+  savedId='';adopt(structuredClone(database.sampleEnvironment));notice(t('startLoaded'));
+  const verdict=node('#pf-verdict');verdict.setAttribute('tabindex','-1');verdict.focus({preventScroll:true});
+  node('.pf-overview').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
+ }));
+ node('#pf-start-paste').addEventListener('click',()=>{
+  /** @type {HTMLElement} */(node('[data-mode=paste]')).click();const area=control(/** @type {HTMLFormElement} */(node('#pf-paste')),'list');
+  area.focus({preventScroll:true});area.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
+ });
  node('#pf-clear').addEventListener('click',()=>guard(()=>{savedId='';adopt(emptyEnvironment(vertical));}));
  node('#pf-import-label').addEventListener('keydown',event=>{const ev=/** @type {KeyboardEvent} */(event);if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();node('#pf-file').click();}});
  node('#pf-file').addEventListener('change',async()=>{
