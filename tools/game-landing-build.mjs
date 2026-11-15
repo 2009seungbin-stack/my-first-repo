@@ -16,7 +16,7 @@ import {answerHTML,depthSlot,inline} from '../src/seo-depth/render.js';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /** Pages an in-copy [[key|label]] link may point to: every intent route, landing and the hub. */
-const LINKABLE=new Set([...Object.values(INTENTS).map(i=>i.path),...Object.keys(LANDINGS),GAME_HUB_PATH,STUDIO_ROUTE].filter(Boolean));
+const LINKABLE=new Set([...Object.values(INTENTS).map(i=>i.path),...Object.keys(LANDINGS),GAME_HUB_PATH,STUDIO_ROUTE,'game/sfx-generator'].filter(Boolean));
 export const resolveLink=key=>LINKABLE.has(key)?key:null;
 /** The intent content (src/seo-depth) of a page in one language, or null. */
 export const depthOf=(canonical,locale)=>DEPTH[canonical]?.[locale]||null;

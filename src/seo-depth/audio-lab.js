@@ -19,7 +19,7 @@ export default {
     ['Key is unknown','The file is short, percussive or lacks stable harmony','Listen for sustained chords and review confidence','Use a longer harmonic passage'],
     ['File cannot open','The browser cannot decode this codec or the file exceeds a local limit','Check duration, channels, size and the error in the status panel','Try a WAV or MP3 under three minutes'],
    ]},
-   alternatives: {rows: [['A digital audio workstation','Use one when you need multitrack editing, manual note detection or mastering with true-peak metering']]},
+   alternatives: {rows: [['A new game sound effect instead of an edited recording','You have no recording to edit yet: the [[game/sfx-generator|Game SFX Generator]] synthesizes coin, jump, laser, explosion and UI sounds from presets and saves WAV, Ogg Vorbis or MP3.'],['A digital audio workstation','Use one when you need multitrack editing, manual note detection or mastering with true-peak metering']]},
    limits: {items: ['Maximum three minutes, stereo and 128 MiB input; some devices may have less usable memory.', 'Pitch and time stretching can introduce audible artifacts, particularly at large shifts.', 'M4R export and actual phone ringtone installation are unverified and disabled.']},
   },
   ko: {
@@ -32,7 +32,7 @@ export default {
     ['조성을 알 수 없음','파일이 짧거나 타악 위주 또는 화성이 불안정함','긴 화음 구간과 신뢰도 확인','화성이 있는 긴 구간 사용'],
     ['파일을 열 수 없음','브라우저의 코덱 미지원 또는 로컬 제한 초과','상태 오류와 길이·채널·용량 확인','3분 미만 WAV 또는 MP3 사용'],
    ]},
-   alternatives: {rows: [['디지털 오디오 워크스테이션','여러 트랙 편집, 수동 음 탐지 또는 트루 피크 마스터링이 필요할 때']]},
+   alternatives: {rows: [['녹음 편집이 아니라 새 게임 효과음 만들기','편집할 녹음이 아직 없을 때: [[game/sfx-generator|게임 효과음 생성기]]가 코인·점프·레이저·폭발·UI 프리셋으로 소리를 합성하고 WAV·Ogg Vorbis·MP3로 저장합니다.'],['디지털 오디오 워크스테이션','여러 트랙 편집, 수동 음 탐지 또는 트루 피크 마스터링이 필요할 때']]},
    limits: {items: ['입력은 최대 3분, 스테레오, 128 MiB이며 기기별로 사용 가능한 메모리가 다릅니다.', '큰 속도·음높이 변화에는 들리는 아티팩트가 생길 수 있습니다.', 'M4R 저장 및 실제 휴대전화 벨소리 설치는 미검증이며 비활성입니다.']},
   },
   ja: {
@@ -45,7 +45,7 @@ export default {
     ['キーが不明','短い音声や打楽器中心、和声が不安定','長い和音部分と信頼度を確認','和声のある長い部分を使用'],
     ['ファイルを開けない','ブラウザーのコーデック非対応やローカル制限','状態表示と長さ・チャンネル・容量を確認','3分未満のWAVかMP3を使用'],
    ]},
-   alternatives: {rows: [['デジタルオーディオワークステーション','複数トラック編集、手動採譜、トゥルーピークのマスタリングが必要な場合']]},
+   alternatives: {rows: [['録音の編集ではなく、新しいゲーム効果音を作る','編集する録音がまだない場合：[[game/sfx-generator|ゲーム効果音ジェネレーター]]がコイン・ジャンプ・レーザー・爆発・UIのプリセットから音を合成し、WAV・Ogg Vorbis・MP3で保存します。'],['デジタルオーディオワークステーション','複数トラック編集、手動採譜、トゥルーピークのマスタリングが必要な場合']]},
    limits: {items: ['入力は最大3分、ステレオ、128 MiBです。利用可能なメモリは端末によって異なります。', '速度や音程を大きく変えると可聴アーティファクトが生じます。', 'M4Rの保存と実機への着信音設定は未検証のため無効です。']},
   },
  },

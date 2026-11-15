@@ -130,3 +130,18 @@ test('breadcrumb helpers: hub name pinned to the game hub, trail and JSON-LD sha
  assert(head.includes('<meta property="og:title" content="A &quot;quoted&quot; &lt;tool&gt; · Nerulio">')&&head.includes('<meta property="og:description" content="Made &amp; saved locally.">'),'escaped Open Graph');
  assert(head.includes('name="twitter:card"')&&head.includes('"@type":"BreadcrumbList"'));
 });
+test('no orphans: every sitemap page is linked from another page; the avatar maker and the store art pack from two or more',()=>{
+ const inbound=new Map();
+ for(const [url,{f}] of PAGES)for(const m of f.visible.matchAll(/<a\b[^>]*\shref="([^"#?]+)[^"]*"/g)){
+  // Every page sets <base href> to the site root, so a relative link resolves against the origin.
+  let target;try{target=new URL(decode(m[1]),origin).href;}catch{continue;}
+  if(!target.endsWith('/'))target+='/';
+  if(target!==url&&PAGES.has(target))inbound.set(target,(inbound.get(target)||new Set()).add(url));
+ }
+ for(const [url,{l,p}] of PAGES){
+  const from=[...(inbound.get(url)||[])];
+  assert(from.length>=1,`${url}: no other page links to it`);
+  if(p)assert(from.some(u=>PAGES.get(u).l===l),`${url}: not linked from any ${l} page`);
+ }
+ for(const l of L)for(const p of ['game/pixel-avatar-maker','game/store-art-pack'])assert(inbound.get(urlOf(l,p)).size>=2,`${urlOf(l,p)}: linked from ${inbound.get(urlOf(l,p)).size} page`);
+});
