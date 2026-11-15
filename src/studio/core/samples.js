@@ -1,11 +1,12 @@
 /** Built-in sample images for the empty state. They are drawn by code (no files, no requests), so
  * a first-time visitor can see the Studio working before picking a file of their own. Pure
  * functions returning RGBA buffers; app.js encodes one as a PNG and imports it like a dropped file.
+ * `workspace` is where a sample shows best: an empty project opened in the Viewer moves there.
  *   sampleImage(id) → {width, height, data: Uint8ClampedArray}   (deterministic) */
 export const SAMPLES=[
- {id:'walk',file:'sample-walk-cycle.png',cell:32,cols:4,rows:2},
- {id:'tiles',file:'sample-tileset.png',cell:16,cols:4,rows:4},
- {id:'gem',file:'sample-gem.png',cell:32,cols:1,rows:1}
+ {id:'walk',file:'sample-walk-cycle.png',cell:32,cols:4,rows:2,workspace:'sprite'},
+ {id:'tiles',file:'sample-tileset.png',cell:16,cols:4,rows:4,workspace:'tile'},
+ {id:'gem',file:'sample-gem.png',cell:32,cols:1,rows:1,workspace:'pixel'}
 ];
 export const sampleById=id=>SAMPLES.find(s=>s.id===id)||null;
 const hex=s=>[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parseInt(s.slice(5,7),16),255];

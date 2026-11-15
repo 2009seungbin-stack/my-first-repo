@@ -15,6 +15,7 @@ test('every sample is a whole grid of cells with a full RGBA buffer, and is dete
   assert.deepEqual(a.data,b.data,def.id+' is identical on every call');
   assert.match(def.file,/^sample-[a-z-]+\.png$/);assert.equal(sampleById(def.id),def);
  }
+ assert.deepEqual(SAMPLES.map(s=>s.workspace),['sprite','tile','pixel'],'the workspace each sample opens in from an empty Viewer');
  assert.equal(sampleById('nope'),null);assert.throws(()=>sampleImage('nope'),/Unknown sample/);
 });
 test('the walk cycle has 8 different frames on a transparent background, each with a drawn figure',()=>{
@@ -47,7 +48,7 @@ test('hash01 is stable and stays in [0,1)',()=>{
 test('each sample has a name and a size line in ko/en/ja, plus the shared sample and recent copy',()=>{
  for(const l of ['en','ko','ja']){
   for(const def of SAMPLES)for(const k of ['sample.'+def.id,'sample.'+def.id+'Meta'])assert.notEqual(st(l,k),k,`${l} ${k}`);
-  for(const k of ['sample.title','sample.hint','sample.menu','sample.load','sample.loaded','sample.cut','recent.title','recent.open','recent.meta'])assert.notEqual(st(l,k),k,`${l} ${k}`);
+  for(const k of ['sample.title','sample.hint','sample.menu','sample.load','sample.loaded','sample.loadedIn','sample.cut','recent.title','recent.open','recent.meta'])assert.notEqual(st(l,k),k,`${l} ${k}`);
   assert.match(st(l,'recent.meta',{assets:2,frames:8,time:'T'}),/2.*8.*T/);
  }
  // the size lines state what the generator really draws

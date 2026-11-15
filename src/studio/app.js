@@ -275,6 +275,10 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   * and the tile tools have something to work with at once. */
  async function loadSample(id){
   const def=sampleById(id);if(!def)return [];
+  // A first sample picked from the Viewer opens where it shows best (walk cycle → Sprite timeline…);
+  // with images already open, or in any other workspace, the Studio stays where the user is.
+  const home=currentWs==='viewer'&&!doc().assets.length&&workspaces.get(def.workspace)?.status==='ready'?def.workspace:null;
+  if(home)activateWorkspace(home);
   const {width,height,data}=sampleImage(id),c=h('canvas',{width,height});
   c.getContext('2d').putImageData(new ImageData(data,width,height),0,0);
   const blob=await new Promise(res=>c.toBlob(res,'image/png'));if(!blob)throw Error(t('error.decode',{name:def.file}));
@@ -284,7 +288,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    const cells=[];for(let r=0;r<def.rows;r++)for(let q=0;q<def.cols;q++)cells.push({x:q*def.cell,y:r*def.cell,w:def.cell,h:def.cell});
    history.execute(edit(t('sample.cut',{n}),d=>{const a=P.assetById(d,aid);return P.setGrid(P.setFrames(d,aid,P.framesFromCells(a,cells)),aid,V.normalizeGrid({w:def.cell,h:def.cell}));}));
   }
-  if(assets.length)toast(t('sample.loaded',{name:t('sample.'+id)}));
+  if(assets.length)toast(home&&currentWs===home?t('sample.loadedIn',{name:t('sample.'+id),ws:t(workspaces.get(home).title)}):t('sample.loaded',{name:t('sample.'+id)}));
   return assets;
  }
  const snapshotTime=at=>new Date(at).toLocaleString(locale,{dateStyle:'medium',timeStyle:'short'});
@@ -326,7 +330,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  const thumbCache=new Map();
  function renderAssets(){
   const list=doc().assets;docks.badge('assets');
-  const addBtn=docks.panels.get('assets')?.actions.querySelector('button');if(addBtn){addBtn.title=t('cmd.file.import');addBtn.setAttribute('aria-label',t('cmd.file.import'));}
+  const addBtn=docks.panels.get('assets')?.actions.querySelector('button');if(addBtn){const key=shortcutOf('file.import');addBtn.title=t('cmd.file.import')+(key?` (${key})`:'');addBtn.setAttribute('aria-label',t('cmd.file.import'));}
   assetsList.setAttribute('aria-label',t('panel.assets'));
   if(!list.length){assetsList.replaceChildren(h('p.st-muted.st-pad',{},t('assets.empty')));return;}
   assetsList.replaceChildren(...list.map((a,i)=>{
@@ -572,9 +576,9 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   empty.replaceChildren(h('div.st-empty-card',{},h('div.st-empty-art',{'aria-hidden':'true'},h('span',{}),h('span',{}),h('span',{}),h('span',{})),h('h1',{},t('empty.title')),h('p',{},t('empty.formats')),h('div.st-empty-actions',{},imp,open),h('p.st-muted',{},t('empty.local'),' · ',keys),
    h('h2.st-empty-sub',{},t('sample.title')),samples,h('p.st-muted.st-empty-note',{},t('sample.hint')),recentBox));
   renderRecent();
-  const b=(ic,label,fn)=>{const x=h('button.st-icon-btn',{type:'button','aria-label':label,title:label});x.innerHTML=icon(ic);x.addEventListener('click',fn);return x;};
+  const b=(ic,label,fn,key='')=>{const x=h('button.st-icon-btn',{type:'button','aria-label':label,title:key?`${label} (${key})`:label});x.innerHTML=icon(ic);x.addEventListener('click',fn);return x;};
   hudZoom.title=t('hud.zoom');hudZoom.onclick=null;hudZoom.ondblclick=()=>runCommand('view.fit');
-  hud.replaceChildren(b('minus',t('cmd.view.zoomOut'),()=>runCommand('view.zoomOut')),hudZoom,b('plus',t('cmd.view.zoomIn'),()=>runCommand('view.zoomIn')),b('fit',t('cmd.view.fit'),()=>runCommand('view.fit')));
+  hud.replaceChildren(b('minus',t('cmd.view.zoomOut'),()=>runCommand('view.zoomOut'),shortcutOf('view.zoomOut')),hudZoom,b('plus',t('cmd.view.zoomIn'),()=>runCommand('view.zoomIn'),shortcutOf('view.zoomIn')),b('fit',t('cmd.view.fit'),()=>runCommand('view.fit'),shortcutOf('view.fit')));
   updateZoom();
  }
  // ------------------------------------------------------------------ chrome
