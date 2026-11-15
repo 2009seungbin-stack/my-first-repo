@@ -39,7 +39,7 @@ export function digestSections(rendered){
  return {html:out,toc};
 }
 /** The articles on either side of one in the published list (newest first): newer and older, or null.
- * @param {{slug:string}[]} list @param {string} slug */
+ * @template {{slug:string}} T @param {T[]} list @param {string} slug @returns {{newer:T|null,older:T|null}} */
 export function digestNeighbours(list,slug){
  const i=list.findIndex(a=>a.slug===slug);
  return {newer:i>0?list[i-1]:null,older:i>=0&&i<list.length-1?list[i+1]:null};
