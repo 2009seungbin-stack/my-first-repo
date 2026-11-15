@@ -2,8 +2,9 @@
 // the pure logic of src/not-found.js that picks the language, suggests a tool and filters the list.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {notFound,notFoundData,NOT_FOUND_COPY} from '../tools/growth-build.mjs';
-import {localeFor,wantedPath,distance,suggest,filterTools,NF_LOCALES} from '../src/not-found.js';
+import {localeFor,wantedPath,distance,suggest,filterTools,opensFirstMatch,NF_LOCALES} from '../src/not-found.js';
 import {INTENTS} from '../src/intents.js';
 import {LOCALES} from '../src/i18n.js';
 import {mayPromote} from '../src/capabilities.js';
@@ -60,4 +61,16 @@ test('the page carries every promotable tool in all three languages and no inlin
  assert(!/\son[a-z]+=/.test(html.replace(/<script type="application\/json"[\s\S]*?<\/script>/,'')),'no inline handlers');assert(!html.includes('<form'),"form-action 'none'");
  assert(!/https?:\/\//.test(html.replace(/xmlns="[^"]*"/g,'')),'no external request');
  assert(notFound('https://example.com/sub/').includes('src="/sub/src/not-found.js"')&&notFound('https://example.com/sub/').includes('href="/sub/en/image/compress/"'),'absolute links under a sub-path');
+});
+test('"Browse all tools" opens the tool directory on the home page, which exists',()=>{
+ const data=notFoundData('');
+ for(const l of LOCALES)assert.equal(data.locales[l].links.all,l+'/#tools',l);
+ assert(readFileSync(new URL('../tools/task-build.mjs',import.meta.url),'utf8').includes('<section class="gs-section gh-index" id="tools"'),'the home page still has the #tools directory the 404 page links to');
+ assert(!notFound('').includes('explore=1'),'the home page does not act on ?explore=1');
+});
+test('Enter opens the first match, but not while Korean or Japanese text is being composed',()=>{
+ assert.equal(opensFirstMatch({key:'Enter',isComposing:false,keyCode:13}),true);
+ assert.equal(opensFirstMatch({key:'Enter',isComposing:true,keyCode:229}),false,'Enter that confirms IME text');
+ assert.equal(opensFirstMatch({key:'Enter',isComposing:false,keyCode:229}),false,'Safari reports that Enter after compositionend');
+ assert.equal(opensFirstMatch({key:'Process',isComposing:true,keyCode:229}),false);assert.equal(opensFirstMatch({key:'a',isComposing:false,keyCode:65}),false);
 });

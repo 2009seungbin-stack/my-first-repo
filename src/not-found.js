@@ -46,6 +46,9 @@ export function filterTools(query,tools,limit=12){
   if(words.every(w=>title.includes(w)))inTitle.push(tool);else if(words.every(w=>title.includes(w)||path.includes(w)))inPath.push(tool);}
  return [...inTitle,...inPath].slice(0,limit);
 }
+/** Enter opens the first match, but not the Enter that only confirms Korean/Japanese IME text
+ * (isComposing; keyCode 229 covers Safari, which sends that key after the composition has ended). */
+export const opensFirstMatch=e=>e.key==='Enter'&&!e.isComposing&&e.keyCode!==229;
 function start(){
  const source=document.getElementById('nfData');if(!source)return;
  let data;try{data=JSON.parse(source.textContent);}catch{return;}
@@ -71,6 +74,6 @@ function start(){
   count.textContent=!query?'':found.length?(found.length===1?L.s.one:L.s.many.replace('{n}',String(found.length))):L.s.none;
  };
  input.addEventListener('input',run);
- input.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=results.querySelector('a');if(first){e.preventDefault();location.assign(first.href);}}});
+ input.addEventListener('keydown',e=>{if(opensFirstMatch(e)){const first=results.querySelector('a');if(first){e.preventDefault();location.assign(first.href);}}});
 }
 if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();}

@@ -32,7 +32,8 @@ export function notFoundData(siteURL='') {
   const locales=Object.fromEntries(LOCALES.map(l=>{
     const tools=Object.entries(INTENTS).filter(([id,intent])=>intent.path&&mayPromote(id)).map(([id,intent])=>[t('intent.'+id+'.title',{},l),pagePath(intent.path,l)]).filter(([name])=>name&&!name.startsWith('intent.'));
     const popular=NOT_FOUND_STARTERS.map(path=>tools.find(tool=>tool[1]===pagePath(path,l))).filter(Boolean);
-    return [l,{s:NOT_FOUND_COPY[l],tools,popular,links:{home:pagePath('',l),all:pagePath('',l)+'?explore=1',game:pagePath('game',l),studio:pagePath('game/studio',l)}}];
+    // "all" is the home page's tool directory (id="tools" in tools/task-build.mjs: search box plus every game and file tool).
+    return [l,{s:NOT_FOUND_COPY[l],tools,popular,links:{home:pagePath('',l),all:pagePath('',l)+'#tools',game:pagePath('game',l),studio:pagePath('game/studio',l)}}];
   }));
   return {brand:BRAND.name,base,locales};
 }
