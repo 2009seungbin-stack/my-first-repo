@@ -145,11 +145,11 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
   finally{release(c);}
  }
  /** Selection helpers: by typed page numbers, odd / even, or inverted. */
- function pickError_(message){pickError=message;const box=el.querySelector('#pdfPickError'),input=el.querySelector('#pdfPick');if(box)box.textContent=message;if(input)message?input.setAttribute('aria-invalid','true'):input.removeAttribute('aria-invalid');}
- function select(numbers){selected.clear();for(const n of numbers)selected.add(pages()[n-1].id);anchor=numbers.length?pages()[numbers[0]-1].id:null;pickError_('');render();if(numbers.length){toast(LT('picked',{n:numbers.length}));el.querySelector(`.pg[data-id="${pages()[numbers[0]-1].id}"]`)?.scrollIntoView({block:'nearest'});}}
+ function showPickError(message){pickError=message;const box=el.querySelector('#pdfPickError'),input=el.querySelector('#pdfPick');if(box)box.textContent=message;if(input)message?input.setAttribute('aria-invalid','true'):input.removeAttribute('aria-invalid');}
+ function select(numbers){selected.clear();for(const n of numbers)selected.add(pages()[n-1].id);anchor=numbers.length?pages()[numbers[0]-1].id:null;showPickError('');render();if(numbers.length){toast(LT('picked',{n:numbers.length}));el.querySelector(`.pg[data-id="${pages()[numbers[0]-1].id}"]`)?.scrollIntoView({block:'nearest'});}}
  function pick(){
   const input=el.querySelector('#pdfPick');pickText=input.value;const numbers=parseSelection(pickText,pages().length);
-  if(!numbers){pickError_(LT('pickBad',{n:pages().length}));input.focus();return;}
+  if(!numbers){showPickError(LT('pickBad',{n:pages().length}));input.focus();return;}
   select(numbers);
  }
  /** A blank page the size of the page it follows. Blank pages of one size share a single tiny source. */
@@ -264,7 +264,7 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
  el.addEventListener('dragend',()=>{dragId=null;for(const c of el.querySelectorAll('.is-dragging,.drop-before,.drop-after'))c.classList.remove('is-dragging','drop-before','drop-after');});
  el.addEventListener('dragover',e=>{if(!dragId)return;const card=e.target.closest?.('.pg');e.preventDefault();e.stopPropagation();for(const c of el.querySelectorAll('.drop-before,.drop-after'))c.classList.remove('drop-before','drop-after');if(!card||card.dataset.id===dragId)return;const r=card.getBoundingClientRect();card.classList.add(e.clientX>r.left+r.width/2?'drop-after':'drop-before');});
  el.addEventListener('drop',e=>{if(!dragId)return;e.preventDefault();e.stopPropagation();const card=e.target.closest?.('.pg');if(card&&card.dataset.id!==dragId){const r=card.getBoundingClientRect();dropAt(card.dataset.id,e.clientX>r.left+r.width/2);}});
- el.addEventListener('input',e=>{if(e.target.id==='pdfPick'){pickText=e.target.value;if(pickError)pickError_('');return;}if(e.target.closest('#pdfOptions'))readOptions();});
+ el.addEventListener('input',e=>{if(e.target.id==='pdfPick'){pickText=e.target.value;if(pickError)showPickError('');return;}if(e.target.closest('#pdfOptions'))readOptions();});
  el.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='pdfPick'){e.preventDefault();pick();}});
  el.addEventListener('submit',e=>e.preventDefault());
  onLocale(()=>{if(!pages().length){empty();return;}frame();render();});
