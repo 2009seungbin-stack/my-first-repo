@@ -9,6 +9,10 @@ export function shortcutOf(e,{mac=false}={}){
  const mod=mac?!!e.metaKey&&!e.ctrlKey:!!e.ctrlKey&&!e.metaKey;if(!mod)return '';
  return KEYS[String(e.key||'').toLowerCase()]||'';
 }
+/** Ctrl/⌘+S may only press a primary button whose action is named as a download or save. On some tools the
+ * same button starts a job, cancels one or moves to another step (data-action "tl-slice", "tl-stop",
+ * "tex-stage"…); those, and any action not named that way, keep the browser's own Ctrl+S. */
+export const savesFile=action=>/(^|-)(download|save)$/.test(String(action||''));
 export const shortcutLabel=(name,{mac=false}={})=>{const key={open:'O',save:'S',paste:'V'}[name];return key?(mac?'⌘':'Ctrl+')+key:'';};
 /** A drop can mix kinds: the files this tool handles go in, the rest are counted so the page can say so. */
 export function splitIntake(files,kinds,kindOf){

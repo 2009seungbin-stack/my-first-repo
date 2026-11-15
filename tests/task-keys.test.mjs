@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {isMac,shortcutOf,shortcutLabel,splitIntake,sizeDelta,copyable,batchProgress,clipboardFiles} from '../src/task/keys.js';
+import {isMac,shortcutOf,shortcutLabel,savesFile,splitIntake,sizeDelta,copyable,batchProgress,clipboardFiles} from '../src/task/keys.js';
 import {ui,UI_LOCALES} from '../src/task/strings.js';
 import {taskPage} from '../tools/task-build.mjs';
 
@@ -64,4 +64,9 @@ test('clipboard pictures become named files; text and other content is ignored',
  assert.deepEqual(files.map(f=>[f.name,f.type,f.lastModified]),[['clipboard.png','image/png',5],['clipboard-2.jpg','image/jpeg',5]]);
  assert.equal(await files[0].text(),'image/png');
  assert.deepEqual(await clipboardFiles([item('text/plain'),item('image/svg+xml')]),[]);assert.deepEqual(await clipboardFiles(null),[]);
+});
+test('Ctrl+S only presses a primary button that saves a file', ()=>{
+ for(const a of ['task-download','crop-download','slicer-download','norm-download','media-download','mask-download','tex-normal-save','tex-fix-save','tl-heal-save'])assert.equal(savesFile(a),true,a);
+ // The same #taskDownload id starts a job, cancels one or changes step on other tools: Ctrl+S must leave those alone.
+ for(const a of ['pswap-run','tl-stop','tl-slice','tl-template','tl-godot','tex-stage','tex-batch','tex-report','tex-channel-all','lab-primary','task-save-as-run','',undefined,null])assert.equal(savesFile(a),false,String(a));
 });
