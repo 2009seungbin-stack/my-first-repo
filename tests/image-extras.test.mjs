@@ -5,7 +5,7 @@ import {SOCIAL} from '../src/landings.js';
 
 test('image tool strings exist in ko, en and ja with the same placeholders',()=>{
  assert.deepEqual(EXTRA_LOCALES.sort(),['en','ja','ko']);
- const keys=['targetGroup','targetOff','targetMet','targetMissed','targetTryShrink','targetShort','targetShortMissed','targetTally','alphaFilled','grew','pngLossless','ssimNote','presetGroup','swap'];
+ const keys=['targetGroup','targetOff','targetMet','targetMissed','targetTryShrink','targetShort','targetShortMissed','targetTally','alphaFilled','grew','pngLossless','noAvif','ssimNote','presetGroup','swap'];
  const holes=s=>[...s.matchAll(/\{(\w+)\}/g)].map(m=>m[1]).sort().join(',');
  for(const key of keys){
   const en=say('en',key);assert.notEqual(en,key,`${key} is defined`);

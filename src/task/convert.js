@@ -10,7 +10,8 @@ import {say,attachStyles} from './image-extras.js';
 export const accept='image/*,.heic,.heif';
 const NAMES={jpeg:'JPG',png:'PNG',webp:'WebP',avif:'AVIF'};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let formats=['png','jpeg','webp'];supportedFormats().then(f=>{formats=f;});
+// "probed" turns true once the real encoders have been tried, so a missing format is reported, not guessed.
+let formats=['png','jpeg','webp'],probed=false;supportedFormats().then(f=>{formats=f;probed=true;});
 const L=(key,vars)=>say(locale(),key,vars);
 function options(query){
  // intentDefaults already resolves landing presets, the old alias routes (/png-to-webp/) and ?format=.
@@ -20,7 +21,7 @@ function options(query){
 }
 const simple=o=>`<div class="segmented" role="group" id="convertFormat">${formats.map(f=>`<button type="button" data-action="task-option" data-format="${f}" aria-pressed="${o.format===f}">${NAMES[f]}<small>${esc(text('convert.'+f))}</small></button>`).join('')}</div>`;
 const advanced=o=>`<label class="field"><span>${esc(text('compress.quality'))} <output id="convertQualityOut">${Math.round(o.quality*100)}</output></span><input id="convertQuality" type="range" min="20" max="100" step="1" value="${Math.round(o.quality*100)}" aria-describedby="convertQualityNote" ${o.format==='png'?'disabled':''}><small id="convertQualityNote">${esc(o.format==='png'?L('pngLossless'):text('convert.qualityHint'))}</small></label>
-<label class="field inline"><span>${esc(text('compress.bg'))}</span><input id="convertBg" type="color" value="${o.bg}"></label><p class="hint">${esc(text('convert.alpha'))}</p><p class="hint">${esc(text('convert.meta'))}</p>`;
+<label class="field inline"><span>${esc(text('compress.bg'))}</span><input id="convertBg" type="color" value="${o.bg}"></label><p class="hint">${esc(text('convert.alpha'))}</p><p class="hint">${esc(text('convert.meta'))}</p><p class="hint" id="convertNoAvif" ${probed&&!formats.includes('avif')?'':'hidden'}>${esc(L('noAvif'))}</p>`;
 const read=(form,o)=>({format:form.querySelector('#convertFormat [aria-pressed="true"]')?.dataset.format||o.format,quality:Number(form.querySelector('#convertQuality').value)/100,bg:form.querySelector('#convertBg').value});
 const reflect=(form,o)=>{form.querySelector('#convertQualityOut').textContent=Math.round(o.quality*100);
  // PNG ignores the quality value: say so instead of offering a slider that does nothing.
@@ -38,4 +39,8 @@ async function process(file,o,{signal}={}){
 }
 const summary=ok=>({big:'→ '+NAMES[ok[0].result.blob.type.replace('image/','')]});
 const pill=it=>NAMES[it.result.blob.type.replace('image/','')];
-export function mount(ctx){attachStyles();return createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill});}
+export function mount(ctx){
+ attachStyles();
+ // If the options were drawn before the encoder probe finished, settle the AVIF notice when it does.
+ supportedFormats().then(f=>{const n=ctx.el.querySelector('#convertNoAvif');if(n)n.hidden=f.includes('avif');});
+ return createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill});}
