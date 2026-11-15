@@ -1239,3 +1239,9 @@ body.n2{background:var(--page)}
 .wform .wprev{min-height:300px;padding:12px;font-size:15px}
 .wform .wprev[hidden],.wform .wed textarea[hidden],.wed.pv .imgpick,.wed.pv .wfmt:not([hidden]){display:none}
 @media (pointer:coarse){.wbar .wpv{height:44px}}
+/* Phones: image picker and preview share the first row; the formatting buttons are one row that scrolls sideways. */
+@media (max-width:640px){
+ .wbar .imgpick{order:1}.wbar .wsp{order:2}.wbar .wpv{order:3}
+ .wbar .wfmt{order:4;flex:0 0 100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+ .wbar .wfmt button{flex:none}
+}
