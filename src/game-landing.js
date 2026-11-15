@@ -4,6 +4,7 @@
  * links with settings in the query (e.g. ?stage=export) forwarded to the classic Lab page. */
 import {stashFiles,takeHandoff} from './task/handoff.js';
 import {cardText,filterCards,readState,writeState} from './game-hub-search.js';
+import {activeIndex,progressOf,snippetText} from './game-landing-read.js';
 const root=new URL('../',import.meta.url);
 const LOCALES=['ko','en','ja'],STORAGE_KEY='fileforge.language.v1';
 const main=document.querySelector('[data-game-landing]');
@@ -132,10 +133,60 @@ function wireHub(){
   if(next){e.preventDefault();next.focus();}
  });
 }
+/** 5. Reading aids: the section being read is marked in "On this page" (a side rail on desktop, a
+ * sticky strip on phones), a progress line under the header, a back-to-top button, and a copy
+ * button on every worked example. */
+const READ={
+ top:{en:'Back to top',ko:'맨 위로',ja:'ページの先頭へ'},
+ copy:{en:'Copy',ko:'복사',ja:'コピー'},
+ copied:{en:'Copied',ko:'복사됨',ja:'コピーしました'},
+ manual:{en:'Selected — press Ctrl+C',ko:'선택됨 — Ctrl+C로 복사',ja:'選択しました — Ctrl+Cでコピー'}
+};
+const r=key=>READ[key][document.documentElement.lang]||READ[key].en;
+const upIcon='<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg>';
+function wireReading(){
+ const header=$('.gs-header'),body=$('.gl-body'),toc=$('.gl-toc');if(!body)return;
+ const links=toc?[...toc.querySelectorAll('a')].map(a=>[a,document.getElementById(decodeURIComponent(a.hash.slice(1)))]).filter(x=>x[1]):[];
+ const bar=document.createElement('div');bar.className='gl-progress';bar.setAttribute('aria-hidden','true');bar.append(document.createElement('i'));header?.append(bar);
+ const up=document.createElement('button');up.type='button';up.className='gl-top';up.hidden=true;up.setAttribute('aria-label',r('top'));up.title=r('top');up.innerHTML=upIcon;document.body.append(up);
+ up.addEventListener('click',()=>{scrollTo({top:0});const h=$('h1');if(h){h.tabIndex=-1;h.focus({preventScroll:true});}});
+ let current=null,queued=false;
+ function update(){
+  queued=false;
+  const y=scrollY,vh=innerHeight,head=header?.offsetHeight||0,rect=body.getBoundingClientRect();
+  bar.firstChild.style.transform=`scaleX(${progressOf(y,y+rect.top-head,y+rect.bottom-vh).toFixed(4)})`;
+  up.hidden=y<vh*1.2;
+  if(!links.length)return;
+  // Phones show "On this page" as a sticky strip under the header: the reading line sits below it.
+  const strip=getComputedStyle(toc).position==='sticky'&&toc.offsetHeight<80;
+  const at=activeIndex(links.map(x=>x[1].getClientRects().length?x[1].getBoundingClientRect().top:Infinity),head+(strip?toc.offsetHeight:0)+48,y+vh>=document.documentElement.scrollHeight-2&&rect.top<0);
+  const a=at<0?null:links[at][0];if(a===current)return;
+  current?.removeAttribute('aria-current');a?.setAttribute('aria-current','location');current=a;
+  // Phones: keep the marked section in view inside the horizontal strip (never moves the page).
+  const list=toc.querySelector('ol');
+  if(a&&list&&list.scrollWidth>list.clientWidth+1)list.scrollTo({left:Math.max(0,a.offsetLeft-list.offsetLeft-16),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+ }
+ const ask=()=>{if(!queued){queued=true;requestAnimationFrame(update);}};
+ addEventListener('scroll',ask,{passive:true});addEventListener('resize',ask,{passive:true});update();
+ // Copy buttons on the worked examples (src/seo-depth/render.js: <pre class="sd-calc">).
+ const live=document.createElement('span');live.className='gl-sr';live.setAttribute('role','status');live.setAttribute('aria-live','polite');document.body.append(live);
+ for(const pre of body.querySelectorAll('pre.sd-calc')){
+  const wrap=document.createElement('div');wrap.className='gl-code';pre.replaceWith(wrap);wrap.append(pre);
+  const b=document.createElement('button');b.type='button';b.className='gl-copy';b.textContent=r('copy');wrap.append(b);
+  let timer=0;
+  b.addEventListener('click',async()=>{
+   const text=snippetText(pre.textContent);let ok=false;
+   try{await navigator.clipboard.writeText(text);ok=true;}catch{}
+   if(!ok){const range=document.createRange();range.selectNodeContents(pre);const sel=getSelection();sel.removeAllRanges();sel.addRange(range);}
+   b.textContent=live.textContent=r(ok?'copied':'manual');b.classList.toggle('is-done',ok);
+   clearTimeout(timer);timer=setTimeout(()=>{b.textContent=r('copy');b.classList.remove('is-done');live.textContent='';},ok?1800:4000);
+  });
+ }
+}
 async function boot(){
  if(!main)return;
  if(forwardLegacy()||negotiate())return;
- wireLanguage();wireIntake();wireHub();
+ wireLanguage();wireIntake();wireHub();wireReading();
  // Files carried here from another Nerulio tool go straight on to the Studio.
  const carried=await takeHandoff();
  if(carried.files.length){openInStudio(carried.files);return;}
