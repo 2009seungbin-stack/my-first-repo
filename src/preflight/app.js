@@ -258,7 +258,7 @@ async function initialize(root){
  for(const btn of root.querySelectorAll('[data-filter]'))btn.addEventListener('click',()=>setFilter(/** @type {HTMLElement} */(btn).dataset.filter||'all'));
  node('#pf-verdict').addEventListener('click',event=>{
   const tile=/** @type {HTMLElement|null} */(/** @type {HTMLElement} */(event.target).closest('[data-tile]'));if(!tile||!result)return;
-  search='';/** @type {HTMLInputElement} */(node('#pf-report-search')).value='';setFilter(tile.dataset.tile||'all');
+  search='';changedOnly=false;/** @type {HTMLInputElement} */(node('#pf-report-search')).value='';setFilter(tile.dataset.tile||'all');
   node('#pf-report').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
   /** @type {HTMLElement|null} */(root.querySelector('[data-filter="'+filter+'"]'))?.focus({preventScroll:true});
  });
@@ -281,7 +281,7 @@ async function initialize(root){
   if(dep&&result){
    const id=dep.dataset.dependency,position=result.components.findIndex(c=>c.component.id===id);
    if(position<0){notice('Required dependency is not in this inventory',true);return;}
-   search='id:'+id;expanded.add(id);
+   search='id:'+id;changedOnly=false;expanded.add(id);
    /** @type {HTMLInputElement} */(node('#pf-report-search')).value=search;
    setFilter('all');document.getElementById('pf-detail-'+id)?.scrollIntoView({block:'center'});return;
   }

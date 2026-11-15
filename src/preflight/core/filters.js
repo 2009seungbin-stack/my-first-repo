@@ -4,7 +4,8 @@
 export const FILTERS={all:null,problems:['UPDATE_REQUIRED','CAUTION','LEGACY','DEPRECATED','UNKNOWN','BLOCKED'],updates:['UPDATE_REQUIRED'],
  caution:['CAUTION','LEGACY','DEPRECATED'],unknown:['UNKNOWN'],blocked:['BLOCKED'],ready:['READY']};
 export const FILTER_ORDER=['all','problems','updates','caution','unknown','blocked','ready'];
-/** Scorecard tile → filter. The caution tile already groups CAUTION, LEGACY and DEPRECATED. */
+/** Scorecard tile → filter. The caution tile already groups CAUTION, LEGACY and DEPRECATED.
+ * @type {Record<string,string>} */
 export const TILE_FILTER={READY:'ready',UPDATE_REQUIRED:'updates',CAUTION:'caution',UNKNOWN:'unknown',BLOCKED:'blocked'};
 /** @param {string} status @param {string} filter */
 export function matchesFilter(status,filter){
