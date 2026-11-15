@@ -8,4 +8,4 @@
 .it-swap:hover{background:var(--blue-soft)}
 #convertQuality:disabled{opacity:.45}
 #resizeSizeRow{grid-template-columns:1fr 1fr auto}
-#convertNoAvif[hidden]{display:none}
+#convertNoAvif[hidden],.it-chips[hidden]{display:none}

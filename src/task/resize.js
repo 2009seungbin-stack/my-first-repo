@@ -45,7 +45,7 @@ function wire(el){
   el.querySelector('#resizeW').dispatchEvent(new Event('input',{bubbles:true}));};
  el.addEventListener('change',e=>{if(e.target.id!=='resizePreset'||!e.target.value)return;preset(e.target.value);});
  el.addEventListener('click',e=>{
-  const chip=e.target.closest('#resizePresets [data-size]');if(chip){preset(chip.dataset.size);return;}
+  const chip=e.target.closest('#resizePresets [data-size]');if(chip){for(const c of el.querySelectorAll('#resizePresets [data-size]'))c.setAttribute('aria-pressed',String(c===chip));preset(chip.dataset.size);return;}
   if(!e.target.closest('#resizeSwap'))return;const w=el.querySelector('#resizeW'),h=el.querySelector('#resizeH');[w.value,h.value]=[h.value,w.value];w.dispatchEvent(new Event('input',{bubbles:true}));});
 }
 export function target(sw,sh,o){
