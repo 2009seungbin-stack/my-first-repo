@@ -1204,3 +1204,18 @@ body.n2{background:var(--page)}
 .kbdh span{display:inline-flex;align-items:center;gap:4px}
 .kbdh kbd{min-width:20px;height:20px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--btn-line);border-bottom-width:2px;border-radius:4px;background:var(--card);color:var(--ink);font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 @media (hover:none),(max-width:760px){.kbdh:not([hidden]){display:none}}
+
+/* Write form: formatting buttons beside the image picker (shown once the page script wires them). */
+.wbar{flex-wrap:wrap}
+.wfmt{gap:2px;flex-wrap:wrap;align-items:center;min-width:0}
+.wfmt:not([hidden]){display:flex}
+.imgpick:not([hidden])+.wfmt{margin-left:4px;padding-left:6px;border-left:1px solid var(--line2)}
+.wfmt button{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 9px;border:0;border-radius:var(--radius-sm);background:none;color:var(--ink2);font:inherit;font-size:13px;font-weight:700;line-height:1;cursor:pointer;white-space:nowrap}
+@media (hover:hover){.wfmt button:hover{background:var(--hover);color:var(--ink)}}
+.wfmt button:active{background:var(--hover);color:var(--ink)}
+.wfmt .fb{font-weight:900}
+.wfmt .fi{font-style:italic;font-family:Georgia,'Times New Roman',serif;font-size:15px}
+.wfmt .fs{text-decoration:line-through}
+.wfmt .fc{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+@media (pointer:coarse){.wfmt button{min-width:44px;height:44px}.wform label.wtool{height:44px}}
+@media (max-width:640px){.imgpick:not([hidden])+.wfmt{margin-left:0;padding-left:0;border-left:0}}

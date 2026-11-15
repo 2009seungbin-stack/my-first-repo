@@ -9,6 +9,7 @@
 import {buttonsHTML,validReturn} from '../signin-brands.js';
 import {mountHardwareTools} from '../hardware/islands.js';
 import {stepIndex,shortcutAllowed} from './keys.js';
+import {applyFormat,FORMATS} from './format-text.js';
 const L=document.documentElement.lang==='en'?'en':document.documentElement.lang==='ja'?'ja':'ko';
 const T={
  ko:{login:'로그인',signInTitle:'로그인하고 참여하기',signInNote:'글·댓글·구독·추천·신고는 로그인하면 할 수 있어요. 읽기는 로그인 없이 됩니다.',signInClose:'닫기',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
@@ -805,6 +806,30 @@ async function main(){
   // Draft kept in this browser (title, body, tags) so switching channels, signing in or a closed tab does not lose it.
   const dkey=`n2-draft:${L}:write`,ti=$('input[name="title"]',wf),ta=$('textarea[name="body"]',wf);
   const store={get(){try{return JSON.parse(localStorage.getItem(dkey)||'null');}catch{return null;}},set(v){try{v?localStorage.setItem(dkey,JSON.stringify(v)):localStorage.removeItem(dkey);}catch{}}};
+  // Formatting buttons (format-text.js) and Ctrl/⌘+B, I, K in the body: Markdown the renderer understands.
+  const fbar=$('[data-format-bar]',wf);
+  if(fbar&&ta){
+   const words=L==='ko'?{text:'내용',item:'항목'}:{text:'text',item:'item'};
+   const format=(/** @type {string} */ kind)=>{
+    if(!FORMATS.includes(kind))return;
+    const r=applyFormat(ta.value,ta.selectionStart,ta.selectionEnd,kind,words);
+    ta.focus();
+    // insertText keeps the browser's undo history; where it is not available the value is set directly.
+    let done=false;try{ta.select();done=document.execCommand('insertText',false,r.value);}catch{}
+    if(!done||ta.value!==r.value)ta.value=r.value;
+    ta.setSelectionRange(r.start,r.end);
+    ta.dispatchEvent(new Event('input',{bubbles:true}));
+   };
+   fbar.addEventListener('click',e=>{const b=/** @type {Element} */(e.target).closest('[data-format]');if(b)format(/** @type {HTMLElement} */(b).dataset.format||'');});
+   // Keep the selection in the body when a button is pressed with the mouse.
+   fbar.addEventListener('mousedown',e=>{if(/** @type {Element} */(e.target).closest('[data-format]'))e.preventDefault();});
+   ta.addEventListener('keydown',e=>{
+    if(!(e.ctrlKey||e.metaKey)||e.altKey||e.shiftKey||e.isComposing)return;
+    const kind={b:'bold',i:'italic',k:'link'}[e.key.toLowerCase()];
+    if(kind){e.preventDefault();format(kind);}
+   });
+   fbar.hidden=false;
+  }
   const saved=store.get();
   if(saved&&ti&&ta&&!ti.value&&!ta.value&&(saved.title||saved.body)){ti.value=saved.title||'';ta.value=saved.body||'';for(const x of Array.isArray(saved.tags)?saved.tags:[])picker?.add(x);toast(L==='ko'?'임시저장한 글을 불러왔어요.':'Draft restored.');}
   const keep=()=>store.set(ti?.value||ta?.value?{title:ti?.value||'',body:ta?.value||'',tags:picker?.list()||[]}:null);
