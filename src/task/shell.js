@@ -83,18 +83,20 @@ function wireIntake(intake,{accept}={}){
  // dragover keeps firing while files hover over the page. If it stops without a dragleave or drop (the drag
  // was cancelled outside the window), the drop overlay must not stay up.
  const alive=()=>{clearTimeout(idle);idle=setTimeout(()=>{depth=0;zone();},DRAG_IDLE_MS);};
- addEventListener('dragenter',e=>{if(e.dataTransfer?.types?.includes('Files')){depth++;zone();alive();}});
+ // An open modal dialog (the PDF large view) makes the page behind it inert: no overlay and no intake until it closes.
+ const modal=()=>document.querySelector('dialog[open]');
+ addEventListener('dragenter',e=>{if(e.dataTransfer?.types?.includes('Files')&&!modal()){depth++;zone();alive();}});
  addEventListener('dragleave',()=>{depth=Math.max(0,depth-1);zone();if(!depth)clearTimeout(idle);});
  // A dragover with files also proves a drag is in progress, whatever the enter/leave count says.
- addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();if(!depth){depth=1;zone();}alive();}});
- addEventListener('drop',e=>{clearTimeout(idle);depth=0;zone();if(!e.dataTransfer?.files?.length)return;e.preventDefault();intake([...e.dataTransfer.files],'drop');});
+ addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();if(modal()){e.dataTransfer.dropEffect='none';return;}if(!depth){depth=1;zone();}alive();}});
+ addEventListener('drop',e=>{clearTimeout(idle);depth=0;zone();if(!e.dataTransfer?.files?.length)return;e.preventDefault();if(modal())return;intake([...e.dataTransfer.files],'drop');});
  // A paste button for devices without Ctrl+V: reads pictures from the clipboard after the browser's own permission prompt.
  document.addEventListener('click',async e=>{
   if(e.target.closest('[data-action]')?.dataset.action!=='paste-clipboard')return;
   try{const files=await clipboardFiles(await navigator.clipboard.read());if(files.length)intake(files,'paste');else toast(text('clipboard.empty'),{error:true});}
   catch{toast(text('clipboard.blocked'),{error:true});}
  });
- addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length&&!/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName||'')){e.preventDefault();intake(files,'paste');}});
+ addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length&&!modal()&&!/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName||'')){e.preventDefault();intake(files,'paste');}});
  // Ctrl/⌘+O opens the picker; Ctrl/⌘+S presses the page's primary button once it is enabled, but only when
  // that button saves a file (never a run, cancel or next-step button). Otherwise, until a result exists, and
  // while a dialog is open, the browser keeps its own Ctrl+S.
