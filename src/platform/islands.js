@@ -830,6 +830,29 @@ async function main(){
    });
    fbar.hidden=false;
   }
+  // Preview: the body as the post page will show it, rendered by the server's own renderer (POST /preview;
+  // nothing is saved). The same button goes back to editing.
+  const pvb=$('[data-preview-toggle]',wf),pv=$('[data-preview]',wf);
+  if(pvb&&pv&&ta){
+   const P=L==='ko'?{show:'미리보기',edit:'계속 쓰기',empty:'미리 볼 내용이 아직 없어요.'}:{show:'Preview',edit:'Keep writing',empty:'Nothing to preview yet.'};
+   const wed=pv.closest('.wed');
+   const edit=()=>{pv.hidden=true;pv.textContent='';ta.hidden=false;wed?.classList.remove('pv');pvb.setAttribute('aria-pressed','false');pvb.textContent=P.show;};
+   pvb.addEventListener('click',async()=>{
+    if(!pv.hidden){edit();ta.focus();return;}
+    if(!ta.value.trim()){toast(P.empty);ta.focus();return;}
+    pvb.disabled=true;
+    const r=await api('/preview',{body:ta.value});
+    pvb.disabled=false;
+    if(!r.ok||typeof r.data?.html!=='string'){toast(r.code==='RATE_LIMITED'?T.rate:T.error);return;}
+    // The server's renderer escapes everything and allows only its own Markdown subset (the post page shows the same HTML).
+    pv.innerHTML=r.data.html;
+    pv.style.minHeight=ta.offsetHeight+'px';
+    ta.hidden=true;pv.hidden=false;wed?.classList.add('pv');pvb.setAttribute('aria-pressed','true');pvb.textContent=P.edit;pv.focus();
+   });
+   // Anything that needs the text field (a failed submit's focus, a restored draft) finds it again.
+   wf.addEventListener('submit',()=>{if(!pv.hidden)edit();},true);
+   pvb.hidden=false;
+  }
   const saved=store.get();
   if(saved&&ti&&ta&&!ti.value&&!ta.value&&(saved.title||saved.body)){ti.value=saved.title||'';ta.value=saved.body||'';for(const x of Array.isArray(saved.tags)?saved.tags:[])picker?.add(x);toast(L==='ko'?'임시저장한 글을 불러왔어요.':'Draft restored.');}
   const keep=()=>store.set(ti?.value||ta?.value?{title:ti?.value||'',body:ta?.value||'',tags:picker?.list()||[]}:null);

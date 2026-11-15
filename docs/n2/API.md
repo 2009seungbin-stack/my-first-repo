@@ -18,6 +18,7 @@ Errors are `{"error":{"code","message",…}}`; Korean pages translate the messag
 | --- | --- | --- |
 | `GET /state?entity=&post=&flag=` | anonymous | `signedIn`, `user{name,tier}`, `following`, the reader's votes on a post and its comments, `mine{post,comments}`, `compat{"patch|gameVersion":result}` on a game channel, `flagged{reason}` for a 신고 target |
 | `GET /new-posts?channel=&after=` | anonymous | how many posts newer than channel number `after` (the "↑ 새 글" bar), `last` |
+| `POST /preview` `{body}` | anonymous | `html`: the text through the post page's Markdown renderer (the write form's preview). Nothing is stored, no account is read; 30 a minute per network |
 | `GET /tags?q=&l=` | anonymous | up to 10 tags (active entities) by name or alias: `id, name, vertical, type, url, channel` (its default channel) |
 | `GET /pins` | anonymous | the member's pinned channels in bar order; `{pins:null}` signed out (pins then live in the browser, `localStorage` `n2-pins`) |
 | `GET /follows?l=` | member | followed tags with names and links |

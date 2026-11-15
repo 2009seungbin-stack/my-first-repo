@@ -1229,3 +1229,13 @@ body.n2{background:var(--page)}
 @media (max-width:1000px){[data-density="compact"] .plist .pr{padding-top:4px;padding-bottom:4px;row-gap:1px}}
 @media (max-width:640px){.sb .dens span{display:none}}
 @media (pointer:coarse){.sb .dens{min-width:44px;height:44px;justify-content:center}[data-density="compact"] .plist .pr{min-height:44px}}
+
+/* Write form: preview of the body as the post page renders it. */
+.wbar .wsp{flex:1}
+.wed.pv .wbar::before{content:attr(data-pv);padding-left:6px;font-size:13px;font-weight:700;color:var(--mute)}
+.wbar .wpv{height:32px;padding:0 12px;border:1px solid var(--btn-line);border-radius:var(--radius-sm);background:var(--card);color:var(--ink2);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.wbar .wpv[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.wbar .wpv:disabled{opacity:.6;cursor:progress}
+.wform .wprev{min-height:300px;padding:12px;font-size:15px}
+.wform .wprev[hidden],.wform .wed textarea[hidden],.wed.pv .imgpick,.wed.pv .wfmt:not([hidden]){display:none}
+@media (pointer:coarse){.wbar .wpv{height:44px}}

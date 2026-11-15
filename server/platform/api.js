@@ -32,10 +32,11 @@ import BUILD from '../build-info.js';
 import {IMAGE_LIMITS} from './images.js';
 import {passkeyAvailability} from '../member-passkey.js';
 import {SYMPTOMS} from '../../platform/status-signal.js';
+import {renderMarkdown} from '../../platform/markdown.js';
 import {RAIL_SERVICES} from '../../platform/render/rail.js';
 import {watchStatus} from './status-watch.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'GET /tags':1,'GET /pins':1,'POST /pins':1,'POST /tags/propose':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /preview':1,'GET /tags':1,'GET /pins':1,'POST /pins':1,'POST /tags/propose':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
 /** Writes that also work without an account. */
 const ANON_ROUTES=/** @type {Record<string,1>} */({'POST /reports':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /flags':1,'POST /anon/check':1,'POST /uploads':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1});
 /** Edits of an anonymous post or comment: by its password, signed in or not. */
@@ -194,6 +195,14 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    const res=json(await openCompat(db,month),200,{'Cache-Control':'public, max-age=3600, s-maxage=3600','Access-Control-Allow-Origin':'*'});
    if(cache)ctx?.waitUntil?.(cache.put(ck,res.clone()));
    return res;
+  }
+  // The write form's preview: the text through the renderer the post page uses. Nothing is stored and no
+  // account is read; the size cap is a post body's, and a per-network limit keeps it from being free CPU.
+  if(key==='POST /preview'){
+   if(!await allowRequest({env,limiter:deps.limiter,key:`v2:preview|${clientIp(request)}`,limit:30,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});
+   const b=await readJSON(request,64*1024);
+   if(typeof b?.body!=='string')throw new ApiError('BAD_REQUEST','Invalid body.',{field:'body'});
+   return json({html:renderMarkdown(b.body.slice(0,LIMITS.body[1]))},200,{'Cache-Control':'no-store'});
   }
   context=await resolveContext(request,cfg,db,now);
   const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
