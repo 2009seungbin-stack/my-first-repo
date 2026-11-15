@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {detect,readExif,formatCoordinates,inspect,strip,crc32,orientationExif,cleanName} from '../src/image-metadata.js';
 
 const cat=(...parts)=>{const out=new Uint8Array(parts.reduce((n,p)=>n+p.length,0));let o=0;for(const p of parts){out.set(p,o);o+=p.length;}return out;};
 const ascii=s=>Uint8Array.from(s,c=>c.charCodeAt(0));
+const latin=b=>new TextDecoder('latin1').decode(b);
 /** A little-endian EXIF block written by hand: IFD0 (Make, Model, Orientation, pointers), an Exif
  * IFD (DateTimeOriginal, ExposureTime, ISO), a GPS IFD (Seoul City Hall, 38 m) and a thumbnail IFD. */
 function tiff({orientation=6,gps=true}={}){
@@ -96,4 +98,29 @@ test('WebP: EXIF and XMP chunks are removed, the RIFF size and VP8X flags are co
  const rotated=cat(riff(vp8x(0x0c),VP8,wchunk('EXIF',cat(ascii('Exif\0\0'),tiff({orientation:3}))),WXMP));
  assert.equal(inspect(rotated).exif.orientation,3);assert.deepEqual(strip(rotated).bytes,riff(vp8x(0x08),VP8,wchunk('EXIF',orientationExif(3))));
  const simple=riff(VP8);assert.equal(inspect(simple).width,100);assert.equal(inspect(simple).blocks.length,0);assert.deepEqual(strip(simple).bytes,simple);
+});
+// Real files: the platform's upload fixtures (browser-encoded, EXIF written by a separate tool) and a phone photograph.
+const real=name=>new Uint8Array(readFileSync(new URL('./fixtures/'+name,import.meta.url)));
+const tail=(b,n)=>b.subarray(b.length-n);
+test('real JPEG, WebP and PNG files with GPS EXIF are read and cleaned',()=>{
+ for(const name of ['anon/gps.jpg','anon/gps.webp','anon/text.png']){
+  const file=real(name),r=inspect(file);
+  assert.equal(r.damaged,false,name);assert.equal(r.width,64,name);assert.equal(r.height,48,name);assert.equal(r.location,true,name);assert.equal(r.exif.make,'NeruCam',name);
+  assert.equal(formatCoordinates(r.exif.gps).decimal,'37.566389, 126.977778',name);
+  const out=strip(file),again=inspect(out.bytes);
+  assert.deepEqual(again.blocks,[],name);assert.equal(again.damaged,false,name);assert.equal(again.width,64,name);assert.equal(again.height,48,name);assert.ok(out.bytes.length<file.length,name);assert.equal(file.length-out.bytes.length,out.removedBytes,name);
+ }
+ const webp=strip(real('anon/gps.webp')).bytes;assert.equal(new DataView(webp.buffer).getUint32(4,true),webp.length-8);assert.equal(webp[20]&0x0c,0,'EXIF and XMP flags cleared');
+});
+test('animated PNG and WebP keep every animation chunk',()=>{
+ for(const name of ['anon/anim.png','anon/anim.webp','anon/lossless.webp']){const file=real(name),out=strip(file,{keepICC:false}).bytes,kept=inspect(file).blocks.length?out:file;assert.deepEqual(out,kept,name);assert.equal(inspect(out).damaged,false,name);assert.ok(inspect(out).width>0,name);}
+ const png=latin(strip(real('anon/anim.png')).bytes);assert.ok(png.includes('acTL')&&png.includes('fcTL'));
+ const webp=latin(strip(real('anon/anim.webp')).bytes);assert.ok(webp.includes('ANIM')&&webp.includes('ANMF'));
+});
+test('a phone photograph loses its EXIF and maker segments but not one byte of image data',()=>{
+ const file=real('pixel-converter/flower-landscape.jpg'),r=inspect(file);
+ assert.equal(r.width,2560);assert.equal(r.height,1920);assert.equal(r.exif.make,'itel');assert.equal(r.exif.taken,'2019:04:11 18:09:02');assert.equal(r.location,false);assert.deepEqual(r.blocks.map(b=>b.kind),['exif','other','other','other']);
+ const out=strip(file);assert.deepEqual(inspect(out.bytes).blocks,[]);assert.equal(out.orientationKept,false);assert.equal(file.length-out.bytes.length,out.removedBytes);
+ // Everything after the removed segments (tables, frame header, scans, EOI) is the original, byte for byte.
+ const first=r.blocks.reduce((n,b)=>n+b.bytes,0),rest=out.bytes.length-2;assert.ok(first>0);assert.deepEqual(tail(out.bytes,rest),tail(file,rest));
 });
