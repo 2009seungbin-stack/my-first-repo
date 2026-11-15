@@ -242,6 +242,7 @@ html[lang="ko"] .gh-content .related-tools h2,html[lang="ja"] .gh-content .relat
 .gh-finder-list em{flex:none;max-width:40%;font-style:normal;font-size:11.5px;font-weight:700;color:var(--gs-text-2);padding:4px 8px;border-radius:999px;border:1px solid var(--gs-line-2);background:var(--gs-panel-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gh-finder-list a[aria-selected="true"]{background:#4cc2ff1c;border-color:#4cc2ff66}
 .gh-finder-list a[aria-selected="true"] b{color:#fff}
+.gh-finder-list mark{background:none;color:var(--gs-accent-2);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
 .gh-finder-keys{margin:0;padding:9px 16px;border-top:1px solid var(--gs-line);font:500 12px/1.3 var(--gs-mono);color:var(--gs-text-3)}
 @media (max-width:640px){
  .gh-find{width:100%;margin-top:14px}

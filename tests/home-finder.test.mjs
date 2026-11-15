@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {rankTools,finderScore,finderWords,finderMove} from '../src/task/home-finder.js';
+import {readFileSync} from 'node:fs';
+import {rankTools,finderScore,finderWords,finderMove,finderMarks,readToolPrefs,pushRecent,TOOL_PREF_KEY,RECENT_MAX} from '../src/task/home-finder.js';
 import {homePage} from '../tools/task-build.mjs';
 import {INTENTS} from '../src/intents.js';
 import {SEARCH_TERMS} from '../src/search-terms.js';
@@ -61,8 +62,6 @@ test('home page ships the finder in every language, with a link that works witho
  }
  assert.notEqual(ui('ko','gh.find.open'),ui('en','gh.find.open'));assert.notEqual(ui('ja','gh.find.open'),ui('en','gh.find.open'));
 });
-import {readToolPrefs,pushRecent,TOOL_PREF_KEY,RECENT_MAX} from '../src/task/home-finder.js';
-import {readFileSync} from 'node:fs';
 test('recent tools: the home reads and writes the tool kit preference without losing favourites',()=>{
  assert(readFileSync(new URL('../src/toolkit.js',import.meta.url),'utf8').includes(`const prefKey='${TOOL_PREF_KEY}'`),'same key as src/toolkit.js');
  assert.equal(RECENT_MAX,3);
@@ -80,4 +79,14 @@ test('recent tools: the home reads and writes the tool kit preference without lo
 });
 test('home page has the (initially hidden) favourites and recent tools region',()=>{
  for(const locale of ['ko','en','ja'])assert(homePage({locale,prefix:locale+'/',base:'/',headHTML:'',contentHTML:''}).includes(`<nav class="gh-recent" id="homeRecent" aria-label="${t('kit.recent',{},locale)}" hidden></nav>`),locale);
+});
+test('finder: the typed words are marked in a title, case-insensitively, without changing its text',()=>{
+ assert.deepEqual(finderMarks('Sprite Sheet Slicer',['sheet']),[['Sprite ',false],['Sheet',true],[' Slicer',false]]);
+ assert.deepEqual(finderMarks('PDF to PDF',['pdf']),[['PDF',true],[' to ',false],['PDF',true]]);
+ assert.deepEqual(finderMarks('Sprite Sheet',['sprite','sheet','e s']),[['Sprite Sheet',true]],'overlapping matches merge');
+ assert.deepEqual(finderMarks('Tile Lab',['zzz']),[['Tile Lab',false]]);
+ assert.deepEqual(finderMarks('Tile Lab',[]),[['Tile Lab',false]]);
+ assert.deepEqual(finderMarks('',['a']),[]);
+ for(const locale of ['ko','en','ja'])for(const e of entries(locale))assert.equal(finderMarks(e.title,finderWords(e.title.slice(0,3))).map(p=>p[0]).join(''),e.title);
+ assert.deepEqual(finderMarks('PDF 합치기',finderWords('합치기 pdf')),[['PDF',true],[' ',false],['합치기',true]]);
 });

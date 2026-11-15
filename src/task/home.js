@@ -5,7 +5,7 @@ import {SUGGEST,kindOf} from './registry.js';
 import {text,toast,continueWith,onLocale,toolURL,pagePrefix,locale} from './shell.js';
 import {stashFiles} from './handoff.js';
 import {preflightDirectory} from '../preflight/directory.js';
-import {rankTools,finderMove,readToolPrefs,pushRecent,TOOL_PREF_KEY} from './home-finder.js';
+import {rankTools,finderMove,finderWords,finderMarks,readToolPrefs,pushRecent,TOOL_PREF_KEY} from './home-finder.js';
 /** Home: the directory is server-rendered (tools/task-build.mjs) so it works without
  * JavaScript; this adds search, localisation on language switch and "drop a file, get the
  * right tools". Returns the intake function for dropped / picked / pasted files. */
@@ -68,12 +68,12 @@ function setActive(i,scroll=true){
  if(i>=0)q.setAttribute('aria-activedescendant','finderOpt'+i);else q.removeAttribute('aria-activedescendant');
 }
 function renderFinder(){
- const query=$('#finderQuery').value,all=finderEntries();found=rankTools(query,all);
+ const query=$('#finderQuery').value,all=finderEntries(),words=finderWords(query);found=rankTools(query,all);
  if(!query.trim()){ // nothing typed yet: favourites and recent tools first, then the overview
   const {favorites,recent}=toolPrefs(),mine=[...new Set([...recent,...favorites])].map(id=>all.find(e=>e.id===id)).filter(Boolean).slice(0,5).map(e=>({...e,group:t(favorites.includes(e.id)?'kit.favorites':'kit.recent')}));
   found=[...mine,...found.filter(e=>!mine.some(m=>m.id===e.id))];
  }
- $('#finderList').innerHTML=found.map((e,i)=>`<li role="presentation"><a role="option" id="finderOpt${i}" aria-selected="false" tabindex="-1" data-finder-tool="${esc(e.id)}" href="${esc(e.href)}"><span><b>${esc(e.title)}</b><small>${esc(e.desc)}</small></span><em>${esc(e.group)}</em></a></li>`).join('');
+ $('#finderList').innerHTML=found.map((e,i)=>`<li role="presentation"><a role="option" id="finderOpt${i}" aria-selected="false" tabindex="-1" data-finder-tool="${esc(e.id)}" href="${esc(e.href)}"><span><b>${finderMarks(e.title,words).map(([part,hit])=>hit?`<mark>${esc(part)}</mark>`:esc(part)).join('')}</b><small>${esc(e.desc)}</small></span><em>${esc(e.group)}</em></a></li>`).join('');
  $('#finderStatus').textContent=!query.trim()?text('gh.find.each',{n:all.length}):found.length?text('gh.find.count',{n:found.length}):text('noResult');
  $('#finderList').scrollTop=0;setActive(found.length?0:-1,false);
 }
@@ -97,7 +97,7 @@ function mountFinder(){
  document.addEventListener('keydown',e=>{
   if(e.defaultPrevented||e.isComposing||dlg.open)return;
   const typing=e.target.closest?.('input,textarea,select,[contenteditable=""],[contenteditable="true"]');
-  if((e.key==='/'&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey)||(e.key.toLowerCase()==='k'&&(e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey)){if(openFinder())e.preventDefault();}
+  if((e.key==='/'&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey)||(String(e.key).toLowerCase()==='k'&&(e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey)){if(openFinder())e.preventDefault();}
  });
 }
 /** Sprite sheets, frames, GIFs, .aseprite files and atlas data open in the Studio (the product);

@@ -47,3 +47,11 @@ export function pushRecent(raw,id){
  const old=Array.isArray(p.recent)?p.recent.filter(x=>typeof x==='string'):[];
  return {...p,favorites:Array.isArray(p.favorites)?p.favorites:[],recent:[id,...old.filter(x=>x!==id)].slice(0,RECENT_MAX)};
 }
+/** `text` cut into [segment, matched] pairs so the list can mark the typed words in a title. */
+export function finderMarks(text,words){
+ const s=String(text),low=s.toLowerCase(),hit=new Array(s.length).fill(false);
+ if(low.length===s.length)for(const w of words){if(!w)continue;for(let i=low.indexOf(w);i>=0;i=low.indexOf(w,i+w.length))hit.fill(true,i,i+w.length);}
+ const out=[];
+ for(let i=0;i<s.length;i++){const last=out[out.length-1];if(last&&last[1]===hit[i])last[0]+=s[i];else out.push([s[i],hit[i]]);}
+ return out;
+}
