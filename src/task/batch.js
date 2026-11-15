@@ -2,7 +2,8 @@ import {bytes,stem,zip} from '../core.js';
 import {BRAND} from '../brand.js';
 import {INTENTS} from '../intents.js';
 import {t} from '../i18n.js';
-import {text,toast,download,authorize,track,onLocale,continueWith,toolURL,page} from './shell.js';
+import {text,toast,download,authorize,track,onLocale,continueWith,toolURL,page,keyLabel} from './shell.js';
+import {sizeDelta} from './keys.js';
 /** Workspace for "many files in → the same transform → many files out" tools (compress,
  * convert, resize…). Files process automatically as they arrive, one at a time to bound
  * memory; changing an option re-runs the batch without asking for the files again.
@@ -12,6 +13,8 @@ import {text,toast,download,authorize,track,onLocale,continueWith,toolURL,page} 
  *   viewerActions?(item) → HTML · action?(name,item,{reprocess}) · contents?(item) → files of a bundle
  */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/** The shell's shortcuts, printed where they apply (hidden on touch-only devices by task.css). */
+const keysHint=names=>`<small class="keys-hint" aria-label="${esc(text('keys.label'))}">${names.map(n=>`<span><kbd>${esc(keyLabel(n))}</kbd>${esc(text('keys.'+n))}</span>`).join('')}</small>`;
 export function createBatch({el,def},tool){
  const items=[];let current=0,generation=0,controller=null,running=false,options=tool.options(new URLSearchParams(page.query)),seq=0,debounce=0,optionsDirty=false;
  const done=()=>items.filter(i=>i.status==='done');
@@ -21,13 +24,13 @@ export function createBatch({el,def},tool){
  const pct=(a,b)=>a>0?Math.round((1-b/a)*100):0;
  function empty(){
   clearTimeout(debounce);debounce=0;optionsDirty=false;
-  el.innerHTML=`<div class="dropzone" data-action="pick"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small></div>`;
+  el.innerHTML=`<div class="dropzone" data-action="pick"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small>${keysHint(['open','paste'])}</div>`;
  }
  function frame(){
   el.innerHTML=`<div class="work"><section class="viewer" aria-label="${esc(text('compare'))}"><div class="cmp" id="cmp"><img id="cmpBefore" alt="${esc(text('before'))}"><img id="cmpAfter" class="cmp-after" alt="${esc(text('after'))}"><div class="cmp-bar"></div><span class="cmp-tag l">${esc(text('before'))}</span><span class="cmp-tag r">${esc(text('after'))}</span><input id="cmpCut" type="range" min="0" max="100" value="50" aria-label="${esc(text('compare'))}"></div><div class="contents" id="viewerContents" hidden></div><div class="viewer-actions" id="viewerActions"></div><p class="viewer-note" id="viewerNote"></p></section>
-<aside class="side"><div class="summary" id="taskSummary" role="status" aria-live="polite"></div><form id="taskOptions" class="options" autocomplete="off"><div class="options-simple" id="optionsSimple"></div><details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary><div id="optionsAdvancedBody"></div></details></form>
+<aside class="side is-batch"><div class="summary" id="taskSummary" role="status" aria-live="polite"></div><form id="taskOptions" class="options" autocomplete="off"><div class="options-simple" id="optionsSimple"></div><details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary><div id="optionsAdvancedBody"></div></details></form>
 <div class="file-list" id="taskFiles"></div><div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(text('add'))}</button><button type="button" class="link" data-action="task-clear">${esc(text('removeAll'))}</button></div>
-<button type="button" class="primary big" id="taskDownload" data-action="task-download" disabled></button><nav class="next" id="taskNext"></nav><small class="local-note">${esc(text('local'))}</small></aside></div>`;
+<button type="button" class="primary big" id="taskDownload" data-action="task-download" disabled></button><nav class="next" id="taskNext"></nav><small class="local-note">${esc(text('local'))}</small>${keysHint(['save','open','paste'])}</aside></div>`;
   el.querySelector('#optionsSimple').innerHTML=tool.simple(options);el.querySelector('#optionsAdvancedBody').innerHTML=tool.advanced(options);
   if(tool.advancedOpen?.(options))el.querySelector('#optionsAdvanced').open=true;
  }
@@ -64,6 +67,10 @@ export function createBatch({el,def},tool){
   const before=it.thumbBroken&&it.resultURL?it.resultURL:it.thumbFull;if(before)el.querySelector('#cmpBefore').src=before;else el.querySelector('#cmpBefore').removeAttribute('src');const after=el.querySelector('#cmpAfter');
   const shown=usable(it),compare=tool.compare!==false&&(!tool.compareWhen||!shown||tool.compareWhen(it));if(shown&&compare){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
   cmp.classList.toggle('is-pending',!shown);cmp.classList.toggle('is-upgrading',shown&&it.status!=='done');cmp.classList.toggle('no-compare',!compare);after.classList.toggle('px',!!(typeof tool.pixelated==='function'?tool.pixelated(it):tool.pixelated));
+  // Each side of the divider says what it is and how heavy it is; the result adds the change against the source.
+  const delta=shown&&compare?sizeDelta(it.file.size,it.result.blob.size):'';
+  cmp.querySelector('.cmp-tag.l').textContent=`${text('before')} · ${bytes(it.file.size)}`;
+  cmp.querySelector('.cmp-tag.r').textContent=shown&&compare?`${text('after')} · ${bytes(it.result.blob.size)}${delta&&delta!=='='?' · '+delta:''}`:text('after');
   if(!compare&&shown&&(it.result.preview||it.result.showResult))el.querySelector('#cmpBefore').src=it.result.preview||it.resultURL;
   el.querySelector('#viewerActions').innerHTML=usable(it)&&it.status==='done'&&tool.viewerActions?tool.viewerActions(it):'';
   if(it.width)cmp.style.aspectRatio=`${it.width} / ${it.height}`;
