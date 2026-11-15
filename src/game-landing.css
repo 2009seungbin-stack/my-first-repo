@@ -231,3 +231,20 @@ html[lang="ko"] .gl-hub-search-label,html[lang="ja"] .gl-hub-search-label{letter
  .gl-hub-nav a[aria-current]{border-color:var(--gs-accent)}
  .gl-code .sd-calc{padding-right:18px;padding-top:54px}
 }
+
+/* ---------------------------------------------------------------- previous / group / next (tools/game-landing-build.mjs pager) */
+.gl-pager{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:48px 0 0;padding:24px 0 0;border-top:1px solid var(--gs-line)}
+.gl-pager-step{display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:72px;padding:14px 16px;background:var(--gs-panel);border:1px solid var(--gs-line);border-radius:var(--gs-radius);color:var(--gs-text)!important;transition:border-color .15s,background .15s}
+a.gl-pager-step:hover{border-color:#4cc2ff80;background:#1d2127}
+.gl-pager-step small{font-size:12px;font-weight:750;letter-spacing:.04em;color:var(--gs-text-3)}
+.gl-pager-step b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px;line-height:1.4;color:var(--gs-head)}
+.gl-pager-step.is-group{text-align:center;align-items:center;background:var(--gs-bg-2)}
+.gl-pager-step.is-next{text-align:right;align-items:flex-end}
+.gl-pager-step.is-empty{visibility:hidden}
+[data-gs] a.gl-pager-step:focus-visible{border-radius:var(--gs-radius)}
+@media (max-width:640px){
+ .gl-pager{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:40px}
+ .gl-pager-step.is-group{grid-column:1/-1;grid-row:2}
+ .gl-pager-step.is-empty{display:none}
+ .gl-pager:has(.is-empty) a:is(.is-prev,.is-next){grid-column:1/-1}
+}

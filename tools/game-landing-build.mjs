@@ -171,7 +171,7 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const rel=related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws});
  const ids=list=>list.map(([id,label])=>[id,label]);
  const items=[...ids(lead),['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...ids(afterHow),...(table?[['settings',c.table.title]]:[]),...ids(afterTable),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],...ids(scope),['limits',UI.limits[locale]],...ids(versions),['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
- const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${html(scope)}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
+ const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${html(scope)}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}${pager(key,locale,prefix)}</div></div></main>${footerHTML(locale,prefix)}`;
  return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
@@ -190,6 +190,27 @@ export function gameGroups(){
  for(const [id,p] of Object.entries(GAME_LAB_PAGES))groups[p.ws].push(id);
  for(const [path,p] of kw)if(p.family!=='broad')groups[groupOf(p)].push(path);
  return groups;
+}
+/** Where a game page sits in the hub: its group, and the pages before and after it in hub order
+ * (the walk continues into the neighbouring group at either end). null for a page the hub does not list. */
+export function gameNeighbors(key){
+ const groups=gameGroups(),flat=GROUP_ORDER.flatMap(g=>groups[g].map(k=>[g,k])),i=flat.findIndex(([,k])=>k===key);
+ if(i<0)return null;
+ const group=flat[i][0];
+ return {group,size:groups[group].length,prev:flat[i-1]?.[1]||null,next:flat[i+1]?.[1]||null};
+}
+export const PAGER_UI={
+ label:{en:'More game tools',ko:'다른 게임 도구',ja:'ほかのゲームツール'},
+ prev:{en:'Previous',ko:'이전',ja:'前へ'},
+ next:{en:'Next',ko:'다음',ja:'次へ'},
+ group:{en:'All {n} in this group',ko:'이 분류 전체 {n}개',ja:'このカテゴリの全{n}件'}
+};
+/** Previous / group / next at the end of a landing: one step to the neighbouring tool, one to the
+ * page's group on the hub. Chrome (data-chrome): it changes when a page is added next door. */
+function pager(key,locale,prefix){
+ const n=gameNeighbors(key);if(!n)return '';
+ const u=k=>esc(PAGER_UI[k][locale]),step=(k,cls,label)=>k?`<a class="gl-pager-step ${cls}" href="${prefix}${routeOf(k)}/"><small>${label}</small><b>${esc(titleOf(k,locale))}</b></a>`:`<span class="gl-pager-step ${cls} is-empty"></span>`;
+ return `<nav class="gl-pager" data-chrome aria-label="${u('label')}">${step(n.prev,'is-prev','← '+u('prev'))}<a class="gl-pager-step is-group" href="${prefix}${GAME_HUB_PATH}/#hub-${n.group}"><small>${esc(PAGER_UI.group[locale].replace('{n}',n.size))}</small><b>${esc(HUB_GROUPS[n.group][locale])}</b></a>${step(n.next,'is-next',u('next')+' →')}</nav>`;
 }
 /** Sitemap order of the game pages: hub, then each workflow group (tool landings before keyword
  * pages), then any other game tool from the home directory. The caller drops what is not indexable. */
