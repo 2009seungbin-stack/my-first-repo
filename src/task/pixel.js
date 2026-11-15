@@ -1,10 +1,11 @@
-import {PALETTES} from '../pixel-palettes.js';
+import {PALETTES,paletteLabel,paletteOptions,paletteSwatches} from '../pixel-palettes.js';
 export {PALETTES};
 import * as Im from '../image.js';
-import {parsePalette} from '../pixel-engine.js';
+import {parsePalette,DITHER_MODES,ditherModeOf,ditherAmountOf,usedColors} from '../pixel-engine.js';
+import {toGPL,toHexText,parsePaletteFile} from '../game/palette.js';
 import {stem} from '../core.js';
 import {createBatch} from './batch.js';
-import {text} from './shell.js';
+import {text,locale,download,toast} from './shell.js';
 /** Pixel-art converter: pick a sprite size and a colour count and watch the result; palettes
  * (classic consoles, popular community palettes or your own), dithering, outline, fit and
  * export scale under Advanced. Uses the perceptual (Oklab) quantiser in src/pixel-engine.js. */
@@ -14,23 +15,30 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const int=(v,min,max,fallback)=>{const n=Math.round(Number(v));return Number.isFinite(n)&&n>=min&&n<=max?n:fallback;};
 function options(q){
  const n=int(q.get('n'),8,512,32);
- return {n,chipN:[16,32,48,64,128].includes(n)?n:0,colors:int(q.get('colors'),2,256,16),palette:Object.hasOwn(PALETTES,q.get('palette'))?q.get('palette'):'auto',custom:'',dither:Math.max(0,Math.min(1,Number(q.get('dither'))||0)),ditherMode:'floyd-steinberg',outline:int(q.get('outline'),0,4,0),fit:['contain','cover','stretch'].includes(q.get('fit'))?q.get('fit'):'contain',trim:q.get('trim')!=='0',scale:int(q.get('scale'),1,32,1)};
+ return {n,chipN:[16,32,48,64,128].includes(n)?n:0,colors:int(q.get('colors'),2,256,16),palette:Object.hasOwn(PALETTES,q.get('palette'))?q.get('palette'):'auto',custom:'',dither:ditherAmountOf(q.get('dither')),amount:ditherAmountOf(q.get('dither'))||1,ditherMode:ditherModeOf(q.get('ditherMode')),outline:int(q.get('outline'),0,4,0),fit:['contain','cover','stretch'].includes(q.get('fit'))?q.get('fit'):'contain',trim:q.get('trim')!=='0',scale:int(q.get('scale'),1,32,1)};
 }
 const chips=(id,key,values,current,label=v=>v)=>`<div class="segmented" role="group" id="${id}">${values.map(v=>`<button type="button" data-action="task-option" data-${key}="${v}" aria-pressed="${String(current)===String(v)}">${esc(label(v))}</button>`).join('')}</div>`;
+/** The colours of the chosen built-in palette, so a palette can be judged before converting. */
+const swatchLabel=o=>Object.hasOwn(PALETTES,o.palette)?`${paletteLabel(o.palette,locale())} · ${text('pixel.colorCount',{n:PALETTES[o.palette].length})}`:'';
+// The wrapper carries `hidden`; .plab-swatches sets display:grid, which would override it.
+const swatchStrip=o=>`<div id="pixelSwatches" style="margin:8px 0 12px" role="img" aria-label="${esc(swatchLabel(o))}" ${Object.hasOwn(PALETTES,o.palette)?'':'hidden'}><div class="plab-swatches small">${paletteSwatches(o.palette)}</div></div>`;
 const simple=o=>`<span class="opt-label">${esc(text('pixel.size'))}</span>${chips('pixelSize','n',[16,32,48,64,128],o.n,v=>`${v}×${v}`)}<span class="opt-label">${esc(text('pixel.colors'))}</span>${chips('pixelColors','colors',[4,8,16,32,64],o.colors)}`;
-const advanced=o=>`<label class="field"><span>${esc(text('pixel.palette'))}</span><select id="pixelPalette"><option value="auto">${esc(text('pixel.auto'))}</option>${Object.keys(PALETTES).map(k=>`<option value="${k}" ${o.palette===k?'selected':''}>${esc(text('pixel.palettes.'+k))} (${PALETTES[k].length})</option>`).join('')}<option value="custom" ${o.palette==='custom'?'selected':''}>${esc(text('pixel.custom'))}</option></select></label>
+const advanced=o=>`<label class="field"><span>${esc(text('pixel.palette'))}</span><select id="pixelPalette"><option value="auto">${esc(text('pixel.auto'))}</option>${paletteOptions(o.palette,locale())}<option value="custom" ${o.palette==='custom'?'selected':''}>${esc(text('pixel.custom'))}</option></select></label>
+${swatchStrip(o)}
 <label class="field" id="pixelCustomField" ${o.palette==='custom'?'':'hidden'}><span>${esc(text('pixel.customHint'))}</span><textarea id="pixelCustom" rows="4" spellcheck="false" placeholder="#1a1c2c&#10;#5d275d&#10;#b13e53">${esc(o.custom)}</textarea></label>
+<label class="field" id="pixelPaletteFileField" ${o.palette==='custom'?'':'hidden'}><span>${esc(text('plab.importFile'))}</span><input type="file" id="pixelPaletteFile" accept=".gpl,.hex,.txt,.json,application/json,text/plain" style="min-height:44px"></label>
 <div class="field-row"><label class="field"><span>${esc(text('pixel.exact'))}</span><input id="pixelN" type="number" min="8" max="512" value="${o.n}" inputmode="numeric"></label><label class="field"><span>${esc(text('pixel.scale'))}</span><select id="pixelScale">${[1,2,4,8,16].map(v=>`<option value="${v}" ${o.scale===v?'selected':''}>${v}×</option>`).join('')}</select></label></div>
-<div class="field-row"><label class="field"><span>${esc(text('pixel.dither'))}</span><select id="pixelDitherMode"><option value="none">${esc(text('pixel.ditherNone'))}</option><option value="floyd-steinberg" ${o.dither&&o.ditherMode==='floyd-steinberg'?'selected':''}>Floyd–Steinberg</option><option value="bayer" ${o.dither&&o.ditherMode==='bayer'?'selected':''}>Bayer</option></select></label><label class="field"><span>${esc(text('pixel.outline'))}</span><select id="pixelOutline">${[0,1,2].map(v=>`<option value="${v}" ${o.outline===v?'selected':''}>${v}px</option>`).join('')}</select></label></div>
+<div class="field-row"><label class="field"><span>${esc(text('pixel.dither'))}</span><select id="pixelDitherMode"><option value="none">${esc(text('pixel.ditherNone'))}</option>${DITHER_MODES.filter(m=>m!=='none').map(m=>`<option value="${m}" ${o.dither&&o.ditherMode===m?'selected':''}>${esc(text('plab.dithers.'+m))}</option>`).join('')}</select></label><label class="field"><span>${esc(text('pixel.outline'))}</span><select id="pixelOutline">${[0,1,2].map(v=>`<option value="${v}" ${o.outline===v?'selected':''}>${v}px</option>`).join('')}</select></label></div>
+<label class="field" id="pixelDitherField" ${o.dither?'':'hidden'}><span>${esc(text('plab.amount'))} · <output id="pixelDitherValue" for="pixelDitherAmount">${o.amount.toFixed(1)}</output></span><input id="pixelDitherAmount" type="range" min="0.1" max="1" step="0.1" value="${o.amount}" style="width:100%;min-height:44px"></label>
 <label class="field"><span>${esc(text('resize.fit'))}</span><select id="pixelFit">${['contain','cover','stretch'].map(f=>`<option value="${f}" ${o.fit===f?'selected':''}>${esc(text('resize.'+f))}</option>`).join('')}</select></label>
 <label class="check"><input id="pixelTrim" type="checkbox" ${o.trim?'checked':''}> ${esc(text('pixel.trim'))}</label>`;
 function read(form,o){
  const pressed=(id,key)=>form.querySelector(`#${id} [aria-pressed="true"]`)?.dataset[key],chipN=Number(pressed('pixelSize','n'))||0,typed=int(form.querySelector('#pixelN').value,8,512,o.n);
  // A size chip and the exact-size box describe the same value; whichever changed last wins.
- const n=chipN&&chipN!==o.chipN?chipN:typed,mode=form.querySelector('#pixelDitherMode').value,palette=form.querySelector('#pixelPalette').value;
- return {n,chipN,colors:Number(pressed('pixelColors','colors'))||o.colors,palette,custom:form.querySelector('#pixelCustom').value,dither:mode==='none'?0:1,ditherMode:mode==='none'?o.ditherMode:mode,outline:Number(form.querySelector('#pixelOutline').value),fit:form.querySelector('#pixelFit').value,trim:form.querySelector('#pixelTrim').checked,scale:Number(form.querySelector('#pixelScale').value)};
+ const n=chipN&&chipN!==o.chipN?chipN:typed,mode=form.querySelector('#pixelDitherMode').value,amount=ditherAmountOf(form.querySelector('#pixelDitherAmount').value)||o.amount,palette=form.querySelector('#pixelPalette').value;
+ return {n,chipN,colors:Number(pressed('pixelColors','colors'))||o.colors,palette,custom:form.querySelector('#pixelCustom').value,dither:mode==='none'?0:amount,amount,ditherMode:mode==='none'?o.ditherMode:mode,outline:Number(form.querySelector('#pixelOutline').value),fit:form.querySelector('#pixelFit').value,trim:form.querySelector('#pixelTrim').checked,scale:Number(form.querySelector('#pixelScale').value)};
 }
-function reflect(form,o){form.querySelector('#pixelN').value=o.n;form.querySelector('#pixelCustomField').hidden=o.palette!=='custom';for(const b of form.querySelectorAll('#pixelSize [data-n]'))b.setAttribute('aria-pressed',String(Number(b.dataset.n)===o.n));}
+function reflect(form,o){form.querySelector('#pixelN').value=o.n;form.querySelector('#pixelDitherField').hidden=!o.dither;form.querySelector('#pixelDitherValue').textContent=o.amount.toFixed(1);const strip=form.querySelector('#pixelSwatches');if(strip){strip.hidden=!Object.hasOwn(PALETTES,o.palette);strip.setAttribute('aria-label',swatchLabel(o));strip.firstElementChild.innerHTML=paletteSwatches(o.palette);}form.querySelector('#pixelCustomField').hidden=form.querySelector('#pixelPaletteFileField').hidden=o.palette!=='custom';for(const b of form.querySelectorAll('#pixelSize [data-n]'))b.setAttribute('aria-pressed',String(Number(b.dataset.n)===o.n));}
 async function process(file,o,{signal,progress}){
  const palette=o.palette==='auto'?[]:parsePalette(o.palette==='custom'?o.custom:PALETTES[o.palette].join('\n'));
  if(o.palette==='custom'&&!palette.length)throw Error(text('pixel.needPalette'));
@@ -39,11 +47,33 @@ async function process(file,o,{signal,progress}){
   base=await Im.pixelBaseQuality(source,o.n,o.fit,o.trim,{progress,signal});
   pixels=await Im.processPixels(base,'pixel',{colors:o.colors,dither:o.dither,outline:o.outline,palette,ditherMode:o.ditherMode},progress,signal);
   if(o.scale>1)scaled=Im.resize(pixels,pixels.width*o.scale,pixels.height*o.scale,true);
+  // Read before scaling: the palette file lists the colours the native-size sprite really uses.
+  const used=usedColors(pixels.getContext('2d').getImageData(0,0,pixels.width,pixels.height).data);
   const out=scaled||pixels,blob=await Im.blobOf(out,'image/png');
-  return {blob,name:`${stem(file.name)}-${pixels.width}x${pixels.height}${o.scale>1?`@${o.scale}x`:''}.png`,sourceWidth:out.width,sourceHeight:out.height,pixels:`${pixels.width}×${pixels.height}`,note:`${source.width}×${source.height} → ${pixels.width}×${pixels.height}${o.scale>1?` · ${text('pixel.exported',{w:out.width,h:out.height})}`:''} · ${text('pixel.colorCount',{n:palette.length||o.colors})}`};
+  return {blob,palette:used,paletteName:stem(file.name),name:`${stem(file.name)}-${pixels.width}x${pixels.height}${o.scale>1?`@${o.scale}x`:''}.png`,sourceWidth:out.width,sourceHeight:out.height,pixels:`${pixels.width}×${pixels.height}`,note:`${source.width}×${source.height} → ${pixels.width}×${pixels.height}${o.scale>1?` · ${text('pixel.exported',{w:out.width,h:out.height})}`:''} · ${text('pixel.colorCount',{n:palette.length||o.colors})}${o.dither?` · ${text('plab.dithers.'+o.ditherMode)} ${o.dither.toFixed(1)}`:''}`};
  }finally{Im.release(scaled);Im.release(pixels);Im.release(base);Im.release(source);}
 }
 const summary=ok=>({big:ok[0].result.pixels.replace('×',' × '),only:true});
 const pill=it=>it.result.pixels;
 const detail=it=>it.result.note;
-export const mount=ctx=>createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,detail,pixelated:true,advancedOpen:o=>o.palette!=='auto'});
+/** Save the colours of the sprite being viewed as a GIMP palette or a HEX list. */
+const viewerActions=it=>it.result?.palette?.length?['gpl','hex'].map(f=>`<button type="button" class="chip" style="min-height:44px" data-action="pixel-palette-${f}">${esc(text('plab.exportPalette'))} · .${f} (${it.result.palette.length})</button>`).join(''):'';
+function action(name,it){
+ const format=name==='pixel-palette-gpl'?'gpl':name==='pixel-palette-hex'?'hex':'',colors=it?.result?.palette;
+ if(!format||!colors?.length)return;
+ const title=it.result.paletteName||'palette',body=format==='gpl'?toGPL(colors,{name:title,columns:Math.min(16,colors.length)}):toHexText(colors);
+ download(new Blob([body],{type:'text/plain'}),`${title}-palette.${format}`);
+}
+export const mount=ctx=>{
+ // A palette file fills the custom box, so what was loaded stays visible and editable.
+ ctx.el.addEventListener('change',async e=>{
+  const input=e.target,file=input.id==='pixelPaletteFile'?input.files?.[0]:null;if(!file)return;
+  try{
+   const parsed=parsePaletteFile(await file.text(),file.name),box=ctx.el.querySelector('#pixelCustom');if(!box)return;
+   box.value=toHexText(parsed.colors).trim();box.dispatchEvent(new Event('input',{bubbles:true}));
+   toast(text('plab.imported',{n:parsed.colors.length,format:parsed.format.toUpperCase()}));
+  }catch{toast(text('pixel.needPalette'),{error:true});}
+  input.value='';
+ });
+ return createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,detail,viewerActions,action,pixelated:true,advancedOpen:o=>o.palette!=='auto'});
+};

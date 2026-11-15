@@ -56,6 +56,14 @@ export const BAYER=Object.freeze({2:Object.freeze(bayerMatrix(2)),4:Object.freez
 /** Every dither the Labs offer. 'ordered' and 'bayer' stay as aliases of the 4×4 matrix so old
  * links and saved presets keep meaning what they meant. */
 export const DITHER_MODES=Object.freeze(['none','floyd-steinberg','atkinson','bayer2','bayer4','bayer8']);
+/** A dither name from a link or an old preset, resolved to one of DITHER_MODES other than 'none'
+ * ("off" is strength 0, not a mode). 'bayer' and 'ordered' always meant the 4×4 matrix. */
+export function ditherModeOf(mode,fallback='floyd-steinberg'){
+ if(mode==='bayer'||mode==='ordered')return 'bayer4';
+ return mode!=='none'&&DITHER_MODES.includes(mode)?mode:fallback;
+}
+/** Dither strength snapped to the 0.1 steps the converters offer, inside 0–1. */
+export const ditherAmountOf=value=>{const n=Number(value);return Number.isFinite(n)?Math.round(Math.max(0,Math.min(1,n))*10)/10:0;};
 const FLOYD=Object.freeze([[1,0,7/16],[-1,1,3/16],[0,1,5/16],[1,1,1/16]]);
 // Atkinson keeps only 6/8 of the error, which is why it holds contrast on flat pixel-art shading.
 const ATKINSON=Object.freeze([[1,0,1/8],[2,0,1/8],[-1,1,1/8],[0,1,1/8],[1,1,1/8],[0,2,1/8]]);
@@ -96,4 +104,12 @@ export function quantizePerceptual(data,w,h,count=16,amount=0,{palette:custom,di
  const locked=parsePalette(custom||[]);if(!count&&!locked.length)return new Uint8ClampedArray(data);
  const palette=locked.length?locked:perceptualPalette(data,count);
  return quantizeIndexed(data,w,h,palette,{mode:amount>0?ditherMode:'none',amount}).data;
+}
+/** The distinct colours of an RGBA buffer, most used first (ties keep first-seen order). Only
+ * fully opaque pixels count when there are any: a canvas stores translucent pixels premultiplied,
+ * so their colour can read back a shade off the palette. Stops at `max` colours. */
+export function usedColors(data,max=256){
+ const tally=counts=>{const seen=new Map();for(let i=0;i<data.length;i+=4){if(!counts(data[i+3]))continue;const key=data[i]<<16|data[i+1]<<8|data[i+2];seen.set(key,(seen.get(key)||0)+1);}return seen;};
+ let seen=tally(a=>a===255);if(!seen.size)seen=tally(a=>a>0);
+ return [...seen].sort((a,b)=>b[1]-a[1]).slice(0,Math.max(0,max)).map(([key])=>[key>>16&255,key>>8&255,key&255]);
 }

@@ -8,7 +8,8 @@ import * as C from '../game/pixel-cleanup.js';
 import * as K from '../game/pixel-check.js';
 import {SCHEMA_VERSION} from '../game/model.js';
 import {PALETTES} from './pixel.js';
-import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
+import {paletteOptions} from '../pixel-palettes.js';
+import {text,locale,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 import './strings-trust.js';
 /** Pixel Lab — one workspace that takes several animation frames from "whatever the artist
  * exported" to a consistent, engine-ready pixel asset: extract ONE palette from all frames, lock
@@ -175,7 +176,7 @@ export function mount({el,def}){
 ${num('plabSize','size',0,512,T('size'))}<p class="hint">${esc(T('sizeHint'))}</p>
 <label class="field"><span>${esc(T('fit'))}</span><select id="plabFit" data-key="fit">${['contain','cover','stretch'].map(f=>`<option value="${f}" ${o.fit===f?'selected':''}>${esc(text('resize.'+f))}</option>`).join('')}</select></label>
 ${check('plabTrim','trim',T('trim'))}
-<label class="field"><span>${esc(T('classic'))}</span><select id="plabClassic" data-key="classic"><option value="">${esc(T('fromFrames'))}</option>${Object.keys(PALETTES).map(k=>`<option value="${k}" ${o.classic===k?'selected':''}>${esc(text('pixel.palettes.'+k))} (${PALETTES[k].length})</option>`).join('')}</select></label>
+<label class="field"><span>${esc(T('classic'))}</span><select id="plabClassic" data-key="classic"><option value="">${esc(T('fromFrames'))}</option>${paletteOptions(o.classic,locale())}</select></label>
 ${num('plabAmount','amount',0,1,T('amount'),.1)}</details>
 <p class="hint">${esc(P.flickers(o.dither)&&sources.length>1?T('flickerWarning'):T('ditherNote'))}</p>`;
   if(stage==='palette')return `<div id="plabSwatches" class="plab-swatches"></div><div id="plabPicked" class="plab-picked"></div>
