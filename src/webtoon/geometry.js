@@ -32,3 +32,18 @@ export function joinedLayout(images,{maxPixels=64_000_000,maxSide=32767}={}){
  if(width>maxSide||height>maxSide||width*height>maxPixels)throw new RangeError('Joined image exceeds safe canvas budget; export separate parts');
  let y=0;return {width,height,placements:images.map(x=>{const p={x:0,y,width:x.width,height:x.height};y+=x.height;return p;})};
 }
+/** Cuts that divide the source rows into `parts` near-equal pieces. */
+export function equalCuts(height,parts){
+ if(!Number.isSafeInteger(height)||height<1||!Number.isSafeInteger(parts)||parts<1||parts>200||parts>height)throw new RangeError('Invalid part count');
+ const cuts=[];for(let i=1;i<parts;i++)cuts.push(Math.round(height*i/parts));
+ validateCuts(height,cuts);return cuts;
+}
+/** Output size of every part, using the same width and rounding rules as the export worker. */
+export function partPreview(width,height,cuts,{exactWidth=0,maxWidth=0,maxHeight=0}={}){
+ if(!Number.isSafeInteger(width)||width<1)throw new RangeError('Invalid image width');
+ const outWidth=exactWidth||Math.min(width,maxWidth||width),scale=outWidth/width;
+ return validateCuts(height,cuts).map((s,i)=>{
+  const outHeight=Math.max(1,Math.round((s.y+s.height)*scale)-Math.round(s.y*scale));
+  return {index:i+1,y:s.y,height:s.height,outWidth,outHeight,tooTall:maxHeight>0&&outHeight>maxHeight};
+ });
+}
