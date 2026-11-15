@@ -3,6 +3,7 @@
  * Studio takes them on start (src/studio/app.js start()). Also: the language menu, and old Lab
  * links with settings in the query (e.g. ?stage=export) forwarded to the classic Lab page. */
 import {stashFiles,takeHandoff} from './task/handoff.js';
+import {cardText,filterCards,readState,writeState} from './game-hub-search.js';
 const root=new URL('../',import.meta.url);
 const LOCALES=['ko','en','ja'],STORAGE_KEY='fileforge.language.v1';
 const main=document.querySelector('[data-game-landing]');
@@ -86,10 +87,55 @@ function wireIntake(){
  addEventListener('drop',async e=>{if(!e.dataTransfer)return;e.preventDefault();depth=0;mark();const files=await filesOf(e.dataTransfer).catch(()=>[...(e.dataTransfer.files||[])]);openInStudio(files);});
  addEventListener('paste',e=>{const f=[...(e.clipboardData?.files||[])];if(f.length){e.preventDefault();openInStudio(f);}});
 }
+/** 4. The hub: instant search and quick filters over every card. The state lives in the URL
+ * (?q=…&f=…), so a filtered hub can be shared and survives the language switch. */
+function wireHub(){
+ const box=$('[data-gl-hub-search]');if(!box)return;
+ const input=box.querySelector('input'),count=box.querySelector('.gl-hub-count'),none=box.querySelector('[data-gl-hub-none]'),clear=box.querySelector('[data-gl-hub-clear]');
+ const chips=[...box.querySelectorAll('[data-gl-hub-chip]')],cards=[...document.querySelectorAll('.gl-hub-list>li')],groups=[...document.querySelectorAll('.gl-hub-group')];
+ const texts=cards.map(li=>cardText(li.querySelector('b')?.textContent||'',li.querySelector('small')?.textContent||'',li.dataset.path||''));
+ const tocOf=id=>document.querySelector(`.gl-hub-nav a[href$="#${id}"]`)?.closest('li');
+ const fill=(tpl,n)=>String(tpl||'').replace('{n}',n).replace('{total}',cards.length);
+ const links=()=>cards.filter(li=>!li.hidden).map(li=>li.querySelector('a')).filter(Boolean);
+ let state=readState(location.search);
+ function apply(write=true){
+  const shown=new Set(filterCards(texts,state)),active=!!(state.q||state.chip);
+  cards.forEach((li,i)=>{li.hidden=!shown.has(i);});
+  for(const g of groups){
+   const n=g.querySelectorAll('.gl-hub-list>li:not([hidden])').length,h=g.querySelector('h2'),li=tocOf(g.id);
+   g.hidden=!n;if(h)h.dataset.count=n;if(li)li.hidden=!n;
+  }
+  count.textContent=fill(active?box.dataset.tCount:box.dataset.tAll,shown.size);
+  none.hidden=shown.size>0;clear.hidden=!state.q;
+  for(const b of chips)b.setAttribute('aria-pressed',String(b.dataset.glHubChip===state.chip));
+  if(write)try{history.replaceState(history.state,'',location.pathname+writeState(location.search,state)+(active?'':location.hash));}catch{}
+ }
+ const reset=()=>{state={q:'',chip:''};input.value='';apply();input.focus();};
+ input.value=state.q;box.hidden=false;apply(false);
+ input.addEventListener('input',()=>{state={...state,q:input.value};apply();});
+ input.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&input.value){e.preventDefault();state={...state,q:''};input.value='';apply();}
+  else if((e.key==='ArrowDown'||e.key==='Enter')&&!e.isComposing){const first=links()[0];if(first){e.preventDefault();first.focus();}}
+ });
+ clear.addEventListener('click',()=>{state={...state,q:''};input.value='';apply();input.focus();});
+ box.querySelector('[data-gl-hub-reset]')?.addEventListener('click',reset);
+ for(const b of chips)b.addEventListener('click',()=>{state={...state,chip:state.chip===b.dataset.glHubChip?'':b.dataset.glHubChip};apply();});
+ document.addEventListener('keydown',e=>{
+  if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey)return;
+  const el=e.target,typing=el instanceof HTMLElement&&(el.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+  if(e.key==='/'&&!typing){e.preventDefault();input.focus();input.select();return;}
+  // ↑/↓ walk the visible cards; ↑ on the first one and Esc go back to the search box.
+  const a=el instanceof Element?el.closest('.gl-hub-list a'):null;if(!a)return;
+  if(e.key==='Escape'){e.preventDefault();input.focus();return;}
+  if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;
+  const list=links(),i=list.indexOf(a),next=e.key==='ArrowDown'?list[i+1]:i>0?list[i-1]:input;
+  if(next){e.preventDefault();next.focus();}
+ });
+}
 async function boot(){
  if(!main)return;
  if(forwardLegacy()||negotiate())return;
- wireLanguage();wireIntake();
+ wireLanguage();wireIntake();wireHub();
  // Files carried here from another Nerulio tool go straight on to the Studio.
  const carried=await takeHandoff();
  if(carried.files.length){openInStudio(carried.files);return;}
