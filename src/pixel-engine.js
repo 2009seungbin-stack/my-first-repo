@@ -56,6 +56,14 @@ export const BAYER=Object.freeze({2:Object.freeze(bayerMatrix(2)),4:Object.freez
 /** Every dither the Labs offer. 'ordered' and 'bayer' stay as aliases of the 4×4 matrix so old
  * links and saved presets keep meaning what they meant. */
 export const DITHER_MODES=Object.freeze(['none','floyd-steinberg','atkinson','bayer2','bayer4','bayer8']);
+/** A dither name from a link or an old preset, resolved to one of DITHER_MODES other than 'none'
+ * ("off" is strength 0, not a mode). 'bayer' and 'ordered' always meant the 4×4 matrix. */
+export function ditherModeOf(mode,fallback='floyd-steinberg'){
+ if(mode==='bayer'||mode==='ordered')return 'bayer4';
+ return mode!=='none'&&DITHER_MODES.includes(mode)?mode:fallback;
+}
+/** Dither strength snapped to the 0.1 steps the converters offer, inside 0–1. */
+export const ditherAmountOf=value=>{const n=Number(value);return Number.isFinite(n)?Math.round(Math.max(0,Math.min(1,n))*10)/10:0;};
 const FLOYD=Object.freeze([[1,0,7/16],[-1,1,3/16],[0,1,5/16],[1,1,1/16]]);
 // Atkinson keeps only 6/8 of the error, which is why it holds contrast on flat pixel-art shading.
 const ATKINSON=Object.freeze([[1,0,1/8],[2,0,1/8],[-1,1,1/8],[0,1,1/8],[1,1,1/8],[0,2,1/8]]);
