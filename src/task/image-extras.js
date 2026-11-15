@@ -19,7 +19,7 @@ const S={
  en:{
   targetGroup:'Target size',targetOff:'No limit',
   targetMet:'target of {t} or less met',
-  targetMissed:'Could not get under {t}. The smallest result with these settings is {b}, {over} over the target.',
+  targetMissed:'Target size not reached. The smallest result with these settings is {b}, {over} over the {t} target.',
   targetTryShrink:'Turn on “Reduce dimensions if the target cannot be met” under Advanced settings, or lower the max width.',
   targetShort:'under {t} ✓',targetShortMissed:'over {t}',
   targetTally:'{n} of {m} under {t}',
