@@ -605,3 +605,4 @@ html:has(body.game-home){background:#131518}
 @media(prefers-reduced-motion:reduce){.batch-progress .progress-bar span{transition:none}}
 .dropzone-actions button{min-height:44px}
 .file-main:focus-visible,.file .icon:focus-visible,.side.is-batch .chip:focus-visible,.side.is-batch .dashed:focus-visible,.side.is-batch .link:focus-visible,.side.is-batch .primary:focus-visible,.dropzone button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.side.is-batch .primary:focus-visible,.dropzone .primary:focus-visible{outline-color:var(--ink)}
+@media(pointer:coarse){.file .icon{width:44px;height:44px}}

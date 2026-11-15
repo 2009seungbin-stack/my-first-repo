@@ -32,7 +32,7 @@ test('size delta is signed, rounded and silent without a source size', ()=>{
  assert.equal(sizeDelta(0,10),'');assert.equal(sizeDelta(undefined,10),'');assert.equal(sizeDelta(10,NaN),'');assert.equal(sizeDelta(100,0),'−100%');
 });
 test('every shell string exists in ko, en and ja', ()=>{
- for(const l of UI_LOCALES)for(const key of ['skipped','dropover.title','keys.open','keys.save','keys.paste','keys.label','clipboard.paste','clipboard.empty','clipboard.blocked','clipboard.copy','clipboard.done','clipboard.failed','doneOf']){
+ for(const l of UI_LOCALES)for(const key of ['skipped','dropover.title','keys.open','keys.save','keys.paste','keys.label','clipboard.paste','clipboard.empty','clipboard.blocked','clipboard.copy','clipboard.done','clipboard.failed','doneOf','retry']){
   const v=ui(l,key,{n:2,kind:'PDF'});assert.ok(v&&v!==key,`${l}:${key}`);if(l!=='en')assert.notEqual(v,ui('en',key,{n:2,kind:'PDF'}),`${l}:${key} is translated`);
  }
  assert.match(ui('en','skipped',{n:2,kind:'PDF'}),/2.*PDF/);
