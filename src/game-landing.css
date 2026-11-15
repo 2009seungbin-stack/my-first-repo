@@ -187,7 +187,6 @@ html[lang="ko"] .gl-hub-search-label,html[lang="ja"] .gl-hub-search-label{letter
 .gl-hub-reset:hover{color:#fff;border-color:#566070}
 .gl-hub-group h2[data-count]::after{content:attr(data-count);display:inline-block;margin-left:10px;padding:3px 8px;font:650 12.5px/1 var(--gs-mono);letter-spacing:0;color:var(--gs-text-2);background:var(--gs-panel);border:1px solid var(--gs-line);border-radius:999px;vertical-align:middle}
 .gl-hub-list a:focus-visible{border-color:var(--gs-accent);border-radius:var(--gs-radius)}
-@media (min-width:901px){.gl-hub-search:not([hidden]){position:sticky;top:calc(var(--gs-header-h) + 8px);z-index:20;box-shadow:0 18px 40px -18px #000}}
 @media (max-width:640px){
  .gl-hub-search{margin-top:28px;padding:12px}
  .gl-hub-field kbd{display:none}
