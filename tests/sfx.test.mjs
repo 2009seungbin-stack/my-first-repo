@@ -67,3 +67,8 @@ test('randomSound is deterministic per seed, bounded and audible',async()=>{
   const r=render(p);assert(r.left.every(Number.isFinite),`seed ${seed}`);assert(r.metrics.rms>.001,`seed ${seed}`);assert(r.metrics.duration<1.2,`seed ${seed}`);}
  assert(waves.size>=8);
 });
+test('envelopeAt follows attack, decay, sustain hold and release',async()=>{
+ const {envelopeAt}=await import('../src/sfx/engine.js'),x=layer('sine',{attack:.1,decay:.2,sustain:.5,hold:.3,release:.4}),near=(a,b)=>assert(Math.abs(a-b)<1e-9,`${a} vs ${b}`);
+ assert.equal(envelopeAt(-.01,x),0);near(envelopeAt(0,x),0);near(envelopeAt(.05,x),.5);near(envelopeAt(.1,x),1);near(envelopeAt(.2,x),.75);near(envelopeAt(.3,x),.5);near(envelopeAt(.45,x),.5);near(envelopeAt(.6,x),.5);near(envelopeAt(.8,x),.25);near(envelopeAt(1,x),0);assert.equal(envelopeAt(2,x),0);
+ const snap=layer('sine',{attack:0,decay:0,sustain:1,hold:.1,release:0});assert.equal(envelopeAt(0,snap),1);assert.equal(envelopeAt(.05,snap),1);assert.equal(envelopeAt(.11,snap),0);
+});
