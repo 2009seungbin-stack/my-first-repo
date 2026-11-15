@@ -52,7 +52,7 @@ export function createTimeline(W){
  function num(label,value,min,max,set,id){const i=h('input.st-input.sp-num',{type:'number',min:String(min),max:String(max),step:'1',value:String(value),'aria-label':label,title:label,'data-sp':id});i.addEventListener('change',()=>set(Math.max(min,Math.min(max,Math.round(Number(i.value)||0)))));return i;}
  function speedField(){
   const cur=normalizeSpeed(W.prefs.speed);
-  const s=h('select.st-input.sp-speed',{'aria-label':t('sp.tl.speed'),title:t('sp.tl.speed'),'data-sp':'speed'},SPEEDS.map(v=>h('option',{value:String(v),selected:v===cur},t('sp.tl.speedX',{x:v}))));
+  const s=h('select.st-input.sp-speed',{'aria-label':t('sp.tl.speed'),title:t('sp.tl.speed')+' ([ / ])','data-sp':'speed'},SPEEDS.map(v=>h('option',{value:String(v),selected:v===cur},t('sp.tl.speedX',{x:v}))));
   s.addEventListener('change',()=>W.setSpeed(Number(s.value)));
   return s;
  }

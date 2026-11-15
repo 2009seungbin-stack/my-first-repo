@@ -1,7 +1,7 @@
 /** Sprite timeline preview speed (src/studio/sprite/playback.js): a clock scale, never a duration edit. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SPEEDS,normalizeSpeed,playClock,clockStart,steps,stepAt,rangeTag} from '../src/studio/sprite/playback.js';
+import {SPEEDS,normalizeSpeed,stepSpeed,playClock,clockStart,steps,stepAt,rangeTag} from '../src/studio/sprite/playback.js';
 import {st} from '../src/studio/strings.js';
 
 const asset={frames:[0,1,2,3].map(i=>({id:'f'+i,duration:100}))};
@@ -11,6 +11,8 @@ test('speeds are a fixed ascending list around 1× and anything else falls back 
  for(const v of SPEEDS)assert.equal(normalizeSpeed(v),v);
  assert.equal(normalizeSpeed('2'),2);
  for(const v of [undefined,null,'',0,-1,3,NaN,'fast',Infinity])assert.equal(normalizeSpeed(v),1);
+ // [ and ] walk the list one step and stop at its ends
+ assert.equal(stepSpeed(1,1),2);assert.equal(stepSpeed(1,-1),0.5);assert.equal(stepSpeed(4,1),4);assert.equal(stepSpeed(0.25,-1),0.25);assert.equal(stepSpeed(undefined,5),2);
 });
 test('the clock scales elapsed time: 2× reaches a frame in half the wall-clock time, 0.5× in double',()=>{
  const list=steps(asset,rangeTag(asset)),at=(wall,speed)=>stepAt(list,playClock(wall,0,speed),{loop:true}).index;
@@ -30,6 +32,6 @@ test('clockStart starts on a given frame and keeps the showing frame across a sp
  assert.equal(stepAt(list,playClock(now+25,t1,4),{loop:true}).index,3,'and runs four times as fast from there');
 });
 test('the speed control is labelled in ko/en/ja and says durations stay',()=>{
- for(const l of ['en','ko','ja']){assert.notEqual(st(l,'sp.tl.speed'),'sp.tl.speed');assert.equal(st(l,'sp.tl.speedX',{x:0.5}),'0.5×');}
+ for(const l of ['en','ko','ja']){assert.notEqual(st(l,'sp.tl.speed'),'sp.tl.speed');for(const k of ['sp.menuCmd.speedDown','sp.menuCmd.speedUp'])assert.notEqual(st(l,k),k,`${l} ${k}`);assert.equal(st(l,'sp.tl.speedX',{x:0.5}),'0.5×');}
  assert.match(st('en','sp.tl.speed'),/not changed/);
 });

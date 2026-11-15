@@ -30,6 +30,8 @@ export const totalMs=list=>list.length?list[list.length-1].to:0;
  * saved and exported) never change. */
 export const SPEEDS=[0.25,0.5,1,2,4];
 export const normalizeSpeed=v=>{const n=Number(v);return SPEEDS.includes(n)?n:1;};
+/** The next slower (dir<0) or faster (dir>0) speed; stays at the ends of the list. */
+export const stepSpeed=(speed,dir)=>SPEEDS[Math.max(0,Math.min(SPEEDS.length-1,SPEEDS.indexOf(normalizeSpeed(speed))+Math.sign(dir)))];
 /** Animation time (ms into the step list) at wall-clock `now` for a playback started at `t0`. */
 export const playClock=(now,t0,speed=1)=>(now-t0)*speed;
 /** The start time that shows animation time `ms` at `now` with `speed` — used to start on the
