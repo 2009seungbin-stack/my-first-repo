@@ -45,4 +45,9 @@ test('chosenLabel reports the picked codec and floors the similarity score',()=>
 test('every platform size has a short chip label',()=>{
  for(const [slug,[,w,h]]of Object.entries(SOCIAL)){const label=presetLabel(slug,w,h);assert.ok(label&&label!==`${w}×${h}`,`${slug} has a named label`);assert.ok(label.length<=14);}
  assert.equal(presetLabel('unknown',640,480),'640×480');
+ // Chip labels are localized, not English shorthand shown to everyone.
+ for(const l of ['ko','en','ja'])for(const [slug,[,w,h]]of Object.entries(SOCIAL)){const label=presetLabel(slug,w,h,l);assert.ok(label&&label!==`${w}×${h}`,`${l}.${slug}`);assert.ok(label.length<=14,`${l}.${slug} is short`);}
+ assert.equal(presetLabel('youtube-banner',2560,1440,'ko'),'유튜브 배너');
+ assert.equal(presetLabel('x-header',1500,500,'ja'),'Xヘッダー');
+ assert.equal(presetLabel('x-header',1500,500,'fr'),presetLabel('x-header',1500,500,'en'));
 });

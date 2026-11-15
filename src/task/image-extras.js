@@ -6,7 +6,7 @@ const S={
   targetGroup:'목표 용량',targetOff:'제한 없음',
   targetMet:'목표 {t} 이하 달성',
   targetMissed:'목표 {t} 이하를 맞추지 못했습니다. 이 설정에서 가장 작은 결과는 {b}로, 목표보다 {over} 큽니다.',
-  targetTryShrink:'고급 옵션의 “목표 용량을 못 맞추면 크기도 줄이기”를 켜거나 최대 너비를 줄여 보세요.',
+  targetTryShrink:'고급 설정의 “목표 용량을 못 맞추면 크기도 줄이기”를 켜거나 최대 너비를 줄여 보세요.',
   targetShort:'{t} 이하 ✓',targetShortMissed:'{t} 초과',
   targetTally:'{m}개 중 {n}개가 {t} 이하',
   alphaFilled:'JPG는 투명도를 저장할 수 없어 투명한 부분을 {bg} 색으로 채웠습니다. 투명도를 유지하려면 PNG나 WebP를 선택하세요.',
@@ -20,7 +20,7 @@ const S={
   targetGroup:'Target size',targetOff:'No limit',
   targetMet:'target of {t} or less met',
   targetMissed:'Could not get under {t}. The smallest result with these settings is {b}, {over} over the target.',
-  targetTryShrink:'Turn on “Reduce dimensions if the target cannot be met” under Advanced, or lower the max width.',
+  targetTryShrink:'Turn on “Reduce dimensions if the target cannot be met” under Advanced settings, or lower the max width.',
   targetShort:'under {t} ✓',targetShortMissed:'over {t}',
   targetTally:'{n} of {m} under {t}',
   alphaFilled:'JPG cannot store transparency, so transparent areas were filled with {bg}. Choose PNG or WebP to keep transparency.',
@@ -73,9 +73,13 @@ export function chosenLabel({format,quality,ssim}={},qualityWord='Quality'){
  if(Number.isFinite(ssim))parts.push(`SSIM ${(Math.floor(Math.min(1,Math.max(0,ssim))*1000)/1000).toFixed(3)}`);
  return parts.filter(Boolean).join(' · ');
 }
-/** Short, language-neutral chip labels for the platform sizes in landings.js (SOCIAL). */
-const SHORT={'instagram-post':'Instagram 1:1','instagram-portrait':'Instagram 4:5','instagram-story':'Story 9:16','youtube-thumbnail':'YouTube 16:9','youtube-banner':'YT banner','x-header':'X header','linkedin-banner':'LinkedIn','discord-banner':'Discord'};
-export const presetLabel=(slug,w,h)=>SHORT[slug]||`${w}×${h}`;
+/** Short chip labels for the platform sizes in landings.js (SOCIAL); the full name stays in the chip's title. */
+const SHORT={
+ ko:{'instagram-post':'인스타 1:1','instagram-portrait':'인스타 4:5','instagram-story':'스토리 9:16','youtube-thumbnail':'유튜브 16:9','youtube-banner':'유튜브 배너','x-header':'X 헤더','linkedin-banner':'링크드인','discord-banner':'디스코드'},
+ en:{'instagram-post':'Instagram 1:1','instagram-portrait':'Instagram 4:5','instagram-story':'Story 9:16','youtube-thumbnail':'YouTube 16:9','youtube-banner':'YouTube banner','x-header':'X header','linkedin-banner':'LinkedIn','discord-banner':'Discord'},
+ ja:{'instagram-post':'Instagram 1:1','instagram-portrait':'Instagram 4:5','instagram-story':'ストーリー 9:16','youtube-thumbnail':'YouTube 16:9','youtube-banner':'YouTubeバナー','x-header':'Xヘッダー','linkedin-banner':'LinkedIn','discord-banner':'Discord'},
+};
+export const presetLabel=(slug,w,h,locale='en')=>(SHORT[locale]||SHORT.en)[slug]||`${w}×${h}`;
 /** The tools' own stylesheet, attached once (same pattern as pixel-avatar.css). */
 export function attachStyles(){
  if(typeof document==='undefined'||document.querySelector('[data-image-tools-css]'))return;

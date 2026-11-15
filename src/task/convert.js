@@ -33,8 +33,8 @@ const reflect=(form,o)=>{form.querySelector('#convertQualityOut').textContent=Ma
 async function process(file,o,{signal}={}){
  const source=await Im.decode(file);let flat=null;
  try{
-  // Only report a fill when there really was transparency to lose.
-  const filled=o.format==='jpeg'&&await hasAlpha(source,signal);
+  // Only report a fill when there really was transparency to lose (a JPG source never has any, so it is not scanned).
+  const filled=o.format==='jpeg'&&file.type!=='image/jpeg'&&await hasAlpha(source,signal);
   if(o.format==='jpeg')flat=Im.background(source,o.bg);// JPG has no transparency
   const blob=await Im.blobOf(flat||source,`image/${o.format}`,o.quality);
   return {blob,name:`${stem(file.name)}.${o.format==='jpeg'?'jpg':o.format}`,sourceWidth:source.width,sourceHeight:source.height,note:`${(file.name.match(/\.([^.]+)$/)?.[1]||'?').toUpperCase()} → ${NAMES[o.format]} · ${source.width}×${source.height} · ${bytes(file.size)} → ${bytes(blob.size)}`,
