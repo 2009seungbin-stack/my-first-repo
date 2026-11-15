@@ -29,7 +29,7 @@ export class Toolkit{
         if(!list.length)return;e.preventDefault();const down=e.key==='ArrowDown';
         this.activeRow=moveActive(this.activeRow<0?(down?-1:0):this.activeRow,down?1:-1,list.length);this.markActive(list);
         list[this.activeRow].scrollIntoView({block:'nearest'});
-      }else if(e.key==='Enter'&&!e.isComposing&&list[this.activeRow]){e.preventDefault();list[this.activeRow].click();}
+      }else if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229&&list[this.activeRow]){e.preventDefault();list[this.activeRow].click();}
     });
     d.addEventListener('close',()=>this.returnFocus?.focus({preventScroll:true}));
     document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if(!this.u.s.busy)this.openSearch();}});
@@ -168,7 +168,8 @@ export class Toolkit{
     $('#toolResults').innerHTML=(!query&&favorite.length?`<h3>${esc(tr('favorites'))}</h3>${rows(favorite)}`:'')+(!query&&recent.length?`<h3>${esc(tr('recent'))}</h3>${rows(recent)}`:'')+rows(query?found:keys.filter(id=>!favorite.includes(id)&&!recent.includes(id)))||empty;
     const list=[...$('#toolResults').querySelectorAll('[data-action^="kit-open:"]')];
     this.activeRow=query&&list.length?Math.min(Math.max(this.activeRow??0,0),list.length-1):-1;this.markActive(list);
-    $('#toolStatus').textContent=list.length?ui.count(list.length)+' · '+ui.keys:'';
+    // An empty result is announced too: the status line is the only live region in the dialog.
+    $('#toolStatus').textContent=list.length?ui.count(list.length)+' · '+ui.keys:query?ui.count(0):'';
   }
   async action(action){
     const u=this.u;

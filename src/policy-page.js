@@ -25,9 +25,13 @@ document.querySelector('.policy-languages').addEventListener('click',e=>{
  e.preventDefault();setLocale(a.lang);savePreference(a.lang,storage);const next=new URL(a.href);next.search=url.search;next.searchParams.delete('lang');history.replaceState({},'',next);render();
 });
 /** Scrolls to a contents target and moves keyboard focus there; false when the id is not on this page. */
+/** Element id named by a URL hash; '' when the hash is not valid percent-encoding. */
+function hashId(hash){try{return decodeURIComponent(hash.slice(1));}catch{return '';}}
 function reveal(id,smooth=false){
  const target=id&&document.getElementById(id);if(!target)return false;
- target.scrollIntoView({behavior:smooth&&!matchMedia('(prefers-reduced-motion: reduce)').matches?'smooth':'auto',block:'start'});
+ const behavior=smooth&&!matchMedia('(prefers-reduced-motion: reduce)').matches?'smooth':'auto';
+ // "Back to top" means the very top of the page, header included.
+ if(id==='policy-top')scrollTo({top:0,behavior});else target.scrollIntoView({behavior,block:'start'});
  target.focus({preventScroll:true});return true;
 }
 // The page sets <base>, so in-page links carry the full route; handle them here without a reload.
@@ -43,8 +47,8 @@ document.querySelector('main').addEventListener('click',e=>{
   return;
  }
  const a=/** @type {HTMLAnchorElement|null} */(el.closest('a[data-policy-anchor]'));if(!a||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
- const hash=new URL(a.href).hash;if(!reveal(decodeURIComponent(hash.slice(1)),true))return;
+ const hash=new URL(a.href).hash;if(!reveal(hashId(hash),true))return;
  e.preventDefault();history.replaceState(history.state,'',location.pathname+location.search+hash);
 });
 render();
-if(location.hash)reveal(decodeURIComponent(location.hash.slice(1)));
+if(location.hash)reveal(hashId(location.hash));
