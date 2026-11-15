@@ -20,3 +20,16 @@ export function reverseOrder(list,picked=()=>false){
  const slots=list.map((p,i)=>picked(p)?i:-1).filter(i=>i>=0),use=slots.length>1?slots:list.map((_,i)=>i),values=use.map(i=>list[i]).reverse(),out=list.slice();
  use.forEach((i,k)=>{out[i]=values[k];});return out;
 }
+/** Width of a page-number label in Helvetica, in em: digits are .556 wide, space and slash .278. */
+export const labelWidth=label=>[...String(label)].reduce((w,ch)=>w+(ch>='0'&&ch<='9'?.556:.278),0);
+/** A page number as a text mark for pdf-worker.js. Marks live in the page's own, un-turned frame
+ * (fractions from its top-left, the text pivoting on the start of its baseline), so for a page
+ * the user turned by `angle` the spot at the bottom of the page as it is displayed is mapped back
+ * and the text is counter-turned to read upright. `where`: 'center' | 'left' | 'right'. */
+export function pageNumberMark(page,label,where='center'){
+ const W=page.logicalW,H=page.logicalH,a=(((page.angle||0)%360)+360)%360,turned=a%180!==0,dw=turned?H:W,dh=turned?W:H;
+ const size=Math.round(Math.min(24,Math.max(8,Math.min(dw,dh)*.018))),margin=size*2.4,tw=labelWidth(label)*size;
+ const dx=where==='right'?dw-margin-tw:where==='left'?margin:(dw-tw)/2,dy=dh-margin;
+ const [ux,uy]=a===90?[dy,H-dx]:a===180?[W-dx,H-dy]:a===270?[W-dy,dx]:[dx,dy];
+ return {type:'text',auto:'number',text:String(label),size,color:'#333333',angle:(360-a)%360,x:ux/W,y:(uy-size*.85)/H};
+}
