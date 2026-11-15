@@ -38,10 +38,12 @@ export function equalCuts(height,parts){
  const cuts=[];for(let i=1;i<parts;i++)cuts.push(Math.round(height*i/parts));
  validateCuts(height,cuts);return cuts;
 }
-/** Output size of every part, using the same width and rounding rules as the export worker. */
-export function partPreview(width,height,cuts,{exactWidth=0,maxWidth=0,maxHeight=0}={}){
+/** Output size of every part, using the same width and rounding rules as the export worker.
+ * With no cuts and a `targetHeight`, the worker falls back to evenly spaced cuts, so the preview does too. */
+export function partPreview(width,height,cuts,{exactWidth=0,maxWidth=0,maxHeight=0,targetHeight=0,maxSide=32767}={}){
  if(!Number.isSafeInteger(width)||width<1)throw new RangeError('Invalid image width');
  const outWidth=exactWidth||Math.min(width,maxWidth||width),scale=outWidth/width;
+ if(Array.isArray(cuts)&&!cuts.length&&targetHeight>0)cuts=evenlySpaced(height,Math.max(1,Math.floor(Math.max(1,Math.min(maxHeight||maxSide,targetHeight))/scale)));
  return validateCuts(height,cuts).map((s,i)=>{
   const outHeight=Math.max(1,Math.round((s.y+s.height)*scale)-Math.round(s.y*scale));
   return {index:i+1,y:s.y,height:s.height,outWidth,outHeight,tooTall:maxHeight>0&&outHeight>maxHeight};
