@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
-import {policyContent,policyAnchor,policies,POLICY_ROUTES,COMMUNITY_PRIVACY_NOTE} from '../src/policies.js';
+import {policyContent,policyAnchor,policies,POLICY_ROUTES,COMMUNITY_PRIVACY_NOTE,toolFamilyCounts,aboutFamilies} from '../src/policies.js';
+import {INTENTS} from '../src/intents.js';
 import {LOCALES} from '../src/i18n.js';
 
 const anchors=html=>[...html.matchAll(/<h2 id="(sec-\d+)" tabindex="-1">([^<]*)<\/h2>/g)].map(m=>[m[1],m[2]]);
@@ -55,4 +56,21 @@ test('policy stylesheet keeps a print layout and the page script wires the contr
  assert.match(css,/\.policy-toc li a\{[^}]*padding:10px 0/);
  const js=await readFile(new URL('../src/policy-page.js',import.meta.url),'utf8');
  assert.match(js,/data-policy-print/);assert.match(js,/window\.print\(\)/);assert.match(js,/prefers-reduced-motion/);
+});
+
+test('About lists each tool family with the catalogue count and a route that is built',()=>{
+ const counts=toolFamilyCounts(),total=Object.keys(INTENTS).filter(id=>!['home','image','pdf','media'].includes(id)).length;
+ assert.equal(Object.values(counts).reduce((a,b)=>a+b,0),total,'every catalogue tool is counted once');
+ const routes=new Set(Object.values(INTENTS).map(intent=>intent.path+'/'));routes.add('game/');
+ for(const locale of LOCALES){
+  const html=aboutFamilies(locale),cards=[...html.matchAll(/<li><a href="([^"]+)"><strong>([^<]+)<\/strong><span class="about-family-count">([^<]+)<\/span><span>([^<]+)<\/span><span class="about-family-go">([^<]+) →<\/span><\/a><\/li>/g)];
+  assert.equal(cards.length,4,locale);
+  for(const [,href,,count] of cards){
+   assert(href.startsWith(locale+'/')&&routes.has(href.slice(locale.length+1)),`${locale}: ${href}`);
+   const family={'game/':'game','image/editor/':'image','pdf/editor/':'pdf','media/':'media'}[href.slice(locale.length+1)];
+   assert(count.includes(String(counts[family])),`${locale}: ${family} shows ${counts[family]}`);
+  }
+  assert(policyContent('about',locale).includes(html),'rendered on About');
+  for(const page of ['privacy','terms','contact'])assert(!policyContent(page,locale).includes('about-families'),page);
+ }
 });
