@@ -1,5 +1,5 @@
 import {PDFWorkspace} from '../pdf.js';
-import {parsePages,stem} from '../core.js';
+import {parsePages,stem,bytes} from '../core.js';
 import {createBatch} from './batch.js';
 import {firstPage} from './pdf-compress.js';
 import {text} from './shell.js';
@@ -16,9 +16,13 @@ const read=(form,o)=>({size:form.querySelector('#p2iSize [aria-pressed="true"]')
 async function process(file,o,{signal,progress}){
  const ws=new PDFWorkspace();
  try{
-  await ws.add([file],progress,signal);parsePages(o.range,ws.pages.length);// validates the range with a readable error
+  await ws.add([file],progress,signal);const picked=parsePages(o.range,ws.pages.length).map(i=>ws.pages[i]);// also validates the range with a readable error
   const entries=(await ws.imageExports({range:o.range,format:o.format,maxSide:o.maxSide||SIZES[o.size]},progress,signal)).map(e=>({...e,name:`${stem(file.name)}-${e.name}`}));
-  return {entries,preview:URL.createObjectURL(entries[0].blob),count:entries.length,note:text('p2i.made',{n:entries.length,f:o.format==='jpeg'?'JPG':'PNG'})};
+  // What was really made: the measured pixel size (when every page shares one size) and the total weight.
+  const parts=[text('p2i.made',{n:entries.length,f:o.format==='jpeg'?'JPG':'PNG'})],same=picked.every(p=>p.logicalW===picked[0].logicalW&&p.logicalH===picked[0].logicalH);
+  if(same)try{const bitmap=await createImageBitmap(entries[0].blob);parts.push(`${bitmap.width}×${bitmap.height}px`);bitmap.close();}catch{}
+  parts.push(bytes(entries.reduce((sum,e)=>sum+e.blob.size,0)));
+  return {entries,preview:URL.createObjectURL(entries[0].blob),count:entries.length,note:parts.join(' · ')};
  }finally{await ws.clear();}
 }
 const summary=ok=>({big:text('p2i.images',{n:ok.reduce((s,i)=>s+i.result.count,0)}),only:true});
