@@ -61,7 +61,7 @@ export function mount({el,def}){
  function render(){
   if(!items.length){el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(tr('drop'))}</strong><span>${esc(tr('dropHint'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button></div><small class="local-note">${esc(text('local'))}</small></div>`;return;}
   const read=items.filter(it=>it.report?.format);
-  el.innerHTML=`<section class="im"><div class="im-bar"><fieldset><legend>${esc(tr('options'))}</legend><label><input type="checkbox" id="imIcc"${options.keepICC?' checked':''}><span>${esc(tr('keepIcc'))}</span></label><label><input type="checkbox" id="imOrient"${options.keepOrientation?' checked':''}><span>${esc(tr('keepOrient'))}</span></label></fieldset><button type="button" class="ghost" data-action="pick">${esc(tr('more'))}</button></div><p class="im-summary" role="status">${esc(tr('summary',{n:num(read.length),loc:num(read.filter(it=>it.report.location).length)}))}</p>${items.map(card).join('')}${batch()}</section>`;
+  el.innerHTML=`<section class="im"><div class="im-bar"><fieldset><legend>${esc(tr('options'))}</legend><label><input type="checkbox" id="imIcc"${options.keepICC?' checked':''}><span>${esc(tr('keepIcc'))}</span></label><label><input type="checkbox" id="imOrient"${options.keepOrientation?' checked':''}><span>${esc(tr('keepOrient'))}</span></label></fieldset><div class="im-bar-actions"><button type="button" class="ghost" data-action="pick">${esc(tr('more'))}</button><button type="button" class="ghost" id="imClear">${esc(text('removeAll'))}</button></div></div><p class="im-summary" role="status">${esc(tr('summary',{n:num(read.length),loc:num(read.filter(it=>it.report.location).length)}))}</p>${items.map(card).join('')}${batch()}</section>`;
  }
  const removable=it=>!!it.report?.format&&it.report.blocks.some(b=>removes(b.kind));
  /** The cleaned copy of one file, re-opened and re-inspected first; throws when it cannot be verified. */
@@ -101,6 +101,7 @@ export function mount({el,def}){
   if(copy)navigator.clipboard?.writeText(copy.dataset.copy).then(()=>toast(tr('copied')),()=>{});
   else if(btn){const it=items.find(x=>x.id===Number(btn.dataset.clean));if(it)clean(it,btn);}
   else if(e.target.closest('#imAll'))downloadAll();
+  else if(e.target.closest('#imClear')){for(const it of items)URL.revokeObjectURL(it.url);items.length=0;note='';render();el.querySelector('.dropzone')?.focus();}
   else if(next)handOff(next.dataset.next);
  });
  el.addEventListener('change',e=>{if(e.target.id==='imIcc'||e.target.id==='imOrient'){const id=e.target.id;options.keepICC=el.querySelector('#imIcc').checked;options.keepOrientation=el.querySelector('#imOrient').checked;for(const it of items)it.result=null;note='';render();el.querySelector('#'+id)?.focus();}});
