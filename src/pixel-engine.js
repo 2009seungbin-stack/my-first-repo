@@ -105,3 +105,11 @@ export function quantizePerceptual(data,w,h,count=16,amount=0,{palette:custom,di
  const palette=locked.length?locked:perceptualPalette(data,count);
  return quantizeIndexed(data,w,h,palette,{mode:amount>0?ditherMode:'none',amount}).data;
 }
+/** The distinct colours of an RGBA buffer, most used first (ties keep first-seen order). Only
+ * fully opaque pixels count when there are any: a canvas stores translucent pixels premultiplied,
+ * so their colour can read back a shade off the palette. Stops at `max` colours. */
+export function usedColors(data,max=256){
+ const tally=counts=>{const seen=new Map();for(let i=0;i<data.length;i+=4){if(!counts(data[i+3]))continue;const key=data[i]<<16|data[i+1]<<8|data[i+2];seen.set(key,(seen.get(key)||0)+1);}return seen;};
+ let seen=tally(a=>a===255);if(!seen.size)seen=tally(a=>a>0);
+ return [...seen].sort((a,b)=>b[1]-a[1]).slice(0,Math.max(0,max)).map(([key])=>[key>>16&255,key>>8&255,key&255]);
+}

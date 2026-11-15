@@ -1,10 +1,11 @@
 import {PALETTES,paletteLabel,paletteOptions,paletteSwatches} from '../pixel-palettes.js';
 export {PALETTES};
 import * as Im from '../image.js';
-import {parsePalette,DITHER_MODES,ditherModeOf,ditherAmountOf} from '../pixel-engine.js';
+import {parsePalette,DITHER_MODES,ditherModeOf,ditherAmountOf,usedColors} from '../pixel-engine.js';
+import {toGPL,toHexText} from '../game/palette.js';
 import {stem} from '../core.js';
 import {createBatch} from './batch.js';
-import {text,locale} from './shell.js';
+import {text,locale,download} from './shell.js';
 /** Pixel-art converter: pick a sprite size and a colour count and watch the result; palettes
  * (classic consoles, popular community palettes or your own), dithering, outline, fit and
  * export scale under Advanced. Uses the perceptual (Oklab) quantiser in src/pixel-engine.js. */
@@ -45,11 +46,21 @@ async function process(file,o,{signal,progress}){
   base=await Im.pixelBaseQuality(source,o.n,o.fit,o.trim,{progress,signal});
   pixels=await Im.processPixels(base,'pixel',{colors:o.colors,dither:o.dither,outline:o.outline,palette,ditherMode:o.ditherMode},progress,signal);
   if(o.scale>1)scaled=Im.resize(pixels,pixels.width*o.scale,pixels.height*o.scale,true);
+  // Read before scaling: the palette file lists the colours the native-size sprite really uses.
+  const used=usedColors(pixels.getContext('2d').getImageData(0,0,pixels.width,pixels.height).data);
   const out=scaled||pixels,blob=await Im.blobOf(out,'image/png');
-  return {blob,name:`${stem(file.name)}-${pixels.width}x${pixels.height}${o.scale>1?`@${o.scale}x`:''}.png`,sourceWidth:out.width,sourceHeight:out.height,pixels:`${pixels.width}×${pixels.height}`,note:`${source.width}×${source.height} → ${pixels.width}×${pixels.height}${o.scale>1?` · ${text('pixel.exported',{w:out.width,h:out.height})}`:''} · ${text('pixel.colorCount',{n:palette.length||o.colors})}${o.dither?` · ${text('plab.dithers.'+o.ditherMode)} ${o.dither.toFixed(1)}`:''}`};
+  return {blob,palette:used,paletteName:stem(file.name),name:`${stem(file.name)}-${pixels.width}x${pixels.height}${o.scale>1?`@${o.scale}x`:''}.png`,sourceWidth:out.width,sourceHeight:out.height,pixels:`${pixels.width}×${pixels.height}`,note:`${source.width}×${source.height} → ${pixels.width}×${pixels.height}${o.scale>1?` · ${text('pixel.exported',{w:out.width,h:out.height})}`:''} · ${text('pixel.colorCount',{n:palette.length||o.colors})}${o.dither?` · ${text('plab.dithers.'+o.ditherMode)} ${o.dither.toFixed(1)}`:''}`};
  }finally{Im.release(scaled);Im.release(pixels);Im.release(base);Im.release(source);}
 }
 const summary=ok=>({big:ok[0].result.pixels.replace('×',' × '),only:true});
 const pill=it=>it.result.pixels;
 const detail=it=>it.result.note;
-export const mount=ctx=>createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,detail,pixelated:true,advancedOpen:o=>o.palette!=='auto'});
+/** Save the colours of the sprite being viewed as a GIMP palette or a HEX list. */
+const viewerActions=it=>it.result?.palette?.length?['gpl','hex'].map(f=>`<button type="button" class="chip" style="min-height:44px" data-action="pixel-palette-${f}">${esc(text('plab.exportPalette'))} · .${f} (${it.result.palette.length})</button>`).join(''):'';
+function action(name,it){
+ const format=name==='pixel-palette-gpl'?'gpl':name==='pixel-palette-hex'?'hex':'',colors=it?.result?.palette;
+ if(!format||!colors?.length)return;
+ const title=it.result.paletteName||'palette',body=format==='gpl'?toGPL(colors,{name:title,columns:Math.min(16,colors.length)}):toHexText(colors);
+ download(new Blob([body],{type:'text/plain'}),`${title}-palette.${format}`);
+}
+export const mount=ctx=>createBatch(ctx,{options,simple,advanced,read,reflect,process,summary,pill,detail,viewerActions,action,pixelated:true,advancedOpen:o=>o.palette!=='auto'});
