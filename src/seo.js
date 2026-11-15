@@ -88,11 +88,32 @@ export function socialMetadata(id,locale,siteURL,overrides={}){
  const image=siteURL?new URL(`assets/social/${locale}-${id}.png`,siteURL).href:'';
  return `<meta data-site-seo property="og:type" content="website"><meta data-site-seo property="og:site_name" content="${esc(BRAND.name)}"><meta data-site-seo name="application-name" content="${esc(BRAND.name)}"><meta data-site-seo property="og:locale" content="${{en:'en_US',ko:'ko_KR',ja:'ja_JP'}[locale]}"><meta data-site-seo name="twitter:card" content="summary_large_image"><meta data-site-seo name="twitter:title" content="${esc(title)}"><meta data-site-seo name="twitter:description" content="${esc(description)}">`+(image?`<meta data-site-seo property="og:image" content="${esc(image)}"><meta data-site-seo property="og:image:width" content="1200"><meta data-site-seo property="og:image:height" content="630"><meta data-site-seo property="og:image:alt" content="${esc(title)}"><meta data-site-seo name="twitter:image" content="${esc(image)}">`:'');
 }
+/** Tools whose URL sits under /game/ (the store art pack, the avatar maker, the SFX generator) belong
+ * to the game hub, so their breadcrumb names it as the game landings do (tools/game-seo-build.mjs).
+ * Three strings rather than an import: this module also runs in the browser and must not pull in the
+ * landing registry. tests/seo-audit.test.mjs pins them to src/game-seo.js UI.hub. */
+export const GAME_HUB_CRUMB=Object.freeze({path:'game',name:Object.freeze({en:'Game studio',ko:'게임 스튜디오',ja:'ゲームスタジオ'})});
+/** BreadcrumbList JSON-LD for `trail`: [name, site path] pairs from the home page down to the page itself. */
+export function breadcrumbData(trail,locale,siteURL){
+ if(!siteURL||trail.length<2)return '';
+ const data={'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:trail.map(([name,p],i)=>({'@type':'ListItem',position:i+1,name,item:new URL(pagePath(p,locale),siteURL).href}))};
+ return `<script data-site-seo type="application/ld+json">${JSON.stringify(data).replaceAll('<','\\u003c')}</script>`;
+}
+/** Home → (game hub, for a tool under /game/) → the tool → (its landing page). */
+export function toolTrail(toolPath,toolName,locale){
+ const hub=toolPath.startsWith(GAME_HUB_CRUMB.path+'/')?[[GAME_HUB_CRUMB.name[locale]||GAME_HUB_CRUMB.name.en,GAME_HUB_CRUMB.path]]:[];
+ return [[BRAND.name,''],...hub,[toolName,toolPath]];
+}
 export function navigationData(id,locale,siteURL,path=''){
  if(!siteURL||id==='home')return '';
- const land=landingText(path,locale),tool={'@type':'ListItem',position:2,name:t(`intent.${id}.title`,{},locale),item:new URL(pagePath(INTENTS[id].path,locale),siteURL).href};
- const data={'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:BRAND.name,item:new URL(pagePath('',locale),siteURL).href},tool,...(land?[{'@type':'ListItem',position:3,name:land.title,item:new URL(pagePath(path,locale),siteURL).href}]:[])]};
- return `<script data-site-seo type="application/ld+json">${JSON.stringify(data).replaceAll('<','\\u003c')}</script>`;
+ const land=landingText(path,locale);
+ return breadcrumbData([...toolTrail(INTENTS[id].path,t(`intent.${id}.title`,{},locale),locale),...(land?[[land.title,path]]:[])],locale,siteURL);
+}
+/** Head metadata of a page built outside the tool shell (tools/sfx-build.mjs): the Open Graph title and
+ * description every other page carries, the social card, and the breadcrumb for its place in the site. */
+export function standaloneMetadata({path,title,description,locale,siteURL}){
+ const full=`${title} · ${BRAND.name}`;
+ return `<meta property="og:title" content="${esc(full)}"><meta property="og:description" content="${esc(description)}">`+socialMetadata('home',locale,siteURL,{title:full,description})+breadcrumbData(toolTrail(path,title,locale),locale,siteURL);
 }
 export function updateSEO(id,locale,siteURL,path=''){
  const land=landingText(path,locale),social=land?{title:land.title+' · '+BRAND.name,description:land.description}:{};
