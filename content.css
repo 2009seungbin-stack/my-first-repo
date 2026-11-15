@@ -17,7 +17,7 @@
 .policy-main h1{font-size:clamp(28px,5vw,38px);line-height:1.25;letter-spacing:-.02em;color:var(--ink);margin:14px 0 22px;scroll-margin-top:16px}
 .policy-main h2{line-height:1.35;scroll-margin-top:16px}.policy-main section{border-top:1px solid #e6ebf2}.policy-main section p{max-width:74ch;margin:0 0 24px}
 .policy-main h1:focus,.policy-main h2:focus{outline:0}.policy-main h1:focus-visible,.policy-main h2:focus-visible,.policy-main a:focus-visible,.policy-header a:focus-visible,.policy-print:focus-visible{outline:3px solid #95bfff;outline-offset:4px;border-radius:4px}
-.policy-home,.policy-languages a,.policy-top a{display:inline-flex;align-items:center;min-height:44px}.policy-languages a{padding:0 4px;color:#2466bc}
+.policy-home,.policy-languages a,.policy-top a{display:inline-flex;align-items:center;min-height:44px}.policy-home{scroll-margin-top:24px}.policy-languages a{padding:0 4px;color:#2466bc}
 .policy-main .community-closed{margin:0 0 24px;padding:4px 22px 0;border:1px solid #ecd9a8;border-radius:14px;background:#fff9e8;color:#4a3d16}.policy-main .community-closed h2{margin-top:16px;font-size:18px}.policy-main .community-closed p{margin-bottom:16px}
 .policy-toc{margin:0 0 34px;padding:18px 22px;border:1px solid #d6e2f3;border-radius:14px;background:#f5f9ff}
 .policy-main .policy-toc h2{margin:0 0 6px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#52647c}

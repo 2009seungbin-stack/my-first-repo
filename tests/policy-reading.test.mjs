@@ -17,7 +17,8 @@ test('every policy page lists each section once, in order, with a matching ancho
   // The page sets <base>, so a bare "#sec-1" would leave the page; links carry the route.
   for(const [route] of toc)assert.equal(route,`${locale}/${page}/`);
   assert.match(html,new RegExp(`<a data-policy-anchor href="${locale}/${page}/#policy-top">`));
-  assert.match(html,/<h1 id="policy-top" tabindex="-1">/);
+  // Back to top lands on the first link of the page; the <h1> stays attribute-free.
+  assert(html.startsWith(`<a class="policy-home" id="policy-top" href="${locale}/">`));assert.equal((html.match(/<h1>/g)||[]).length,1);
   assert.equal(new Set(heads.map(([id])=>id)).size,heads.length,'unique ids');
  }
 });
