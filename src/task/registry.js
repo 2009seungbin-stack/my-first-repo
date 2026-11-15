@@ -30,6 +30,8 @@ export const TASK_TOOLS=Object.freeze({
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
  crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']},
+ // Metadata viewer and remover: reads the container, never re-encodes pixels (src/image-metadata.js).
+ 'image-metadata':{module:'image-metadata',kinds:['image'],next:['compress','convert','resize']},
  'webtoon-manga-toolkit':{module:'webtoon',kinds:['image'],next:['crop','compress','image']},
  ...Object.fromEntries(Object.entries({'refiner':['pixel-lab','sprite-sheet-maker','palette-swap'],'logo-bg':['margin-crop','favicon-pack','compress'],'margin-crop':['resize','compress','convert'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
  // Palette swap has its own page: the image's palette, an eyedropper and several swaps per run.
@@ -63,14 +65,14 @@ export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
 export const DIRECTORY=Object.freeze([
  ['text',['character-counter']],
- ['image',['compress','convert','resize','crop','webtoon-manga-toolkit','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
+ ['image',['compress','convert','resize','crop','webtoon-manga-toolkit','remove-bg','upscale','heic','image-metadata','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf-protect','pdf-unlock','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
  // Labs first, then each Lab's focused stage routes, then the single-shot recipes.
  ['game',['pixel-avatar-maker','sprite-lab','pixel-lab','tile-lab','texture-lab','ui-lab','store-art-pack','sprite-slicer','frame-normalize','sprite-animation-preview','sprite-pivot-editor','hitbox-editor','collision-polygon-generator','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','tileset-slicer','autotile-tester','seamless-tile-checker','tile-helper','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed','texture-map','9-slice-editor','button-state-generator','missing-glyph-checker','ui-scale-preview','bitmap-font','pixel','refiner','palette-swap','sprite-sheet-maker','atlas-padding','mask-packer','favicon-pack']]
 ]);
 /** Short format-style badge per tool; falls back to the category badge. */
-export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF','pdf-protect':'LOCK','pdf-unlock':'OPEN',pdf:'EDIT',
+export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','image-metadata':'EXIF','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF','pdf-protect':'LOCK','pdf-unlock':'OPEN',pdf:'EDIT',
  'video-gif':'GIF','video-mp3':'MP3','video-compress':'−%','video-trim':'CUT','video-frame':'PNG',media:'EDIT',pixel:'PX','favicon-pack':'ICO','sprite-sheet-maker':'▦','bitmap-font':'FNT',
  'tile-lab':'LAB','tileset-slicer':'▤','autotile-tester':'47','seamless-tile-checker':'∞',
  'ui-lab':'UI','9-slice-editor':'9◱','button-state-generator':'BTN','missing-glyph-checker':'字','ui-scale-preview':'1×'});

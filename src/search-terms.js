@@ -1,4 +1,5 @@
 export const SEARCH_TERMS = Object.freeze({
+ 'image-metadata':['exif viewer','exif remover','remove gps from photo','strip metadata','사진 위치 정보 삭제','EXIF 삭제','메타데이터 제거','Exif 削除','位置情報 削除'],
  'character-counter':['글자수 세기','자소서 글자수','文字数カウント','word counter','character count'],
  'remove-bg':['remove bg','background remover','transparent background','배경 제거','누끼','背景削除'],
  'logo-bg':['white background remover','transparent logo','로고 배경','白背景'],

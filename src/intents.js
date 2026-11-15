@@ -16,6 +16,7 @@ export const INTENTS=Object.freeze({
  heic:spec('image/heic-to-jpg','image','export','image','convert','image',['compress','crop','pixel']),
  crop:spec('image/crop','image','crop','crop','crop','image',['upscale','remove-bg','compress']),
  resize:spec('image/resize','image','resize','resize','resize','image',['compress','convert','pixel']),
+ 'image-metadata':spec('image/metadata','image','','image','export','image',['compress','convert','resize']),
  pixel:spec('pixel','pixel','pixel','pixel','pixel','image',['pixel-lab','sprite-sheet-maker','palette-swap']),
  pdf:spec('pdf/editor','pdf','','pdf','pdf','pdfImage',['pdf-split','pdf-compress','pdf-to-jpg']),
  'pdf-merge':spec('pdf/merge','pdf','','plus','pdf','pdf',['pdf-compress','pdf-split','pdf-to-jpg']),
