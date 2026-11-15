@@ -4,7 +4,7 @@
  * stay in the side rail. Best lists and sort variants remain accessible without search indexing. */
 import {html,raw} from './html.js';
 import {t} from './strings.js';
-import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,channelTile,channelName} from './ui.js';
+import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,channelTile,channelName,kbdHint} from './ui.js';
 import {loadRail,renderRail,statusStrip} from './rail.js';
 import {icon} from './icons.js';
 import {buttonsHTML} from '../../src/signin-brands.js';
@@ -75,7 +75,7 @@ export function renderBest(m,site){
  const qs=(/** @type {Record<string,string|null>} */ p)=>{const u=new URLSearchParams();const all={period:m.period==='day'?null:m.period,ch:m.channel,...p};for(const [k,v] of Object.entries(all))if(v)u.set(k,v);const x=u.toString();return base+(x?`?${x}`:'');};
  const periods=html`<nav class="ftabs" aria-label="${ko?'기간':'Period'}">${Object.entries(BEST_PERIODS).map(([k,v])=>html`<a href="${qs({period:k==='day'?null:k})}"${m.period===k?html` class="on" aria-current="page"`:''}>${/** @type {any} */(v)[l]}</a>`)}</nav>`;
  const chs=html`<nav class="ftabs chf" aria-label="${ko?'채널':'Channel'}"><a href="${qs({ch:null})}"${!m.channel?html` class="on"`:''}>${s.all}</a>${BAR.map(c=>html`<a href="${qs({ch:c.id})}"${m.channel===c.id?html` class="on"`:''}>${c.names[lang]}</a>`)}</nav>`;
- const list=box({title:ko?'★ 념글':'★ Best posts',extra:periods,note:s.bestRule},m.posts.length?html`<ol class="plist">${m.posts.map((p,i)=>html`<li class="lr"><span class="rank">${i+1}</span><a class="tt" href="${postHref(l,p)}">${kindChip(p.kind,l,p.channel_id)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a><span class="lrm"><a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>${p.tags[0]?html`<a class="rtag" href="${channelUrl(l,p.tags[0])}">${nameOf(p.tags[0],l)}</a>`:''}</span><span class="up">▲ ${p.up}</span></li>`)}</ol>`:html`<p class="empty">${ko?'이 기간에 념글이 된 글이 없습니다.':'No best posts in this period.'}</p>`);
+ const list=box({title:ko?'★ 념글':'★ Best posts',extra:periods,note:s.bestRule},m.posts.length?html`<ol class="plist">${m.posts.map((p,i)=>html`<li class="lr"><span class="rank">${i+1}</span><a class="tt" href="${postHref(l,p)}">${kindChip(p.kind,l,p.channel_id)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a><span class="lrm"><a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>${p.tags[0]?html`<a class="rtag" href="${channelUrl(l,p.tags[0])}">${nameOf(p.tags[0],l)}</a>`:''}</span><span class="up">▲ ${p.up}</span></li>`)}</ol>${m.posts.length>1?kbdHint(l):''}`:html`<p class="empty">${ko?'이 기간에 념글이 된 글이 없습니다.':'No best posts in this period.'}</p>`);
  const body=html`<div class="narrow"><h1 class="sr-only">${ko?'전체 베스트 — 채널별 념글':'Best posts'}</h1><section class="box kwb">${chs}</section>${list}</div>`;
  return page({l,title:ko?'전체 베스트 — 채널별 념글 | Nerulio':'Best posts | Nerulio',description:ko?'AI·게임·PC·창작 도구·애니·자유 채널에서 추천을 많이 받은 글.':'Most upvoted posts across channels.',
   canonical:site.origin+qs({}),noindex:true,channels:m.channels,bestOn:true,body});

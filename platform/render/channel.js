@@ -6,7 +6,7 @@
 import {html} from './html.js';
 import {t} from './strings.js';
 import {icon} from './icons.js';
-import {page,box,nameOf,channelUrl,postHref,postRow,boardHead,kindChip,monogram,TILE,officialLinks,signInUrl,channelName} from './ui.js';
+import {page,box,nameOf,channelUrl,postHref,postRow,boardHead,kindChip,monogram,TILE,officialLinks,signInUrl,channelName,kbdHint} from './ui.js';
 import {compact} from './format.js';
 import {pickFact,factsFor,boardPosts,channelStats,recentTitles,contentCounts,relatedChannels,koAlias,tagChildren,SORTS} from '../db/channel.js';
 import {PREDICATES} from '../schema.js';
@@ -104,7 +104,7 @@ export function renderChannel(m,site){
  const foot=html`<p class="pad tagf"><a href="${channelPath(l,home.id)}?tag=${e.id}">${ko?`${channelName(home.id,l)} 채널에서 ${name} 글 모두 보기`:`All ${name} posts in ${channelName(home.id,l)}`} ›</a><a class="btn p" href="${writePath(l,m.home,{tag:e.id})}">${ko?'이 태그로 글쓰기':'Write with this tag'}</a></p>`;
  const boardBox=html`<section class="box board" id="board">${scope}${tabs}${sortBar}
 <ol class="plist" aria-label="${ko?`${name} 태그 글`:`Posts tagged ${name}`}">${boardHead(l)}${rows}</ol>
-${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:(ko?`아직 ${name} 태그를 단 글이 없어요. 첫 글을 써 보세요.`:`No posts tagged ${name} yet. Write the first one.`)}</p>`}${pager}${foot}</section>`;
+${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:(ko?`아직 ${name} 태그를 단 글이 없어요. 첫 글을 써 보세요.`:`No posts tagged ${name} yet. Write the first one.`)}</p>`}${pager}${rows.length>1?kbdHint(l):''}${foot}</section>`;
  const trending=m.trending.length?html`<section class="box kwb"><b>${s.trending}</b>${m.trending.map(k=>html`<a class="kw" href="/${l}/search/?in=${encodeURIComponent(e.id)}&amp;q=${encodeURIComponent(k)}">${k}</a>`)}</section>`:'';
  const wikiRows=m.panel.wiki(m.data,ctx);
  const links=officialLinks(e.official_urls,l);

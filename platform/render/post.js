@@ -4,7 +4,7 @@
  * comments with the best comment on top, then the channel's board around this post. */
 import {html,raw} from './html.js';
 import {t} from './strings.js';
-import {page,nameOf,channelUrl,postHref,postRow,boardHead,author,authorText,kindChip,tagChip,signInUrl,channelName,channelTile} from './ui.js';
+import {page,nameOf,channelUrl,postHref,postRow,boardHead,author,authorText,kindChip,tagChip,signInUrl,channelName,channelTile,kbdHint} from './ui.js';
 import {fullTime,boardTime,compact} from './format.js';
 import {postByChannelNo,commentsOf,reportById,boardPosts,entitiesByIds,compatibilityOf} from '../db/channel.js';
 import {renderMarkdown,plainExcerpt} from '../markdown.js';
@@ -102,7 +102,7 @@ ${propose?html`<section class="box">${propose}</section>`:''}
 <section class="box" id="comments"><h2 class="cmh">${s.commentsN(nComments)}</h2>
 <form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea>${anonFields(l,url)}</div><button class="btn p" type="submit">${s.submit}</button></form>
 ${nComments?sortBar:''}<ol class="cl">${accepted?comment(accepted,0,true):best?comment(best,0,true):''}${thread(null,0)}</ol></section>
-<section class="box"><div class="cmh">${s.channelList(name)}</div><ol class="plist">${boardHead(l)}${m.around.map(x=>postRow(x,{l,now,current:x.id===p.id}))}</ol><div class="pager"><a class="btn" href="${base}">${s.moreList}</a></div></section>`;
+<section class="box"><div class="cmh">${s.channelList(name)}</div><ol class="plist">${boardHead(l)}${m.around.map(x=>postRow(x,{l,now,current:x.id===p.id}))}</ol><div class="pager"><a class="btn" href="${base}">${s.moreList}</a></div>${m.around.length>2?kbdHint(l):''}</section>`;
  const wrapped=html`<div class="front postv"><div class="mainc">${body}</div><div class="side">${renderRail(m.rail,l)}</div></div>`;
  const description=plainExcerpt(p.body_md,150)||p.title;
  // A post exists in the language it was written in: that URL is canonical and the only one indexed.
