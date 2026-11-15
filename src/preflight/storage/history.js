@@ -11,11 +11,14 @@ export function snapshotRun(result){
   counts:Object.fromEntries(Object.entries(result.counts).filter(([,n])=>n)),
   components:result.components.slice(0,HISTORY_COMPONENT_LIMIT).map(c=>[c.component.id,String(c.component.name).slice(0,160),c.status])};
 }
+/** Verdict and status codes are rendered as class names and icon lookups, so stored ones must look like codes. */
+const CODE=/^[A-Z][A-Z_]{0,39}$/;
 /** @param {unknown} run @returns {run is RunSnapshot} */
 const valid=run=>{
  const r=/** @type {RunSnapshot} */(run);
- return !!r&&typeof r.at==='string'&&typeof r.verdict==='string'&&typeof r.to==='string'&&typeof r.from==='string'&&Number.isFinite(r.total)&&!!r.counts&&typeof r.counts==='object'&&
-  Array.isArray(r.components)&&r.components.length<=HISTORY_COMPONENT_LIMIT&&r.components.every(c=>Array.isArray(c)&&c.length===3&&c.every(x=>typeof x==='string'));
+ return !!r&&typeof r.at==='string'&&CODE.test(r.verdict)&&typeof r.to==='string'&&typeof r.from==='string'&&typeof r.name==='string'&&typeof r.platform==='string'&&typeof r.architecture==='string'&&
+  Number.isFinite(r.total)&&!!r.counts&&typeof r.counts==='object'&&Object.entries(r.counts).every(([s,n])=>CODE.test(s)&&Number.isFinite(n))&&
+  Array.isArray(r.components)&&r.components.length<=HISTORY_COMPONENT_LIMIT&&r.components.every(c=>Array.isArray(c)&&c.length===3&&c.every(x=>typeof x==='string')&&CODE.test(c[2]));
 };
 /** Newest first. History is disposable, so unreadable data reads as empty instead of blocking the app.
  * @param {Store} storage @param {string} vertical @returns {RunSnapshot[]} */

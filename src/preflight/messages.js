@@ -156,7 +156,7 @@ export const MESSAGES={
  historyEmpty:['아직 기록된 실행이 없습니다.','No runs recorded yet.','記録された実行はまだありません。'],
  historyClear:['기록 지우기','Clear history','履歴を消去'],historyCleared:['실행 기록을 지웠습니다.','Run history cleared.','実行履歴を消去しました。'],
  historyRecorded:['실행을 기록했습니다.','Run recorded.','実行を記録しました。'],
- historyChanges:['이전 실행 대비 상태 변경 {count}건','{count} status changes since the previous run','前回の実行から状態の変更 {count}件'],
+ historyChanges:['이전 실행 대비 상태 변경 {count}건','Status changes since the previous run: {count}','前回の実行から状態の変更 {count}件'],
  historyNoChanges:['이전 실행과 구성 요소 상태가 같습니다.','No component status changed since the previous run.','前回の実行から項目の状態に変更はありません。'],
  historyFirst:['첫 기록입니다. 다음 실행부터 이 결과와 비교합니다.','First recorded run. Later runs are compared with it.','最初の記録です。次回の実行からこの結果と比較します。'],
  historyTarget:['버전·OS·아키텍처 입력이 이전 실행과 다릅니다.','Version, OS or architecture inputs differ from the previous run.','バージョン・OS・アーキテクチャの入力が前回の実行と異なります。'],

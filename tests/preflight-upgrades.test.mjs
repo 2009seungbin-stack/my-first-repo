@@ -88,6 +88,12 @@ test('preflight history: unreadable or foreign data reads as empty and is replac
  }
  assert.equal(recordRun(store,'obs',a).length,1);
  const stored=JSON.parse(store.getItem('nerulio.preflight.v1.history.obs'));
+ assert.equal(listRuns(store,'obs').length,1,'a real snapshot passes validation');
+ for(const tamper of [r=>{r.verdict='READY,body *';},r=>{r.components[0][2]='<img src=x>';},r=>{r.counts={'x y':1};},r=>{delete r.platform;}]){
+  const copy=structuredClone(stored);tamper(copy.runs[0]);store.setItem('nerulio.preflight.v1.history.obs',JSON.stringify(copy));
+  assert.deepEqual(listRuns(store,'obs'),[],'a run whose codes do not look like status codes is dropped');
+ }
+ store.setItem('nerulio.preflight.v1.history.obs',JSON.stringify(stored));
  assert.equal(stored.schemaVersion,1);
  assert.ok(!JSON.stringify(stored).includes('installPath'),'only names, ids and statuses are kept');
 });
