@@ -14,6 +14,14 @@ import {CHANNELS,channelById,channelPath,writePath,writableFlairs,flairLabel,FEA
 import {verticalOf} from '../verticals/index.js';
 import {label} from '../labels.js';
 
+
+/** The body's formatting buttons (src/platform/format-text.js): Markdown this site's renderer understands.
+ * Hidden until the page script wires them, so nothing is a dead button without JavaScript.
+ * [kind, face, class, ko, en, shortcut] */
+const FORMAT_BUTTONS=/** @type {[string,string,string,string,string,string][]} */([['bold','B','fb','굵게','Bold','Ctrl+B'],['italic','I','fi','기울임','Italic','Ctrl+I'],['strike','S','fs','취소선','Strikethrough',''],['code','</>','fc','코드','Code',''],
+ ['link','','','링크','Link','Ctrl+K'],['quote','','','인용','Quote',''],['ul','','','목록','List',''],['ol','','','번호 목록','Numbered',''] ]);
+/** @param {boolean} ko */
+const formatBar=ko=>html`<div class="wfmt" role="toolbar" aria-label="${ko?'본문 서식':'Body formatting'}" data-format-bar hidden>${FORMAT_BUTTONS.map(([kind,face,cls,k,e,key])=>html`<button type="button" data-format="${kind}"${cls?html` class="${cls}"`:''} title="${ko?k:e}${key?` (${key})`:''}"${face?html` aria-label="${ko?k:e}"`:''}>${face||(ko?k:e)}</button>`)}</div>`;
 /** @param {any} db @param {{l:string,now:number,channel:string,tag?:string|null,kind?:string|null,result?:string|null,channels?:{name:string,href:string,id?:string}[]}} o */
 export async function loadWrite(db,o){
  const ch=/** @type {import('../channels.js').Channel} */(channelById(o.channel));
@@ -69,8 +77,8 @@ ${ch.vertical?html`<details class="tprop" data-island="tag-propose" data-channel
 ${flairs}
 ${rep}
 <input class="wti" name="title" maxlength="${LIMITS.title[1]}" minlength="${LIMITS.title[0]}" required autocomplete="off" placeholder="${ko?'제목':'Title'}" aria-label="${ko?'제목':'Title'}">
-<div class="wed"><div class="wbar"><div class="imgpick" data-image-picker hidden><label class="wtool" title="${ko?'최대 10장 · 올리기 전에 이 기기에서 크기를 줄이고 위치 정보(EXIF)를 지워요 · 움짤(GIF)은 첫 장면만':'Up to 10 · resized on this device, location data removed · a GIF becomes a still'}"><input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif" multiple hidden data-image-input>${icon('photo',18)}<span>${ko?'이미지':'Images'}</span></label></div></div>
-<textarea name="body" maxlength="${LIMITS.body[1]}" placeholder="${ph}" aria-label="${ko?'본문':'Body'}"></textarea><ul class="imgs" data-image-list></ul></div>
+<div class="wed"><div class="wbar" data-pv="${ko?'미리보기 · 등록하면 이렇게 보여요':'Preview · how the post will look'}"><div class="imgpick" data-image-picker hidden><label class="wtool" title="${ko?'최대 10장 · 올리기 전에 이 기기에서 크기를 줄이고 위치 정보(EXIF)를 지워요 · 움짤(GIF)은 첫 장면만':'Up to 10 · resized on this device, location data removed · a GIF becomes a still'}"><input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif" multiple hidden data-image-input>${icon('photo',18)}<span>${ko?'이미지':'Images'}</span></label></div>${formatBar(ko)}<span class="wsp"></span><button type="button" class="wpv" data-preview-toggle aria-pressed="false" aria-controls="wprev" hidden>${ko?'미리보기':'Preview'}</button></div>
+<textarea name="body" maxlength="${LIMITS.body[1]}" placeholder="${ph}" aria-label="${ko?'본문':'Body'}"></textarea><div class="wprev pbody" id="wprev" data-preview hidden tabindex="0" role="region" aria-label="${ko?'본문 미리보기':'Body preview'}"></div><ul class="imgs" data-image-list></ul></div>
 ${tags}
 ${anonFields(l,self)}
 <div class="acts"><a class="fine" href="/${l}/community/policy">${ko?'운영정책':'Rules'}</a><span class="sp"></span><button class="btn p" type="submit" data-label="${ko?'등록':'Post'}">${ko?'등록':'Post'}</button></div>

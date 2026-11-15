@@ -1,12 +1,15 @@
-/* Nerulio platform pages: the theme (white unless the reader chose dark on this browser) and the menu
-   drawer on narrow screens. Loaded as a classic script in <head> so the saved theme applies before the
+/* Nerulio platform pages: the theme (white unless the reader chose dark on this browser), the post lists'
+   density (roomy unless the reader chose compact on this browser) and the menu drawer on narrow screens. Loaded as a classic script in <head> so the saved theme applies before the
    first paint; everything else waits for the document. */
 (()=>{
- const KEY='nerulio-theme',root=document.documentElement;
- let saved=null;
- try{saved=localStorage.getItem(KEY);}catch{}
+ const KEY='nerulio-theme',DENSITY='nerulio-density',root=document.documentElement;
+ let saved=null,density=null;
+ try{saved=localStorage.getItem(KEY);density=localStorage.getItem(DENSITY);}catch{}
  if(saved==='dark')root.dataset.theme='dark';
- const sync=()=>{const dark=root.dataset.theme==='dark';for(const b of document.querySelectorAll('[data-theme-toggle]')){b.setAttribute('aria-pressed',String(dark));}};
+ if(density==='compact')root.dataset.density='compact';
+ const sync=()=>{const dark=root.dataset.theme==='dark';for(const b of document.querySelectorAll('[data-theme-toggle]')){b.setAttribute('aria-pressed',String(dark));}
+  // The density button is server-rendered hidden: it shows once this script can act on it.
+  for(const b of document.querySelectorAll('[data-density-toggle]')){b.setAttribute('aria-pressed',String(root.dataset.density==='compact'));b.hidden=false;}};
  const ready=()=>{
   sync();
   const drawer=document.getElementById('lnav'),opener=document.querySelector('[data-drawer-open]'),narrow=matchMedia('(max-width:1000px)'),backdrop=new Map();
@@ -57,6 +60,12 @@
     const dark=root.dataset.theme!=='dark';
     if(dark)root.dataset.theme='dark';else delete root.dataset.theme;
     try{localStorage.setItem(KEY,dark?'dark':'light');}catch{}
+    sync();return;
+   }
+   if(t.closest('[data-density-toggle]')){
+    const compact=root.dataset.density!=='compact';
+    if(compact)root.dataset.density='compact';else delete root.dataset.density;
+    try{localStorage.setItem(DENSITY,compact?'compact':'roomy');}catch{}
     sync();return;
    }
    // FILE / GAME in the icon column open their group in the menu.

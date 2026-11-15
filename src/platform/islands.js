@@ -8,6 +8,8 @@
  * The Turnstile check runs in the /verify/ frame (its own CSP) only when a write asks for it. */
 import {buttonsHTML,validReturn} from '../signin-brands.js';
 import {mountHardwareTools} from '../hardware/islands.js';
+import {stepIndex,shortcutAllowed} from './keys.js';
+import {applyFormat,FORMATS} from './format-text.js';
 const L=document.documentElement.lang==='en'?'en':document.documentElement.lang==='ja'?'ja':'ko';
 const T={
  ko:{login:'로그인',signInTitle:'로그인하고 참여하기',signInNote:'글·댓글·구독·추천·신고는 로그인하면 할 수 있어요. 읽기는 로그인 없이 됩니다.',signInClose:'닫기',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
@@ -399,7 +401,31 @@ async function channels(signedIn){
  if(tagHead)recentTags.add({id:tagHead.dataset.entity,name:tagHead.dataset.tagName,url:location.pathname});
 }
 
+/** Keyboard reading (keys.js): / goes to the search box; j and k walk the post links of the lists on this
+ * page (Enter opens the focused link). The hint under a list shows only once this is listening. */
+function listKeys(){
+ const shown=(/** @type {Element|null} */ x)=>!!x&&x.getClientRects().length>0;
+ addEventListener('keydown',e=>{
+  const rows=()=>/** @type {HTMLElement[]} */([...document.querySelectorAll('.plist a.tt,[data-keys] a.tt')].filter(shown));
+  // From the search page's own box, ↓ goes to the first result (j and k are letters there).
+  if(e.key==='ArrowDown'&&!e.isComposing&&/** @type {Element} */(document.activeElement)?.matches?.('.sform input[type="search"]')){const first=rows()[0];if(first){e.preventDefault();first.focus();}return;}
+  if(!shortcutAllowed(document.activeElement,e)||document.querySelector('dialog[open]'))return;
+  if(e.key==='/'){
+   const q=/** @type {HTMLInputElement|undefined} */([...document.querySelectorAll('.sform input[type="search"],.hq input[type="search"]')].find(shown));
+   if(q){e.preventDefault();q.focus();q.select();}
+   return;
+  }
+  if(e.key!=='j'&&e.key!=='k')return;
+  const list=rows();
+  const n=stepIndex(list.indexOf(/** @type {any} */(document.activeElement)),list.length,e.key==='j'?1:-1);
+  if(n<0)return;
+  e.preventDefault();list[n].focus({preventScroll:true});
+  list[n].scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+ });
+ for(const h of document.querySelectorAll('[data-kbd-hint]'))/** @type {HTMLElement} */(h).hidden=false;
+}
 async function main(){
+ listKeys();
  mountHardwareTools();
  const bracket=$('[data-island="bracket"]');
  if(bracket)import('../bracket/app.js').then(m=>m.mountBracket(bracket));
@@ -780,6 +806,53 @@ async function main(){
   // Draft kept in this browser (title, body, tags) so switching channels, signing in or a closed tab does not lose it.
   const dkey=`n2-draft:${L}:write`,ti=$('input[name="title"]',wf),ta=$('textarea[name="body"]',wf);
   const store={get(){try{return JSON.parse(localStorage.getItem(dkey)||'null');}catch{return null;}},set(v){try{v?localStorage.setItem(dkey,JSON.stringify(v)):localStorage.removeItem(dkey);}catch{}}};
+  // Formatting buttons (format-text.js) and Ctrl/⌘+B, I, K in the body: Markdown the renderer understands.
+  const fbar=$('[data-format-bar]',wf);
+  if(fbar&&ta){
+   const words=L==='ko'?{text:'내용',item:'항목'}:{text:'text',item:'item'};
+   const format=(/** @type {string} */ kind)=>{
+    if(!FORMATS.includes(kind))return;
+    const r=applyFormat(ta.value,ta.selectionStart,ta.selectionEnd,kind,words);
+    ta.focus();
+    // insertText keeps the browser's undo history; where it is not available the value is set directly.
+    let done=false;try{ta.select();done=document.execCommand('insertText',false,r.value);}catch{}
+    if(!done||ta.value!==r.value)ta.value=r.value;
+    ta.setSelectionRange(r.start,r.end);
+    ta.dispatchEvent(new Event('input',{bubbles:true}));
+   };
+   fbar.addEventListener('click',e=>{const b=/** @type {Element} */(e.target).closest('[data-format]');if(b)format(/** @type {HTMLElement} */(b).dataset.format||'');});
+   // Keep the selection in the body when a button is pressed with the mouse.
+   fbar.addEventListener('mousedown',e=>{if(/** @type {Element} */(e.target).closest('[data-format]'))e.preventDefault();});
+   ta.addEventListener('keydown',e=>{
+    if(!(e.ctrlKey||e.metaKey)||e.altKey||e.shiftKey||e.isComposing)return;
+    const kind={b:'bold',i:'italic',k:'link'}[e.key.toLowerCase()];
+    if(kind){e.preventDefault();format(kind);}
+   });
+   fbar.hidden=false;
+  }
+  // Preview: the body as the post page will show it, rendered by the server's own renderer (POST /preview;
+  // nothing is saved). The same button goes back to editing.
+  const pvb=$('[data-preview-toggle]',wf),pv=$('[data-preview]',wf);
+  if(pvb&&pv&&ta){
+   const P=L==='ko'?{show:'미리보기',edit:'계속 쓰기',empty:'미리 볼 내용이 아직 없어요.'}:{show:'Preview',edit:'Keep writing',empty:'Nothing to preview yet.'};
+   const wed=pv.closest('.wed');
+   const edit=()=>{pv.hidden=true;pv.textContent='';ta.hidden=false;wed?.classList.remove('pv');pvb.setAttribute('aria-pressed','false');pvb.textContent=P.show;};
+   pvb.addEventListener('click',async()=>{
+    if(!pv.hidden){edit();ta.focus();return;}
+    if(!ta.value.trim()){toast(P.empty);ta.focus();return;}
+    pvb.disabled=true;
+    const r=await api('/preview',{body:ta.value});
+    pvb.disabled=false;
+    if(!r.ok||typeof r.data?.html!=='string'){toast(r.code==='RATE_LIMITED'?T.rate:T.error);return;}
+    // The server's renderer escapes everything and allows only its own Markdown subset (the post page shows the same HTML).
+    pv.innerHTML=r.data.html;
+    pv.style.minHeight=ta.offsetHeight+'px';
+    ta.hidden=true;pv.hidden=false;wed?.classList.add('pv');pvb.setAttribute('aria-pressed','true');pvb.textContent=P.edit;pv.focus();
+   });
+   // Anything that needs the text field (a failed submit's focus, a restored draft) finds it again.
+   wf.addEventListener('submit',()=>{if(!pv.hidden)edit();},true);
+   pvb.hidden=false;
+  }
   const saved=store.get();
   if(saved&&ti&&ta&&!ti.value&&!ta.value&&(saved.title||saved.body)){ti.value=saved.title||'';ta.value=saved.body||'';for(const x of Array.isArray(saved.tags)?saved.tags:[])picker?.add(x);toast(L==='ko'?'임시저장한 글을 불러왔어요.':'Draft restored.');}
   const keep=()=>store.set(ti?.value||ta?.value?{title:ti?.value||'',body:ta?.value||'',tags:picker?.list()||[]}:null);
