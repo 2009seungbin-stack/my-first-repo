@@ -92,3 +92,40 @@ test('the real public route prioritizes bounded recorded history, excludes futur
   assert.deepEqual(db.raw.prepare('SELECT id,starts_at,ends_at,status FROM events ORDER BY id').all(),stored);
  }finally{db.raw.close();}
 });
+
+test('the day strip counts listed entries per calendar day and never calls an empty day incident-free',async()=>{
+ const {incidentDays,HISTORY_DAYS}=await import('../platform/render/incident-history.js');
+ const now=Date.parse('2026-11-15T03:00:00Z'),at=(/** @type {string} */ s)=>Date.parse(s);
+ const events=[
+  {...event},// 23:45–00:15 UTC on Nov 13–14 → both UTC days, but one KST day (Nov 14 08:45–09:15)
+  {...event,starts_at:at('2026-11-10T10:00:00Z'),ends_at:null,status:'confirmed'},// no end: start day only
+  {...event,starts_at:at('2026-11-01T12:00:00Z'),ends_at:at('2026-11-03T12:00:00Z')},// starts before the window, ends inside it
+  {...event,starts_at:at('2026-11-12T00:00:00Z'),ends_at:null,precision:'day'},// a date-only record keeps its calendar date in both zones
+  {...event,starts_at:at('2026-11-01T00:00:00Z'),ends_at:null,precision:'month'},// too coarse to place
+  {...event,starts_at:null,ends_at:null},// no start
+ ];
+ const en=incidentDays(events,now,'en'),ko=incidentDays(events,now,'ko');
+ const on=(/** @type {{days:{date:string,count:number}[]}} */ r)=>Object.fromEntries(r.days.filter(d=>d.count).map(d=>[d.date,d.count]));
+ assert.equal(en.days.length,HISTORY_DAYS);assert.equal(en.days[0].date,'2026-11-02');assert.equal(en.days.at(-1)?.date,'2026-11-15');
+ assert.deepEqual(on(en),{'2026-11-02':1,'2026-11-03':1,'2026-11-10':1,'2026-11-12':1,'2026-11-13':1,'2026-11-14':1});
+ assert.deepEqual(on(ko),{'2026-11-02':1,'2026-11-03':1,'2026-11-10':1,'2026-11-12':1,'2026-11-14':1});
+ assert.equal(en.unplaced,2);assert.equal(ko.unplaced,2);
+ // 03:00 UTC is already Nov 15 in Seoul; one hour before 15:00 UTC the KST day has not turned yet.
+ assert.equal(incidentDays([],Date.parse('2026-11-15T14:59:00Z'),'ko').days.at(-1)?.date,'2026-11-15');
+ assert.equal(incidentDays([],Date.parse('2026-11-15T15:00:00Z'),'ko').days.at(-1)?.date,'2026-11-16');
+ // An entry entirely outside the window is not placed.
+ assert.deepEqual(incidentDays([{...event,starts_at:at('2026-10-01T00:00:00Z'),ends_at:at('2026-10-01T01:00:00Z')}],now,'en').unplaced,1);
+ for(const l of ['ko','en']){
+  const body=String(renderIncidentHistory(events,l,now));
+  assert.equal((body.match(/class="ih-d( on)?"/g)||[]).length,HISTORY_DAYS);
+  assert.equal((body.match(/class="ih-d on"/g)||[]).length,l==='ko'?5:6);
+  assert(body.includes(l==='ko'?'빈 칸은 수집된 기록이 없다는 뜻이며, 그날 장애가 없었다는 뜻이 아닙니다':'An empty cell means nothing was collected, not that there was no incident that day'));
+  assert(body.includes(l==='ko'?'날짜를 특정할 수 없는 기록 2개는 넣지 않았습니다':'2 entries without a usable date are not placed'));
+  assert(body.includes(l==='ko'?'11월 2일 – 11월 15일 (KST)':'Nov 2 – Nov 15 (UTC)'));
+  assert(!/정상|장애 없음|all systems|operational|incident-free/i.test(body),'no availability claim');
+  const empty=String(renderIncidentHistory([],l,now));
+  assert.equal((empty.match(/class="ih-d"/g)||[]).length,HISTORY_DAYS);assert(!empty.includes('ih-d on'));
+  assert(empty.includes(l==='ko'?'수집된 기록 없음':'nothing collected'));
+  assert(!String(renderIncidentHistory(events,l)).includes('data-incident-days'),'no strip without a clock');
+ }
+});

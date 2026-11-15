@@ -1214,3 +1214,11 @@ body.n2{background:var(--page)}
 .llm-pick select:disabled{opacity:.6}
 .llm-fit td{white-space:nowrap}
 .mt td.fm{display:table-cell;font-size:inherit;color:var(--warn)}
+/* Collected incident history (platform/render/incident-history.js): entries per day */
+.ih-strip{margin:12px 0 4px}
+.ih-strip h3{font-size:13px;margin:0 0 8px;color:var(--ink2)}
+.ih-days{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px;list-style:none;margin:0 0 8px;padding:0}
+.ih-d{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.ih-b{display:flex;align-items:center;justify-content:center;width:100%;height:30px;border:1px dashed var(--line);border-radius:var(--radius-sm);font:700 12px/1 'JetBrains Mono',ui-monospace,monospace;color:var(--card)}
+.ih-d.on .ih-b{border:1px solid var(--ink2);background:var(--ink2)}
+.ih-n{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
