@@ -26,6 +26,17 @@ export function steps(asset,tag,{whole=false}={}){
  return seq.map(id=>{const index=pos.get(id),f=asset.frames[index],duration=Math.max(1,durationOf(f,tag)),from=at;at+=duration;return {index,id,duration,from,to:at};});
 }
 export const totalMs=list=>list.length?list[list.length-1].to:0;
+/** Preview speeds of the timeline. They scale the playback clock only: frame durations (what gets
+ * saved and exported) never change. */
+export const SPEEDS=[0.25,0.5,1,2,4];
+export const normalizeSpeed=v=>{const n=Number(v);return SPEEDS.includes(n)?n:1;};
+/** The next slower (dir<0) or faster (dir>0) speed; stays at the ends of the list. */
+export const stepSpeed=(speed,dir)=>SPEEDS[Math.max(0,Math.min(SPEEDS.length-1,SPEEDS.indexOf(normalizeSpeed(speed))+Math.sign(dir)))];
+/** Animation time (ms into the step list) at wall-clock `now` for a playback started at `t0`. */
+export const playClock=(now,t0,speed=1)=>(now-t0)*speed;
+/** The start time that shows animation time `ms` at `now` with `speed` — used to start on the
+ * current frame and to change speed mid-playback without jumping to another frame. */
+export const clockStart=(now,ms,speed=1)=>now-ms/speed;
 /** Step shown at time `ms` since playback started. Forever tags wrap; finite ones stop on the last. */
 export function stepAt(list,ms,{loop=true}={}){
  if(!list.length)return null;

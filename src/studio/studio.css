@@ -97,6 +97,25 @@ html,body.studio-page{margin:0;height:100%;overflow:hidden;background:#15171a;ov
 .st-empty-art{display:inline-grid;grid-template-columns:repeat(2,18px);gap:3px}
 .st-empty-art span{width:18px;height:18px;border-radius:2px;background:repeating-conic-gradient(#3a3d44 0 25%,#2e3036 0 50%) 0 0/8px 8px;border:1px solid var(--accent)}
 .st-empty-art span:nth-child(2),.st-empty-art span:nth-child(3){border-color:var(--line-2)}
+/* empty state: built-in samples and recent projects. The card scrolls inside the canvas area when
+   it is taller than it (phones, a tall bottom dock): auto margins centre it only when it fits. */
+.st-empty{overflow-y:auto;align-items:start}
+.st-empty-card{margin:auto;width:100%;box-sizing:border-box}
+.st-empty-sub{font-size:12px;font-weight:600;margin:16px 0 8px;color:var(--text-2)}
+.st-samples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.st-sample{display:grid;justify-items:center;align-content:start;gap:4px;min-width:0;min-height:44px;padding:10px 6px 8px;border:1px solid var(--line-2);border-radius:6px;background:var(--bg-2);color:var(--text);cursor:pointer;font:inherit}
+.st-sample:hover{border-color:var(--accent);background:var(--bg-3)}
+.st-sample b{font-size:12px;font-weight:600;overflow-wrap:anywhere}
+.st-sample small{font-size:11px;color:var(--text-2)}
+.st-sample-pic{width:64px;height:64px;object-fit:contain;image-rendering:pixelated;border-radius:3px;background:repeating-conic-gradient(#3a3d44 0 25%,#2e3036 0 50%) 0 0/8px 8px}
+.st-empty-card .st-empty-note{font-size:11px;margin-top:8px}
+.st-recent{display:grid;gap:4px}
+.st-recent[hidden]{display:none}
+.st-recent-row{display:grid;gap:2px;min-width:0;min-height:44px;padding:6px 10px;border:1px solid var(--line-2);border-radius:5px;background:var(--bg-2);color:var(--text);text-align:left;cursor:pointer;font:inherit}
+.st-recent-row:hover{border-color:var(--accent)}
+.st-recent-row b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-recent-row small{color:var(--text-2)}
+.st-recent-all{justify-self:center;min-height:44px;padding:0 12px}
 .st-hud{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:1px;padding:2px;border-radius:6px;background:rgba(19,21,24,.86);border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.35)}
 .st-hud[hidden]{display:none}
 .st-hud-zoom{min-width:54px;height:24px;border:0;background:none;color:var(--text);font-variant-numeric:tabular-nums;cursor:pointer;border-radius:4px}

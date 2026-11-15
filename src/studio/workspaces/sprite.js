@@ -16,7 +16,7 @@ import {createTimeline} from '../sprite/timeline-ui.js';
 import {createPanels} from '../sprite/panels-ui.js';
 import {createPreview} from '../sprite/preview-ui.js';
 import {createImporter,isSpriteFile} from '../sprite/importers.js';
-import {steps,stepAt,tagAt,stepIndex,onionFrames,rangeTag} from '../sprite/playback.js';
+import {steps,stepAt,tagAt,stepIndex,onionFrames,rangeTag,normalizeSpeed,stepSpeed,playClock,clockStart} from '../sprite/playback.js';
 import {drawFrame,momentBitmap,blobRGBA,rgbaGetter,storeRGBA} from '../sprite/frame-render.js';
 import {composeFrame,composeCanvas,flipRGBA,drawRGBA,celAt,frameDraws,opaqueBounds} from '../sprite/frame-image.js';
 import {asepriteFromAsset} from '../sprite/aseprite-bridge.js';
@@ -54,6 +54,8 @@ export default {
    hint:key=>ctx.toast(t(key)),boxType:()=>prefs.boxType,show:k=>prefs.show[k]!==false,
    playing:()=>S.playing,playTag,scopeIds,step,
    setPref(k,v){prefs[k]=v;storage.set(PREFS,prefs);afterPref(k);},
+   /** Preview speed (0.25×–4×). Changing it while playing keeps the frame that is showing. */
+   setSpeed(v){const speed=normalizeSpeed(v);if(S.playing&&S.play){const now=performance.now();S.play.t0=clockStart(now,playClock(now,S.play.t0,S.play.speed),speed);S.play.speed=speed;}prefs.speed=speed;storage.set(PREFS,prefs);status();},
    setSelection(sel){S.selection=sel;overlay.invalidate();panels.renderFrame();},
    setCurrent,clickFrame,selectTag,setDurations,moveFrames,newTag,addBox,removeBox,
    choose:(id,alt)=>{const a=asset();if(a)importer.choose(a.id,id,alt);},
@@ -189,7 +191,7 @@ export default {
    const a=asset(),f=frame();if(!a){ctx.status('selection','');return;}
    if(!f){ctx.status('selection',t('sp.status.noFrames'));return;}
    const tg=playTag(),cnt=hud.querySelector('[data-sp="hud-count"]');if(cnt)cnt.textContent=`${S.cur+1}/${a.frames.length}`;
-   ctx.status('selection',t('sp.status.frame',{i:S.cur+1,n:a.frames.length,ms:f.duration??100,tag:tg?` · ${tg.name}`:'',sel:S.sel.length>1?` · ${t('sp.status.selected',{n:S.sel.length})}`:''}));
+   ctx.status('selection',t('sp.status.frame',{i:S.cur+1,n:a.frames.length,ms:f.duration??100,tag:tg?` · ${tg.name}`:'',sel:(S.sel.length>1?` · ${t('sp.status.selected',{n:S.sel.length})}`:'')+(normalizeSpeed(prefs.speed)!==1?` · ▶ ${t('sp.tl.speedX',{x:normalizeSpeed(prefs.speed)})}`:'')}));
   }
   // ------------------------------------------------------------ presenting the canvas
   let presenting=false,again=null;
@@ -271,10 +273,11 @@ export default {
    const tg=prefs.loopTag?playTag():null,tag=tg||rangeTag(a);
    const list=steps(a,tag,{whole:!!tg&&tg.repeat>0});if(!list.length)return;
    const k=Math.max(0,list.findIndex(s=>s.index===S.cur));
-   S.playing=true;S.play={list,loop:!tg||tg.repeat===0,t0:performance.now()-list[k].from};
+   const speed=normalizeSpeed(prefs.speed);
+   S.playing=true;S.play={list,loop:!tg||tg.repeat===0,speed,t0:clockStart(performance.now(),list[k].from,speed)};
    timeline.mark();renderHud();
    const tick=()=>{if(!S.playing)return;S.raf=requestAnimationFrame(tick);
-    const s=stepAt(S.play.list,performance.now()-S.play.t0,{loop:S.play.loop});
+    const s=stepAt(S.play.list,playClock(performance.now(),S.play.t0,S.play.speed),{loop:S.play.loop});
     if(s.done){S.cur=s.index;stop();onFrameChanged();return;}
     if(s.index!==S.cur){S.cur=s.index;present();timeline.mark();status();}};
    S.raf=requestAnimationFrame(tick);
@@ -387,6 +390,7 @@ export default {
   const has=()=>!!asset(),hasFrames=()=>!!asset()?.frames.length;
   const cmd=(id,run,{keys,enabled=hasFrames,label,checked,group='frames'}={})=>ctx.command({id,group,keys,run,enabled,checked,label:()=>t(label||'sp.menuCmd.'+id.slice(7))});
   cmd('sprite.play',()=>{if(tools.drawing()&&tools.finishPolygon())return;S.playing?stop():play();},{keys:['Enter'],group:'navigate'});
+  for(const [id,dir,key]of [['sprite.speedDown',-1,'['],['sprite.speedUp',1,']']])cmd(id,()=>{W.setSpeed(stepSpeed(prefs.speed,dir));timeline.render();},{keys:[key],group:'navigate'});
   cmd('sprite.first',()=>{stop();const a=asset(),tg=prefs.loopTag?playTag():null;const pos=tg?tg.frameIds.map(id=>D.indexOf(a,id)).sort((x,y)=>x-y):[0];setCurrent(pos[0],{select:true});},{keys:['Home'],group:'navigate'});
   cmd('sprite.last',()=>{stop();const a=asset(),tg=prefs.loopTag?playTag():null;const pos=tg?tg.frameIds.map(id=>D.indexOf(a,id)).sort((x,y)=>x-y):[a.frames.length-1];setCurrent(pos[pos.length-1],{select:true});},{keys:['End'],group:'navigate'});
   cmd('sprite.onion',()=>W.setPref('onion',{...prefs.onion,on:!prefs.onion.on}),{keys:['F3'],group:'view',checked:()=>prefs.onion.on,enabled:has});
@@ -416,7 +420,7 @@ export default {
   folderInput.addEventListener('change',()=>{const f=[...folderInput.files];folderInput.value='';if(f.length)ctx.importFiles(f,{from:'folder'});});
   view.root.append(folderInput);
   cmd('sprite.importFolder',()=>folderInput.click(),{group:'file',enabled:()=>true});
-  ctx.menu({id:'sprite',title:'sp.menu',items:()=>['sprite.importFolder','sprite.applyImport','-','sprite.play','sprite.first','sprite.last','frame.prev','frame.next','-',
+  ctx.menu({id:'sprite',title:'sp.menu',items:()=>['sprite.importFolder','sprite.applyImport','-','sprite.play','sprite.first','sprite.last','frame.prev','frame.next','sprite.speedDown','sprite.speedUp','-',
    'sprite.newFrame','sprite.emptyFrame','sprite.deleteFrames','sprite.flipFrames','-','sprite.newTag','sprite.renameTag','sprite.mirrorTag','-',
    'sprite.copyBoxesNext','sprite.copyBoxesScope','sprite.autoCollision','sprite.clearCollision','-','sprite.normalize','sprite.measureJitter','sprite.fixJitter','-',
    'sprite.onion','sprite.preview','sprite.toggleView','-','sprite.exportAseprite']});

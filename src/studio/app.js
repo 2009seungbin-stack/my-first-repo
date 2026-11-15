@@ -17,6 +17,7 @@ import {icon} from './ui/icons.js';
 import {Menus} from './ui/menus.js';
 import {Docks} from './ui/docks.js';
 import {modal,confirmDialog,commandPalette,shortcutSheet} from './ui/dialogs.js';
+import {SAMPLES,sampleById,sampleImage} from './core/samples.js';
 import {takeHandoff} from '../task/handoff.js';
 import {LOCALES,LANGUAGE_NAMES,locationParts,savePreference,localeFromEnvironment,localizedURL} from '../i18n.js';
 
@@ -154,7 +155,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  async function showAsset(id,{restoreView=false}={}){
   const a=id?P.assetById(doc(),id):null;activeAssetId=a?.id||null;
   empty.hidden=!!a;hud.hidden=!a;root.classList.toggle('has-image',!!a);
-  if(!a){view.clearImage();setStatus('image','');updateZoom();for(const fn of listeners.asset)fn(null);renderAssets();return;}
+  if(!a){view.clearImage();setStatus('image','');updateZoom();for(const fn of listeners.asset)fn(null);renderAssets();renderRecent();return;}
   try{
    // a workspace that shows something other than the asset's picture (e.g. Sprite: the current
    // frame with onion skin) draws it itself
@@ -269,6 +270,38 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   setTimeout(()=>{input.focus();input.select();},0);
   return m.done.then(v=>v==='ok'?input.value:null);
  }
+ /** A built-in sample (core/samples.js): encoded as a PNG here and imported exactly like a dropped
+  * file. Sheets arrive already cut into their frames (one undo step), so the timeline, the packer
+  * and the tile tools have something to work with at once. */
+ let sampleBusy=false;
+ async function loadSample(id){
+  const def=sampleById(id);if(!def||sampleBusy)return [];
+  // one at a time: a double click on a sample card must not import the picture twice
+  sampleBusy=true;try{return await importSample(def);}finally{sampleBusy=false;}
+ }
+ async function importSample(def){
+  const id=def.id;
+  // A first sample picked from the Viewer opens where it shows best (walk cycle → Sprite timeline…);
+  // with images already open, or in any other workspace, the Studio stays where the user is.
+  const home=currentWs==='viewer'&&!doc().assets.length&&workspaces.get(def.workspace)?.status==='ready'?def.workspace:null;
+  if(home)activateWorkspace(home);
+  const {width,height,data}=sampleImage(id),c=h('canvas',{width,height});
+  c.getContext('2d').putImageData(new ImageData(data,width,height),0,0);
+  const blob=await new Promise(res=>c.toBlob(res,'image/png'));if(!blob)throw Error(t('error.decode',{name:def.file}));
+  const assets=await importFiles([new File([blob],def.file,{type:'image/png'})],{from:'sample'});
+  const first=assets[0],aid=typeof first==='string'?first:first?.id,cur=aid&&P.assetById(doc(),aid),n=def.cols*def.rows;
+  if(cur&&n>1&&!cur.frames.length&&cur.width===width&&cur.height===height){
+   const cells=[];for(let r=0;r<def.rows;r++)for(let q=0;q<def.cols;q++)cells.push({x:q*def.cell,y:r*def.cell,w:def.cell,h:def.cell});
+   history.execute(edit(t('sample.cut',{n}),d=>{const a=P.assetById(d,aid);return P.setGrid(P.setFrames(d,aid,P.framesFromCells(a,cells)),aid,V.normalizeGrid({w:def.cell,h:def.cell}));}));
+  }
+  if(assets.length)toast(home&&currentWs===home?t('sample.loadedIn',{name:t('sample.'+id),ws:t(workspaces.get(home).title)}):t('sample.loaded',{name:t('sample.'+id)}));
+  return assets;
+ }
+ const snapshotTime=at=>new Date(at).toLocaleString(locale,{dateStyle:'medium',timeStyle:'short'});
+ async function restoreSnapshot(key){
+  if(!await confirmReplace())return;
+  try{const snap=await autosave.load(key);await loadDocument(snap.doc,{fileSaved:snap.fileSaved,fileName:snap.fileName,ui:snap.ui});toast(t('toast.restored'));}catch(e){toast(errText(e),{error:true});}
+ }
  importInput.addEventListener('change',()=>{const f=[...importInput.files];importInput.value='';if(f.length)importFiles(f);});
  openInput.addEventListener('change',()=>{const f=openInput.files[0];openInput.value='';if(f)openProjectFile(f);});
  // drop anywhere
@@ -303,7 +336,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  const thumbCache=new Map();
  function renderAssets(){
   const list=doc().assets;docks.badge('assets');
-  const addBtn=docks.panels.get('assets')?.actions.querySelector('button');if(addBtn){addBtn.title=t('cmd.file.import');addBtn.setAttribute('aria-label',t('cmd.file.import'));}
+  const addBtn=docks.panels.get('assets')?.actions.querySelector('button');if(addBtn){const key=shortcutOf('file.import');addBtn.title=t('cmd.file.import')+(key?` (${key})`:'');addBtn.setAttribute('aria-label',t('cmd.file.import'));}
   assetsList.setAttribute('aria-label',t('panel.assets'));
   if(!list.length){assetsList.replaceChildren(h('p.st-muted.st-pad',{},t('assets.empty')));return;}
   assetsList.replaceChildren(...list.map((a,i)=>{
@@ -355,6 +388,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   {id:'file.saveAs',group:'file',enabled:()=>doc().assets.length>0,run:()=>saveProject({ask:true})},
   {id:'file.rename',group:'file',run:async()=>{const n=await promptText(t('dialog.renameProject'),t('dialog.projectName'),doc().name);if(n!=null)history.execute(edit(t('cmd.file.rename'),d=>P.renameProject(d,n)));}},
   {id:'file.versions',group:'file',run:()=>showVersions()},
+  ...SAMPLES.map(s=>({id:'sample.'+s.id,group:'file',label:()=>t('sample.load',{name:t('sample.'+s.id)}),hint:()=>t('sample.'+s.id+'Meta'),run:()=>loadSample(s.id)})),
   {id:'edit.undo',group:'edit',label:()=>history.canUndo?t('cmd.edit.undoX',{what:history.undoLabel}):t('cmd.edit.undo'),enabled:()=>history.canUndo,run:()=>{view.tool?.cancel?.(view.lastInfo);history.undo();}},
   {id:'edit.redo',group:'edit',label:()=>history.canRedo?t('cmd.edit.redoX',{what:history.redoLabel}):t('cmd.edit.redo'),enabled:()=>history.canRedo,run:()=>history.redo()},
   {id:'edit.selectAll',group:'edit',enabled:()=>!!wsInstance?.selectAll,run:()=>wsInstance.selectAll()},
@@ -398,7 +432,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  function menuDefs(){
   const items=list=>()=>list.map(x=>x==='-'?{sep:true}:typeof x==='string'?{command:x}:x);
   return [
-   {id:'file',title:()=>t('menu.file'),items:items(['file.new','file.open','file.import','-','file.save','file.saveAs','file.rename','-','file.versions'])},
+   {id:'file',title:()=>t('menu.file'),items:items(['file.new','file.open','file.import',sub('sample.menu',SAMPLES.map(s=>'sample.'+s.id)),'-','file.save','file.saveAs','file.rename','-','file.versions'])},
    {id:'edit',title:()=>t('menu.edit'),items:items(['edit.undo','edit.redo','-','edit.selectAll','edit.deselect','edit.delete','-','app.history','app.palette'])},
    {id:'view',title:()=>t('menu.view'),items:()=>[{command:'view.zoomIn'},{command:'view.zoomOut'},{command:'view.zoom100'},{command:'view.fit'},sub('menu.zoomLevels',['view.zoom200','view.zoom400','view.zoom800','view.zoom1600','view.zoom3200']),{sep:true},
     {command:'view.pixelGrid'},{command:'view.grid'},{command:'view.rulers'},sub('menu.background',Object.keys(BACKGROUNDS).map(k=>'view.bg.'+k)),sub('menu.wheel',['view.wheel.auto','view.wheel.zoom','view.wheel.pan']),{sep:true},
@@ -515,20 +549,44 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   const m=modal(root,{title:t('versions.title'),body:[h('p.st-muted',{},t('versions.hint')),body],buttons:[{label:t('confirm.close'),value:null}]});
   for(const s of list){
    const b=h('button.st-version',{type:'button'},h('b',{},s.name),h('span',{},new Date(s.at).toLocaleString(locale)),h('small',{},t('versions.meta',{assets:s.assets,frames:s.frames})));
-   b.addEventListener('click',async()=>{m.close(null);if(!await confirmReplace())return;try{const snap=await autosave.load(s.key);await loadDocument(snap.doc,{fileSaved:snap.fileSaved,fileName:snap.fileName,ui:snap.ui});toast(t('toast.restored'));}catch(e){toast(errText(e),{error:true});}});
+   b.addEventListener('click',()=>{m.close(null);restoreSnapshot(s.key);});
    body.append(b);
   }
  }
  // ------------------------------------------------------------------ empty state + HUD
  const hudZoom=h('button.st-hud-zoom',{type:'button'});
+ const recentBox=h('div.st-recent',{hidden:true});
+ let recentSeq=0;
+ /** The newest autosave of up to three projects kept in this browser, one click to reopen. */
+ async function renderRecent(){
+  const seq=++recentSeq;let list=[];try{list=await autosave.list();}catch{}
+  if(seq!==recentSeq)return;
+  const seen=new Set(),top=[];for(const s of list){if(!s.assets||seen.has(s.projectId))continue;seen.add(s.projectId);top.push(s);if(top.length>=3)break;}
+  recentBox.hidden=!top.length;
+  recentBox.replaceChildren(...(top.length?[h('h2.st-empty-sub',{},t('recent.title')),...top.map(s=>{
+   // the accessible name keeps the counts and the time: several "Untitled" projects differ only there
+   const meta=t('recent.meta',{assets:s.assets,frames:s.frames,time:snapshotTime(s.at)});
+   const b=h('button.st-recent-row',{type:'button','aria-label':`${t('recent.open',{name:s.name})} — ${meta}`,title:t('recent.open',{name:s.name})},h('b',{},s.name),h('small',{},meta));
+   b.addEventListener('click',()=>restoreSnapshot(s.key));return b;
+  }),h('button.st-link.st-recent-all',{type:'button',onclick:()=>runCommand('file.versions')},t('cmd.file.versions'))]:[]));
+ }
  function renderEmpty(){
   const imp=h('button.st-btn.primary',{type:'button'},t('empty.import'));imp.addEventListener('click',()=>runCommand('file.import'));
   const open=h('button.st-btn',{type:'button'},t('empty.open'));open.addEventListener('click',()=>runCommand('file.open'));
   const keys=h('button.st-link',{type:'button'},t('empty.keys'));keys.addEventListener('click',()=>runCommand('app.shortcuts'));
-  empty.replaceChildren(h('div.st-empty-card',{},h('div.st-empty-art',{'aria-hidden':'true'},h('span',{}),h('span',{}),h('span',{}),h('span',{})),h('h1',{},t('empty.title')),h('p',{},t('empty.formats')),h('div.st-empty-actions',{},imp,open),h('p.st-muted',{},t('empty.local'),' · ',keys)));
-  const b=(ic,label,fn)=>{const x=h('button.st-icon-btn',{type:'button','aria-label':label,title:label});x.innerHTML=icon(ic);x.addEventListener('click',fn);return x;};
+  const samples=h('div.st-samples',{role:'group','aria-label':t('sample.title')},SAMPLES.map(s=>{
+   const pic=h('canvas.st-sample-pic',{width:s.cell*s.cols,height:s.cell*s.rows,'aria-hidden':'true'});
+   try{const im=sampleImage(s.id);pic.getContext('2d').putImageData(new ImageData(im.data,im.width,im.height),0,0);}catch{}
+   const btn=h('button.st-sample',{type:'button','data-sample':s.id},pic,h('b',{},t('sample.'+s.id)),h('small',{},t('sample.'+s.id+'Meta')));
+   btn.addEventListener('click',()=>runCommand('sample.'+s.id));return btn;
+  }));
+  recentBox.replaceChildren();recentBox.hidden=true;
+  empty.replaceChildren(h('div.st-empty-card',{},h('div.st-empty-art',{'aria-hidden':'true'},h('span',{}),h('span',{}),h('span',{}),h('span',{})),h('h1',{},t('empty.title')),h('p',{},t('empty.formats')),h('div.st-empty-actions',{},imp,open),h('p.st-muted',{},t('empty.local'),' · ',keys),
+   h('h2.st-empty-sub',{},t('sample.title')),samples,h('p.st-muted.st-empty-note',{},t('sample.hint')),recentBox));
+  renderRecent();
+  const b=(ic,label,fn,key='')=>{const x=h('button.st-icon-btn',{type:'button','aria-label':label,title:key?`${label} (${key})`:label});x.innerHTML=icon(ic);x.addEventListener('click',fn);return x;};
   hudZoom.title=t('hud.zoom');hudZoom.onclick=null;hudZoom.ondblclick=()=>runCommand('view.fit');
-  hud.replaceChildren(b('minus',t('cmd.view.zoomOut'),()=>runCommand('view.zoomOut')),hudZoom,b('plus',t('cmd.view.zoomIn'),()=>runCommand('view.zoomIn')),b('fit',t('cmd.view.fit'),()=>runCommand('view.fit')));
+  hud.replaceChildren(b('minus',t('cmd.view.zoomOut'),()=>runCommand('view.zoomOut'),shortcutOf('view.zoomOut')),hudZoom,b('plus',t('cmd.view.zoomIn'),()=>runCommand('view.zoomIn'),shortcutOf('view.zoomIn')),b('fit',t('cmd.view.fit'),()=>runCommand('view.fit'),shortcutOf('view.fit')));
   updateZoom();
  }
  // ------------------------------------------------------------------ chrome
