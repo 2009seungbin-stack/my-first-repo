@@ -19,3 +19,6 @@ Object.assign(PRESET_LABELS.ja,{blip:'ブリップ',pickup:'アイテム取得',
 Object.assign(COPY.en,{randomize:'Randomize',randomName:'Random',autoplay:'Play new sounds automatically',shortcuts:'Shortcuts (when no field is focused): Space play/stop · 1–9, 0 first ten presets · G new variation · R random · M mutate',spectrum:'Frequency spectrum of the sound, 40 Hz to 20 kHz',dominant:'Strongest frequency'});
 Object.assign(COPY.ko,{randomize:'무작위',randomName:'무작위',autoplay:'새 소리를 자동으로 재생',shortcuts:'단축키 (입력란에 커서가 없을 때): Space 재생/정지 · 1–9, 0 앞쪽 프리셋 10개 · G 새로 만들기 · R 무작위 · M 조금 바꾸기',spectrum:'소리의 주파수 스펙트럼, 40 Hz~20 kHz',dominant:'가장 강한 주파수'});
 Object.assign(COPY.ja,{randomize:'ランダム',randomName:'ランダム',autoplay:'新しい音を自動再生',shortcuts:'ショートカット（入力欄にフォーカスがないとき）: Space 再生/停止 · 1–9, 0 先頭10個のプリセット · G 新しく作る · R ランダム · M 少し変える',spectrum:'音の周波数スペクトル、40 Hz〜20 kHz',dominant:'最も強い周波数'});
+Object.assign(COPY.en,{normalize:'Normalize saved files to −1 dBFS peak',gainApplied:'gain'});
+Object.assign(COPY.ko,{normalize:'저장할 때 피크를 −1 dBFS로 맞추기',gainApplied:'게인'});
+Object.assign(COPY.ja,{normalize:'保存時にピークを−1 dBFSに正規化',gainApplied:'ゲイン'});
