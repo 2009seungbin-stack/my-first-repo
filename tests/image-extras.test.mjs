@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {say,EXTRA_LOCALES,TARGETS,targetLabel,targetVerdict,targetTally,presetLabel} from '../src/task/image-extras.js';
+import {say,EXTRA_LOCALES,TARGETS,targetLabel,targetVerdict,targetTally,presetLabel,chosenLabel} from '../src/task/image-extras.js';
 import {SOCIAL} from '../src/landings.js';
 
 test('image tool strings exist in ko, en and ja with the same placeholders',()=>{
  assert.deepEqual(EXTRA_LOCALES.sort(),['en','ja','ko']);
- const keys=['targetGroup','targetOff','targetMet','targetMissed','targetTryShrink','targetShort','targetShortMissed','targetTally','alphaFilled','grew','pngLossless','presetGroup','swap'];
+ const keys=['targetGroup','targetOff','targetMet','targetMissed','targetTryShrink','targetShort','targetShortMissed','targetTally','alphaFilled','grew','pngLossless','ssimNote','presetGroup','swap'];
  const holes=s=>[...s.matchAll(/\{(\w+)\}/g)].map(m=>m[1]).sort().join(',');
  for(const key of keys){
   const en=say('en',key);assert.notEqual(en,key,`${key} is defined`);
@@ -35,6 +35,12 @@ test('targetTally counts met files only when one target applies to the whole bat
  assert.equal(targetTally([{targetKb:0,met:true}]),null);
  assert.equal(targetTally([{targetKb:100,met:true},{targetKb:500,met:true}]),null);
  assert.equal(targetTally([]),null);
+});
+test('chosenLabel reports the picked codec and floors the similarity score',()=>{
+ assert.equal(chosenLabel({format:'webp',quality:.8,ssim:.97499},'Quality'),'WebP · Quality 80 · SSIM 0.974');
+ assert.equal(chosenLabel({format:'jpeg',quality:.4375,ssim:.9999},'화질'),'JPG · 화질 44 · SSIM 0.999');
+ assert.equal(chosenLabel({format:'png',quality:.8,ssim:1}),'PNG · SSIM 1.000');
+ assert.equal(chosenLabel({format:'avif',quality:null,ssim:NaN}),'AVIF');
 });
 test('every platform size has a short chip label',()=>{
  for(const [slug,[,w,h]]of Object.entries(SOCIAL)){const label=presetLabel(slug,w,h);assert.ok(label&&label!==`${w}×${h}`,`${slug} has a named label`);assert.ok(label.length<=14);}

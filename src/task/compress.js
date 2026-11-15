@@ -4,7 +4,7 @@ import {bytes,stem} from '../core.js';
 import {landingFor} from '../landings.js';
 import {createBatch} from './batch.js';
 import {text,page,locale} from './shell.js';
-import {say,TARGETS,targetLabel,targetVerdict,targetTally,attachStyles} from './image-extras.js';
+import {say,TARGETS,targetLabel,targetVerdict,targetTally,chosenLabel,attachStyles} from './image-extras.js';
 /** Image compression task: three plain choices first; codec, target size, max width and
  * exact quality under "Advanced". Uses the existing candidate-search encoder, which decodes
  * every candidate again and scores it (SSIM) instead of trusting a quality number. */
@@ -56,7 +56,7 @@ async function process(file,o,{signal,progress}){
   const blob=keep?file:r.blob,ext=keep?(file.name.match(/\.[^.]+$/)?.[0]||''):'.'+(r.format==='jpeg'?'jpg':r.format);
   const resized=!keep&&(r.w!==source.width||r.h!==source.height),verdict=targetVerdict(blob.size,o.kb),t=targetLabel(o.kb);
   return {blob,name:keep?file.name:`${stem(file.name)}-min${ext}`,sourceWidth:source.width,sourceHeight:source.height,
-   note:(keep?text('compress.kept'):`${bytes(file.size)} → ${bytes(blob.size)} · ${text(resized?'compress.newPixels':'compress.samePixels',{w:resized?r.w:source.width,h:resized?r.h:source.height})}`)+(verdict?.met?` · ${L('targetMet',{t})}`:''),
+   note:(keep?text('compress.kept'):`${bytes(file.size)} → ${bytes(blob.size)} · ${text(resized?'compress.newPixels':'compress.samePixels',{w:resized?r.w:source.width,h:resized?r.h:source.height})} · ${chosenLabel({format:r.format,quality:r.quality,ssim:r.metric?.ssim},text('compress.quality'))} ${L('ssimNote')}`)+(verdict?.met?` · ${L('targetMet',{t})}`:''),
    // A missed target is stated with the real numbers, never rounded into a success.
    warn:verdict&&!verdict.met?L('targetMissed',{t,b:bytes(blob.size),over:bytes(verdict.over)})+(o.shrink?'':' '+L('targetTryShrink')):'',
    targetKb:o.kb,met:verdict?verdict.met:true};

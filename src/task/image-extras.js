@@ -12,6 +12,7 @@ const S={
   alphaFilled:'JPG는 투명도를 저장할 수 없어 투명한 부분을 {bg} 색으로 채웠습니다. 투명도를 유지하려면 PNG나 WebP를 선택하세요.',
   grew:'{f}로 저장하니 원본보다 커졌습니다({a} → {b}). 용량이 중요하면 원본을 그대로 쓰거나 다른 형식을 선택하세요.',
   pngLossless:'PNG는 무손실이라 화질 값이 적용되지 않습니다.',
+  ssimNote:'(SSIM은 긴 변 512px 이하 축소본에서 측정)',
   presetGroup:'자주 쓰는 크기',swap:'가로·세로 바꾸기',
  },
  en:{
@@ -24,6 +25,7 @@ const S={
   alphaFilled:'JPG cannot store transparency, so transparent areas were filled with {bg}. Choose PNG or WebP to keep transparency.',
   grew:'Saving as {f} made this file larger than the original ({a} → {b}). If size matters, keep the original file or try another format.',
   pngLossless:'PNG is lossless, so the quality value does not apply.',
+  ssimNote:'(SSIM measured on a copy whose longest side is at most 512 px)',
   presetGroup:'Popular sizes',swap:'Swap width and height',
  },
  ja:{
@@ -36,6 +38,7 @@ const S={
   alphaFilled:'JPGは透明度を保存できないため、透明部分を {bg} で塗りつぶしました。透明度を残すにはPNGかWebPを選んでください。',
   grew:'{f}で保存すると元のファイルより大きくなりました（{a} → {b}）。容量が重要なら元のファイルを使うか、別の形式を選んでください。',
   pngLossless:'PNGは可逆形式のため、画質の値は適用されません。',
+  ssimNote:'（SSIMは長辺512px以下の縮小コピーで計測）',
   presetGroup:'よく使うサイズ',swap:'幅と高さを入れ替える',
  },
 };
@@ -58,6 +61,14 @@ export function targetTally(results){
  const kbs=[...new Set(results.map(r=>r?.targetKb||0))];
  if(kbs.length!==1||!kbs[0])return null;
  return {kb:kbs[0],met:results.filter(r=>r.met).length,total:results.length};
+}
+/** "WebP · Quality 80 · SSIM 0.975": what the encoder search actually picked and how it scored.
+ * The score is floored, never rounded up, and PNG shows no quality because it has none. */
+export function chosenLabel({format,quality,ssim}={},qualityWord='Quality'){
+ const parts=[{jpeg:'JPG',png:'PNG',webp:'WebP',avif:'AVIF'}[format]||String(format||'').toUpperCase()];
+ if(format!=='png'&&Number.isFinite(quality)&&quality>0)parts.push(`${qualityWord} ${Math.round(quality*100)}`);
+ if(Number.isFinite(ssim))parts.push(`SSIM ${(Math.floor(Math.min(1,Math.max(0,ssim))*1000)/1000).toFixed(3)}`);
+ return parts.filter(Boolean).join(' · ');
 }
 /** Short, language-neutral chip labels for the platform sizes in landings.js (SOCIAL). */
 const SHORT={'instagram-post':'Instagram 1:1','instagram-portrait':'Instagram 4:5','instagram-story':'Story 9:16','youtube-thumbnail':'YouTube 16:9','youtube-banner':'YT banner','x-header':'X header','linkedin-banner':'LinkedIn','discord-banner':'Discord'};
